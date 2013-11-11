@@ -1,18 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>dk.dma.ais.abnormal</groupId>
-    <artifactId>ais-ab-parent</artifactId>
-    <version>0.1-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
+	<parent>
+		<groupId>dk.dma.ais.abnormal</groupId>
+		<artifactId>ais-ab-parent</artifactId>
+		<version>0.1-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
 
-  <groupId>dk.dma.ais.abnormal</groupId>
-  <artifactId>ais-ab-common</artifactId>
-  <packaging>jar</packaging>
-  <name>AisAbnormal Common</name>
-  <description>AisAbnormal common module</description>
-  
+	<groupId>dk.dma.ais.abnormal</groupId>
+	<artifactId>ais-ab-common</artifactId>
+	<packaging>jar</packaging>
+	<name>AisAbnormal Common</name>
+	<description>AisAbnormal common module</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>dk.dma.enav</groupId>
+			<artifactId>enav-model</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.inject</groupId>
+			<artifactId>guice</artifactId>
+			<version>3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${dependencies.slf4j.version}</version>
+		</dependency>
+	</dependencies>
+
 </project>
