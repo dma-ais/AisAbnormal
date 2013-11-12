@@ -33,10 +33,10 @@ import dk.dma.commons.app.AbstractDaemon;
 /**
  * AIS Abnormal Behavior statistics builder
  */
-public class StatBuilder extends AbstractDaemon {
+public class AbnormalStatBuilder extends AbstractDaemon {
 
     /** The logger */
-    static final Logger LOG = LoggerFactory.getLogger(StatBuilder.class);
+    static final Logger LOG = LoggerFactory.getLogger(AbnormalStatBuilder.class);
 
     @Parameter(names = "-file", description = "Historical AIS data file (plain text or .gz)", required = true)
     String file;
@@ -90,5 +90,5 @@ public class StatBuilder extends AbstractDaemon {
                 System.exit(-1);
             }
         });
-        new StatBuilder().execute(args);
+        new AbnormalStatBuilder().execute(args);
     }}

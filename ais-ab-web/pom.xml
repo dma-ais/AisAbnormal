@@ -27,6 +27,14 @@
 			<artifactId>ais-ab-common</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>dk.dma.ais.abnormal</groupId>
+			<artifactId>ais-ab-stat-db</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>dk.dma.ais.abnormal</groupId>
+			<artifactId>ais-ab-event-db</artifactId>
+		</dependency>		
+		<dependency>
 			<groupId>org.glassfish.jersey.containers</groupId>
 			<artifactId>jersey-container-servlet</artifactId>
 			<version>${dependencies.jersey.version}</version>

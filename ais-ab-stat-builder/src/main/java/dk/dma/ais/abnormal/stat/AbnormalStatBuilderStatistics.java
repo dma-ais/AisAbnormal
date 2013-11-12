@@ -23,9 +23,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Class for holding information on the file processing process
  */
-public class StatBuilderStatistics {
+public class AbnormalStatBuilderStatistics {
 
-    static final Logger LOG = LoggerFactory.getLogger(StatBuilderStatistics.class);
+    static final Logger LOG = LoggerFactory.getLogger(AbnormalStatBuilderStatistics.class);
 
     static final long DEFAULT_LOG_INTERVAL = 60 * 1000; // 1 minute
 
@@ -40,11 +40,11 @@ public class StatBuilderStatistics {
 
     private long lastLog;
 
-    public StatBuilderStatistics() {
+    public AbnormalStatBuilderStatistics() {
         this.logInterval = DEFAULT_LOG_INTERVAL;
     }
 
-    public StatBuilderStatistics(long interval, TimeUnit unit) {
+    public AbnormalStatBuilderStatistics(long interval, TimeUnit unit) {
         this.logInterval = unit.toMillis(interval);
     }
 

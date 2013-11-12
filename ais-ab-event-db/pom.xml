@@ -14,5 +14,16 @@
   <packaging>jar</packaging>
   <name>AisAbnormal Event DB</name>
   <description>AisAbnormal event db module</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>dk.dma.ais.abnormal</groupId>
+      <artifactId>ais-ab-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>dk.dma.enav</groupId>
+      <artifactId>enav-model</artifactId>
+    </dependency>
+  </dependencies>
   
 </project>

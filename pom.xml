@@ -39,6 +39,16 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>dk.dma.ais.abnormal</groupId>
+				<artifactId>ais-ab-stat-db</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>dk.dma.ais.abnormal</groupId>
+				<artifactId>ais-ab-event-db</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>dk.dma.enav</groupId>
 				<artifactId>enav-model</artifactId>
 				<version>0.1-SNAPSHOT</version>
