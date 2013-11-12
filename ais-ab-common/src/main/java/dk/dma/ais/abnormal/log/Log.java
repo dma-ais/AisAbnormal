@@ -29,5 +29,5 @@ import javax.inject.Scope;
 @Retention(RUNTIME)
 @Target(FIELD)
 public @interface Log {
- 
+
 }
