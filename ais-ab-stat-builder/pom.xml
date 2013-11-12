@@ -22,6 +22,10 @@
 			<artifactId>ais-ab-common</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>dk.dma.ais.abnormal</groupId>
+			<artifactId>ais-ab-stat-db</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>dk.dma.ais.lib</groupId>
 			<artifactId>ais-lib-communication</artifactId>
 		</dependency>

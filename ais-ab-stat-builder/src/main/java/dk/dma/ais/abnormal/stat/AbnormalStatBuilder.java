@@ -46,12 +46,15 @@ public class AbnormalStatBuilder extends AbstractDaemon {
 
     private volatile PacketHandler handler;
     private volatile AisReader reader;
+    
+    public AbnormalStatBuilder() {
+    }
 
     @Override
     protected void runDaemon(Injector injector) throws Exception {
         LOG.info("StatBuilder starting using file " + file);
-        handler = new PacketHandler(db);
-
+        handler = new PacketHandler();
+        
         // Open input stream
         InputStream input = new FileInputStream(file);
         if (file.endsWith(".gz")) {

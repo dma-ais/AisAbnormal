@@ -41,7 +41,7 @@ import dk.dma.enav.util.function.Consumer;
 public class PacketHandler implements Consumer<AisPacket> {
 
     static final Logger LOG = LoggerFactory.getLogger(PacketHandler.class);
-
+    
     private final AbnormalStatBuilderStatistics buildStats = new AbnormalStatBuilderStatistics(1, TimeUnit.MINUTES);
     private final Map<Cell, Object> cellCache = new HashMap<>();
     private volatile boolean cancel;
@@ -50,13 +50,13 @@ public class PacketHandler implements Consumer<AisPacket> {
 
     private final DuplicateFilter duplicateFilter;
     private final DownSampleFilter downSampleFilter;
-
-    public PacketHandler(String db) {
+    
+    public PacketHandler() {
         this.grid = Grid.createSize(200);
 
         this.duplicateFilter = new DuplicateFilter();
-        this.downSampleFilter = new DownSampleFilter(0);
-
+        this.downSampleFilter = new DownSampleFilter(0);                
+        
         // TODO configuration encapsulation and maybe properties
 
         // TODO initialization
