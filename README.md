@@ -22,6 +22,12 @@ Either use Eclipse M2 plugin or Maven eclipse target
 
     mvn eclipse:eclipse
     
+## Running ##
+
+Executable jars will be created for the command line application. E.g.
+
+    java -jar ais-ab-stat-builder/target/ais-ab-stat-builder-0.1-SNAPSHOT.jar
+    
 ## Modules ###
 
 ###ais-ab-common###

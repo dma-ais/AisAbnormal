@@ -27,17 +27,22 @@ import dk.dma.commons.app.AbstractDaemon;
 /**
  * AIS Abnormal event analyzer
  */
-public class AbnormalAnalyzer extends AbstractDaemon {
+public class AbnormalAnalyzerApp extends AbstractDaemon {
 
     /** The logger */
-    static final Logger LOG = LoggerFactory.getLogger(AbnormalAnalyzer.class);
+    static final Logger LOG = LoggerFactory.getLogger(AbnormalAnalyzerApp.class);
 
     @Override
     protected void runDaemon(Injector injector) throws Exception {
-        LOG.info("Starting AbnormalAnalyzer");
+        LOG.info("Starting AbnormalAnalyzerApp");
 
     }
-
+    
+    @Override
+    public void execute(String[] args) throws Exception {
+        super.execute(args);
+    }
+    
     public static void main(String[] args) throws Exception {
         Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
             @Override
@@ -46,6 +51,6 @@ public class AbnormalAnalyzer extends AbstractDaemon {
                 System.exit(-1);
             }
         });
-        new AbnormalAnalyzer().execute(args);
+        new AbnormalAnalyzerApp().execute(args);
     }
 }

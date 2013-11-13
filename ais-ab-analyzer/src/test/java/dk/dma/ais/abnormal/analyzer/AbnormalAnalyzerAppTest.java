@@ -13,15 +13,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.ais.abnormal.stat;
+package dk.dma.ais.abnormal.analyzer;
 
 import org.junit.Test;
 
-public class DummyTest {
+public class AbnormalAnalyzerAppTest {
     
     @Test
-    public void dummyTest() {
-        
+    public void appTest() throws Exception {
+        String[] args = new String[]{};
+        new AbnormalAnalyzerApp().execute(args);
     }
-
 }

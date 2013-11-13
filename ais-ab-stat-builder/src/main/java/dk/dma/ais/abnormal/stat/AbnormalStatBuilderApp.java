@@ -33,10 +33,10 @@ import dk.dma.commons.app.AbstractDaemon;
 /**
  * AIS Abnormal Behavior statistics builder
  */
-public class AbnormalStatBuilder extends AbstractDaemon {
+public class AbnormalStatBuilderApp extends AbstractDaemon {
 
     /** The logger */
-    static final Logger LOG = LoggerFactory.getLogger(AbnormalStatBuilder.class);
+    static final Logger LOG = LoggerFactory.getLogger(AbnormalStatBuilderApp.class);
 
     @Parameter(names = "-file", description = "Historical AIS data file (plain text or .gz)", required = true)
     String file;
@@ -47,12 +47,12 @@ public class AbnormalStatBuilder extends AbstractDaemon {
     private volatile PacketHandler handler;
     private volatile AisReader reader;
     
-    public AbnormalStatBuilder() {
+    public AbnormalStatBuilderApp() {
     }
 
     @Override
     protected void runDaemon(Injector injector) throws Exception {
-        LOG.info("StatBuilder starting using file " + file);
+        LOG.info("AbnormalStatBuilderApp starting using file " + file);
         handler = new PacketHandler();
         
         // Open input stream
@@ -72,7 +72,7 @@ public class AbnormalStatBuilder extends AbstractDaemon {
 
     @Override
     public void shutdown() {
-        LOG.info("StatBuilder shutting down");
+        LOG.info("AbnormalStatBuilderApp shutting down");
         AisReader r = reader;
         PacketHandler h = handler;
         if (r != null) {
@@ -84,6 +84,11 @@ public class AbnormalStatBuilder extends AbstractDaemon {
         }
         super.shutdown();
     }
+    
+    @Override
+    public void execute(String[] args) throws Exception {        
+        super.execute(args);
+    }
 
     public static void main(String[] args) throws Exception {
         Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
@@ -93,5 +98,5 @@ public class AbnormalStatBuilder extends AbstractDaemon {
                 System.exit(-1);
             }
         });
-        new AbnormalStatBuilder().execute(args);
+        new AbnormalStatBuilderApp().execute(args);
     }}
