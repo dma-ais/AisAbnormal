@@ -35,33 +35,29 @@ public class AbnormalStatBuilderApp extends AbstractDaemon {
     /** The logger */
     static final Logger LOG = LoggerFactory.getLogger(AbnormalStatBuilderApp.class);
 
-    @Parameter(names = "-file", description = "Historical AIS data file (plain text or .gz)", required = true)
-    String file;
+    @Parameter(names = "-dir", description = "Directory recursively to scan for files to read")
+    String dir = ".";
 
-    @Parameter(names = "-db", description = "Output database")
-    String db = "ais-db-stat_db";
+    @Parameter(names = "-name", description = "Glob pattern for files to read. '.zip' and '.gz' files are decompressed automatically.", required = true)
+    String name;
 
     private volatile PacketHandler handler;
     private volatile AisReader reader;
-    
-    public AbnormalStatBuilderApp() {
-    }
 
     @Override
     protected void runDaemon(Injector injector) throws Exception {
-        LOG.info("AbnormalStatBuilderApp starting using file " + file);
+        LOG.info("AbnormalStatBuilderApp starting using dir: " + dir + " name: " + name);
         handler = new PacketHandler();
-        
-        // Create reader        
-        reader = AisReaders.createReaderFromFile(file);
-        reader.registerPacketHandler(handler);
 
+        // Create and start reader
+        reader = AisReaders.createDirectoryReader(dir, name);
+        reader.registerPacketHandler(handler);
         reader.start();
         reader.join();
     }
-
+    
     @Override
-    public void shutdown() {
+    protected void preShutdown() {
         LOG.info("AbnormalStatBuilderApp shutting down");
         AisReader r = reader;
         PacketHandler h = handler;
@@ -72,11 +68,11 @@ public class AbnormalStatBuilderApp extends AbstractDaemon {
             h.getBuildStats().log(true);
             h.cancel();
         }
-        super.shutdown();
+        super.preShutdown();
     }
-    
+
     @Override
-    public void execute(String[] args) throws Exception {        
+    public void execute(String[] args) throws Exception {
         super.execute(args);
     }
 
@@ -89,4 +85,5 @@ public class AbnormalStatBuilderApp extends AbstractDaemon {
             }
         });
         new AbnormalStatBuilderApp().execute(args);
-    }}
+    }
+}

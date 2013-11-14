@@ -21,7 +21,7 @@ public class AbnormalStatBuilderAppTest {
     
     @Test
     public void appTest() throws Exception {
-        String[] args = new String[]{"-file" ,"src/test/resources/ais-sample.txt.gz"};
+        String[] args = new String[]{"-dir" ,"src/test/resources", "-name", "*.gz"};
         new AbnormalStatBuilderApp().execute(args);
     }
 
