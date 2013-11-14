@@ -35,8 +35,11 @@ public class AbnormalStatBuilderApp extends AbstractDaemon {
     /** The logger */
     static final Logger LOG = LoggerFactory.getLogger(AbnormalStatBuilderApp.class);
 
-    @Parameter(names = "-dir", description = "Directory recursively to scan for files to read")
+    @Parameter(names = "-dir", description = "Directory to scan for files to read")
     String dir = ".";
+    
+    @Parameter(names = "-r", description = "Recursive directory scan")
+    boolean recursive;
 
     @Parameter(names = "-name", description = "Glob pattern for files to read. '.zip' and '.gz' files are decompressed automatically.", required = true)
     String name;
@@ -46,11 +49,11 @@ public class AbnormalStatBuilderApp extends AbstractDaemon {
 
     @Override
     protected void runDaemon(Injector injector) throws Exception {
-        LOG.info("AbnormalStatBuilderApp starting using dir: " + dir + " name: " + name);
+        LOG.info("AbnormalStatBuilderApp starting using dir: " + dir + " name: " + name + (recursive ? "(recursive)" : ""));
         handler = new PacketHandler();
 
         // Create and start reader
-        reader = AisReaders.createDirectoryReader(dir, name);
+        reader = AisReaders.createDirectoryReader(dir, name, recursive);
         reader.registerPacketHandler(handler);
         reader.start();
         reader.join();
