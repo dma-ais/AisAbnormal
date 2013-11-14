@@ -15,10 +15,7 @@
  */
 package dk.dma.ais.abnormal.stat;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.util.zip.GZIPInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,15 +52,8 @@ public class AbnormalStatBuilderApp extends AbstractDaemon {
         LOG.info("AbnormalStatBuilderApp starting using file " + file);
         handler = new PacketHandler();
         
-        // Open input stream
-        InputStream input = new FileInputStream(file);
-        if (file.endsWith(".gz")) {
-            LOG.info("Using GZip decompression");
-            input = new GZIPInputStream(input);
-        }
-        
-        // Create reader
-        reader = AisReaders.createReaderFromInputStream(input);
+        // Create reader        
+        reader = AisReaders.createReaderFromFile(file);
         reader.registerPacketHandler(handler);
 
         reader.start();
