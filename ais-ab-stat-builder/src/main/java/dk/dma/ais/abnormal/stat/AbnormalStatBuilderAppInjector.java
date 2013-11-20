@@ -23,6 +23,7 @@ import dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature;
 public class AbnormalStatBuilderAppInjector extends AbstractModule {
     @Override
     public void configure() {
+        bind(AbnormalStatBuilderApp.class);
         bind(PacketHandler.class).to(PacketHandlerImpl.class);
         bind(AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
         bind(ShipTypeAndSizeFeature.class);

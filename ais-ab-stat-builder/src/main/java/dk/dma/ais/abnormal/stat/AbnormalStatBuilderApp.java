@@ -16,6 +16,7 @@
 package dk.dma.ais.abnormal.stat;
 
 import com.beust.jcommander.Parameter;
+import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import dk.dma.ais.reader.AisReader;
@@ -51,9 +52,6 @@ public class AbnormalStatBuilderApp extends AbstractDaemon {
     protected void runDaemon(Injector injector) throws Exception {
         LOG.info("AbnormalStatBuilderApp starting using dir: " + dir + " name: " + name + (recursive ? "(recursive)" : ""));
 
-        // Inject dependencies
-        injector.injectMembers(this);
-
         // Create and start reader
         reader = AisReaders.createDirectoryReader(dir, name, recursive);
         reader.registerPacketHandler(handler);
@@ -88,8 +86,8 @@ public class AbnormalStatBuilderApp extends AbstractDaemon {
             }
         });
 
-        AbnormalStatBuilderApp app = new AbnormalStatBuilderApp();
-        app.addModule(new AbnormalStatBuilderAppInjector());
+        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppInjector());
+        AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
         app.execute(args);
     }
 }

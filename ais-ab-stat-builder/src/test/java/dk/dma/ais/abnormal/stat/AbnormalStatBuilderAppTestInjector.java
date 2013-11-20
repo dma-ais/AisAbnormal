@@ -13,21 +13,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package dk.dma.ais.abnormal.stat;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import org.junit.Test;
+import com.google.inject.AbstractModule;
+import com.google.inject.Singleton;
+import dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature;
 
-public class AbnormalStatBuilderAppTest {
-
-    @Test
-    public void appTest() throws Exception {
-        String[] args = new String[]{"-dir" ,"ais-ab-stat-builder/src/test/resources", "-name", "*.gz"};
-
-        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestInjector());
-        AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
-        app.execute(args);
+public class AbnormalStatBuilderAppTestInjector extends AbstractModule {
+    @Override
+    public void configure() {
+        bind(PacketHandler.class).to(PacketHandlerImpl.class);
+        bind(AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
+        bind(ShipTypeAndSizeFeature.class);
     }
-
 }
