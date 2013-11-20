@@ -15,17 +15,16 @@
  */
 package dk.dma.ais.abnormal.stat;
 
-import java.lang.Thread.UncaughtExceptionHandler;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.beust.jcommander.Parameter;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
-
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
 import dk.dma.commons.app.AbstractDaemon;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.Thread.UncaughtExceptionHandler;
 
 /**
  * AIS Abnormal Behavior statistics builder
@@ -44,13 +43,16 @@ public class AbnormalStatBuilderApp extends AbstractDaemon {
     @Parameter(names = "-name", description = "Glob pattern for files to read. '.zip' and '.gz' files are decompressed automatically.", required = true)
     String name;
 
+    @Inject
     private volatile PacketHandler handler;
     private volatile AisReader reader;
 
     @Override
     protected void runDaemon(Injector injector) throws Exception {
         LOG.info("AbnormalStatBuilderApp starting using dir: " + dir + " name: " + name + (recursive ? "(recursive)" : ""));
-        handler = new PacketHandler();
+
+        // Inject dependencies
+        injector.injectMembers(this);
 
         // Create and start reader
         reader = AisReaders.createDirectoryReader(dir, name, recursive);
@@ -62,14 +64,12 @@ public class AbnormalStatBuilderApp extends AbstractDaemon {
     @Override
     protected void preShutdown() {
         LOG.info("AbnormalStatBuilderApp shutting down");
-        AisReader r = reader;
-        PacketHandler h = handler;
-        if (r != null) {
-            r.stopReader();
+        if (reader != null) {
+            reader.stopReader();
         }
-        if (h != null) {
-            h.getBuildStats().log(true);
-            h.cancel();
+        if (handler != null) {
+            handler.getBuildStats().log(true);
+            handler.cancel();
         }
         super.preShutdown();
     }
@@ -87,6 +87,9 @@ public class AbnormalStatBuilderApp extends AbstractDaemon {
                 System.exit(-1);
             }
         });
-        new AbnormalStatBuilderApp().execute(args);
+
+        AbnormalStatBuilderApp app = new AbnormalStatBuilderApp();
+        app.addModule(new AbnormalStatBuilderAppInjector());
+        app.execute(args);
     }
 }

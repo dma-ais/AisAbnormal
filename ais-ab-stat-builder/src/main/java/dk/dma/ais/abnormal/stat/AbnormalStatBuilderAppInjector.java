@@ -16,10 +16,11 @@
 
 package dk.dma.ais.abnormal.stat;
 
-import dk.dma.enav.util.function.Consumer;
-import dk.dma.ais.packet.AisPacket;
+import com.google.inject.AbstractModule;
 
-public interface PacketHandler extends Consumer<AisPacket> {
-    void cancel();
-    AbnormalStatBuilderStatistics getBuildStats();
+public class AbnormalStatBuilderAppInjector extends AbstractModule {
+    @Override
+    public void configure() {
+        bind(PacketHandler.class).to(PacketHandlerImpl.class);
+    }
 }
