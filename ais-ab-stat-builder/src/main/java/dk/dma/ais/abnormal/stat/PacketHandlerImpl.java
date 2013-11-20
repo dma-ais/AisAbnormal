@@ -15,24 +15,19 @@
  */
 package dk.dma.ais.abnormal.stat;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
+import com.google.common.collect.ImmutableSet;
+import com.google.inject.Inject;
+import dk.dma.ais.abnormal.stat.features.Feature;
+import dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dk.dma.ais.data.AisTargetDimensions;
 import dk.dma.ais.filter.DownSampleFilter;
 import dk.dma.ais.filter.DuplicateFilter;
 import dk.dma.ais.message.AisMessage;
-import dk.dma.ais.message.AisMessage5;
-import dk.dma.ais.message.AisPositionMessage;
-import dk.dma.ais.message.ShipTypeCargo;
 import dk.dma.ais.packet.AisPacket;
-import dk.dma.enav.model.geometry.Position;
-import dk.dma.enav.model.geometry.grid.Cell;
-import dk.dma.enav.model.geometry.grid.Grid;
+
+import java.util.Set;
 
 /**
  * Handler for read AIS packets
@@ -41,21 +36,22 @@ public class PacketHandlerImpl implements PacketHandler {
 
     static final Logger LOG = LoggerFactory.getLogger(PacketHandler.class);
     
-    private final AbnormalStatBuilderStatistics buildStats = new AbnormalStatBuilderStatistics(1, TimeUnit.MINUTES);
-    private final Map<Cell, Object> cellCache = new HashMap<>();
+    @Inject
+    private AppStatisticsService appStatisticsService; // = new AppStatisticsServiceImpl(1, TimeUnit.MINUTES);
     private volatile boolean cancel;
-
-    private final Grid grid;
 
     private final DuplicateFilter duplicateFilter;
     private final DownSampleFilter downSampleFilter;
-    
-    public PacketHandlerImpl() {
-        this.grid = Grid.createSize(200);
 
+    @Inject
+    private ShipTypeAndSizeFeature shipTypeAndSizeFeature;
+
+    private Set<Feature> features;
+
+    public PacketHandlerImpl() {
         this.duplicateFilter = new DuplicateFilter();
-        this.downSampleFilter = new DownSampleFilter(0);                
-        
+        this.downSampleFilter = new DownSampleFilter(0);
+
         // TODO configuration encapsulation and maybe properties
 
         // TODO initialization
@@ -71,65 +67,25 @@ public class PacketHandlerImpl implements PacketHandler {
             return;
         }
 
-        buildStats.incPacketCount();
-
-        // Just lots of example code
+        appStatisticsService.incPacketCount();
 
         // Get AisMessage from packet or drop
         AisMessage message = packet.tryGetAisMessage();
         if (message == null) {
             return;
         }
-        buildStats.incMessageCount();
+        appStatisticsService.incMessageCount();
 
-        // Handle class A position message (to include class B use IVesselPosMessage)
-        if (message instanceof AisPositionMessage) {
-            handlePos((AisPositionMessage) message);
-        }
-        // Handler class A static message
-        else if (message instanceof AisMessage5) {
-            handleStatic((AisMessage5) message);
+        if (features == null) {
+            initFeatures();
         }
 
-        buildStats.log();
+        for (Feature feature: features) {
+            feature.trainFrom(message);
+        }
+
+        appStatisticsService.log();
     }
-
-    private void handlePos(AisPositionMessage posMsg) {
-        buildStats.incPosMsgCount();
-
-        // Get position
-        Position pos = posMsg.getValidPosition();
-        if (pos == null) {
-            return;
-        }
-
-        // boolean validators that can be used
-        posMsg.isCogValid();
-        posMsg.isSogValid();
-        posMsg.isHeadingValid();
-
-        // Get cell of position
-        Cell cell = grid.getCell(pos);
-
-        if (!cellCache.containsKey(cell)) {
-            cellCache.put(cell, new Object());
-        }
-
-        buildStats.setCellCount(cellCache.size());
-
-    }
-
-    private void handleStatic(AisMessage5 msg5) {
-        buildStats.incStatMsgCount();
-
-        ShipTypeCargo shipTypeCarge = new ShipTypeCargo(msg5.getShipType());
-        shipTypeCarge.getShipType();
-
-        AisTargetDimensions dimensions = new AisTargetDimensions(msg5);
-        dimensions.getDimBow();
-
-    }
-
     @Override
     public void cancel() {
         cancel = true;
@@ -137,8 +93,14 @@ public class PacketHandlerImpl implements PacketHandler {
     }
 
     @Override
-    public AbnormalStatBuilderStatistics getBuildStats() {
-        return buildStats;
+    public AppStatisticsService getBuildStats() {
+        return appStatisticsService;
     }
 
+    private void initFeatures() {
+        // TODO figure out how to do @PostConstruct with Guice
+        this.features = new ImmutableSet.Builder<Feature>()
+            .add(shipTypeAndSizeFeature)
+            .build();
+    }
 }

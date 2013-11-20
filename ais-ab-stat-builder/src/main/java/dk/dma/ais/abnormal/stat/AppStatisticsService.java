@@ -16,10 +16,34 @@
 
 package dk.dma.ais.abnormal.stat;
 
-import dk.dma.enav.util.function.Consumer;
-import dk.dma.ais.packet.AisPacket;
+public interface AppStatisticsService {
+    void incPacketCount();
 
-public interface PacketHandler extends Consumer<AisPacket> {
-    void cancel();
-    AppStatisticsService getBuildStats();
+    void incMessageCount();
+
+    void incPosMsgCount();
+
+    void incStatMsgCount();
+
+    long getPacketCount();
+
+    long getMessageCount();
+
+    long getPosMsgCount();
+
+    long getStatMsgCount();
+
+    long getStartTime();
+
+    long getLastLog();
+
+    long getCellCount();
+
+    void setCellCount(long cellCount);
+
+    double getMessageRate();
+
+    void log(boolean force);
+
+    void log();
 }

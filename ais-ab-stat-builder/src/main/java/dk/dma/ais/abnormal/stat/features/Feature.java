@@ -14,12 +14,26 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package dk.dma.ais.abnormal.stat;
+package dk.dma.ais.abnormal.stat.features;
 
-import dk.dma.enav.util.function.Consumer;
-import dk.dma.ais.packet.AisPacket;
+import com.google.inject.Inject;
+import dk.dma.ais.abnormal.stat.AppStatisticsService;
+import dk.dma.ais.message.AisMessage;
+import dk.dma.enav.model.geometry.grid.Cell;
+import dk.dma.enav.model.geometry.grid.Grid;
 
-public interface PacketHandler extends Consumer<AisPacket> {
-    void cancel();
-    AppStatisticsService getBuildStats();
+import java.util.HashMap;
+import java.util.Map;
+
+public abstract class Feature {
+    @Inject
+    protected AppStatisticsService appStatisticsService;
+
+    protected final Grid grid = Grid.createSize(200);
+    protected final Map<Cell, Object> cellCache = new HashMap<>();
+
+    public Feature() {
+    }
+
+    public abstract void trainFrom(AisMessage aisMessage);
 }

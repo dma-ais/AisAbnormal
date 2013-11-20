@@ -15,19 +15,19 @@
  */
 package dk.dma.ais.abnormal.stat;
 
-import java.util.concurrent.TimeUnit;
-
+import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Class for holding information on the file processing process
  */
-public class AbnormalStatBuilderStatistics {
+@Singleton
+public final class AppStatisticsServiceImpl implements AppStatisticsService {
 
-    static final Logger LOG = LoggerFactory.getLogger(AbnormalStatBuilderStatistics.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AppStatisticsServiceImpl.class);
 
-    static final long DEFAULT_LOG_INTERVAL = 60 * 1000; // 1 minute
+    private final long DEFAULT_LOG_INTERVAL = 60 * 1000; // 1 minute
 
     private final long logInterval;
     private final long startTime = System.currentTimeMillis();
@@ -40,67 +40,83 @@ public class AbnormalStatBuilderStatistics {
 
     private long lastLog;
 
-    public AbnormalStatBuilderStatistics() {
+    public AppStatisticsServiceImpl() {
         this.logInterval = DEFAULT_LOG_INTERVAL;
     }
 
-    public AbnormalStatBuilderStatistics(long interval, TimeUnit unit) {
+    /*
+    public AppStatisticsServiceImpl(long interval, TimeUnit unit) {
         this.logInterval = unit.toMillis(interval);
     }
+    */
 
+    @Override
     public void incPacketCount() {
         packetCount++;
     }
 
+    @Override
     public void incMessageCount() {
         messageCount++;
     }
 
+    @Override
     public void incPosMsgCount() {
         posMsgCount++;
     }
 
+    @Override
     public void incStatMsgCount() {
         statMsgCount++;
     }
     
+    @Override
     public long getPacketCount() {
         return packetCount;
     }
 
+    @Override
     public long getMessageCount() {
         return messageCount;
     }
 
+    @Override
     public long getPosMsgCount() {
         return posMsgCount;
     }
 
+    @Override
     public long getStatMsgCount() {
         return statMsgCount;
     }
 
+    @Override
     public long getStartTime() {
         return startTime;
     }
     
+    @Override
     public long getLastLog() {
         return lastLog;
     }
     
+    @Override
     public long getCellCount() {
         return cellCount;
     }
     
+    @Override
     public void setCellCount(long cellCount) {
         this.cellCount = cellCount;
     }
 
+    @Override
     public double getMessageRate() {
         double secs = (double)(System.currentTimeMillis() - startTime) / 1000.0;
         return (double) messageCount / secs;
     }
     
+    @Override
     public void log(boolean force) {
         if (logInterval <= 0) {
             return;
@@ -110,7 +126,7 @@ public class AbnormalStatBuilderStatistics {
             return;
         }
         LOG.info("==== Stat build statistics ====");
-        LOG.info(String.format("%-20s %9d", "Pakcet count", packetCount));
+        LOG.info(String.format("%-20s %9d", "Packet count", packetCount));
         LOG.info(String.format("%-20s %9d", "Message count", messageCount));
         LOG.info(String.format("%-20s %9d", "Pos message count", posMsgCount));
         LOG.info(String.format("%-20s %9d", "Stat message count", statMsgCount));
@@ -120,6 +136,7 @@ public class AbnormalStatBuilderStatistics {
         lastLog = now;
     }
 
+    @Override
     public void log() {
         log(false);
     }
