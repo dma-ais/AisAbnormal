@@ -38,6 +38,7 @@ public class PacketHandlerImpl implements PacketHandler {
     
     @Inject
     private AppStatisticsService appStatisticsService; // = new AppStatisticsServiceImpl(1, TimeUnit.MINUTES);
+
     private volatile boolean cancel;
 
     private final DuplicateFilter duplicateFilter;

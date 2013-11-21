@@ -30,7 +30,7 @@ import java.lang.Thread.UncaughtExceptionHandler;
 /**
  * AIS Abnormal Behavior statistics builder
  */
-public class AbnormalStatBuilderApp extends AbstractDaemon {
+public final class AbnormalStatBuilderApp extends AbstractDaemon {
 
     /** The logger */
     static final Logger LOG = LoggerFactory.getLogger(AbnormalStatBuilderApp.class);
@@ -47,6 +47,9 @@ public class AbnormalStatBuilderApp extends AbstractDaemon {
     @Inject
     private volatile PacketHandler handler;
     private volatile AisReader reader;
+
+    @Inject
+    private AppStatisticsService appStatisticsService;
 
     @Override
     protected void runDaemon(Injector injector) throws Exception {
@@ -77,6 +80,10 @@ public class AbnormalStatBuilderApp extends AbstractDaemon {
         super.execute(args);
     }
 
+    public AppStatisticsService getAppStatisticsService() {
+        return appStatisticsService;
+    }
+
     public static void main(String[] args) throws Exception {
         Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
             @Override
@@ -86,8 +93,11 @@ public class AbnormalStatBuilderApp extends AbstractDaemon {
             }
         });
 
+        // Bootstrap Guice dependency injection
         Injector injector = Guice.createInjector(new AbnormalStatBuilderAppInjector());
         AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
+
+        // Start application
         app.execute(args);
     }
 }

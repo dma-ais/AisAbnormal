@@ -19,6 +19,9 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 public class AbnormalStatBuilderAppTest {
 
     @Test
@@ -28,6 +31,26 @@ public class AbnormalStatBuilderAppTest {
         Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestInjector());
         AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
         app.execute(args);
+    }
+
+    /*
+     * Test that the appStatistics bean injected in app and features is indeed the same instance.
+     * If dependency injection is done wrong, different instances may be used.
+     */
+    @Test
+    public void testAppStatisticsIsSingleton() throws Exception {
+        String[] args = new String[]{"-dir" ,"ais-ab-stat-builder/src/test/resources", "-name", "ais-sample-micro.txt.gz"};
+
+        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestInjector());
+        AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
+        app.execute(args);
+
+        AppStatisticsService appStatistics = app.getAppStatisticsService();
+
+        assertEquals(9, appStatistics.getMessageCount());
+        assertEquals(8, appStatistics.getPosMsgCount());
+        assertEquals(1, appStatistics.getStatMsgCount());
+        assertTrue("Cell count must be positive for Features to have been trained", appStatistics.getCellCount() > 0);
     }
 
 }
