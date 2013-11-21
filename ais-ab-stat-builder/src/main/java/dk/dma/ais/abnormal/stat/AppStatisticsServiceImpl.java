@@ -80,6 +80,16 @@ public final class AppStatisticsServiceImpl implements AppStatisticsService {
         return statistic;
     }
 
+    @Override
+    public void setFeatureStatistics(String featureName, String statisticsName, Long statisticsValue) {
+        HashMap<String, Long> featureStatistics = (HashMap<String, Long>) this.allFeatureStatistics.get(featureName);
+        if (featureStatistics == null) {
+            featureStatistics = new HashMap<>();
+            this.allFeatureStatistics.put(featureName, featureStatistics);
+        }
+        featureStatistics.put(statisticsName, statisticsValue);
+    }
+
     /*
     public AppStatisticsServiceImpl(long interval, TimeUnit unit) {
         this.logInterval = unit.toMillis(interval);

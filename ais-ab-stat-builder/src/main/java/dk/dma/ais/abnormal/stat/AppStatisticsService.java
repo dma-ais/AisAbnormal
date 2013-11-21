@@ -48,4 +48,6 @@ public interface AppStatisticsService {
     void incFeatureStatistics(String featureName, String statisticsName);
 
     Long getFeatureStatistics(String featureName, String statisticsName);
+
+    void setFeatureStatistics(String featureName, String statisticsName, Long statisticsValue);
 }

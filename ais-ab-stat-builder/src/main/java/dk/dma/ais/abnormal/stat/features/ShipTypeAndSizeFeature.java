@@ -25,8 +25,6 @@ import dk.dma.ais.abnormal.stat.tracker.events.CellIdChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-
 public class ShipTypeAndSizeFeature implements Feature {
 
     /** The logger */
@@ -35,7 +33,7 @@ public class ShipTypeAndSizeFeature implements Feature {
     private AppStatisticsService appStatisticsService;
     private TrackingService trackingService;
 
-    private HashMap<Integer, HashMap<Integer, Long>> shipCount = new HashMap<>();
+    FeatureStatistics featureStatistics = new FeatureStatistics();
 
     @Inject
     public ShipTypeAndSizeFeature(AppStatisticsService appStatisticsService, TrackingService trackingService) {
@@ -76,26 +74,11 @@ public class ShipTypeAndSizeFeature implements Feature {
 
         Integer shipTypeBucket = mapShipTypeToBucket(shipType);
         Integer shipSizeBucket = mapShipLengthToBucket(shipLength);
-        
-        incrementShipCount(cellId, shipTypeBucket, shipSizeBucket);
 
+        featureStatistics.incrementStatistic(cellId, shipTypeBucket, shipSizeBucket, "shipCount");
+
+        appStatisticsService.setFeatureStatistics(this.getClass().getSimpleName(), "Cell count", Long.valueOf(featureStatistics.getNumberOfLevel1Entries()));
         appStatisticsService.incFeatureStatistics(this.getClass().getSimpleName(), "Events processed ok");
-    }
-
-    private void incrementShipCount(Integer cellId, Integer shipTypeBucket, Integer shipSizeBucket) {
-        HashMap<Integer, Long> shipCountForCell = (HashMap<Integer, Long>) this.shipCount.get(cellId);
-        if (shipCountForCell == null) {
-            shipCountForCell = new HashMap<>();
-            this.shipCount.put(cellId, shipCountForCell);
-            appStatisticsService.incFeatureStatistics(this.getClass().getSimpleName(), "Cell count");
-        }
-        Integer shipCountKey = shipTypeBucket*100 + shipSizeBucket;
-        Long shipCount = shipCountForCell.get(shipCountKey);
-        if (shipCount == null) {
-            shipCount = 0L;
-        }
-        shipCount++;
-        shipCountForCell.put(shipCountKey, shipCount);
     }
 
     private static Integer mapShipTypeToBucket(Integer shipType) {
