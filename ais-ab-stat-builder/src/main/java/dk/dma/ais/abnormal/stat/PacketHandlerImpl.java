@@ -17,8 +17,10 @@ package dk.dma.ais.abnormal.stat;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import dk.dma.ais.abnormal.stat.features.Feature;
 import dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature;
+import dk.dma.ais.abnormal.stat.tracker.TrackingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +29,7 @@ import dk.dma.ais.filter.DuplicateFilter;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.packet.AisPacket;
 
+import java.util.Date;
 import java.util.Set;
 
 /**
@@ -39,13 +42,13 @@ public class PacketHandlerImpl implements PacketHandler {
     @Inject
     private AppStatisticsService appStatisticsService; // = new AppStatisticsServiceImpl(1, TimeUnit.MINUTES);
 
+    @Inject
+    private TrackingService trackingService;
+
     private volatile boolean cancel;
 
     private final DuplicateFilter duplicateFilter;
     private final DownSampleFilter downSampleFilter;
-
-    @Inject
-    private ShipTypeAndSizeFeature shipTypeAndSizeFeature;
 
     private Set<Feature> features;
 
@@ -55,7 +58,7 @@ public class PacketHandlerImpl implements PacketHandler {
 
         // TODO configuration encapsulation and maybe properties
 
-        // TODO initialization
+        initFeatures();
     }
 
     public void accept(AisPacket packet) {
@@ -77,16 +80,13 @@ public class PacketHandlerImpl implements PacketHandler {
         }
         appStatisticsService.incMessageCount();
 
-        if (features == null) {
-            initFeatures();
-        }
+        final Date timestamp = packet.getTags().getTimestamp();
+        trackingService.update(timestamp, message);
 
-        for (Feature feature: features) {
-            feature.trainFrom(message);
-        }
-
+        appStatisticsService.setTrackCount(trackingService.getNumberOfTracks());
         appStatisticsService.log();
     }
+
     @Override
     public void cancel() {
         cancel = true;
@@ -99,9 +99,10 @@ public class PacketHandlerImpl implements PacketHandler {
     }
 
     private void initFeatures() {
-        // TODO figure out how to do @PostConstruct with Guice
+        Injector injector = AbnormalStatBuilderApp.getInjector();
+
         this.features = new ImmutableSet.Builder<Feature>()
-            .add(shipTypeAndSizeFeature)
+            .add(injector.getInstance(ShipTypeAndSizeFeature.class))
             .build();
     }
 }

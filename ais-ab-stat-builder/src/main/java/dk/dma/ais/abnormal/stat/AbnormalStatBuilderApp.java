@@ -35,6 +35,9 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
     /** The logger */
     static final Logger LOG = LoggerFactory.getLogger(AbnormalStatBuilderApp.class);
 
+    // Bootstrap Guice dependency injection
+    private static Injector injector;
+
     @Parameter(names = "-dir", description = "Directory to scan for files to read")
     String dir = ".";
     
@@ -84,6 +87,14 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
         return appStatisticsService;
     }
 
+    public static void setInjector(Injector injector) {
+        AbnormalStatBuilderApp.injector = injector;
+    }
+
+    public static Injector getInjector() {
+        return injector;
+    }
+
     public static void main(String[] args) throws Exception {
         Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
             @Override
@@ -93,8 +104,8 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
             }
         });
 
-        // Bootstrap Guice dependency injection
         Injector injector = Guice.createInjector(new AbnormalStatBuilderAppInjector());
+        AbnormalStatBuilderApp.setInjector(injector);
         AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
 
         // Start application

@@ -14,38 +14,27 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package dk.dma.ais.abnormal.stat;
+package dk.dma.ais.abnormal.stat.tracker.events;
 
-public interface AppStatisticsService {
-    void incPacketCount();
+import com.google.common.base.Objects;
+import dk.dma.ais.abnormal.stat.tracker.Track;
 
-    void incMessageCount();
+public abstract class TrackingEvent {
 
-    void incPosMsgCount();
+    private final Track track;
 
-    void incStatMsgCount();
+    TrackingEvent(Track track) {
+        this.track = track;
+    }
 
-    long getPacketCount();
+    public final Track getTrack() {
+        return track;
+    }
 
-    long getMessageCount();
-
-    long getPosMsgCount();
-
-    long getStatMsgCount();
-
-    long getStartTime();
-
-    long getLastLog();
-
-    long getCellCount();
-
-    void setCellCount(long cellCount);
-
-    void setTrackCount(int trackCount);
-
-    double getMessageRate();
-
-    void log(boolean force);
-
-    void log();
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("track", track)
+                .toString();
+    }
 }

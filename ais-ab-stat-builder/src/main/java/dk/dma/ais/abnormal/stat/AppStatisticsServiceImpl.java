@@ -37,6 +37,7 @@ public final class AppStatisticsServiceImpl implements AppStatisticsService {
     private long posMsgCount;
     private long statMsgCount;
     private long cellCount;
+    private int trackCount;
 
     private long lastLog;
 
@@ -111,6 +112,11 @@ public final class AppStatisticsServiceImpl implements AppStatisticsService {
     }
 
     @Override
+    public void setTrackCount(int trackCount) {
+        this.trackCount = trackCount;
+    }
+
+    @Override
     public double getMessageRate() {
         double secs = (double)(System.currentTimeMillis() - startTime) / 1000.0;
         return (double) messageCount / secs;
@@ -126,12 +132,13 @@ public final class AppStatisticsServiceImpl implements AppStatisticsService {
             return;
         }
         LOG.info("==== Stat build statistics ====");
-        LOG.info(String.format("%-20s %9d", "Packet count", packetCount));
-        LOG.info(String.format("%-20s %9d", "Message count", messageCount));
-        LOG.info(String.format("%-20s %9d", "Pos message count", posMsgCount));
-        LOG.info(String.format("%-20s %9d", "Stat message count", statMsgCount));
-        LOG.info(String.format("%-20s %9d", "Cell count", cellCount));
-        LOG.info(String.format("%-20s %9.0f msg/sec", "Message rate", getMessageRate()));
+        LOG.info(String.format("%-30s %9d", "Packet count", packetCount));
+        LOG.info(String.format("%-30s %9d", "Message count", messageCount));
+        LOG.info(String.format("%-30s %9d", "Pos message count", posMsgCount));
+        LOG.info(String.format("%-30s %9d", "Stat message count", statMsgCount));
+        LOG.info(String.format("%-30s %9d", "Cell count", cellCount));
+        LOG.info(String.format("%-30s %9d", "Track count at termination", trackCount));
+        LOG.info(String.format("%-30s %9.0f msg/sec", "Message rate", getMessageRate()));
         LOG.info("==== Stat build statistics ====");
         lastLog = now;
     }

@@ -14,38 +14,16 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package dk.dma.ais.abnormal.stat;
+package dk.dma.ais.abnormal.stat.tracker;
 
-public interface AppStatisticsService {
-    void incPacketCount();
+import dk.dma.ais.message.AisMessage;
 
-    void incMessageCount();
+import java.util.Date;
 
-    void incPosMsgCount();
+public interface TrackingService {
+    void update(Date timestamp, AisMessage aisMessage);
+    Integer getNumberOfTracks();
 
-    void incStatMsgCount();
-
-    long getPacketCount();
-
-    long getMessageCount();
-
-    long getPosMsgCount();
-
-    long getStatMsgCount();
-
-    long getStartTime();
-
-    long getLastLog();
-
-    long getCellCount();
-
-    void setCellCount(long cellCount);
-
-    void setTrackCount(int trackCount);
-
-    double getMessageRate();
-
-    void log(boolean force);
-
-    void log();
+    /* Subscribe to tracking events */
+    void registerSubscriber(Object subscriber);
 }

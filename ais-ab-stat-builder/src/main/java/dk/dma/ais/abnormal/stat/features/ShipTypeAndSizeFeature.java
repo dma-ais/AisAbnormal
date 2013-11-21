@@ -16,6 +16,10 @@
 
 package dk.dma.ais.abnormal.stat.features;
 
+import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
+import dk.dma.ais.abnormal.stat.tracker.TrackingService;
+import dk.dma.ais.abnormal.stat.tracker.events.CellIdChangedEvent;
 import dk.dma.ais.data.AisTargetDimensions;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisMessage5;
@@ -31,7 +35,21 @@ public class ShipTypeAndSizeFeature extends Feature {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger(ShipTypeAndSizeFeature.class);
 
-    public ShipTypeAndSizeFeature() {
+    private TrackingService trackingService;
+
+    @Inject
+    public ShipTypeAndSizeFeature(TrackingService trackingService) {
+        this.trackingService = trackingService;
+        this.trackingService.registerSubscriber(this);
+    }
+
+    /*
+     * This feature is only updated once per cell; i.e. when a cell is entered.
+     */
+    @Subscribe
+    public void event(CellIdChangedEvent event) {
+        appStatisticsService.incPosMsgCount();
+        LOG.debug(event.toString());
     }
 
     @Override
@@ -73,6 +91,10 @@ public class ShipTypeAndSizeFeature extends Feature {
     }
 
     private void handleStatic(AisMessage5 msg5) {
+
+        msg5.getShipType();
+
+
         appStatisticsService.incStatMsgCount();
 
         ShipTypeCargo shipTypeCargo = new ShipTypeCargo(msg5.getShipType());

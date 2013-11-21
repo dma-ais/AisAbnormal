@@ -19,12 +19,16 @@ package dk.dma.ais.abnormal.stat;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature;
+import dk.dma.ais.abnormal.stat.tracker.TrackingService;
+import dk.dma.ais.abnormal.stat.tracker.TrackingServiceImpl;
 
 public class AbnormalStatBuilderAppTestInjector extends AbstractModule {
     @Override
     public void configure() {
-        bind(PacketHandler.class).to(PacketHandlerImpl.class);
+        bind(AbnormalStatBuilderApp.class).in(Singleton.class);
+        bind(PacketHandler.class).to(PacketHandlerImpl.class).in(Singleton.class);
         bind(AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
+        bind(TrackingService.class).to(TrackingServiceImpl.class).in(Singleton.class);
         bind(ShipTypeAndSizeFeature.class);
     }
 }
