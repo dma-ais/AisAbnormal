@@ -23,23 +23,12 @@ import static org.junit.Assert.assertEquals;
 
 public class AbnormalStatBuilderAppTest {
 
-    @Test
-    public void appTest() throws Exception {
-        String[] args = new String[]{"-dir" ,"ais-ab-stat-builder/src/test/resources", "-name", "*.gz"};
-
-        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestInjector());
-        AbnormalStatBuilderApp.setInjector(injector);
-        AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
-
-        app.execute(args);
-    }
-
     /*
      * Test that the appStatistics bean injected in app and features is indeed the same instance.
      * If dependency injection is done wrong, different instances may be used.
      */
     @Test
-    public void testAppStatisticsIsSingleton() throws Exception {
+    public void testApplicationStatistics() throws Exception {
         String[] args = new String[]{"-dir" ,"ais-ab-stat-builder/src/test/resources", "-name", "ais-sample-micro.txt.gz"};
 
         Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestInjector());
@@ -52,6 +41,21 @@ public class AbnormalStatBuilderAppTest {
 
         assertEquals(9, appStatistics.getMessageCount());
         assertEquals(8, appStatistics.getPosMsgCount());
+        assertEquals(1, appStatistics.getStatMsgCount());
     }
 
+    @Test
+    public void testFeatureStatistics() throws Exception {
+        String[] args = new String[]{"-dir" ,"ais-ab-stat-builder/src/test/resources", "-name", "ais-sample-micro.txt.gz"};
+
+        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestInjector());
+        AbnormalStatBuilderApp.setInjector(injector);
+        AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
+
+        app.execute(args);
+
+        AppStatisticsService appStatistics = app.getAppStatisticsService();
+
+        assertEquals((Long) 8l, appStatistics.getFeatureStatistics("ShipTypeAndSizeFeature","Events processed"));
+    }
 }

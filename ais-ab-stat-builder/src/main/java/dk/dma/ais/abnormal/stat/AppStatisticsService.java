@@ -37,10 +37,6 @@ public interface AppStatisticsService {
 
     long getLastLog();
 
-    long getCellCount();
-
-    void setCellCount(long cellCount);
-
     void setTrackCount(int trackCount);
 
     double getMessageRate();
@@ -48,4 +44,8 @@ public interface AppStatisticsService {
     void log(boolean force);
 
     void log();
+
+    void incFeatureStatistics(String featureName, String statisticsName);
+
+    Long getFeatureStatistics(String featureName, String statisticsName);
 }

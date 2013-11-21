@@ -16,24 +16,5 @@
 
 package dk.dma.ais.abnormal.stat.features;
 
-import com.google.inject.Inject;
-import dk.dma.ais.abnormal.stat.AppStatisticsService;
-import dk.dma.ais.message.AisMessage;
-import dk.dma.enav.model.geometry.grid.Cell;
-import dk.dma.enav.model.geometry.grid.Grid;
-
-import java.util.HashMap;
-import java.util.Map;
-
-public abstract class Feature {
-    @Inject
-    protected AppStatisticsService appStatisticsService;
-
-    protected final Grid grid = Grid.createSize(200);
-    protected final Map<Cell, Object> cellCache = new HashMap<>();
-
-    public Feature() {
-    }
-
-    public abstract void trainFrom(AisMessage aisMessage);
+public interface Feature {
 }

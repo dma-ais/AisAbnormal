@@ -19,6 +19,10 @@ import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Set;
+
 /**
  * Class for holding information on the file processing process
  */
@@ -36,13 +40,44 @@ public final class AppStatisticsServiceImpl implements AppStatisticsService {
     private long messageCount;
     private long posMsgCount;
     private long statMsgCount;
-    private long cellCount;
     private int trackCount;
+
+    private HashMap<String, HashMap<String, Long>> allFeatureStatistics = new HashMap<>();
 
     private long lastLog;
 
     public AppStatisticsServiceImpl() {
         this.logInterval = DEFAULT_LOG_INTERVAL;
+        this.lastLog = new Date().getTime();
+    }
+
+    @Override
+    public void incFeatureStatistics(String featureName, String statisticsName) {
+        HashMap<String, Long> featureStatistics = (HashMap<String, Long>) this.allFeatureStatistics.get(featureName);
+        if (featureStatistics == null) {
+            featureStatistics = new HashMap<>();
+            this.allFeatureStatistics.put(featureName, featureStatistics);
+        }
+        Long statistic = featureStatistics.get(statisticsName);
+        if (statistic == null) {
+            statistic = 0L;
+            featureStatistics.put(statisticsName, statistic);
+        }
+        statistic++;
+        featureStatistics.put(statisticsName, statistic);
+    }
+
+    @Override
+    public Long getFeatureStatistics(String featureName, String statisticsName) {
+        HashMap<String, Long> featureStatistics = (HashMap<String, Long>) this.allFeatureStatistics.get(featureName);
+        if (featureStatistics == null) {
+            return null;
+        }
+        Long statistic = featureStatistics.get(statisticsName);
+        if (statistic == null) {
+            return null;
+        }
+        return statistic;
     }
 
     /*
@@ -100,16 +135,6 @@ public final class AppStatisticsServiceImpl implements AppStatisticsService {
     public long getLastLog() {
         return lastLog;
     }
-    
-    @Override
-    public long getCellCount() {
-        return cellCount;
-    }
-    
-    @Override
-    public void setCellCount(long cellCount) {
-        this.cellCount = cellCount;
-    }
 
     @Override
     public void setTrackCount(int trackCount) {
@@ -131,15 +156,30 @@ public final class AppStatisticsServiceImpl implements AppStatisticsService {
         if (!force && (now - lastLog < logInterval)) {
             return;
         }
-        LOG.info("==== Stat build statistics ====");
+        LOG.info("==== Stat build application statistics ====");
         LOG.info(String.format("%-30s %9d", "Packet count", packetCount));
         LOG.info(String.format("%-30s %9d", "Message count", messageCount));
         LOG.info(String.format("%-30s %9d", "Pos message count", posMsgCount));
         LOG.info(String.format("%-30s %9d", "Stat message count", statMsgCount));
-        LOG.info(String.format("%-30s %9d", "Cell count", cellCount));
-        LOG.info(String.format("%-30s %9d", "Track count at termination", trackCount));
+        LOG.info(String.format("%-30s %9d", "Track count", trackCount));
         LOG.info(String.format("%-30s %9.0f msg/sec", "Message rate", getMessageRate()));
-        LOG.info("==== Stat build statistics ====");
+        LOG.info("==== Stat build application statistics ====");
+
+        LOG.info("==== Stat build feature statistics ====");
+        Set<String> featureNames = this.allFeatureStatistics.keySet();
+        for (String featureName : featureNames) {
+            LOG.info(String.format("%-30s %s", "Feature name", featureName));
+
+            HashMap<String, Long> featureStatistics = this.allFeatureStatistics.get(featureName);
+            Set<String> statisticsNames = featureStatistics.keySet();
+            for (String statisticsName : statisticsNames) {
+                Long statistics = featureStatistics.get(statisticsName);
+                LOG.info(String.format("     %-25s %9d", statisticsName, statistics));
+            }
+
+        }
+        LOG.info("==== Stat build feature statistics ====");
+
         lastLog = now;
     }
 

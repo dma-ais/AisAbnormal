@@ -95,7 +95,7 @@ public class TrackingServiceImpl implements TrackingService {
                 if (oldCellId != null) {
                     eventBus.post(new CellIdChangedEvent(track, null));
                 }
-                LOG.warn("Message type " + aisMessage.getMsgId() + " contained no valid position: " + position.getRawLatitude() + ", " + position.getRawLongitude() + " (mmsi " + track.getMmsi() + ")");
+                LOG.warn("Message type " + aisMessage.getMsgId()  + " contained no valid position: " + position.getRawLatitude() + ", " + position.getRawLongitude() + " (mmsi " + track.getMmsi() + ")");
             }
         }
     }

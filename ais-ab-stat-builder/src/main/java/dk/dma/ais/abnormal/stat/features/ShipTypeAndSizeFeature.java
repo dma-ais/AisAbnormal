@@ -18,27 +18,28 @@ package dk.dma.ais.abnormal.stat.features;
 
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
+import dk.dma.ais.abnormal.stat.AppStatisticsService;
+import dk.dma.ais.abnormal.stat.tracker.Track;
 import dk.dma.ais.abnormal.stat.tracker.TrackingService;
 import dk.dma.ais.abnormal.stat.tracker.events.CellIdChangedEvent;
-import dk.dma.ais.data.AisTargetDimensions;
-import dk.dma.ais.message.AisMessage;
-import dk.dma.ais.message.AisMessage5;
-import dk.dma.ais.message.AisPositionMessage;
-import dk.dma.ais.message.ShipTypeCargo;
-import dk.dma.enav.model.geometry.Position;
-import dk.dma.enav.model.geometry.grid.Cell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ShipTypeAndSizeFeature extends Feature {
+import java.util.HashMap;
+
+public class ShipTypeAndSizeFeature implements Feature {
 
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger(ShipTypeAndSizeFeature.class);
 
+    private AppStatisticsService appStatisticsService;
     private TrackingService trackingService;
 
+    private HashMap<Integer, HashMap<Integer, Long>> shipCount = new HashMap<>();
+
     @Inject
-    public ShipTypeAndSizeFeature(TrackingService trackingService) {
+    public ShipTypeAndSizeFeature(AppStatisticsService appStatisticsService, TrackingService trackingService) {
+        this.appStatisticsService = appStatisticsService;
         this.trackingService = trackingService;
         this.trackingService.registerSubscriber(this);
     }
@@ -47,61 +48,95 @@ public class ShipTypeAndSizeFeature extends Feature {
      * This feature is only updated once per cell; i.e. when a cell is entered.
      */
     @Subscribe
-    public void event(CellIdChangedEvent event) {
-        appStatisticsService.incPosMsgCount();
-        LOG.debug(event.toString());
-    }
+    public void cellIdChangedEvent(CellIdChangedEvent event) {
+        appStatisticsService.incFeatureStatistics(this.getClass().getSimpleName(), "Events processed");
 
-    @Override
-    public void trainFrom(AisMessage aisMessage) {
-        // Handle class A position message (to include class B use IVesselPosMessage)
-        if (aisMessage instanceof AisPositionMessage) {
-            handlePos((AisPositionMessage) aisMessage);
-        }
-        // Handler class A static message
-        else if (aisMessage instanceof AisMessage5) {
-            handleStatic((AisMessage5) aisMessage);
-        }
-    }
+        LOG.debug("Received " + event.toString());
 
+        Track track = event.getTrack();
 
-    private void handlePos(AisPositionMessage posMsg) {
-        appStatisticsService.incPosMsgCount();
+        Integer cellId = (Integer) track.getProperty(Track.CELL_ID);
+        Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
+        Integer shipLength = (Integer) track.getProperty(Track.VESSEL_LENGTH);
 
-        // Get position
-        Position pos = posMsg.getValidPosition();
-        if (pos == null) {
+        if (cellId == null) {
+            LOG.error("cellId is unexpectedly null (mmsi " + track.getMmsi() + ")");
             return;
         }
 
-        // boolean validators that can be used
-        posMsg.isCogValid();
-        posMsg.isSogValid();
-        posMsg.isHeadingValid();
-
-        // Get cell of position
-        Cell cell = grid.getCell(pos);
-
-        if (!cellCache.containsKey(cell)) {
-            cellCache.put(cell, new Object());
+        if (shipType == null) {
+            LOG.debug("shipType is null - probably no static data received yet (mmsi " + track.getMmsi() + ")");
+            return;
         }
 
-        appStatisticsService.setCellCount(cellCache.size());
+        if (shipLength == null) {
+            LOG.debug("shipLength is null - probably no static data received yet (mmsi " + track.getMmsi() + ")");
+            return;
+        }
 
+        Integer shipTypeBucket = mapShipTypeToBucket(shipType);
+        Integer shipSizeBucket = mapShipLengthToBucket(shipLength);
+        
+        incrementShipCount(cellId, shipTypeBucket, shipSizeBucket);
+
+        appStatisticsService.incFeatureStatistics(this.getClass().getSimpleName(), "Events processed ok");
     }
 
-    private void handleStatic(AisMessage5 msg5) {
+    private void incrementShipCount(Integer cellId, Integer shipTypeBucket, Integer shipSizeBucket) {
+        HashMap<Integer, Long> shipCountForCell = (HashMap<Integer, Long>) this.shipCount.get(cellId);
+        if (shipCountForCell == null) {
+            shipCountForCell = new HashMap<>();
+            this.shipCount.put(cellId, shipCountForCell);
+            appStatisticsService.incFeatureStatistics(this.getClass().getSimpleName(), "Cell count");
+        }
+        Integer shipCountKey = shipTypeBucket*100 + shipSizeBucket;
+        Long shipCount = shipCountForCell.get(shipCountKey);
+        if (shipCount == null) {
+            shipCount = 0L;
+        }
+        shipCount++;
+        shipCountForCell.put(shipCountKey, shipCount);
+    }
 
-        msg5.getShipType();
+    private static Integer mapShipTypeToBucket(Integer shipType) {
+        Integer bucket = 8;
+        if (shipType>79 && shipType<90) {
+            bucket = 1;
+        } else if (shipType>69 && shipType<80) {
+            bucket = 2;
+        } else if ((shipType>39 && shipType<50) || (shipType>59 && shipType<70)) {
+            bucket = 3;
+        } else if ((shipType>30 && shipType<36) || (shipType>49 && shipType<56)) {
+            bucket = 4;
+        } else if (shipType == 30) {
+            bucket = 5;
+        } else if (shipType == 36 || shipType == 37) {    // TODO Class B
+            bucket = 6;
+        } else if ((shipType>0 && shipType<30) || (shipType>89 && shipType<100)) {
+            bucket = 7;
+        } else if (shipType == 0) {
+            bucket = 8;
+        }
 
+        return bucket;
+    }
 
-        appStatisticsService.incStatMsgCount();
+    private static Integer mapShipLengthToBucket(Integer shipLength) {
+        Integer bucket;
+        if (shipLength >= 0 && shipLength < 1) {
+            bucket = 1;
+        } else if (shipLength >= 1 && shipLength < 50) {
+            bucket = 2;
+        } else if (shipLength >= 50 && shipLength < 100) {
+            bucket = 3;
+        } else if (shipLength >= 100 && shipLength < 200) {
+            bucket = 4;
+        } else if (shipLength >= 200 && shipLength < 999) {
+            bucket = 5;
+        } else {
+            bucket = 6;
+        }
 
-        ShipTypeCargo shipTypeCargo = new ShipTypeCargo(msg5.getShipType());
-        shipTypeCargo.getShipType();
-
-        AisTargetDimensions dimensions = new AisTargetDimensions(msg5);
-        dimensions.getDimBow();
-
+        return bucket;
     }
 }
