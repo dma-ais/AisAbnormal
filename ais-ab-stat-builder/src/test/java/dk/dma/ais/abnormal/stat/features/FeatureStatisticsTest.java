@@ -1,10 +1,9 @@
 package dk.dma.ais.abnormal.stat.features;
 
-import junit.framework.Assert;
 import org.junit.Test;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.assertNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
 
 public class FeatureStatisticsTest {
 

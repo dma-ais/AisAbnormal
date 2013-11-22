@@ -31,6 +31,7 @@ import dk.dma.ais.filter.DuplicateFilter;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.packet.AisPacket;
 
+import java.io.PrintStream;
 import java.util.Date;
 import java.util.Set;
 
@@ -104,6 +105,15 @@ public class PacketHandlerImpl implements PacketHandler {
     @Override
     public AppStatisticsService getBuildStats() {
         return appStatisticsService;
+    }
+
+    @Override
+    public void printAllFeatureStatistics(PrintStream stream) {
+        stream.println("Collected statistics for all features:");
+        stream.println();
+        for (Feature feature : features) {
+            feature.printStatistics(stream);
+        }
     }
 
     private void initFeatures() {

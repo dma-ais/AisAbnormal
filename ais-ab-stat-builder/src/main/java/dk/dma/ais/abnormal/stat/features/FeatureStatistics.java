@@ -16,6 +16,7 @@
 
 package dk.dma.ais.abnormal.stat.features;
 
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.TreeMap;
 
@@ -76,5 +77,22 @@ public class FeatureStatistics {
 
     public Integer getNumberOfLevel1Entries() {
         return this.data.size();
+    }
+
+    public void printStatistics(PrintStream stream) {
+        for (Integer key1 : data.keySet()) {
+            TreeMap<Integer, TreeMap<Integer, HashMap<String, Object>>> level2 = data.get(key1);
+            for (Integer key2 : level2.keySet()) {
+                TreeMap<Integer, HashMap<String, Object>> level3 = level2.get(key2);
+                for (Integer key3 : level3.keySet()) {
+                    HashMap<String, Object> statistics = level3.get(key3);
+                    for (String statisticsName : statistics.keySet()) {
+                        Object statisticsValue =  statistics.get(statisticsName);
+                        String output = String.format("%12d | %9d | %9d | %-16s | %9s", key1, key2, key3, statisticsName, statisticsValue);
+                        stream.println(output);
+                    }
+                }
+            }
+        }
     }
 }

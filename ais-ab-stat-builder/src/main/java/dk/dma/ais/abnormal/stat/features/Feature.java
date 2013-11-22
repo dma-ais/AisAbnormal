@@ -16,5 +16,8 @@
 
 package dk.dma.ais.abnormal.stat.features;
 
+import java.io.PrintStream;
+
 public interface Feature {
+    void printStatistics(PrintStream stream);
 }

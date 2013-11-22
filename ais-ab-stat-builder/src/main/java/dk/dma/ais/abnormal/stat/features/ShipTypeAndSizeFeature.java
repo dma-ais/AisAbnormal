@@ -25,6 +25,8 @@ import dk.dma.ais.abnormal.stat.tracker.events.CellIdChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.PrintStream;
+
 public class ShipTypeAndSizeFeature implements Feature {
 
     /** The logger */
@@ -46,7 +48,7 @@ public class ShipTypeAndSizeFeature implements Feature {
      * This feature is only updated once per cell; i.e. when a cell is entered.
      */
     @Subscribe
-    public void cellIdChangedEvent(CellIdChangedEvent event) {
+    public void onCellIdChanged(CellIdChangedEvent event) {
         appStatisticsService.incFeatureStatistics(this.getClass().getSimpleName(), "Events processed");
 
         LOG.debug("Received " + event.toString());
@@ -121,5 +123,10 @@ public class ShipTypeAndSizeFeature implements Feature {
         }
 
         return bucket;
+    }
+
+    @Override
+    public void printStatistics(PrintStream stream) {
+        this.featureStatistics.printStatistics(stream);
     }
 }

@@ -110,5 +110,8 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
 
         // Start application
         app.execute(args);
+
+        // Round off
+        app.handler.printAllFeatureStatistics(System.out);
     }
 }
