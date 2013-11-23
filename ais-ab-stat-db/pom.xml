@@ -10,7 +10,6 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>dk.dma.ais.abnormal</groupId>
 	<artifactId>ais-ab-stat-db</artifactId>
 	<packaging>jar</packaging>
 	<name>AisAbnormal Stat DB</name>
@@ -25,6 +24,16 @@
 			<groupId>dk.dma.enav</groupId>
 			<artifactId>enav-model</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${dependencies.slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapdb</groupId>
+            <artifactId>mapdb</artifactId>
+            <version>0.9.7</version>
+        </dependency>
 	</dependencies>
 
 </project>
