@@ -44,8 +44,8 @@ public class FeatureDataRepositoryMapDBTest {
     final static short n2 = 10;
     final static long nprod = numCells*n1*n2;
 
-    final static long testCellId = (numCells / 2) + 7;
-
+    final static String testFeatureName = "testFeature";
+    
     private static String dbFileName;
 
     @BeforeClass
@@ -66,7 +66,7 @@ public class FeatureDataRepositoryMapDBTest {
                 }
             }
 
-            featureDataRepository.put("FeatureDataRepositoryMapDBTest", cellId, featureData);
+            featureDataRepository.put(testFeatureName, cellId, featureData);
 
             if (cellId % onePctOfNumCells == 0) {
                 LOG.info(100 * cellId / numCells + "%");
@@ -82,13 +82,17 @@ public class FeatureDataRepositoryMapDBTest {
 
     @Test
     public void testGetFeatureDataCell1() throws Exception {
+        final long testCellId = (numCells / 2) + 7;
+        final short key1 = n1 - 1, key2 = n2 - 2;
+
         FeatureDataRepository featureDataRepository = new FeatureDataRepositoryMapDB(dbFileName);
 
-        FeatureData featureData = featureDataRepository.get("FeatureDataRepositoryMapDBTest", 1);
+        FeatureData featureData = featureDataRepository.get(testFeatureName, testCellId);
         assertEquals(n1, (int) featureData.getNumberOfLevel1Entries());
-        assertEquals(1, featureData.getStatistic((short) 1, (short) 1, "t"));
-        assertEquals(49, featureData.getStatistic((short) 7, (short) 7, "t"));
-        assertEquals(((n1 - 1) * (n2 - 2) % 100), featureData.getStatistic((short) (n1 - 1), (short) (n2 - 2), "t"));
+        assertEquals((1*1)%100, featureData.getStatistic((short) 1, (short) 1, "t"));
+        assertEquals((7*7)%100, featureData.getStatistic((short) 7, (short) 7, "t"));
+        assertEquals((9*8)%100, featureData.getStatistic((short) 9, (short) 8, "t"));
+        assertEquals((key1 * key2) % 100, featureData.getStatistic(key1, key2, "t"));
         assertNull(featureData.getStatistic((short) (n1 + 1), (short) 4, "t"));
         assertNull(featureData.getStatistic((short) 1, (short) (n2 + 2), "t"));
         assertNull(featureData.getStatistic((short) 8, (short) 9, "wrongt"));
@@ -96,45 +100,76 @@ public class FeatureDataRepositoryMapDBTest {
 
     @Test
     public void testGetFeatureDataCell2() throws Exception {
+        final long testCellId = (numCells / 2) + 7;
+        final short key1 = n1 - 1, key2 = n2 - 3;
+
         FeatureDataRepository featureDataRepository = new FeatureDataRepositoryMapDB(dbFileName);
 
-        FeatureData featureData = featureDataRepository.get("FeatureDataRepositoryMapDBTest", testCellId);
+        FeatureData featureData = featureDataRepository.get(testFeatureName, testCellId);
         assertEquals(n1, (int) featureData.getNumberOfLevel1Entries());
-        assertEquals(1, featureData.getStatistic((short) 1, (short) 1, "t"));
-        assertEquals(49, featureData.getStatistic((short) 7, (short) 7, "t"));
-        assertEquals(((n1-1)*(n2-2) % 100), featureData.getStatistic((short) (n1-1), (short) (n2-2), "t"));
+        assertEquals((1*1) % 100, featureData.getStatistic((short) 1, (short) 1, "t"));
+        assertEquals((7*7) % 100, featureData.getStatistic((short) 7, (short) 7, "t"));
+        assertEquals((key1*key2) % 100, featureData.getStatistic(key1, key2, "t"));
         assertNull(featureData.getStatistic((short) (n1+1), (short) 4, "t"));
         assertNull(featureData.getStatistic((short) 1, (short) (n2+2), "t"));
         assertNull(featureData.getStatistic((short) 8, (short) 9, "wrongt"));
     }
 
     @Test
-    public void testUpdateFeatureData() throws Exception {
+    public void testUpdateFeatureDataStatistic() throws Exception {
+        final long testCellId = (numCells / 2) + 97;
+        final short key1 = n1 - 1, key2 = n2 - 2;
+
+        LOG.info("Getting FeatureData and verifying original contents");
         FeatureDataRepository featureDataRepository1 = new FeatureDataRepositoryMapDB(dbFileName);
-        FeatureData featureData1 = featureDataRepository1.get("FeatureDataRepositoryMapDBTest", testCellId);
-        assertEquals(n1, (int) featureData1.getNumberOfLevel1Entries());
-        assertEquals(1, featureData1.getStatistic((short) 1, (short) 1, "t"));
-        assertEquals(49, featureData1.getStatistic((short) 7, (short) 7, "t"));
-        assertEquals(((n1-1)*(n2-2) % 100), featureData1.getStatistic((short) (n1-1), (short) (n2-2), "t"));
+        FeatureData featureData1 = featureDataRepository1.get(testFeatureName, testCellId);
+        assertEquals((key1*key2) % 100, featureData1.getStatistic(key1, key2, "t"));
+        LOG.info("Updating FeatureData");
+        featureData1.setStatistic(key1, key2, "t", 2157);
+        featureDataRepository1.put(testFeatureName, testCellId, featureData1);
+        LOG.info("Closing repository");
         featureDataRepository1.close();
         featureDataRepository1 = null;
+        LOG.info("Done");
 
+        LOG.info("Opening repository");
         FeatureDataRepository featureDataRepository2 = new FeatureDataRepositoryMapDB(dbFileName);
-        FeatureData featureData2 = featureDataRepository2.get("FeatureDataRepositoryMapDBTest", testCellId);
-        featureData2.setStatistic((short) 7, (short) 7, "t", 2157);
-        assertEquals(2157, featureData2.getStatistic((short) 7, (short) 7, "t"));
-        featureDataRepository2.put("FeatureDataRepositoryMapDBTest", testCellId, featureData2);
+        LOG.info("Reading FeatureData");
+        FeatureData featureData2 = featureDataRepository2.get(testFeatureName, testCellId);
+        LOG.info("Checking that value is updated");
+        assertEquals(2157, featureData2.getStatistic(key1, key2, "t"));
+        LOG.info("Done. Closing repository.");
         featureDataRepository2.close();
         featureDataRepository2 = null;
+    }
 
-        FeatureDataRepository featureDataRepository3 = new FeatureDataRepositoryMapDB(dbFileName);
-        FeatureData featureData3 = featureDataRepository3.get("FeatureDataRepositoryMapDBTest", testCellId);
-        featureData3.setStatistic((short) 7, (short) 7, "t", 2157);
-        assertEquals(2157, featureData3.getStatistic((short) 7, (short) 7, "t"));
-        featureDataRepository3.put("FeatureDataRepositoryMapDBTest", testCellId, featureData3);
-        featureDataRepository3.close();
-        featureDataRepository3 = null;
-        assertEquals(2157, featureData3.getStatistic((short) 7, (short) 7, "t"));
+    @Test
+    public void testAddFeatureDataStatistic() throws Exception {
+        final long testCellId = (numCells / 2) + 96;
+        final short key1 = n1 - 1, key2 = n2 - 2;
+
+        LOG.info("Getting FeatureData and verifying original contents");
+        FeatureDataRepository featureDataRepository1 = new FeatureDataRepositoryMapDB(dbFileName);
+        FeatureData featureData1 = featureDataRepository1.get(testFeatureName, testCellId);
+        assertNull(featureData1.getStatistic(key1, key2, "newStatistic"));
+        LOG.info("Adding FeatureData statistic");
+        featureData1.setStatistic(key1, key2, "newStatistic", 43287);
+        featureDataRepository1.put(testFeatureName, testCellId, featureData1);
+        LOG.info("Closing repository");
+        featureDataRepository1.close();
+        featureDataRepository1 = null;
+        LOG.info("Done");
+
+        LOG.info("Opening repository");
+        FeatureDataRepository featureDataRepository2 = new FeatureDataRepositoryMapDB(dbFileName);
+        LOG.info("Reading FeatureData");
+        FeatureData featureData2 = featureDataRepository2.get(testFeatureName, testCellId);
+        LOG.info("Checking that statistic is added");
+        assertEquals(43287, featureData2.getStatistic(key1, key2, "newStatistic"));
+        assertEquals((key1 * key2) % 100, featureData2.getStatistic(key1, key2, "t"));
+        LOG.info("Done. Closing repository.");
+        featureDataRepository2.close();
+        featureDataRepository2 = null;
     }
 
     @Test
@@ -151,7 +186,7 @@ public class FeatureDataRepositoryMapDBTest {
         LOG.info("Found " + featureNames.size() + " feature names.");
 
         assertEquals(1, featureNames.size());
-        assertEquals("FeatureDataRepositoryMapDBTest", featureNames.toArray(new String[0])[0]);
+        assertEquals(testFeatureName, featureNames.toArray(new String[0])[0]);
     }
 
     private static String getTempFilePath() {
