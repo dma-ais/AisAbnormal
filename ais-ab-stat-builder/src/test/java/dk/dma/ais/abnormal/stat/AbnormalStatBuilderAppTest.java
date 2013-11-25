@@ -34,9 +34,12 @@ public class AbnormalStatBuilderAppTest {
     @Test
     public void testApplicationStatistics() throws Exception {
         File tempFile = File.createTempFile("ais-ab-stat-builder", "");
-        String[] args = new String[]{"-dir" ,"src/test/resources", "-input", "ais-sample-micro.txt.gz", "-output", tempFile.getCanonicalPath()};
+        String outputFilename = tempFile.getCanonicalPath();
+        String inputDirectory = "src/test/resources";
+        String inputFilenamePattern = "ais-sample-micro.txt.gz";
+        String[] args = new String[]{"-dir", inputDirectory, "-input", inputFilenamePattern, "-output", outputFilename};
 
-        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestModule(tempFile.getCanonicalPath()));
+        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestModule(tempFile.getCanonicalPath(), inputDirectory, inputFilenamePattern, false));
         AbnormalStatBuilderApp.setInjector(injector);
         AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
 
@@ -52,9 +55,12 @@ public class AbnormalStatBuilderAppTest {
     @Test
     public void testFeatureStatistics() throws Exception {
         File tempFile = File.createTempFile("ais-ab-stat-builder", "");
-        String[] args = new String[]{"-dir" ,"src/test/resources", "-input", "ais-sample-micro.txt.gz", "-output", tempFile.getCanonicalPath()};
+        String outputFilename = tempFile.getCanonicalPath();
+        String inputDirectory = "src/test/resources";
+        String inputFilenamePattern = "ais-sample-micro.txt.gz";
+        String[] args = new String[]{"-dir", inputDirectory, "-input", inputFilenamePattern, "-output", outputFilename};
 
-        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestModule(tempFile.getCanonicalPath()));
+        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestModule(tempFile.getCanonicalPath(), inputDirectory, inputFilenamePattern, false));
         AbnormalStatBuilderApp.setInjector(injector);
         AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
 
@@ -68,9 +74,12 @@ public class AbnormalStatBuilderAppTest {
     @Test
     public void testMetadataWrittenToDatabase() throws Exception {
         File tempFile = File.createTempFile("ais-ab-stat-builder", "");
-        String[] args = new String[]{"-dir" ,"src/test/resources", "-input", "ais-sample-micro.txt.gz", "-output", tempFile.getCanonicalPath()};
+        String outputFilename = tempFile.getCanonicalPath();
+        String inputDirectory = "src/test/resources";
+        String inputFilenamePattern = "ais-sample-micro.txt.gz";
+        String[] args = new String[]{"-dir", inputDirectory, "-input", inputFilenamePattern, "-output", outputFilename};
 
-        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestModule(tempFile.getCanonicalPath()));
+        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestModule(tempFile.getCanonicalPath(), inputDirectory, inputFilenamePattern, false));
         AbnormalStatBuilderApp.setInjector(injector);
         AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
 

@@ -24,6 +24,8 @@ import dk.dma.ais.abnormal.stat.db.mapdb.FeatureDataRepositoryMapDB;
 import dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature;
 import dk.dma.ais.abnormal.stat.tracker.TrackingService;
 import dk.dma.ais.abnormal.stat.tracker.TrackingServiceImpl;
+import dk.dma.ais.reader.AisReader;
+import dk.dma.ais.reader.AisReaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,10 +33,16 @@ public class AbnormalStatBuilderAppTestModule extends AbstractModule {
 
     private static Logger LOG = LoggerFactory.getLogger(AbnormalStatBuilderAppModule.class);
 
-    private final String dbFilename;
+    private final String outputFilename;
+    private final String inputDirectory;
+    private final String inputFilenamePattern;
+    private final boolean inputRecursive;
 
-    public AbnormalStatBuilderAppTestModule(String dbFilename) {
-        this.dbFilename = dbFilename;
+    public AbnormalStatBuilderAppTestModule(String outputFilename, String inputDirectory, String inputFilenamePattern, boolean inputRecursive) {
+        this.outputFilename = outputFilename;
+        this.inputDirectory = inputDirectory;
+        this.inputFilenamePattern = inputFilenamePattern;
+        this.inputRecursive = inputRecursive;
     }
 
     @Override
@@ -55,12 +63,23 @@ public class AbnormalStatBuilderAppTestModule extends AbstractModule {
     FeatureDataRepository provideFeatureDataRepository() {
         FeatureDataRepository featureDataRepository = null;
         try {
-            LOG.info("Using dbFileName: " + dbFilename);
-            featureDataRepository = new FeatureDataRepositoryMapDB(dbFilename, false);
+            LOG.info("Using dbFileName: " + outputFilename);
+            featureDataRepository = new FeatureDataRepositoryMapDB(outputFilename, false);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return featureDataRepository;
+    }
+
+    @Provides
+    AisReader provideAisReader() {
+        AisReader aisReader = null;
+        try {
+            aisReader = AisReaders.createDirectoryReader(inputDirectory, inputFilenamePattern, inputRecursive);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return aisReader;
     }
 
 }

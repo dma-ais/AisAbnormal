@@ -16,7 +16,6 @@
 package dk.dma.ais.abnormal.stat;
 
 import com.beust.jcommander.Parameter;
-import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -58,14 +57,12 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
     @Inject
     private volatile AppStatisticsService appStatisticsService;
 
+    @Inject
     private volatile AisReader reader;
 
     @Override
     protected void runDaemon(Injector injector) throws Exception {
         LOG.info("AbnormalStatBuilderApp starting using dir: " + dir + " inputFilenamePattern: " + inputFilenamePattern + (recursive ? "(recursive)" : ""));
-
-        // Create and start reader
-        reader = AisReaders.createDirectoryReader(dir, inputFilenamePattern, recursive);
         reader.registerPacketHandler(handler);
         reader.start();
         reader.join();
@@ -105,16 +102,28 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
         return injector;
     }
 
-    private static String getDbFilename(String[] args) {
+    private static String getCmdLineArgument(String[] args, String argumentName) {
         // TODO find a way to share cmdline parameters with module
-        String dbFilename = null;
+        String argumentValue = null;
         for (int i=0; i<args.length; i++) {
-            if ("-output".equalsIgnoreCase(args[i])) {
-                dbFilename = args[i+1];
+            if (argumentName.equalsIgnoreCase(args[i])) {
+                argumentValue = args[i+1];
                 break;
             }
         }
-        return dbFilename;
+        return argumentValue;
+    }
+
+    private static boolean getCmdLineSwitch(String[] args, String switchName) {
+        // TODO find a way to share cmdline parameters with module
+        boolean found = false;
+        for (int i=0; i<args.length; i++) {
+            if (switchName.equalsIgnoreCase(args[i])) {
+                found = true;
+                break;
+            }
+        }
+        return found;
     }
 
     public static void main(String[] args) throws Exception {
@@ -131,11 +140,15 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
         // AbstractModule module = new AbnormalStatBuilderAppModule(app);
         // app.addModule(module);
 
-        String dbFilename = getDbFilename(args);
-        if (dbFilename == null) {
+        String outputFilename = getCmdLineArgument(args, "-output");
+        String inputDirectory = getCmdLineArgument(args, "-dir");
+        String inputFilenamePattern = getCmdLineArgument(args, "-input");
+        boolean inputRecursive = getCmdLineSwitch(args, "-r");
+
+        if (outputFilename == null) {
             LOG.error("No -output parameter found in cmd line parameters.");
         } else {
-            Injector injector = Guice.createInjector(new AbnormalStatBuilderAppModule(dbFilename));
+            Injector injector = Guice.createInjector(new AbnormalStatBuilderAppModule(outputFilename, inputDirectory, inputFilenamePattern, inputRecursive));
             AbnormalStatBuilderApp.setInjector(injector);
             AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
             app.execute(args);
