@@ -15,6 +15,8 @@
  */
 package dk.dma.ais.abnormal.stat;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
@@ -37,16 +39,16 @@ public class AbnormalStatBuilderAppTest {
         String outputFilename = tempFile.getCanonicalPath();
         String inputDirectory = "src/test/resources";
         String inputFilenamePattern = "ais-sample-micro.txt.gz";
-        String[] args = new String[]{"-dir", inputDirectory, "-input", inputFilenamePattern, "-output", outputFilename};
+        String[] args = new String[]{"-inputDirectory", inputDirectory, "-input", inputFilenamePattern, "-output", outputFilename};
 
         Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestModule(tempFile.getCanonicalPath(), inputDirectory, inputFilenamePattern, false, 200.0));
         AbnormalStatBuilderApp.setInjector(injector);
         AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
 
-        app.execute(args);
+        AbnormalStatBuilderApp.userArguments =  parseUserArguments(args);
+        app.execute(new String[]{});
 
-        AppStatisticsService appStatistics = app.getAppStatisticsService();
-
+        AppStatisticsService appStatistics = injector.getInstance(AppStatisticsService.class);
         assertEquals(9, appStatistics.getMessageCount());
         assertEquals(8, appStatistics.getPosMsgCount());
         assertEquals(1, appStatistics.getStatMsgCount());
@@ -58,16 +60,16 @@ public class AbnormalStatBuilderAppTest {
         String outputFilename = tempFile.getCanonicalPath();
         String inputDirectory = "src/test/resources";
         String inputFilenamePattern = "ais-sample-micro.txt.gz";
-        String[] args = new String[]{"-dir", inputDirectory, "-input", inputFilenamePattern, "-output", outputFilename};
+        String[] args = new String[]{"-inputDirectory", inputDirectory, "-input", inputFilenamePattern, "-output", outputFilename};
 
         Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestModule(tempFile.getCanonicalPath(), inputDirectory, inputFilenamePattern, false, 200.0));
         AbnormalStatBuilderApp.setInjector(injector);
         AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
 
-        app.execute(args);
+        AbnormalStatBuilderApp.userArguments =  parseUserArguments(args);
+        app.execute(new String[]{});
 
-        AppStatisticsService appStatistics = app.getAppStatisticsService();
-
+        AppStatisticsService appStatistics = injector.getInstance(AppStatisticsService.class);
         assertEquals((Long) 8L, appStatistics.getFeatureStatistics("ShipTypeAndSizeFeature","Events processed"));
     }
 
@@ -77,13 +79,14 @@ public class AbnormalStatBuilderAppTest {
         String outputFilename = tempFile.getCanonicalPath();
         String inputDirectory = "src/test/resources";
         String inputFilenamePattern = "ais-sample-micro.txt.gz";
-        String[] args = new String[]{"-dir", inputDirectory, "-input", inputFilenamePattern, "-output", outputFilename};
+        String[] args = new String[]{"-inputDirectory", inputDirectory, "-input", inputFilenamePattern, "-output", outputFilename};
 
         Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestModule(tempFile.getCanonicalPath(), inputDirectory, inputFilenamePattern, false, 200.0));
         AbnormalStatBuilderApp.setInjector(injector);
         AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
 
-        app.execute(args);
+        AbnormalStatBuilderApp.userArguments =  parseUserArguments(args);
+        app.execute(new String[]{});
 
         FeatureDataRepository featureDataRepository = injector.getInstance(FeatureDataRepository.class);
 
@@ -91,6 +94,17 @@ public class AbnormalStatBuilderAppTest {
         assertEquals((Double) 0.0017966313162819712 /* res 200.0 */, featureDataRepository.getMetaData().getGridSize(), 1e-10);
         assertEquals((Integer) 60, featureDataRepository.getMetaData().getDownsampling());
         assertEquals((Short) (short) 1, featureDataRepository.getMetaData().getFormatVersion());
+    }
+
+    private static UserArguments parseUserArguments(String[] args) {
+        UserArguments userArguments = new UserArguments();
+        try {
+            new JCommander(userArguments, args);
+        } catch (ParameterException e) {
+            e.printStackTrace(System.err);
+            new JCommander(userArguments, new String[] { "-help" }).usage();
+        }
+        return userArguments;
     }
 
 }

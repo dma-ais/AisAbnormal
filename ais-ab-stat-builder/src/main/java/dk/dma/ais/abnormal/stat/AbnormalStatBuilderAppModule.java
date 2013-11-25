@@ -37,9 +37,9 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
     private final String inputDirectory;
     private final String inputFilenamePattern;
     private final boolean inputRecursive;
-    private final Double gridSize;
+    private final Integer gridSize;
 
-    public AbnormalStatBuilderAppModule(String outputFilename, String inputDirectory, String inputFilenamePattern, boolean inputRecursive, Double gridSize) {
+    public AbnormalStatBuilderAppModule(String outputFilename, String inputDirectory, String inputFilenamePattern, boolean inputRecursive, Integer gridSize) {
         this.outputFilename = outputFilename;
         this.inputDirectory = inputDirectory;
         this.inputFilenamePattern = inputFilenamePattern;
@@ -74,7 +74,7 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
             LOG.info("Using dbFileName: " + outputFilename);
             featureDataRepository = new FeatureDataRepositoryMapDB(outputFilename, false);
         } catch (Exception e) {
-            LOG.error("Failed to create Grid object", e);
+            LOG.error("Failed to create FeatureDataRepository object", e);
         }
         return featureDataRepository;
     }
@@ -85,7 +85,7 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
         try {
             aisReader = AisReaders.createDirectoryReader(inputDirectory, inputFilenamePattern, inputRecursive);
         } catch (Exception e) {
-            LOG.error("Failed to create Grid object", e);
+            LOG.error("Failed to create AisReader object", e);
         }
         return aisReader;
     }

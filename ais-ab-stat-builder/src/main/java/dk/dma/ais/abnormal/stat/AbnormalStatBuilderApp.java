@@ -15,7 +15,9 @@
  */
 package dk.dma.ais.abnormal.stat;
 
+import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -42,29 +44,8 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
     // TODO find a way to share injector stored in AbstractDmaApplication
     private static Injector injector;
 
-    @Parameter(names = "-dir", description = "Directory to scan for files to read")
-    private String dir = ".";
-    
-    @Parameter(names = "-r", description = "Recursive directory scan")
-    private boolean recursive;
-
-    @Parameter(names = "-input", description = "Glob pattern for files to read. '.zip' and '.gz' files are decompressed automatically.", required = true)
-    private String inputFilenamePattern;
-
-    @Parameter(names = "-output", description = "Name of output file.", required = true)
-    private String outputFilename;
-
-    @Parameter(names = "-gridsize", description = "Grid resolution (approx. cell size in meters).")
-    private Integer gridSize = 200;
-
-    @Parameter(names = "-downsampling", description = "Downsampling period (in secs).")
-    private Integer downSampling = 60;
-
     @Inject
     private PacketHandler handler;
-
-    @Inject
-    private AppStatisticsService appStatisticsService;
 
     @Inject
     private AisReader reader;
@@ -72,14 +53,16 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
     @Inject
     private FeatureDataRepository featureDataRepository;
 
+    static UserArguments userArguments;
+
     @Override
     protected void runDaemon(Injector injector) throws Exception {
-        LOG.info("AbnormalStatBuilderApp starting using dir: " + dir + " inputFilenamePattern: " + inputFilenamePattern + (recursive ? "(recursive)" : ""));
+        LOG.info("Application starting.");
 
         // Write dataset metadata before we start
         Grid grid = getInjector().getInstance(Grid.class);
 
-        DatasetMetaData metadata = new DatasetMetaData(grid.getResolution(), downSampling);
+        DatasetMetaData metadata = new DatasetMetaData(grid.getResolution(), userArguments.getDownSampling());
         featureDataRepository.putMetaData(metadata);
 
         reader.registerPacketHandler(handler);
@@ -105,42 +88,12 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
         super.execute(args);
     }
 
-    public AppStatisticsService getAppStatisticsService() {
-        return appStatisticsService;
-    }
-
-    public String getOutputFilename() {
-        return outputFilename;
-    }
-
     public static void setInjector(Injector injector) {
         AbnormalStatBuilderApp.injector = injector;
     }
 
     public static Injector getInjector() {
         return injector;
-    }
-
-    private static String getCmdLineArgument(String[] args, String argumentName) {
-        String argumentValue = null;
-        for (int i=0; i<args.length; i++) {
-            if (argumentName.equalsIgnoreCase(args[i])) {
-                argumentValue = args[i+1];
-                break;
-            }
-        }
-        return argumentValue;
-    }
-
-    private static boolean getCmdLineSwitch(String[] args, String switchName) {
-        boolean found = false;
-        for (int i=0; i<args.length; i++) {
-            if (switchName.equalsIgnoreCase(args[i])) {
-                found = true;
-                break;
-            }
-        }
-        return found;
     }
 
     public static void main(String[] args) throws Exception {
@@ -157,21 +110,26 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
         // AbstractModule module = new AbnormalStatBuilderAppModule(app);
         // app.addModule(module);
 
-        // TODO find a way to share jcommander cmdline parameters with Guice module
-        String outputFilename = getCmdLineArgument(args, "-output");
-        String inputDirectory = getCmdLineArgument(args, "-dir");
-        String inputFilenamePattern = getCmdLineArgument(args, "-input");
-        Double gridSize = Double.valueOf(getCmdLineArgument(args, "-gridsize"));
-        String downSampling = getCmdLineArgument(args, "-downsampling");
-        boolean inputRecursive = getCmdLineSwitch(args, "-r");
+        // TODO find a way to share DMA AbtractCommandLineTool parameters with Guice module/userArguments
+        userArguments = new UserArguments();
+        JCommander jCommander=null;
 
-        if (outputFilename == null) {
-            LOG.error("No -output parameter found in cmd line parameters.");
+        try {
+            jCommander = new JCommander(userArguments, args);
+        } catch (ParameterException e) {
+            System.out.println(e.getMessage());
+            userArguments.setHelp(true);
+        }
+
+        if (userArguments.isHelp()) {
+            jCommander = new JCommander(userArguments, new String[] { "-help", "-input", "-output" });
+            jCommander.setProgramName("AbnormalStatBuilderApp");
+            jCommander.usage();
         } else {
-            Injector injector = Guice.createInjector(new AbnormalStatBuilderAppModule(outputFilename, inputDirectory, inputFilenamePattern, inputRecursive, gridSize));
+            Injector injector = Guice.createInjector(new AbnormalStatBuilderAppModule(userArguments.getOutputFilename(), userArguments.getInputDirectory(), userArguments.getInputFilenamePattern(), userArguments.isRecursive(), userArguments.getGridSize()));
             AbnormalStatBuilderApp.setInjector(injector);
             AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
-            app.execute(args);
+            app.execute(new String[]{} /* no cmd args - we handled them already */ );
             // app.handler.printAllFeatureStatistics(System.out);
         }
     }

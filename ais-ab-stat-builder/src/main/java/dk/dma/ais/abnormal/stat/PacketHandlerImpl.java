@@ -22,7 +22,6 @@ import dk.dma.ais.abnormal.stat.features.Feature;
 import dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature;
 import dk.dma.ais.abnormal.stat.tracker.TrackingService;
 import dk.dma.ais.message.AisMessage5;
-import dk.dma.ais.message.AisUnsupportedMessageType;
 import dk.dma.ais.message.IPositionMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +43,7 @@ public class PacketHandlerImpl implements PacketHandler {
     static final Logger LOG = LoggerFactory.getLogger(PacketHandler.class);
     
     @Inject
-    private AppStatisticsService appStatisticsService; // = new AppStatisticsServiceImpl(1, TimeUnit.MINUTES);
+    private AppStatisticsService statisticsService; // = new AppStatisticsServiceImpl(1, TimeUnit.MINUTES);
 
     @Inject
     private TrackingService trackingService;
@@ -70,33 +69,33 @@ public class PacketHandlerImpl implements PacketHandler {
             return;
         }
 
-        appStatisticsService.incUnfilteredPacketCount();
+        statisticsService.incUnfilteredPacketCount();
 
         // Duplicate and down sampling filtering
         if (duplicateFilter.rejectedByFilter(packet) || downSampleFilter.rejectedByFilter(packet)) {
             return;
         }
 
-        appStatisticsService.incFilteredPacketCount();
+        statisticsService.incFilteredPacketCount();
 
         // Get AisMessage from packet or drop
         AisMessage message = packet.tryGetAisMessage();
         if (message == null) {
             return;
         }
-        appStatisticsService.incMessageCount();
+        statisticsService.incMessageCount();
 
         if (message instanceof IPositionMessage) {
-            appStatisticsService.incPosMsgCount();
+            statisticsService.incPosMsgCount();
         } else if (message instanceof AisMessage5) {
-            appStatisticsService.incStatMsgCount();
+            statisticsService.incStatMsgCount();
         }
 
         final Date timestamp = packet.getTags().getTimestamp();
         trackingService.update(timestamp, message);
 
-        appStatisticsService.setTrackCount(trackingService.getNumberOfTracks());
-        appStatisticsService.log();
+        statisticsService.setTrackCount(trackingService.getNumberOfTracks());
+        statisticsService.log();
     }
 
     @Override
@@ -107,7 +106,7 @@ public class PacketHandlerImpl implements PacketHandler {
 
     @Override
     public AppStatisticsService getBuildStats() {
-        return appStatisticsService;
+        return statisticsService;
     }
 
     @Override
