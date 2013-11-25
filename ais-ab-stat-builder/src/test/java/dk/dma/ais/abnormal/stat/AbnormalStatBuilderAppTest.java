@@ -19,6 +19,8 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.junit.Test;
 
+import java.io.File;
+
 import static org.junit.Assert.assertEquals;
 
 public class AbnormalStatBuilderAppTest {
@@ -29,9 +31,10 @@ public class AbnormalStatBuilderAppTest {
      */
     @Test
     public void testApplicationStatistics() throws Exception {
-        String[] args = new String[]{"-dir" ,"ais-ab-stat-builder/src/test/resources", "-name", "ais-sample-micro.txt.gz"};
+        File tempFile = File.createTempFile("ais-ab-stat-builder", "");
+        String[] args = new String[]{"-dir" ,"src/test/resources", "-input", "ais-sample-micro.txt.gz", "-output", tempFile.getCanonicalPath()};
 
-        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestInjector());
+        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestModule(tempFile.getCanonicalPath()));
         AbnormalStatBuilderApp.setInjector(injector);
         AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
 
@@ -46,9 +49,10 @@ public class AbnormalStatBuilderAppTest {
 
     @Test
     public void testFeatureStatistics() throws Exception {
-        String[] args = new String[]{"-dir" ,"ais-ab-stat-builder/src/test/resources", "-name", "ais-sample-micro.txt.gz"};
+        File tempFile = File.createTempFile("ais-ab-stat-builder", "");
+        String[] args = new String[]{"-dir" ,"src/test/resources", "-input", "ais-sample-micro.txt.gz", "-output", tempFile.getCanonicalPath()};
 
-        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestInjector());
+        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestModule(tempFile.getCanonicalPath()));
         AbnormalStatBuilderApp.setInjector(injector);
         AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
 
@@ -56,6 +60,6 @@ public class AbnormalStatBuilderAppTest {
 
         AppStatisticsService appStatistics = app.getAppStatisticsService();
 
-        assertEquals((Long) 8l, appStatistics.getFeatureStatistics("ShipTypeAndSizeFeature","Events processed"));
+        assertEquals((Long) 8L, appStatistics.getFeatureStatistics("ShipTypeAndSizeFeature","Events processed"));
     }
 }

@@ -17,14 +17,24 @@
 package dk.dma.ais.abnormal.stat;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
+import dk.dma.ais.abnormal.stat.db.mapdb.FeatureDataRepositoryMapDB;
 import dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature;
 import dk.dma.ais.abnormal.stat.tracker.TrackingService;
 import dk.dma.ais.abnormal.stat.tracker.TrackingServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public final class AbnormalStatBuilderAppInjector extends AbstractModule {
+public class AbnormalStatBuilderAppTestModule extends AbstractModule {
 
-    public AbnormalStatBuilderAppInjector() {
+    private static Logger LOG = LoggerFactory.getLogger(AbnormalStatBuilderAppModule.class);
+
+    private final String dbFilename;
+
+    public AbnormalStatBuilderAppTestModule(String dbFilename) {
+        this.dbFilename = dbFilename;
     }
 
     @Override
@@ -34,5 +44,23 @@ public final class AbnormalStatBuilderAppInjector extends AbstractModule {
         bind(AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
         bind(TrackingService.class).to(TrackingServiceImpl.class).in(Singleton.class);
         bind(ShipTypeAndSizeFeature.class);
+
+        // Test stubs
+        // bind(FeatureDataRepository.class).to(FeatureDataRepositoryTestStub);
+
     }
+
+    @Provides
+    @Singleton
+    FeatureDataRepository provideFeatureDataRepository() {
+        FeatureDataRepository featureDataRepository = null;
+        try {
+            LOG.info("Using dbFileName: " + dbFilename);
+            featureDataRepository = new FeatureDataRepositoryMapDB(dbFilename, false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return featureDataRepository;
+    }
+
 }

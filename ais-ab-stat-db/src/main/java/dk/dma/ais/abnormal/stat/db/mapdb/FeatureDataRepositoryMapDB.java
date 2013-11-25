@@ -30,19 +30,35 @@ import java.util.Set;
 
 public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
 
-    static final Logger LOG = LoggerFactory.getLogger(FeatureDataRepositoryMapDB.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FeatureDataRepositoryMapDB.class);
 
     private static final String FILENAME_SUFFIX = ".featureData";
 
     private DB db;
 
-    public FeatureDataRepositoryMapDB(String dbFileName) throws Exception {
+    private final boolean readOnly;
+
+    public FeatureDataRepositoryMapDB(String dbFileName, boolean readOnly) throws Exception {
+
+        this.readOnly = readOnly;
+
         if (! dbFileName.endsWith(FILENAME_SUFFIX)) {
             dbFileName = dbFileName.concat(FILENAME_SUFFIX);
         }
 
+        // Assert that stated file is usable
         File dbFile = new File(dbFileName);
         String canonicalPath = dbFile.getCanonicalPath();// Check that path is valid
+
+        if (!readOnly && dbFile.exists()) {
+            LOG.warn("File " + dbFile.getName() + " already exists!");
+        }
+        if (!readOnly && dbFile.exists() && !dbFile.canWrite()) {
+            LOG.warn("Cannot write to file " + dbFile.getName());
+        }
+        if (readOnly && dbFile.exists() && !dbFile.canRead()) {
+            LOG.error("Cannot read from file " + dbFile.getName());
+        }
 
         LOG.debug("Attempting to access feature data in file " + canonicalPath);
 
@@ -52,15 +68,28 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
             LOG.debug("Will create new file: " + canonicalPath);
         }
 
-        db = DBMaker
-                .newFileDB(dbFile)
-                .transactionDisable()
-                .fullChunkAllocationEnable()
-                .randomAccessFileEnable()
-                //.asyncWriteDisable()
-                .cacheDisable()
-                .closeOnJvmShutdown()
-                .make();
+        if (readOnly) {
+            db = DBMaker
+                    .newFileDB(dbFile)
+                    .transactionDisable()
+                    .fullChunkAllocationEnable()
+                    .randomAccessFileEnable()
+                            //.asyncWriteDisable()
+                    .cacheDisable()
+                    .closeOnJvmShutdown()
+                    .readOnly()
+                    .make();
+        } else {
+            db = DBMaker
+                    .newFileDB(dbFile)
+                    .transactionDisable()
+                    .fullChunkAllocationEnable()
+                    .randomAccessFileEnable()
+                            //.asyncWriteDisable()
+                    .cacheDisable()
+                    .closeOnJvmShutdown()
+                    .make();
+        }
 
         LOG.debug("File " + canonicalPath + " successfully opened by MapDB.");
     }
@@ -87,10 +116,16 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
     }
 
     @Override
+    public long getNumberOfCells(String featureName) {
+        BTreeMap<Object, Object> allCellDataForFeature = db.createTreeMap(featureName).makeOrGet();
+        long numberOfCells = allCellDataForFeature.sizeLong();
+        return numberOfCells;
+    }
+
+    @Override
     public FeatureData get(String featureName, long cellId) {
         BTreeMap<Object, Object> allCellDataForFeature = db.createTreeMap(featureName).makeOrGet();
         FeatureData featureData = (FeatureData) allCellDataForFeature.get(cellId);
-        db.commit();
         return featureData;
     }
 
@@ -103,7 +138,9 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
     @Override
     public void close() {
         LOG.info("Attempting to commit feature data repository.");
-        db.commit();
+        if (!readOnly) {
+            db.commit();
+        }
         LOG.info("Feature data repository committed.");
 
         // LOG.info("Attempting to compact feature data repository.");

@@ -19,6 +19,8 @@ package dk.dma.ais.abnormal.stat.features;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import dk.dma.ais.abnormal.stat.AppStatisticsService;
+import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
+import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 import dk.dma.ais.abnormal.stat.tracker.Track;
 import dk.dma.ais.abnormal.stat.tracker.TrackingService;
 import dk.dma.ais.abnormal.stat.tracker.events.CellIdChangedEvent;
@@ -32,14 +34,16 @@ public class ShipTypeAndSizeFeature implements Feature {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger(ShipTypeAndSizeFeature.class);
 
-    private AppStatisticsService appStatisticsService;
-    private TrackingService trackingService;
+    private final AppStatisticsService appStatisticsService;
+    private final TrackingService trackingService;
+    private final FeatureDataRepository featureDataRepository;
 
-    FeatureStatistics featureStatistics = new FeatureStatistics();
+    private static final String FEATURE_NAME = ShipTypeAndSizeFeature.class.getSimpleName();
 
     @Inject
-    public ShipTypeAndSizeFeature(AppStatisticsService appStatisticsService, TrackingService trackingService) {
+    public ShipTypeAndSizeFeature(AppStatisticsService appStatisticsService, TrackingService trackingService, FeatureDataRepository featureDataRepository) {
         this.appStatisticsService = appStatisticsService;
+        this.featureDataRepository = featureDataRepository;
         this.trackingService = trackingService;
         this.trackingService.registerSubscriber(this);
     }
@@ -61,30 +65,43 @@ public class ShipTypeAndSizeFeature implements Feature {
 
         if (cellId == null) {
             LOG.error("cellId is unexpectedly null (mmsi " + track.getMmsi() + ")");
+            appStatisticsService.incFeatureStatistics(this.getClass().getSimpleName(), "Unknown mmsi");
             return;
         }
 
         if (shipType == null) {
             LOG.debug("shipType is null - probably no static data received yet (mmsi " + track.getMmsi() + ")");
+            appStatisticsService.incFeatureStatistics(this.getClass().getSimpleName(), "Unknown ship type");
             return;
         }
 
         if (shipLength == null) {
             LOG.debug("shipLength is null - probably no static data received yet (mmsi " + track.getMmsi() + ")");
+            appStatisticsService.incFeatureStatistics(this.getClass().getSimpleName(), "Unknown ship length");
             return;
         }
 
-        Integer shipTypeBucket = mapShipTypeToBucket(shipType);
-        Integer shipSizeBucket = mapShipLengthToBucket(shipLength);
+        short shipTypeBucket = mapShipTypeToBucket(shipType);
+        short shipSizeBucket = mapShipLengthToBucket(shipLength);
 
-        featureStatistics.incrementStatistic(cellId, shipTypeBucket, shipSizeBucket, "shipCount");
+        FeatureData featureData = featureDataRepository.get(FEATURE_NAME, cellId);
+        if (featureData == null) {
+            LOG.debug("No feature data for cell id " + cellId + " found in repo. Creating new.");
+            featureData = new FeatureData();
+        }
 
-        appStatisticsService.setFeatureStatistics(this.getClass().getSimpleName(), "Cell count", Long.valueOf(featureStatistics.getNumberOfLevel1Entries()));
+        featureData.incrementStatistic(shipTypeBucket, shipSizeBucket, "shipCount");
+
+        LOG.debug("Storing feature data for cellId " + cellId + ", featureName " + FEATURE_NAME);
+        featureDataRepository.put(FEATURE_NAME, cellId, featureData);
+        LOG.debug("Feature data for cellId " + cellId + ", featureName " + FEATURE_NAME + " stored.");
+
+        appStatisticsService.setFeatureStatistics(this.getClass().getSimpleName(), "Cell count", featureDataRepository.getNumberOfCells(FEATURE_NAME));
         appStatisticsService.incFeatureStatistics(this.getClass().getSimpleName(), "Events processed ok");
     }
 
-    private static Integer mapShipTypeToBucket(Integer shipType) {
-        Integer bucket = 8;
+    private static short mapShipTypeToBucket(Integer shipType) {
+        short bucket = 8;
         if (shipType>79 && shipType<90) {
             bucket = 1;
         } else if (shipType>69 && shipType<80) {
@@ -106,8 +123,8 @@ public class ShipTypeAndSizeFeature implements Feature {
         return bucket;
     }
 
-    private static Integer mapShipLengthToBucket(Integer shipLength) {
-        Integer bucket;
+    private static short mapShipLengthToBucket(Integer shipLength) {
+        short bucket;
         if (shipLength >= 0 && shipLength < 1) {
             bucket = 1;
         } else if (shipLength >= 1 && shipLength < 50) {
@@ -127,6 +144,6 @@ public class ShipTypeAndSizeFeature implements Feature {
 
     @Override
     public void printStatistics(PrintStream stream) {
-        this.featureStatistics.printStatistics(stream);
+     //   this.featureData.printStatistics(stream);
     }
 }

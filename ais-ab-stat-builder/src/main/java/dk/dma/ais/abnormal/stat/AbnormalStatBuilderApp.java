@@ -16,6 +16,7 @@
 package dk.dma.ais.abnormal.stat;
 
 import com.beust.jcommander.Parameter;
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -33,33 +34,38 @@ import java.lang.Thread.UncaughtExceptionHandler;
 public final class AbnormalStatBuilderApp extends AbstractDaemon {
 
     /** The logger */
-    static final Logger LOG = LoggerFactory.getLogger(AbnormalStatBuilderApp.class);
+    //@Log
+    private static Logger LOG = LoggerFactory.getLogger(AbnormalStatBuilderApp.class);
 
-    // Bootstrap Guice dependency injection
+    // TODO find a way to share injector stored in AbstractDmaApplication
     private static Injector injector;
 
     @Parameter(names = "-dir", description = "Directory to scan for files to read")
-    String dir = ".";
+    private String dir = ".";
     
     @Parameter(names = "-r", description = "Recursive directory scan")
-    boolean recursive;
+    private boolean recursive;
 
-    @Parameter(names = "-name", description = "Glob pattern for files to read. '.zip' and '.gz' files are decompressed automatically.", required = true)
-    String name;
+    @Parameter(names = "-input", description = "Glob pattern for files to read. '.zip' and '.gz' files are decompressed automatically.", required = true)
+    private String inputFilenamePattern;
+
+    @Parameter(names = "-output", description = "Name of output file.", required = true)
+    private String outputFilename;
 
     @Inject
     private volatile PacketHandler handler;
-    private volatile AisReader reader;
 
     @Inject
-    private AppStatisticsService appStatisticsService;
+    private volatile AppStatisticsService appStatisticsService;
+
+    private volatile AisReader reader;
 
     @Override
     protected void runDaemon(Injector injector) throws Exception {
-        LOG.info("AbnormalStatBuilderApp starting using dir: " + dir + " name: " + name + (recursive ? "(recursive)" : ""));
+        LOG.info("AbnormalStatBuilderApp starting using dir: " + dir + " inputFilenamePattern: " + inputFilenamePattern + (recursive ? "(recursive)" : ""));
 
         // Create and start reader
-        reader = AisReaders.createDirectoryReader(dir, name, recursive);
+        reader = AisReaders.createDirectoryReader(dir, inputFilenamePattern, recursive);
         reader.registerPacketHandler(handler);
         reader.start();
         reader.join();
@@ -87,12 +93,28 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
         return appStatisticsService;
     }
 
+    public String getOutputFilename() {
+        return outputFilename;
+    }
+
     public static void setInjector(Injector injector) {
         AbnormalStatBuilderApp.injector = injector;
     }
 
     public static Injector getInjector() {
         return injector;
+    }
+
+    private static String getDbFilename(String[] args) {
+        // TODO find a way to share cmdline parameters with module
+        String dbFilename = null;
+        for (int i=0; i<args.length; i++) {
+            if ("-output".equalsIgnoreCase(args[i])) {
+                dbFilename = args[i+1];
+                break;
+            }
+        }
+        return dbFilename;
     }
 
     public static void main(String[] args) throws Exception {
@@ -104,14 +126,20 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
             }
         });
 
-        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppInjector());
-        AbnormalStatBuilderApp.setInjector(injector);
-        AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
+        // TODO find a way to integrate with app.addModule
+        // AbnormalStatBuilderApp app = new AbnormalStatBuilderApp();
+        // AbstractModule module = new AbnormalStatBuilderAppModule(app);
+        // app.addModule(module);
 
-        // Start application
-        app.execute(args);
-
-        // Round off
-        app.handler.printAllFeatureStatistics(System.out);
+        String dbFilename = getDbFilename(args);
+        if (dbFilename == null) {
+            LOG.error("No -output parameter found in cmd line parameters.");
+        } else {
+            Injector injector = Guice.createInjector(new AbnormalStatBuilderAppModule(dbFilename));
+            AbnormalStatBuilderApp.setInjector(injector);
+            AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
+            app.execute(args);
+            // app.handler.printAllFeatureStatistics(System.out);
+        }
     }
 }
