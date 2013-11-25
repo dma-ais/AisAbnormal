@@ -36,7 +36,8 @@ public final class AppStatisticsServiceImpl implements AppStatisticsService {
     private final long logInterval;
     private final long startTime = System.currentTimeMillis();
 
-    private long packetCount;
+    private long unfilteredPacketCount;
+    private long filteredPacketCount;
     private long messageCount;
     private long posMsgCount;
     private long statMsgCount;
@@ -97,8 +98,13 @@ public final class AppStatisticsServiceImpl implements AppStatisticsService {
     */
 
     @Override
-    public void incPacketCount() {
-        packetCount++;
+    public void incFilteredPacketCount() {
+        filteredPacketCount++;
+    }
+
+    @Override
+    public void incUnfilteredPacketCount() {
+        unfilteredPacketCount++;
     }
 
     @Override
@@ -117,8 +123,13 @@ public final class AppStatisticsServiceImpl implements AppStatisticsService {
     }
     
     @Override
-    public long getPacketCount() {
-        return packetCount;
+    public long getFilteredPacketCount() {
+        return filteredPacketCount;
+    }
+
+    @Override
+    public long getUnfilteredPacketCount() {
+        return unfilteredPacketCount;
     }
 
     @Override
@@ -167,7 +178,8 @@ public final class AppStatisticsServiceImpl implements AppStatisticsService {
             return;
         }
         LOG.info("==== Stat build application statistics ====");
-        LOG.info(String.format("%-30s %9d", "Packet count", packetCount));
+        LOG.info(String.format("%-30s %9d", "Unfiltered packet count", unfilteredPacketCount));
+        LOG.info(String.format("%-30s %9d", "Filtered packet count", filteredPacketCount));
         LOG.info(String.format("%-30s %9d", "Message count", messageCount));
         LOG.info(String.format("%-30s %9d", "Pos message count", posMsgCount));
         LOG.info(String.format("%-30s %9d", "Stat message count", statMsgCount));

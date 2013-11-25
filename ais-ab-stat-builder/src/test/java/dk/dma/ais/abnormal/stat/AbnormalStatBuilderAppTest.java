@@ -17,11 +17,13 @@ package dk.dma.ais.abnormal.stat;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import org.junit.Test;
 
 import java.io.File;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class AbnormalStatBuilderAppTest {
 
@@ -62,4 +64,22 @@ public class AbnormalStatBuilderAppTest {
 
         assertEquals((Long) 8L, appStatistics.getFeatureStatistics("ShipTypeAndSizeFeature","Events processed"));
     }
+
+    @Test
+    public void testMetadataWrittenToDatabase() throws Exception {
+        File tempFile = File.createTempFile("ais-ab-stat-builder", "");
+        String[] args = new String[]{"-dir" ,"src/test/resources", "-input", "ais-sample-micro.txt.gz", "-output", tempFile.getCanonicalPath()};
+
+        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestModule(tempFile.getCanonicalPath()));
+        AbnormalStatBuilderApp.setInjector(injector);
+        AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
+
+        app.execute(args);
+
+        FeatureDataRepository featureDataRepository = injector.getInstance(FeatureDataRepository.class);
+
+        assertNotNull(featureDataRepository.getMetaData());
+        assertEquals((Double) 200.0, featureDataRepository.getMetaData().getGridResolution());
+    }
+
 }

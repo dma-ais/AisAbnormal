@@ -17,7 +17,6 @@
 package dk.dma.ais.abnormal.stat;
 
 public interface AppStatisticsService {
-    void incPacketCount();
 
     void incMessageCount();
 
@@ -25,7 +24,13 @@ public interface AppStatisticsService {
 
     void incStatMsgCount();
 
-    long getPacketCount();
+    void incFilteredPacketCount();
+
+    void incUnfilteredPacketCount();
+
+    long getFilteredPacketCount();
+
+    long getUnfilteredPacketCount();
 
     long getMessageCount();
 
@@ -50,4 +55,5 @@ public interface AppStatisticsService {
     Long getFeatureStatistics(String featureName, String statisticsName);
 
     void setFeatureStatistics(String featureName, String statisticsName, Long statisticsValue);
+
 }

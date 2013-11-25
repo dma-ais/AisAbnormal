@@ -58,7 +58,7 @@ public class PacketHandlerImpl implements PacketHandler {
 
     public PacketHandlerImpl() {
         this.duplicateFilter = new DuplicateFilter();
-        this.downSampleFilter = new DownSampleFilter(0);
+        this.downSampleFilter = new DownSampleFilter(60);
 
         // TODO configuration encapsulation and maybe properties
 
@@ -70,12 +70,14 @@ public class PacketHandlerImpl implements PacketHandler {
             return;
         }
 
-        appStatisticsService.incPacketCount();
+        appStatisticsService.incUnfilteredPacketCount();
 
         // Duplicate and down sampling filtering
         if (duplicateFilter.rejectedByFilter(packet) || downSampleFilter.rejectedByFilter(packet)) {
             return;
         }
+
+        appStatisticsService.incFilteredPacketCount();
 
         // Get AisMessage from packet or drop
         AisMessage message = packet.tryGetAisMessage();
