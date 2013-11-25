@@ -16,16 +16,21 @@
 
 package dk.dma.ais.abnormal.stat.db.data;
 
-import dk.dma.enav.model.geometry.grid.Grid;
+import java.io.Serializable;
 
-public class FeatureMetadata {
+public final class DatasetMetaData implements Serializable {
 
     // Time of first ais message
     // Time of last ais message
 
+    public DatasetMetaData(Double gridResolution) {
+        this.gridResolution = gridResolution;
+    }
+
+    public Double getGridResolution() {
+        return gridResolution;
+    }
+
     private Double gridResolution;
 
-    public FeatureMetadata(Grid grid) {
-        gridResolution = grid.getResolution();
-    }
 }

@@ -17,6 +17,7 @@
 package dk.dma.ais.abnormal.stat.db.mapdb;
 
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
+import dk.dma.ais.abnormal.stat.db.data.DatasetMetaData;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 import org.mapdb.BTreeMap;
 import org.mapdb.DB;
@@ -33,6 +34,9 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
     private static final Logger LOG = LoggerFactory.getLogger(FeatureDataRepositoryMapDB.class);
 
     private static final String FILENAME_SUFFIX = ".featureData";
+
+    private static final String COLLECTION_METADATA = "metadata";
+    private static final String KEY_METADATA = "metadata";
 
     private DB db;
 
@@ -104,7 +108,7 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
     @Override
     public void store(FeatureData featureData) {
         HTreeMap<Object,Object> featureCollection = db.getHashMap(DB_FEATURES);
-        featureCollection.put(featureData.getFeatureName(), featureData);
+        featureCollection.putFeatureData(featureData.getFeatureName(), featureData);
 
     }
 */
@@ -123,14 +127,27 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
     }
 
     @Override
-    public FeatureData get(String featureName, long cellId) {
+    public DatasetMetaData getMetaData() {
+        BTreeMap<String, DatasetMetaData> allMetadata = db.createTreeMap(COLLECTION_METADATA).makeOrGet();
+        return allMetadata.get(KEY_METADATA);
+    }
+
+    @Override
+    public void putMetaData(DatasetMetaData datasetMetadata) {
+        BTreeMap<String, DatasetMetaData> allMetadata = db.createTreeMap(COLLECTION_METADATA).makeOrGet();
+        allMetadata.put(KEY_METADATA, datasetMetadata);
+        db.commit();
+    }
+
+    @Override
+    public FeatureData getFeatureData(String featureName, long cellId) {
         BTreeMap<Object, Object> allCellDataForFeature = db.createTreeMap(featureName).makeOrGet();
         FeatureData featureData = (FeatureData) allCellDataForFeature.get(cellId);
         return featureData;
     }
 
     @Override
-    public void put(String featureName, long cellId, FeatureData featureData) {
+    public void putFeatureData(String featureName, long cellId, FeatureData featureData) {
         BTreeMap<Object, Object> allCellDataForFeature = db.createTreeMap(featureName).makeOrGet();
         allCellDataForFeature.put(cellId, featureData);
     }

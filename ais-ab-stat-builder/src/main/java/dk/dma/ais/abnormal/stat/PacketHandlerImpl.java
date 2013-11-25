@@ -22,6 +22,7 @@ import dk.dma.ais.abnormal.stat.features.Feature;
 import dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature;
 import dk.dma.ais.abnormal.stat.tracker.TrackingService;
 import dk.dma.ais.message.AisMessage5;
+import dk.dma.ais.message.AisUnsupportedMessageType;
 import dk.dma.ais.message.IPositionMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,12 +70,12 @@ public class PacketHandlerImpl implements PacketHandler {
             return;
         }
 
+        appStatisticsService.incPacketCount();
+
         // Duplicate and down sampling filtering
         if (duplicateFilter.rejectedByFilter(packet) || downSampleFilter.rejectedByFilter(packet)) {
             return;
         }
-
-        appStatisticsService.incPacketCount();
 
         // Get AisMessage from packet or drop
         AisMessage message = packet.tryGetAisMessage();

@@ -66,7 +66,7 @@ public class FeatureDataRepositoryMapDBTest {
                 }
             }
 
-            featureDataRepository.put(TEST_FEATURE_NAME, cellId, featureData);
+            featureDataRepository.putFeatureData(TEST_FEATURE_NAME, cellId, featureData);
 
             if (cellId % ONE_PCT_OF_CELLS == 0) {
                 LOG.info(100 * cellId / NUM_CELLS + "%");
@@ -87,7 +87,7 @@ public class FeatureDataRepositoryMapDBTest {
 
         FeatureDataRepository featureDataRepository = new FeatureDataRepositoryMapDB(dbFileName, true);
 
-        FeatureData featureData = featureDataRepository.get(TEST_FEATURE_NAME, testCellId);
+        FeatureData featureData = featureDataRepository.getFeatureData(TEST_FEATURE_NAME, testCellId);
         assertEquals(N1, (int) featureData.getNumberOfLevel1Entries());
         assertEquals((1*1)%100, featureData.getStatistic((short) 1, (short) 1, "t"));
         assertEquals((7*7)%100, featureData.getStatistic((short) 7, (short) 7, "t"));
@@ -105,7 +105,7 @@ public class FeatureDataRepositoryMapDBTest {
 
         FeatureDataRepository featureDataRepository = new FeatureDataRepositoryMapDB(dbFileName, true);
 
-        FeatureData featureData = featureDataRepository.get(TEST_FEATURE_NAME, testCellId);
+        FeatureData featureData = featureDataRepository.getFeatureData(TEST_FEATURE_NAME, testCellId);
         assertEquals(N1, (int) featureData.getNumberOfLevel1Entries());
         assertEquals((1*1) % 100, featureData.getStatistic((short) 1, (short) 1, "t"));
         assertEquals((7*7) % 100, featureData.getStatistic((short) 7, (short) 7, "t"));
@@ -122,11 +122,11 @@ public class FeatureDataRepositoryMapDBTest {
 
         LOG.info("Getting FeatureData and verifying original contents");
         FeatureDataRepository featureDataRepository1 = new FeatureDataRepositoryMapDB(dbFileName, false);
-        FeatureData featureData1 = featureDataRepository1.get(TEST_FEATURE_NAME, testCellId);
+        FeatureData featureData1 = featureDataRepository1.getFeatureData(TEST_FEATURE_NAME, testCellId);
         assertEquals((key1*key2) % 100, featureData1.getStatistic(key1, key2, "t"));
         LOG.info("Updating FeatureData");
         featureData1.setStatistic(key1, key2, "t", 2157);
-        featureDataRepository1.put(TEST_FEATURE_NAME, testCellId, featureData1);
+        featureDataRepository1.putFeatureData(TEST_FEATURE_NAME, testCellId, featureData1);
         LOG.info("Closing repository");
         featureDataRepository1.close();
         featureDataRepository1 = null;
@@ -135,7 +135,7 @@ public class FeatureDataRepositoryMapDBTest {
         LOG.info("Opening repository");
         FeatureDataRepository featureDataRepository2 = new FeatureDataRepositoryMapDB(dbFileName, true);
         LOG.info("Reading FeatureData");
-        FeatureData featureData2 = featureDataRepository2.get(TEST_FEATURE_NAME, testCellId);
+        FeatureData featureData2 = featureDataRepository2.getFeatureData(TEST_FEATURE_NAME, testCellId);
         LOG.info("Checking that value is updated");
         assertEquals(2157, featureData2.getStatistic(key1, key2, "t"));
         LOG.info("Done. Closing repository.");
@@ -150,11 +150,11 @@ public class FeatureDataRepositoryMapDBTest {
 
         LOG.info("Getting FeatureData and verifying original contents");
         FeatureDataRepository featureDataRepository1 = new FeatureDataRepositoryMapDB(dbFileName, false);
-        FeatureData featureData1 = featureDataRepository1.get(TEST_FEATURE_NAME, testCellId);
+        FeatureData featureData1 = featureDataRepository1.getFeatureData(TEST_FEATURE_NAME, testCellId);
         assertNull(featureData1.getStatistic(key1, key2, "newStatistic"));
         LOG.info("Adding FeatureData statistic");
         featureData1.setStatistic(key1, key2, "newStatistic", 43287);
-        featureDataRepository1.put(TEST_FEATURE_NAME, testCellId, featureData1);
+        featureDataRepository1.putFeatureData(TEST_FEATURE_NAME, testCellId, featureData1);
         LOG.info("Closing repository");
         featureDataRepository1.close();
         featureDataRepository1 = null;
@@ -163,7 +163,7 @@ public class FeatureDataRepositoryMapDBTest {
         LOG.info("Opening repository");
         FeatureDataRepository featureDataRepository2 = new FeatureDataRepositoryMapDB(dbFileName, true);
         LOG.info("Reading FeatureData");
-        FeatureData featureData2 = featureDataRepository2.get(TEST_FEATURE_NAME, testCellId);
+        FeatureData featureData2 = featureDataRepository2.getFeatureData(TEST_FEATURE_NAME, testCellId);
         LOG.info("Checking that statistic is added");
         assertEquals(43287, featureData2.getStatistic(key1, key2, "newStatistic"));
         assertEquals((key1 * key2) % 100, featureData2.getStatistic(key1, key2, "t"));

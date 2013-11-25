@@ -19,6 +19,9 @@ package dk.dma.ais.abnormal.stat.tracker;
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
+import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
+import dk.dma.ais.abnormal.stat.db.data.DatasetMetaData;
 import dk.dma.ais.abnormal.stat.tracker.events.CellIdChangedEvent;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisMessage5;
@@ -42,11 +45,17 @@ public class TrackingServiceImpl implements TrackingService {
 
     private final HashMap<Integer, Track> tracks = new HashMap<>(256);
 
-    private final Grid grid = Grid.createSize(200);
+    private static final double GRID_RESOLUTION = 200;
 
-    public TrackingServiceImpl() {
+    private final Grid grid = Grid.createSize(GRID_RESOLUTION);
+
+    @Inject
+    public TrackingServiceImpl(FeatureDataRepository featureDataRepository) {
         LOG.debug("TrackingServiceImpl created.");
         eventBus.register(this);
+
+        DatasetMetaData metadata = new DatasetMetaData(GRID_RESOLUTION);
+        featureDataRepository.putMetaData(metadata);
     }
 
     @Override

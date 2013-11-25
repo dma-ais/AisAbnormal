@@ -84,7 +84,7 @@ public class ShipTypeAndSizeFeature implements Feature {
         short shipTypeBucket = mapShipTypeToBucket(shipType);
         short shipSizeBucket = mapShipLengthToBucket(shipLength);
 
-        FeatureData featureData = featureDataRepository.get(FEATURE_NAME, cellId);
+        FeatureData featureData = featureDataRepository.getFeatureData(FEATURE_NAME, cellId);
         if (featureData == null) {
             LOG.debug("No feature data for cell id " + cellId + " found in repo. Creating new.");
             featureData = new FeatureData();
@@ -93,7 +93,7 @@ public class ShipTypeAndSizeFeature implements Feature {
         featureData.incrementStatistic(shipTypeBucket, shipSizeBucket, "shipCount");
 
         LOG.debug("Storing feature data for cellId " + cellId + ", featureName " + FEATURE_NAME);
-        featureDataRepository.put(FEATURE_NAME, cellId, featureData);
+        featureDataRepository.putFeatureData(FEATURE_NAME, cellId, featureData);
         LOG.debug("Feature data for cellId " + cellId + ", featureName " + FEATURE_NAME + " stored.");
 
         appStatisticsService.setFeatureStatistics(this.getClass().getSimpleName(), "Cell count", featureDataRepository.getNumberOfCells(FEATURE_NAME));

@@ -15,15 +15,21 @@
  */
 package dk.dma.ais.abnormal.stat.db;
 
+import dk.dma.ais.abnormal.stat.db.data.DatasetMetaData;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 
 import java.util.Set;
 
 public interface FeatureDataRepository {
-    FeatureData get(String featureName, long cellId);
-    void put(String featureName, long cellId, FeatureData featureData);
-    void close();
+
+    DatasetMetaData getMetaData();
+    void putMetaData(DatasetMetaData datasetMetadata);
+
+    FeatureData getFeatureData(String featureName, long cellId);
+    void putFeatureData(String featureName, long cellId, FeatureData featureData);
 
     Set<String> getFeatureNames();
     long getNumberOfCells(String featureName);
+
+    void close();
 }
