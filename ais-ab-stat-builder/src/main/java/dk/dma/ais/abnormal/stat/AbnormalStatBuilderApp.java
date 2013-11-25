@@ -19,9 +19,12 @@ import com.beust.jcommander.Parameter;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
+import dk.dma.ais.abnormal.stat.db.data.DatasetMetaData;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
 import dk.dma.commons.app.AbstractDaemon;
+import dk.dma.enav.model.geometry.grid.Grid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,18 +54,34 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
     @Parameter(names = "-output", description = "Name of output file.", required = true)
     private String outputFilename;
 
-    @Inject
-    private volatile PacketHandler handler;
+    @Parameter(names = "-gridsize", description = "Grid resolution (approx. cell size in meters).")
+    private Integer gridSize = 200;
+
+    @Parameter(names = "-downsampling", description = "Downsampling period (in secs).")
+    private Integer downSampling = 60;
 
     @Inject
-    private volatile AppStatisticsService appStatisticsService;
+    private PacketHandler handler;
 
     @Inject
-    private volatile AisReader reader;
+    private AppStatisticsService appStatisticsService;
+
+    @Inject
+    private AisReader reader;
+
+    @Inject
+    private FeatureDataRepository featureDataRepository;
 
     @Override
     protected void runDaemon(Injector injector) throws Exception {
         LOG.info("AbnormalStatBuilderApp starting using dir: " + dir + " inputFilenamePattern: " + inputFilenamePattern + (recursive ? "(recursive)" : ""));
+
+        // Write dataset metadata before we start
+        Grid grid = getInjector().getInstance(Grid.class);
+
+        DatasetMetaData metadata = new DatasetMetaData(grid.getResolution(), downSampling);
+        featureDataRepository.putMetaData(metadata);
+
         reader.registerPacketHandler(handler);
         reader.start();
         reader.join();
@@ -103,7 +122,6 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
     }
 
     private static String getCmdLineArgument(String[] args, String argumentName) {
-        // TODO find a way to share cmdline parameters with module
         String argumentValue = null;
         for (int i=0; i<args.length; i++) {
             if (argumentName.equalsIgnoreCase(args[i])) {
@@ -115,7 +133,6 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
     }
 
     private static boolean getCmdLineSwitch(String[] args, String switchName) {
-        // TODO find a way to share cmdline parameters with module
         boolean found = false;
         for (int i=0; i<args.length; i++) {
             if (switchName.equalsIgnoreCase(args[i])) {
@@ -140,15 +157,18 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
         // AbstractModule module = new AbnormalStatBuilderAppModule(app);
         // app.addModule(module);
 
+        // TODO find a way to share jcommander cmdline parameters with Guice module
         String outputFilename = getCmdLineArgument(args, "-output");
         String inputDirectory = getCmdLineArgument(args, "-dir");
         String inputFilenamePattern = getCmdLineArgument(args, "-input");
+        Double gridSize = Double.valueOf(getCmdLineArgument(args, "-gridsize"));
+        String downSampling = getCmdLineArgument(args, "-downsampling");
         boolean inputRecursive = getCmdLineSwitch(args, "-r");
 
         if (outputFilename == null) {
             LOG.error("No -output parameter found in cmd line parameters.");
         } else {
-            Injector injector = Guice.createInjector(new AbnormalStatBuilderAppModule(outputFilename, inputDirectory, inputFilenamePattern, inputRecursive));
+            Injector injector = Guice.createInjector(new AbnormalStatBuilderAppModule(outputFilename, inputDirectory, inputFilenamePattern, inputRecursive, gridSize));
             AbnormalStatBuilderApp.setInjector(injector);
             AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
             app.execute(args);

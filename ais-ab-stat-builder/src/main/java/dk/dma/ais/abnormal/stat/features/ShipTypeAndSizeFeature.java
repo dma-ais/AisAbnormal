@@ -32,11 +32,11 @@ import java.io.PrintStream;
 public class ShipTypeAndSizeFeature implements Feature {
 
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger(ShipTypeAndSizeFeature.class);
+    private static final transient Logger LOG = LoggerFactory.getLogger(ShipTypeAndSizeFeature.class);
 
-    private final AppStatisticsService appStatisticsService;
-    private final TrackingService trackingService;
-    private final FeatureDataRepository featureDataRepository;
+    private final transient AppStatisticsService appStatisticsService;
+    private final transient TrackingService trackingService;
+    private final transient FeatureDataRepository featureDataRepository;
 
     private static final String FEATURE_NAME = ShipTypeAndSizeFeature.class.getSimpleName();
 

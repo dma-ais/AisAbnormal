@@ -23,14 +23,25 @@ public final class DatasetMetaData implements Serializable {
     // Time of first ais message
     // Time of last ais message
 
-    public DatasetMetaData(Double gridResolution) {
+    public DatasetMetaData(Double gridResolution, Integer downSampling) {
         this.gridResolution = gridResolution;
+        this.downSampling = downSampling;
     }
 
-    public Double getGridResolution() {
+    public Short getFormatVersion() {
+        return formatVersion;
+    }
+
+    public Double getGridSize() {
         return gridResolution;
     }
 
-    private Double gridResolution;
+    public Integer getDownsampling() {
+        return downSampling;
+    }
+
+    private final Short   formatVersion = 1;
+    private final Double  gridResolution;
+    private final Integer downSampling;
 
 }

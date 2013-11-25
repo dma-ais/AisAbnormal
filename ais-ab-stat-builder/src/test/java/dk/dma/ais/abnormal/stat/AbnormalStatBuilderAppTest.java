@@ -39,7 +39,7 @@ public class AbnormalStatBuilderAppTest {
         String inputFilenamePattern = "ais-sample-micro.txt.gz";
         String[] args = new String[]{"-dir", inputDirectory, "-input", inputFilenamePattern, "-output", outputFilename};
 
-        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestModule(tempFile.getCanonicalPath(), inputDirectory, inputFilenamePattern, false));
+        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestModule(tempFile.getCanonicalPath(), inputDirectory, inputFilenamePattern, false, 200.0));
         AbnormalStatBuilderApp.setInjector(injector);
         AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
 
@@ -60,7 +60,7 @@ public class AbnormalStatBuilderAppTest {
         String inputFilenamePattern = "ais-sample-micro.txt.gz";
         String[] args = new String[]{"-dir", inputDirectory, "-input", inputFilenamePattern, "-output", outputFilename};
 
-        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestModule(tempFile.getCanonicalPath(), inputDirectory, inputFilenamePattern, false));
+        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestModule(tempFile.getCanonicalPath(), inputDirectory, inputFilenamePattern, false, 200.0));
         AbnormalStatBuilderApp.setInjector(injector);
         AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
 
@@ -79,7 +79,7 @@ public class AbnormalStatBuilderAppTest {
         String inputFilenamePattern = "ais-sample-micro.txt.gz";
         String[] args = new String[]{"-dir", inputDirectory, "-input", inputFilenamePattern, "-output", outputFilename};
 
-        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestModule(tempFile.getCanonicalPath(), inputDirectory, inputFilenamePattern, false));
+        Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestModule(tempFile.getCanonicalPath(), inputDirectory, inputFilenamePattern, false, 200.0));
         AbnormalStatBuilderApp.setInjector(injector);
         AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
 
@@ -88,7 +88,9 @@ public class AbnormalStatBuilderAppTest {
         FeatureDataRepository featureDataRepository = injector.getInstance(FeatureDataRepository.class);
 
         assertNotNull(featureDataRepository.getMetaData());
-        assertEquals((Double) 200.0, featureDataRepository.getMetaData().getGridResolution());
+        assertEquals((Double) 0.0017966313162819712 /* res 200.0 */, featureDataRepository.getMetaData().getGridSize(), 1e-10);
+        assertEquals((Integer) 60, featureDataRepository.getMetaData().getDownsampling());
+        assertEquals((Short) (short) 1, featureDataRepository.getMetaData().getFormatVersion());
     }
 
 }

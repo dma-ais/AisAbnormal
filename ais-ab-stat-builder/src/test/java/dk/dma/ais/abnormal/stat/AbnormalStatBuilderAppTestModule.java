@@ -26,6 +26,7 @@ import dk.dma.ais.abnormal.stat.tracker.TrackingService;
 import dk.dma.ais.abnormal.stat.tracker.TrackingServiceImpl;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
+import dk.dma.enav.model.geometry.grid.Grid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,12 +38,14 @@ public class AbnormalStatBuilderAppTestModule extends AbstractModule {
     private final String inputDirectory;
     private final String inputFilenamePattern;
     private final boolean inputRecursive;
+    private final Double gridResolution;
 
-    public AbnormalStatBuilderAppTestModule(String outputFilename, String inputDirectory, String inputFilenamePattern, boolean inputRecursive) {
+    public AbnormalStatBuilderAppTestModule(String outputFilename, String inputDirectory, String inputFilenamePattern, boolean inputRecursive, Double gridResolution) {
         this.outputFilename = outputFilename;
         this.inputDirectory = inputDirectory;
         this.inputFilenamePattern = inputFilenamePattern;
         this.inputRecursive = inputRecursive;
+        this.gridResolution = gridResolution;
     }
 
     @Override
@@ -56,6 +59,17 @@ public class AbnormalStatBuilderAppTestModule extends AbstractModule {
         // Test stubs
         // bind(FeatureDataRepository.class).to(FeatureDataRepositoryTestStub);
 
+    }
+
+    @Provides @Singleton
+    Grid provideGrid() {
+        Grid grid = null;
+        try {
+            grid = Grid.createSize(gridResolution);
+        } catch (Exception e) {
+            LOG.error("Failed to create Grid object", e);
+        }
+        return grid;
     }
 
     @Provides

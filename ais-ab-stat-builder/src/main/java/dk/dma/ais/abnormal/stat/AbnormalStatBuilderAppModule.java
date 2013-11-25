@@ -26,6 +26,7 @@ import dk.dma.ais.abnormal.stat.tracker.TrackingService;
 import dk.dma.ais.abnormal.stat.tracker.TrackingServiceImpl;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
+import dk.dma.enav.model.geometry.grid.Grid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,12 +37,14 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
     private final String inputDirectory;
     private final String inputFilenamePattern;
     private final boolean inputRecursive;
+    private final Double gridSize;
 
-    public AbnormalStatBuilderAppModule(String outputFilename, String inputDirectory, String inputFilenamePattern, boolean inputRecursive) {
+    public AbnormalStatBuilderAppModule(String outputFilename, String inputDirectory, String inputFilenamePattern, boolean inputRecursive, Double gridSize) {
         this.outputFilename = outputFilename;
         this.inputDirectory = inputDirectory;
         this.inputFilenamePattern = inputFilenamePattern;
         this.inputRecursive = inputRecursive;
+        this.gridSize = gridSize;
     }
 
     @Override
@@ -54,13 +57,24 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
     }
 
     @Provides @Singleton
+    Grid provideGrid() {
+        Grid grid = null;
+        try {
+            grid = Grid.createSize(gridSize);
+        } catch (Exception e) {
+            LOG.error("Failed to create Grid object", e);
+        }
+        return grid;
+    }
+
+    @Provides @Singleton
     FeatureDataRepository provideFeatureDataRepository() {
         FeatureDataRepository featureDataRepository = null;
         try {
             LOG.info("Using dbFileName: " + outputFilename);
             featureDataRepository = new FeatureDataRepositoryMapDB(outputFilename, false);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("Failed to create Grid object", e);
         }
         return featureDataRepository;
     }
@@ -71,7 +85,7 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
         try {
             aisReader = AisReaders.createDirectoryReader(inputDirectory, inputFilenamePattern, inputRecursive);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("Failed to create Grid object", e);
         }
         return aisReader;
     }

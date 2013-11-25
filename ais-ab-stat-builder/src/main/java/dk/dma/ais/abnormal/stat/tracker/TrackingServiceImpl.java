@@ -45,17 +45,14 @@ public class TrackingServiceImpl implements TrackingService {
 
     private final HashMap<Integer, Track> tracks = new HashMap<>(256);
 
-    private static final double GRID_RESOLUTION = 200;
-
-    private final Grid grid = Grid.createSize(GRID_RESOLUTION);
+    private final Grid grid;
 
     @Inject
-    public TrackingServiceImpl(FeatureDataRepository featureDataRepository) {
+    public TrackingServiceImpl(Grid grid) {
         LOG.debug("TrackingServiceImpl created.");
         eventBus.register(this);
 
-        DatasetMetaData metadata = new DatasetMetaData(GRID_RESOLUTION);
-        featureDataRepository.putMetaData(metadata);
+        this.grid = grid;
     }
 
     @Override
