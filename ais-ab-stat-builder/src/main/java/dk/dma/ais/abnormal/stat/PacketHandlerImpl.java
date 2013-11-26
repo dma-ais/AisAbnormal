@@ -21,6 +21,7 @@ import com.google.inject.Injector;
 import dk.dma.ais.abnormal.stat.features.Feature;
 import dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature;
 import dk.dma.ais.abnormal.stat.tracker.TrackingService;
+import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.message.AisMessage5;
 import dk.dma.ais.message.IPositionMessage;
 import org.slf4j.Logger;
@@ -50,14 +51,12 @@ public class PacketHandlerImpl implements PacketHandler {
 
     private volatile boolean cancel;
 
-    private final DuplicateFilter duplicateFilter;
-    private final DownSampleFilter downSampleFilter;
+    private final ReplayDownSampleFilter downSampleFilter;
 
     private Set<Feature> features;
 
     public PacketHandlerImpl() {
-        this.duplicateFilter = new DuplicateFilter();
-        this.downSampleFilter = new DownSampleFilter(60);
+        this.downSampleFilter = new ReplayDownSampleFilter(60);
 
         // TODO configuration encapsulation and maybe properties
 
@@ -72,7 +71,7 @@ public class PacketHandlerImpl implements PacketHandler {
         statisticsService.incUnfilteredPacketCount();
 
         // Duplicate and down sampling filtering
-        if (duplicateFilter.rejectedByFilter(packet) || downSampleFilter.rejectedByFilter(packet)) {
+        if (downSampleFilter.rejectedByFilter(packet)) {
             return;
         }
 
