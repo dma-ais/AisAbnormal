@@ -21,6 +21,7 @@ import com.google.inject.Inject;
 import dk.dma.ais.abnormal.stat.AppStatisticsService;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
+import dk.dma.ais.abnormal.stat.db.data.FeatureData2Key;
 import dk.dma.ais.abnormal.stat.tracker.Track;
 import dk.dma.ais.abnormal.stat.tracker.TrackingService;
 import dk.dma.ais.abnormal.stat.tracker.events.CellIdChangedEvent;
@@ -84,11 +85,12 @@ public class ShipTypeAndSizeFeature implements Feature {
         short shipTypeBucket = mapShipTypeToBucket(shipType);
         short shipSizeBucket = mapShipLengthToBucket(shipLength);
 
-        FeatureData featureData = featureDataRepository.getFeatureData(FEATURE_NAME, cellId);
-        if (featureData == null) {
-            LOG.debug("No feature data for cell id " + cellId + " found in repo. Creating new.");
-            featureData = new FeatureData();
+        FeatureData featureDataTmp = featureDataRepository.getFeatureData(FEATURE_NAME, cellId);
+        if (! (featureDataTmp instanceof FeatureData2Key)) {
+            LOG.debug("No suitable feature data for cell id " + cellId + " found in repo. Creating new.");
+            featureDataTmp = new FeatureData2Key();
         }
+        FeatureData2Key featureData = (FeatureData2Key) featureDataTmp;
 
         featureData.incrementStatistic(shipTypeBucket, shipSizeBucket, "shipCount");
 

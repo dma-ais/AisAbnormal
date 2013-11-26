@@ -21,11 +21,11 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class FeatureDataTest {
+public class FeatureData2KeyTest {
 
     @Test
     public void canStoreAndRetrieveSingleStatistic() {
-        FeatureData featureData = new FeatureData();
+        FeatureData2Key featureData = new FeatureData2Key();
 
         featureData.setStatistic((short) 3, (short) 1, "testStat", 42);
 
@@ -38,7 +38,7 @@ public class FeatureDataTest {
 
     @Test
     public void canIncrementInitializedStatistic() {
-        FeatureData featureData = new FeatureData();
+        FeatureData2Key featureData = new FeatureData2Key();
 
         featureData.setStatistic((short) 3, (short) 1, "testStat", 42);
         featureData.incrementStatistic((short) 3, (short) 1,"testStat");
@@ -48,11 +48,11 @@ public class FeatureDataTest {
 
     @Test
     public void canIncrementUninitializedStatistic() {
-        FeatureData featureData = new FeatureData();
+        FeatureData2Key featureData = new FeatureData2Key();
         featureData.incrementStatistic((short) 3, (short) 1,"testStat");
         assertEquals(1, featureData.getStatistic((short) 3, (short) 1, "testStat"));
 
-        featureData = new FeatureData();
+        featureData = new FeatureData2Key();
         featureData.incrementStatistic((short) 3, (short) 1,"testStat");
         featureData.incrementStatistic((short) 3, (short) 1,"testStat");
         assertEquals(2, featureData.getStatistic((short) 3, (short) 1, "testStat"));
