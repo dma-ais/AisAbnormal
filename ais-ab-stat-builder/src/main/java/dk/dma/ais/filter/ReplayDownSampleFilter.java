@@ -95,8 +95,9 @@ public class ReplayDownSampleFilter implements IPacketFilter {
 
         boolean posReport = message instanceof IPositionMessage;
         boolean statReport = message instanceof AisStaticCommon;
-        if (!posReport && !statReport) // Only these messages are filtered
+        if (!posReport && !statReport) { // Only these messages are filtered
             return false;
+        }
 
         Long now = packet.getBestTimestamp();
         Long lastReceived = null;
