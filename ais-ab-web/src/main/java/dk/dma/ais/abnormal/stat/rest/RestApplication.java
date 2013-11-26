@@ -13,29 +13,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.ais.abnormal.rest.stat;
+package dk.dma.ais.abnormal.stat.rest;
 
-import java.util.Date;
+import com.google.inject.Inject;
+import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Application;
 
-import dk.dma.ais.abnormal.event.AbnormalEventCog;
-import dk.dma.commons.web.rest.AbstractResource;
-import dk.dma.enav.model.geometry.Position;
-import dk.dma.enav.model.ship.ShipType;
+@Path("/statistics")
+public class RestApplication extends Application {
 
+    @Inject
+    FeatureDataRepository featureDataRepository;
 
-@Path("/stat")
-public class StatServices extends AbstractResource {
-    
     @GET
-    @Path("/test")
-    @Produces(MediaType.APPLICATION_JSON)
-    public AbnormalEventCog test() {
-        return new AbnormalEventCog(new Date(), 999999999, "MARTHA", ShipType.CARGO, Position.create(55, 12), "dasdda", 100); 
+    @Produces("text/plain")
+    public String sayHello() {
+        return "Hello World!";
     }
 
 }
