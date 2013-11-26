@@ -24,6 +24,7 @@ import dk.dma.ais.abnormal.stat.db.mapdb.FeatureDataRepositoryMapDB;
 import dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature;
 import dk.dma.ais.abnormal.stat.tracker.TrackingService;
 import dk.dma.ais.abnormal.stat.tracker.TrackingServiceImpl;
+import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
 import dk.dma.enav.model.geometry.grid.Grid;
@@ -38,13 +39,15 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
     private final String inputFilenamePattern;
     private final boolean inputRecursive;
     private final Integer gridSize;
+    private final Integer downSampling;
 
-    public AbnormalStatBuilderAppModule(String outputFilename, String inputDirectory, String inputFilenamePattern, boolean inputRecursive, Integer gridSize) {
+    public AbnormalStatBuilderAppModule(String outputFilename, String inputDirectory, String inputFilenamePattern, boolean inputRecursive, Integer gridSize, Integer downSampling) {
         this.outputFilename = outputFilename;
         this.inputDirectory = inputDirectory;
         this.inputFilenamePattern = inputFilenamePattern;
         this.inputRecursive = inputRecursive;
         this.gridSize = gridSize;
+        this.downSampling = downSampling;
     }
 
     @Override
@@ -56,11 +59,24 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
         bind(ShipTypeAndSizeFeature.class);
     }
 
+    @Provides
+    ReplayDownSampleFilter provideReplayDownSampleFilter() {
+        ReplayDownSampleFilter filter = null;
+        try {
+            filter = new ReplayDownSampleFilter(downSampling);
+            LOG.info("Created ReplayDownSampleFilter with down sampling period of " + downSampling + " secs.");
+        } catch (Exception e) {
+            LOG.error("Failed to create ReplayDownSampleFilter object", e);
+        }
+        return filter;
+    }
+
     @Provides @Singleton
     Grid provideGrid() {
         Grid grid = null;
         try {
             grid = Grid.createSize(gridSize);
+            LOG.info("Created Grid with grid size of " + gridSize + " meters.");
         } catch (Exception e) {
             LOG.error("Failed to create Grid object", e);
         }
@@ -71,8 +87,8 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
     FeatureDataRepository provideFeatureDataRepository() {
         FeatureDataRepository featureDataRepository = null;
         try {
-            LOG.info("Using dbFileName: " + outputFilename);
             featureDataRepository = new FeatureDataRepositoryMapDB(outputFilename, false);
+            LOG.info("Opened feature set database with filename '" + outputFilename + "'.");
         } catch (Exception e) {
             LOG.error("Failed to create FeatureDataRepository object", e);
         }
@@ -84,6 +100,7 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
         AisReader aisReader = null;
         try {
             aisReader = AisReaders.createDirectoryReader(inputDirectory, inputFilenamePattern, inputRecursive);
+            LOG.info("Created AisReader.");
         } catch (Exception e) {
             LOG.error("Failed to create AisReader object", e);
         }

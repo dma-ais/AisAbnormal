@@ -126,7 +126,7 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
             jCommander.setProgramName("AbnormalStatBuilderApp");
             jCommander.usage();
         } else {
-            Injector injector = Guice.createInjector(new AbnormalStatBuilderAppModule(userArguments.getOutputFilename(), userArguments.getInputDirectory(), userArguments.getInputFilenamePattern(), userArguments.isRecursive(), userArguments.getGridSize()));
+            Injector injector = Guice.createInjector(new AbnormalStatBuilderAppModule(userArguments.getOutputFilename(), userArguments.getInputDirectory(), userArguments.getInputFilenamePattern(), userArguments.isRecursive(), userArguments.getGridSize(), userArguments.getDownSampling()));
             AbnormalStatBuilderApp.setInjector(injector);
             AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
             app.execute(new String[]{} /* no cmd args - we handled them already */ );

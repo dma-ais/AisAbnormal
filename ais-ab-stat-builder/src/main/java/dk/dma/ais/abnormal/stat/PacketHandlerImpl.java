@@ -49,17 +49,14 @@ public class PacketHandlerImpl implements PacketHandler {
     @Inject
     private TrackingService trackingService;
 
-    private volatile boolean cancel;
+    @Inject
+    private ReplayDownSampleFilter downSampleFilter;
 
-    private final ReplayDownSampleFilter downSampleFilter;
+    private volatile boolean cancel;
 
     private Set<Feature> features;
 
     public PacketHandlerImpl() {
-        this.downSampleFilter = new ReplayDownSampleFilter(60);
-
-        // TODO configuration encapsulation and maybe properties
-
         initFeatures();
     }
 
