@@ -15,38 +15,63 @@
  */
 package dk.dma.ais.abnormal.web;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.beust.jcommander.Parameter;
 import com.google.inject.Injector;
 
 import dk.dma.commons.app.AbstractDaemon;
-import dk.dma.commons.web.rest.AbstractResource;
 
 public class Main extends AbstractDaemon {
 
     /** The logger */
     static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
-    @Parameter(names = "-port", description = "The port to run AisView at")
-    int port = 8090;
+    private static UserArguments userArguments;
+
+    @Inject
+    private WebServer webServer;
 
     /** {@inheritDoc} */
     @Override
     protected void runDaemon(Injector injector) throws Exception {
+        webServer.start();
+        LOG.info("AisAbnormal Web and REST service started");
+        webServer.join();
+    }
 
-        WebServer ws = new WebServer(port);
-        ws.getContext().setAttribute(AbstractResource.CONFIG,
-                AbstractResource.create(/*g, con, targetTracker, jobManager*/));
+    // TODO find a way to share injector stored in AbstractDmaApplication
+    private static Injector injector;
 
-        ws.start();
-        LOG.info("AisAbnormal REST service started");
-        ws.join();
+    public static Injector getInjector() {
+        return injector;
     }
 
     public static void main(String[] args) throws Exception {
-        // args = AisReaders.getDefaultSources();
-        new Main().execute(args);
+        // TODO find a way to share DMA AbtractCommandLineTool parameters with Guice module/userArguments
+        userArguments = new UserArguments();
+        JCommander jCommander=null;
+
+        try {
+            jCommander = new JCommander(userArguments, args);
+        } catch (ParameterException e) {
+            System.out.println(e.getMessage());
+            userArguments.setHelp(true);
+        }
+
+        if (userArguments.isHelp()) {
+            jCommander = new JCommander(userArguments, new String[] { "-help", "-featureDirectory", "" });
+            jCommander.setProgramName("ais-ab-web");
+            jCommander.usage();
+        } else {
+            WebAppModule module = new WebAppModule(userArguments.getPort(), userArguments.getInputDirectory());
+            injector = Guice.createInjector(module);
+            Main app = injector.getInstance(Main.class);
+            app.execute(new String[]{} /* no cmd args - we handled them already */ );
+        }
     }
 }

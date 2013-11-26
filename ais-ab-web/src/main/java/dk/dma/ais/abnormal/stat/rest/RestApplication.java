@@ -15,6 +15,9 @@
  */
 package dk.dma.ais.abnormal.stat.rest;
 
+import com.google.inject.Inject;
+import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -22,6 +25,9 @@ import javax.ws.rs.core.Application;
 
 @Path("/statistics")
 public class RestApplication extends Application {
+
+    @Inject
+    FeatureDataRepository featureDataRepository;
 
     @GET
     @Produces("text/plain")
