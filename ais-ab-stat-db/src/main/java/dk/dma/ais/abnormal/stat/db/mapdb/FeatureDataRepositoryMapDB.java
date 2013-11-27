@@ -99,21 +99,6 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
         LOG.debug("File " + canonicalPath + " successfully opened by MapDB.");
     }
 
-    /*
-    @Override
-    public void close() {
-        db.commit();
-        db.close();
-    }
-
-    @Override
-    public void store(FeatureData featureData) {
-        HTreeMap<Object,Object> featureCollection = db.getHashMap(DB_FEATURES);
-        featureCollection.putFeatureData(featureData.getFeatureName(), featureData);
-
-    }
-*/
-
     @Override
     public Set<String> getFeatureNames() {
         Map<String, Object> features = db.getAll();
@@ -157,8 +142,21 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
 
     @Override
     public FeatureData getFeatureData(String featureName, long cellId) {
-        BTreeMap<Object, Object> allCellDataForFeature = db.createTreeMap(featureName).makeOrGet();
-        FeatureData featureData = (FeatureData) allCellDataForFeature.get(cellId);
+        BTreeMap<Object, Object> allCellDataForFeature;
+
+        if (readOnly) {
+            allCellDataForFeature = (BTreeMap<Object, Object>) db.getAll().get(featureName);
+        } else {
+            allCellDataForFeature = db.createTreeMap(featureName).makeOrGet();
+        }
+
+        FeatureData featureData = null;
+        if (allCellDataForFeature == null) {
+            LOG.error("No data exists for feature " + featureName);
+        } else {
+            featureData = (FeatureData) allCellDataForFeature.get(cellId);
+        }
+
         return featureData;
     }
 
