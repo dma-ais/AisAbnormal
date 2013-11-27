@@ -22,7 +22,7 @@ import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.mapdb.FeatureDataRepositoryMapDB;
-import dk.dma.commons.web.rest.AbstractResource;
+//import dk.dma.commons.web.rest.AbstractResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +51,7 @@ public final class WebAppModule extends AbstractModule {
         WebServer webServer = null;
         try {
             webServer = new WebServer(port, repositoryName);
-            webServer.getContext().setAttribute(AbstractResource.CONFIG, AbstractResource.create());
+            //webServer.getContext().setAttribute(AbstractResource.CONFIG, AbstractResource.create());
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

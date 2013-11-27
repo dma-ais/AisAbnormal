@@ -79,7 +79,7 @@ public class WebServer {
         context.addEventListener(new GuiceServletContextListener() {
             @Override
             protected Injector getInjector() {
-                return Guice.createInjector(new RestAppModule(repositoryName));
+                return Guice.createInjector(new RestModule(repositoryName));
             }
         });
         context.addFilter(com.google.inject.servlet.GuiceFilter.class, "/feature/*", EnumSet.allOf(DispatcherType.class));

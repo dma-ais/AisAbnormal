@@ -24,33 +24,36 @@ import com.sun.jersey.api.core.PackagesResourceConfig;
 import com.sun.jersey.api.core.ResourceConfig;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
-import dk.dma.ais.abnormal.stat.db.data.FeatureData;
-import dk.dma.ais.abnormal.stat.db.data.FeatureData2Key;
 import dk.dma.ais.abnormal.stat.db.mapdb.FeatureDataRepositoryMapDB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public final class RestAppModule extends ServletModule {
+public final class RestModule extends ServletModule {
 
-    static final Logger LOG = LoggerFactory.getLogger(RestAppModule.class);
+    static final Logger LOG = LoggerFactory.getLogger(RestModule.class);
 
     private final String repositoryFilename;
 
-    public RestAppModule(String repositoryFilename) {
+    public RestModule(String repositoryFilename) {
         this.repositoryFilename = repositoryFilename;
     }
 
     @Override
     protected void configureServlets() {
-        ResourceConfig rc = new PackagesResourceConfig( "dk.dma.commons.web.rest.defaults" );
-        for ( Class<?> resource : rc.getClasses() ) {
-            bind( resource ).in(Scopes.SINGLETON);
-        }
+        ResourceConfig rc = new PackagesResourceConfig(
+                "dk.dma.ais.abnormal.stat.rest",
+                "dk.dma.commons.web.rest.defaults",
+                "org.codehaus.jackson.jaxrs"
+        );
 
-        rc = new PackagesResourceConfig( "dk.dma.ais.abnormal.stat.rest" );
         for ( Class<?> resource : rc.getClasses() ) {
-            bind( resource );
+            String packageName = resource.getPackage().getName();
+            if (packageName.equals("dk.dma.commons.web.rest.defaults") || packageName.equals("org.codehaus.jackson.jaxrs")) {
+                bind(resource).in(Scopes.SINGLETON);
+            } else {
+                bind(resource);
+            }
         }
 
         serve("/feature/*").with( GuiceContainer.class );
