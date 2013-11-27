@@ -17,6 +17,7 @@
 package dk.dma.ais.abnormal.stat.db.mapdb;
 
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
+import dk.dma.ais.abnormal.stat.db.data.DatasetMetaData;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData2Key;
 import org.junit.BeforeClass;
@@ -29,6 +30,8 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 
@@ -74,6 +77,11 @@ public class FeatureDataRepositoryMapDBTest {
                 //printMemInfo();
             }
         }
+        LOG.info("done.");
+
+        LOG.info("storing dataset metadata.");
+        DatasetMetaData datasetMetaData = new DatasetMetaData(123.0, 60);
+        featureDataRepository.putMetaData(datasetMetaData);
         LOG.info("done.");
 
         LOG.info("Closing repository... ");
@@ -188,6 +196,23 @@ public class FeatureDataRepositoryMapDBTest {
 
         assertEquals(1, featureNames.size());
         assertEquals(TEST_FEATURE_NAME, featureNames.toArray(new String[0])[0]);
+    }
+
+    @Test
+    public void testRepositoryCanBeReadInReadOnlyMode() throws Exception {
+        FeatureDataRepository featureDataRepository = new FeatureDataRepositoryMapDB(dbFileName, true);
+
+        DatasetMetaData metaData = featureDataRepository.getMetaData();
+        assertNotNull(metaData);
+
+        Set<String> featureNames = featureDataRepository.getFeatureNames();
+        for (String featureName : featureNames) {
+            long numberOfCells = featureDataRepository.getNumberOfCells(featureName);
+            FeatureData featureData = featureDataRepository.getFeatureData(featureName, 1);
+
+            assertTrue(numberOfCells >= 0);
+            assertNotNull(featureData);
+        }
     }
 
     private static String getTempFilePath() {

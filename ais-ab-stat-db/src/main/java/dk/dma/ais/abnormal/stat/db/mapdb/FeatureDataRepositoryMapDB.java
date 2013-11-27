@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -116,7 +117,17 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
     @Override
     public Set<String> getFeatureNames() {
         Map<String, Object> features = db.getAll();
-        return features.keySet();
+        Set<String> allKeys = features.keySet();
+
+        // Filter so only features are returned (not metadata etc.)
+        Set<String> featureNames = new LinkedHashSet<>();
+        for (String key : allKeys) {
+            if (! key.equals(COLLECTION_METADATA)) {
+                featureNames.add(key);
+            }
+        }
+
+        return featureNames;
     }
 
     @Override
@@ -128,7 +139,12 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
 
     @Override
     public DatasetMetaData getMetaData() {
-        BTreeMap<String, DatasetMetaData> allMetadata = db.createTreeMap(COLLECTION_METADATA).makeOrGet();
+        BTreeMap<String, DatasetMetaData> allMetadata;
+        if (readOnly) {
+            allMetadata = (BTreeMap<String, DatasetMetaData>) db.getAll().get(COLLECTION_METADATA);
+        } else {
+            allMetadata = db.createTreeMap(COLLECTION_METADATA).makeOrGet();
+        }
         return allMetadata.get(KEY_METADATA);
     }
 
