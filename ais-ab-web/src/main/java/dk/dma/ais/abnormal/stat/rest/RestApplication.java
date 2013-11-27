@@ -16,23 +16,31 @@
 package dk.dma.ais.abnormal.stat.rest;
 
 import com.google.inject.Inject;
+import com.google.inject.servlet.RequestScoped;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
+import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Application;
 
-@Path("/statistics")
+@RequestScoped
+@Path("/feature")
 public class RestApplication extends Application {
 
+    FeatureData featureData;
+    //FeatureDataRepository featureDataRepository;
+
     @Inject
-    FeatureDataRepository featureDataRepository;
+    public RestApplication(FeatureData featureData) {
+        this.featureData = featureData;
+    }
 
     @GET
     @Produces("text/plain")
     public String sayHello() {
-        return "Hello World!";
+        return "Hello World! " + featureData;
     }
 
 }

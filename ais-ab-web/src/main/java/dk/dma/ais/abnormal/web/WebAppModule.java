@@ -35,39 +35,27 @@ public final class WebAppModule extends AbstractModule {
     static final Logger LOG = LoggerFactory.getLogger(WebAppModule.class);
 
     private final int    port;
-    private final String repositoryFilename;
+    private final String repositoryName;
 
-    public WebAppModule(int port, String repositoryFilename) {
+    public WebAppModule(int port, String repositoryName) {
         this.port = port;
-        this.repositoryFilename = repositoryFilename;
+        this.repositoryName = repositoryName;
     }
 
     @Override
     public void configure() {
-
     }
 
     @Provides @Singleton
     WebServer provideWebServer() {
         WebServer webServer = null;
         try {
-            webServer = new WebServer(port);
+            webServer = new WebServer(port, repositoryName);
             webServer.getContext().setAttribute(AbstractResource.CONFIG, AbstractResource.create());
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
         return webServer;
-    }
-
-    @Provides @Singleton
-    FeatureDataRepository provideFeatureDataRepository() {
-        FeatureDataRepository featureDataRepository = null;
-        try {
-            featureDataRepository = new FeatureDataRepositoryMapDB(repositoryFilename, true);
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-        }
-        return featureDataRepository;
     }
 
 }

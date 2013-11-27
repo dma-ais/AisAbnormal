@@ -15,23 +15,24 @@
  */
 package dk.dma.ais.abnormal.web;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.servlet.GuiceServletContextListener;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.glassfish.jersey.CommonProperties;
-import org.glassfish.jersey.server.ServerProperties;
-import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.DispatcherType;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.EnumSet;
 
 /**
  * 
@@ -42,13 +43,15 @@ public class WebServer {
     /** The logger */
     static final Logger LOG = LoggerFactory.getLogger(WebServer.class);
 
-    final ServletContextHandler context;
+    private final ServletContextHandler context;
+    private final Server server;
 
-    final Server server;
+    private final String repositoryName;
 
-    public WebServer(int port) {
+    public WebServer(int port, String repositoryName) {
         server = new Server(port);
         this.context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        this.repositoryName = repositoryName;
     }
 
     /**
@@ -72,18 +75,21 @@ public class WebServer {
         context.setResourceBase("src/main/webapp/");
         context.addServlet(DefaultServlet.class, "/");
 
-        // Setup REST service
-        ServletHolder sho = new ServletHolder(new ServletContainer());
-        sho.setClassName("org.glassfish.jersey.servlet.ServletContainer");
-        sho.setInitParameter(ServerProperties.PROVIDER_PACKAGES, "dk.dma.ais.abnormal.stat.rest, dk.dma.commons.web.rest.defaults");
-        sho.setInitParameter(CommonProperties.OUTBOUND_CONTENT_LENGTH_BUFFER, "-1");
-        context.addServlet(sho, "/statistics/*");
+        // Setup Guice-Jersey integration
+        context.addEventListener(new GuiceServletContextListener() {
+            @Override
+            protected Injector getInjector() {
+                return Guice.createInjector(new RestAppModule(repositoryName));
+            }
+        });
+        context.addFilter(com.google.inject.servlet.GuiceFilter.class, "/feature/*", EnumSet.allOf(DispatcherType.class));
 
+        // Setup diagnostic logging
         HandlerWrapper hw = new HandlerWrapper() {
             /** {@inheritDoc} */
             @Override
             public void handle(String target, Request baseRequest, HttpServletRequest request,
-                    HttpServletResponse response) throws IOException, ServletException {
+                               HttpServletResponse response) throws IOException, ServletException {
                 long start = System.nanoTime();
                 String queryString = request.getQueryString() == null ? "" : "?" + request.getQueryString();
                 LOG.info("Received connection from " + request.getRemoteHost() + " (" + request.getRemoteAddr() + ":"
@@ -96,6 +102,8 @@ public class WebServer {
         };
         hw.setHandler(context);
         server.setHandler(hw);
+
+        // Start the server
         server.start();
     }
 }
