@@ -68,7 +68,7 @@ public class Main extends AbstractDaemon {
             jCommander.setProgramName("ais-ab-web");
             jCommander.usage();
         } else {
-            WebAppModule module = new WebAppModule(userArguments.getPort(), userArguments.getInputDirectory());
+            WebAppModule module = new WebAppModule(userArguments.getPort(), userArguments.getFeatureDataName());
             injector = Guice.createInjector(module);
             Main app = injector.getInstance(Main.class);
             app.execute(new String[]{} /* no cmd args - we handled them already */ );

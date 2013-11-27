@@ -26,8 +26,8 @@ public class UserArguments {
     @Parameter(names = "-port", description = "Port no. for listening to HTTP.")
     private int port = 8080;
 
-    @Parameter(names = "-featureDirectory", description = "Directory to scan for feature files to read", required = true)
-    private String inputDirectory;
+    @Parameter(names = "-featureData", description = "Filename of feature data file to read", required = true)
+    private String featureDataName;
 
     public void setHelp(boolean help) {
         this.help = help;
@@ -41,8 +41,8 @@ public class UserArguments {
         return port;
     }
 
-    public String getInputDirectory() {
-        return inputDirectory;
+    public String getFeatureDataName() {
+        return featureDataName;
     }
 
 }
