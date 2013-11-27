@@ -53,8 +53,6 @@ public final class RestAppModule extends ServletModule {
             bind( resource );
         }
 
-        bind(FeatureData.class).to(FeatureData2Key.class);
-
         serve("/feature/*").with( GuiceContainer.class );
     }
 
@@ -64,6 +62,7 @@ public final class RestAppModule extends ServletModule {
         try {
             featureDataRepository = new FeatureDataRepositoryMapDB(repositoryFilename, true);
         } catch (Exception e) {
+            LOG.error("Problems opening repository for read: " + repositoryFilename);
             LOG.error(e.getMessage(), e);
         }
         return featureDataRepository;

@@ -29,18 +29,20 @@ import javax.ws.rs.core.Application;
 @Path("/feature")
 public class RestApplication extends Application {
 
-    FeatureData featureData;
-    //FeatureDataRepository featureDataRepository;
+    private FeatureDataRepository featureDataRepository;
 
     @Inject
-    public RestApplication(FeatureData featureData) {
-        this.featureData = featureData;
+    public RestApplication(FeatureDataRepository featureDataRepository) {
+        this.featureDataRepository = featureDataRepository;
     }
 
     @GET
     @Produces("text/plain")
     public String sayHello() {
-        return "Hello World! " + featureData;
+        return
+               "The feature data in the repository were computed with\n" +
+               "   grid resolution: " + featureDataRepository.getMetaData().getGridSize() + "\n" +
+               "   down sampling:   " + featureDataRepository.getMetaData().getDownsampling() + " secs";
     }
 
 }
