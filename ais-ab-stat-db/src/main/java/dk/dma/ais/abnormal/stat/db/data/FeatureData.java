@@ -25,4 +25,11 @@ public interface FeatureData extends Serializable {
 
     void printStatistics(PrintStream stream);
 
+    /**
+     * Get the internal data structure of this future.
+     * Intended for use with JSON serialization.
+     * @return
+     */
+    Object getData();
+
 }

@@ -105,4 +105,9 @@ public class FeatureData2Key implements FeatureData {
     */
     }
 
+    @Override
+    public Object getData() {
+        return data;
+    }
+
 }
