@@ -53,7 +53,6 @@ var dmaAbnormalApp = {
 
     showGridLayer: function() {
         var layer = map.getLayersByName("DMA grid layer")[0];
-
         if (layer) {
             layer.display(true);
         } else {
@@ -83,7 +82,12 @@ var dmaAbnormalApp = {
             renderers: renderer
         });
 
+        dmaAbnormalApp.addGridToLayer(vectorLayer);
 
+        map.addLayer(vectorLayer);
+    },
+
+    addGridToLayer: function(layer) {
         var point = new OpenLayers.Geometry.Point(1335709.8481391, 7558410.9340409);
 
         // create a line feature from a list of points
@@ -109,25 +113,62 @@ var dmaAbnormalApp = {
         var lineFeature = new OpenLayers.Feature.Vector(
             new OpenLayers.Geometry.LineString(pointList),null,style_green);
 
-        /*
-        // create a polygon feature from a linear ring of points
-        var pointList = [];
-        for(var p=0; p<6; ++p) {
-            var a = p * (2 * Math.PI) / 7;
-            var r = Math.random(1) + 1;
-            var newPoint = new OpenLayers.Geometry.Point(point.x + (r * Math.cos(a)),
-                point.y + (r * Math.sin(a)));
-            pointList.push(newPoint);
+        layer.addFeatures([lineFeature]);
+
+        var cell = new OpenLayers.Bounds(1335709.8481391,7558410.9340409,1385709.8481391,7588410.9340409).toGeometry();
+        layer.addFeatures([cell]);
+        dmaAbnormalApp.addCells(layer);
+    },
+
+    addCells: function(layer) {
+        console.log("Adding cells");
+        for (var lon = 12.0; lon < 12.50; lon += 0.05) {
+            for (var lat = 56.0; lat < 56.50; lat += 0.05) {
+                var north = lat;
+                var east  = lon;
+                var south = lat - 0.049;
+                var west  = lon - 0.049;
+                console.log("added cell(layer," + north + "," + east + "," + south + "," + west);
+                dmaAbnormalApp.addCell(layer, north, east, south, west);
+            }
         }
-        pointList.push(pointList[0]);
+    },
 
-        var linearRing = new OpenLayers.Geometry.LinearRing(pointList);
-        var polygonFeature = new OpenLayers.Feature.Vector(
-            new OpenLayers.Geometry.Polygon([linearRing]));
-        */
+    addCell: function(layer, north, east, south, west) {
+        // http://localhost:8080/abnormal/featuredata/cell?north=55&east=11&south=54.91&west=10.91
+        var cellCoords = new Array();
 
-        map.addLayer(vectorLayer);
-        vectorLayer.addFeatures([lineFeature]);
+        point = new OpenLayers.Geometry.Point(west, north);
+        point.transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
+        cellCoords.push(point);
+
+        point = new OpenLayers.Geometry.Point(east, north);
+        point.transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
+        cellCoords.push(point);
+
+        point = new OpenLayers.Geometry.Point(east, south);
+        point.transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
+        cellCoords.push(point);
+
+        point = new OpenLayers.Geometry.Point(west, south);
+        point.transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
+        cellCoords.push(point);
+
+        var cellStyle = {
+            strokeColor: "#aaaaaa",
+            strokeWidth: 2,
+            strokeDashstyle: "solid",
+            pointRadius: 6,
+            pointerEvents: "visiblePainted", // http://www.w3.org/TR/SVG11/interact.html#PointerEventsProperty
+            title: "cell",
+            fillOpacity: 0.25
+
+        };
+
+        var cell = new OpenLayers.Geometry.LinearRing(cellCoords);
+        cellFeature = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Polygon([cell]), null, cellStyle);
+        layer.addFeatures([cellFeature]);
     }
+
 }
 
