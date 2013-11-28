@@ -1,4 +1,5 @@
 var dmaAbnormalApp = {
+
     map: null,
     isGridLayerVisible: false,
     projectionWGS84: null,
@@ -39,13 +40,9 @@ var dmaAbnormalApp = {
                     console.log("GridLayer is already visible.")
                 }
             } else {
-                if (dmaAbnormalApp.isGridLayerVisible == true) {
-                    console.log("Turning off GridLayer.")
-                    dmaAbnormalApp.hideGridLayer();
-                    dmaAbnormalApp.isGridLayerVisible = false;
-                } else {
-                    console.log("GridLayer is already hidden.")
-                }
+                console.log("Turning off GridLayer.")
+                dmaAbnormalApp.hideGridLayer();
+                dmaAbnormalApp.isGridLayerVisible = false;
             }
         });
     },
@@ -72,17 +69,17 @@ var dmaAbnormalApp = {
         renderer = (renderer) ? [renderer] : OpenLayers.Layer.Vector.prototype.renderers;
 
         // we want opaque external graphics and non-opaque internal graphics
-        var layer_style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
-        layer_style.fillOpacity = 0.2;
-        layer_style.graphicOpacity = 1;
+        var layerStyle = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+        layerStyle.fillOpacity = 0.2;
+        layerStyle.graphicOpacity = 1;
 
         var vectorLayer = new OpenLayers.Layer.Vector("DMA grid layer", {
-            style: layer_style,
-            renderers: renderer
+            style: layerStyle,
+            renderers: renderer,
+            eventListeners: dmaAbnormalApp.vectorLayerFeatureListeners
         });
 
         dmaAbnormalApp.addGridToLayer(vectorLayer);
-
         map.addLayer(vectorLayer);
     },
 
@@ -93,11 +90,13 @@ var dmaAbnormalApp = {
 
     loadCells: function() {
         // http://localhost:8080/abnormal/featuredata/cell?north=55&east=11&south=54.91&west=10.91
+        var i = 100000000;
         var cells = new Array();
-
         for (var lon = 12.0; lon < 12.50; lon += 0.05) {
             for (var lat = 56.0; lat < 56.50; lat += 0.05) {
                 var cell = {
+                    cellId: i++,
+                    data: { "stat1" : 5000, "stat2" : 4322},
                     north: lat,
                     east:  lon,
                     south: lat - 0.049,
@@ -113,26 +112,26 @@ var dmaAbnormalApp = {
         console.log("Adding cells");
         for (c in cells) {
             var cell = cells[c];
-            dmaAbnormalApp.addCell(layer, cell.north, cell.east, cell.south, cell.west);
+            dmaAbnormalApp.addCell(layer, cell);
         }
     },
 
-    addCell: function(layer, north, east, south, west) {
+    addCell: function(layer, cell) {
         var cellCoords = new Array();
 
-        point = new OpenLayers.Geometry.Point(west, north);
+        point = new OpenLayers.Geometry.Point(cell.west, cell.north);
         point.transform(dmaAbnormalApp.projectionWGS84, map.getProjectionObject());
         cellCoords.push(point);
 
-        point = new OpenLayers.Geometry.Point(east, north);
+        point = new OpenLayers.Geometry.Point(cell.east, cell.north);
         point.transform(dmaAbnormalApp.projectionWGS84, map.getProjectionObject());
         cellCoords.push(point);
 
-        point = new OpenLayers.Geometry.Point(east, south);
+        point = new OpenLayers.Geometry.Point(cell.east, cell.south);
         point.transform(dmaAbnormalApp.projectionWGS84, map.getProjectionObject());
         cellCoords.push(point);
 
-        point = new OpenLayers.Geometry.Point(west, south);
+        point = new OpenLayers.Geometry.Point(cell.west, cell.south);
         point.transform(dmaAbnormalApp.projectionWGS84, map.getProjectionObject());
         cellCoords.push(point);
 
@@ -147,9 +146,33 @@ var dmaAbnormalApp = {
 
         };
 
-        var cell = new OpenLayers.Geometry.LinearRing(cellCoords);
-        cellFeature = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Polygon([cell]), null, cellStyle);
+        var cellGeometry = new OpenLayers.Geometry.LinearRing(cellCoords);
+        cellFeature = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Polygon([cellGeometry]), cell, cellStyle);
         layer.addFeatures([cellFeature]);
+    },
+
+    vectorLayerFeatureListeners: {
+        featureclick: function(e) {
+            var feature = e.feature;
+            var cell = feature.data;
+            console.log("Cell id " + cell.cellId + " was clicked. Data carried: " + cell.data.toString());
+
+            var popupContents = $('div#popup > .contents');
+            popupContents.empty();
+            popupContents.append('You have clicked in cell id ' + cell.cellId);
+            $('#popup').bPopup();
+
+            return false;
+        },
+        nofeatureclick: function(e) {
+            console.log(e.object.name + " says: No feature clicked.");
+        },
+        featureover: function(e) {
+            console.log(e.object.name + " says: " + e.feature.id + " hovered.");
+        },
+        featureout: function(e) {
+            console.log(e.object.name + " says: " + e.feature.id + " left.");
+        }
     }
 
 }

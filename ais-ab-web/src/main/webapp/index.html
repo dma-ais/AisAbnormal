@@ -1,12 +1,18 @@
 <!doctype htmlL>
 <head>
 	<title>Danish Maritime Administration</title>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-	<script type="text/javascript" src="js/OpenLayers.js"></script>
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script type="text/javascript" src="js/jquery.bpopup.min.js"></script>
+    <script type="text/javascript" src="js/OpenLayers.js"></script>
     <script type="text/javascript" src="js/dma/abnormal.js"></script>
+    <link rel="stylesheet" href="css/jquery.bpopup.min.css">
 </head>
 <body>
 	<div id="map"></div>
+    <div id="popup">
+        <span class="button b-close"><span>X</span></span>
+        <div class="contents">
+    </div>
 	<script>
         dmaAbnormalApp.init();
     </script>
