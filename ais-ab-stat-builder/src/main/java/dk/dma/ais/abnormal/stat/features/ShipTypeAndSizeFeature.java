@@ -41,6 +41,9 @@ public class ShipTypeAndSizeFeature implements Feature {
 
     private static final String FEATURE_NAME = ShipTypeAndSizeFeature.class.getSimpleName();
 
+    private static final String STATISTICS_KEY_1 = "shipType";
+    private static final String STATISTICS_KEY_2 = "shipSize";
+
     @Inject
     public ShipTypeAndSizeFeature(AppStatisticsService appStatisticsService, TrackingService trackingService, FeatureDataRepository featureDataRepository) {
         this.appStatisticsService = appStatisticsService;
@@ -88,7 +91,7 @@ public class ShipTypeAndSizeFeature implements Feature {
         FeatureData featureDataTmp = featureDataRepository.getFeatureData(FEATURE_NAME, cellId);
         if (! (featureDataTmp instanceof FeatureData2Key)) {
             LOG.debug("No suitable feature data for cell id " + cellId + " found in repo. Creating new.");
-            featureDataTmp = new FeatureData2Key();
+            featureDataTmp = new FeatureData2Key(this.getClass(), STATISTICS_KEY_1, STATISTICS_KEY_2);
         }
         FeatureData2Key featureData = (FeatureData2Key) featureDataTmp;
 

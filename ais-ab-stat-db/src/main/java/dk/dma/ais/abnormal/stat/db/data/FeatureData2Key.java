@@ -19,13 +19,26 @@ package dk.dma.ais.abnormal.stat.db.data;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.TreeMap;
 
 public class FeatureData2Key implements FeatureData {
 
+    // TODO change implementation to com.google.common.collect.<sometable>
     private TreeMap<Short, TreeMap<Short, HashMap<String,Object>>> data = new TreeMap<>();
 
-    public FeatureData2Key() {
+    private final String featureClassName;
+    private final String meaningOfKey1;
+    private final String meaningOfKey2;
+
+    public FeatureData2Key(Class featureClass, String meaningOfKey1, String meaningOfKey2) {
+        this.featureClassName = featureClass.getCanonicalName();
+        this.meaningOfKey1 = meaningOfKey1;
+        this.meaningOfKey2 = meaningOfKey2;
+    }
+
+    public Integer numberOfLevel1Entries() {
+        return this.data.size();
     }
 
     public HashMap<String,Object> getStatistics(Short key1, Short key2) {
@@ -81,10 +94,6 @@ public class FeatureData2Key implements FeatureData {
         statistics.put(statisticName, statistic);
     }
 
-    public Integer getNumberOfLevel1Entries() {
-        return this.data.size();
-    }
-
     @Override
     public void printStatistics(PrintStream stream) {
     /*
@@ -108,6 +117,19 @@ public class FeatureData2Key implements FeatureData {
     @Override
     public Object getData() {
         return data;
+    }
+
+    @Override
+    public String getFeatureClassName() {
+        return this.featureClassName;
+    }
+
+    public String getMeaningOfKey1() {
+        return meaningOfKey1;
+    }
+
+    public String getMeaningOfKey2() {
+        return meaningOfKey2;
     }
 
 }

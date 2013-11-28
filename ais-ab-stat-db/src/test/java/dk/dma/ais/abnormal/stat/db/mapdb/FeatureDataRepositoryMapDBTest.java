@@ -30,8 +30,8 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 
@@ -62,7 +62,7 @@ public class FeatureDataRepositoryMapDBTest {
 
         LOG.info("Generating " + N_PROD + " test data... ");
         for (long cellId = 0; cellId < NUM_CELLS; cellId++) {
-            FeatureData2Key featureData = new FeatureData2Key();
+            FeatureData2Key featureData = new FeatureData2Key(FeatureDataRepositoryMapDBTest.class, "key1", "key2");
 
             for (short key1 = 0; key1 < N1; key1++) {
                 for (short key2 = 0; key2 < N2; key2++) {
@@ -97,7 +97,7 @@ public class FeatureDataRepositoryMapDBTest {
         FeatureDataRepository featureDataRepository = new FeatureDataRepositoryMapDB(dbFileName, true);
 
         FeatureData2Key featureData = (FeatureData2Key) featureDataRepository.getFeatureData(TEST_FEATURE_NAME, testCellId);
-        assertEquals(N1, (int) featureData.getNumberOfLevel1Entries());
+        assertEquals(N1, (int) featureData.numberOfLevel1Entries());
         assertEquals((1*1)%100, featureData.getStatistic((short) 1, (short) 1, "t"));
         assertEquals((7*7)%100, featureData.getStatistic((short) 7, (short) 7, "t"));
         assertEquals((9*8)%100, featureData.getStatistic((short) 9, (short) 8, "t"));
@@ -115,7 +115,7 @@ public class FeatureDataRepositoryMapDBTest {
         FeatureDataRepository featureDataRepository = new FeatureDataRepositoryMapDB(dbFileName, true);
 
         FeatureData2Key featureData = (FeatureData2Key) featureDataRepository.getFeatureData(TEST_FEATURE_NAME, testCellId);
-        assertEquals(N1, (int) featureData.getNumberOfLevel1Entries());
+        assertEquals(N1, (int) featureData.numberOfLevel1Entries());
         assertEquals((1*1) % 100, featureData.getStatistic((short) 1, (short) 1, "t"));
         assertEquals((7*7) % 100, featureData.getStatistic((short) 7, (short) 7, "t"));
         assertEquals((key1 * key2) % 100, featureData.getStatistic(key1, key2, "t"));

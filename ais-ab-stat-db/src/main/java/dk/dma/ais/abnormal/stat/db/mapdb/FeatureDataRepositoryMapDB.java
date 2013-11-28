@@ -182,4 +182,17 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
         db.close();
         LOG.info("Feature data repository closed.");
     }
+
+    @Override
+    public Set<Long> getCellIds(String featureName) {
+        BTreeMap<Long, FeatureData> allCellDataForFeature;
+
+        if (readOnly) {
+            allCellDataForFeature = (BTreeMap<Long, FeatureData>) db.getAll().get(featureName);
+        } else {
+            allCellDataForFeature = db.createTreeMap(featureName).makeOrGet();
+        }
+
+        return allCellDataForFeature.keySet();
+    }
 }

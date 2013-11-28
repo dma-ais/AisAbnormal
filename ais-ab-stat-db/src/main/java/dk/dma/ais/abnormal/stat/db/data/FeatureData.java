@@ -26,6 +26,12 @@ public interface FeatureData extends Serializable {
     void printStatistics(PrintStream stream);
 
     /**
+     * Get the fully qualified name of the class which produced these data
+     * @return
+     */
+    String getFeatureClassName();
+
+    /**
      * Get the internal data structure of this future.
      * Intended for use with JSON serialization.
      * @return

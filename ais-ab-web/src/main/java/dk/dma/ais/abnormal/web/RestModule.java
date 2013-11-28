@@ -56,7 +56,7 @@ public final class RestModule extends ServletModule {
             }
         }
 
-        serve("/feature/*").with( GuiceContainer.class );
+        serve("/featuredata/*").with( GuiceContainer.class );
     }
 
     @Provides @Singleton

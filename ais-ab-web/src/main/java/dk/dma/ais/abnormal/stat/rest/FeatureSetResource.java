@@ -19,13 +19,15 @@ import com.google.inject.Inject;
 import com.google.inject.servlet.RequestScoped;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.DatasetMetaData;
-import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 @RequestScoped
@@ -56,13 +58,19 @@ public class FeatureSetResource {
     }
 
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public String sayHello() {
-        // http://localhost:8080/abnormal/feature/featureset
-        return
-                "The feature data in the repository were computed with\n" +
-                        "   grid resolution: " + featureDataRepository.getMetaData().getGridSize() + "\n" +
-                        "   down sampling:   " + featureDataRepository.getMetaData().getDownsampling() + " secs";
+    @Produces(MediaType.APPLICATION_JSON)
+    public List sayHello() {
+        // http://localhost:8080/abnormal/featuredata/featureset/
+
+        DatasetMetaData metaData = featureDataRepository.getMetaData();
+        Set<String> featureNames = featureDataRepository.getFeatureNames();
+
+        HashMap<String, Set<String>> featureNamesMap = new HashMap<>();
+        featureNamesMap.put("featureNames", featureNames);
+
+        ArrayList<Object> s = new ArrayList<>();
+        Collections.addAll(s, metaData, featureNamesMap);
+        return s; // output.toString();
     }
 
 }

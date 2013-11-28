@@ -18,6 +18,7 @@ package dk.dma.ais.abnormal.stat.db;
 import dk.dma.ais.abnormal.stat.db.data.DatasetMetaData;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 
+import java.util.NavigableSet;
 import java.util.Set;
 
 public interface FeatureDataRepository {
@@ -32,4 +33,6 @@ public interface FeatureDataRepository {
     long getNumberOfCells(String featureName);
 
     void close();
+
+    Set<Long> getCellIds(String featureName);
 }

@@ -41,6 +41,34 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.2.1</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <mainClass>dk.dma.ais.abnormal.stat.AbnormalStatBuilderApp</mainClass>
+          <executable>maven</executable>
+          <arguments>
+            <argument>-inputDirectory</argument>
+            <argument>src/test/resources/</argument>
+            <argument>-input</argument>
+            <argument>ais-sample.txt.gz</argument>
+            <argument>-gridsize</argument>
+            <argument>200</argument>
+            <argument>-downsampling</argument>
+            <argument>60</argument>
+            <argument>-output</argument>
+            <argument>src/test/resources/ais-sample.featureData</argument>
+          </arguments>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
   <dependencies>

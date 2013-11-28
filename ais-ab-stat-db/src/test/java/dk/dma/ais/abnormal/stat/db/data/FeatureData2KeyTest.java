@@ -25,11 +25,11 @@ public class FeatureData2KeyTest {
 
     @Test
     public void canStoreAndRetrieveSingleStatistic() {
-        FeatureData2Key featureData = new FeatureData2Key();
+        FeatureData2Key featureData = new FeatureData2Key(this.getClass(), "key1", "key2");
 
         featureData.setStatistic((short) 3, (short) 1, "testStat", 42);
 
-        assertEquals((Integer) 1, featureData.getNumberOfLevel1Entries());
+        assertEquals((Integer) 1, featureData.numberOfLevel1Entries());
         assertEquals(42, featureData.getStatistic((short) 3, (short) 1, "testStat"));
         assertNull(featureData.getStatistic((short) 2, (short) 1, "testStat"));
         assertNull(featureData.getStatistic((short) 3, (short) 2, "testStat"));
@@ -38,7 +38,7 @@ public class FeatureData2KeyTest {
 
     @Test
     public void canIncrementInitializedStatistic() {
-        FeatureData2Key featureData = new FeatureData2Key();
+        FeatureData2Key featureData = new FeatureData2Key(this.getClass(), "key1", "key2");
 
         featureData.setStatistic((short) 3, (short) 1, "testStat", 42);
         featureData.incrementStatistic((short) 3, (short) 1,"testStat");
@@ -48,11 +48,11 @@ public class FeatureData2KeyTest {
 
     @Test
     public void canIncrementUninitializedStatistic() {
-        FeatureData2Key featureData = new FeatureData2Key();
+        FeatureData2Key featureData = new FeatureData2Key(this.getClass(), "key1", "key2");
         featureData.incrementStatistic((short) 3, (short) 1,"testStat");
         assertEquals(1, featureData.getStatistic((short) 3, (short) 1, "testStat"));
 
-        featureData = new FeatureData2Key();
+        featureData = new FeatureData2Key(this.getClass(), "key1", "key2");
         featureData.incrementStatistic((short) 3, (short) 1,"testStat");
         featureData.incrementStatistic((short) 3, (short) 1,"testStat");
         assertEquals(2, featureData.getStatistic((short) 3, (short) 1, "testStat"));

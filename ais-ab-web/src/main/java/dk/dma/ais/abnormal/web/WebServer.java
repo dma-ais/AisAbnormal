@@ -82,7 +82,7 @@ public class WebServer {
                 return Guice.createInjector(new RestModule(repositoryName));
             }
         });
-        context.addFilter(com.google.inject.servlet.GuiceFilter.class, "/feature/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(com.google.inject.servlet.GuiceFilter.class, "/featuredata/*", EnumSet.allOf(DispatcherType.class));
 
         // Setup diagnostic logging
         HandlerWrapper hw = new HandlerWrapper() {
@@ -92,10 +92,10 @@ public class WebServer {
                                HttpServletResponse response) throws IOException, ServletException {
                 long start = System.nanoTime();
                 String queryString = request.getQueryString() == null ? "" : "?" + request.getQueryString();
-                LOG.info("Received connection from " + request.getRemoteHost() + " (" + request.getRemoteAddr() + ":"
+                LOG.debug("Received connection from " + request.getRemoteHost() + " (" + request.getRemoteAddr() + ":"
                         + request.getRemotePort() + ") request = " + request.getRequestURI() + queryString);
                 super.handle(target, baseRequest, request, response);
-                LOG.info("Connection closed from " + request.getRemoteHost() + " (" + request.getRemoteAddr() + ":"
+                LOG.debug("Connection closed from " + request.getRemoteHost() + " (" + request.getRemoteAddr() + ":"
                         + request.getRemotePort() + ") request = " + request.getRequestURI() + queryString
                         + ", Duration = " + (System.nanoTime() - start) / 1000000 + " ms");
             }
