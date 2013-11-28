@@ -19,6 +19,8 @@ import com.google.inject.Inject;
 import com.google.inject.servlet.RequestScoped;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.DatasetMetaData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -33,6 +35,14 @@ import java.util.Set;
 @RequestScoped
 @Path("/featureset")
 public class FeatureSetResource {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FeatureSetResource.class);
+    static {
+        LOG.debug("FeatureSetResource loaded.");
+    }
+    {
+        LOG.debug(this.getClass().getSimpleName() + " created (" + this + " ).");
+    }
 
     private FeatureDataRepository featureDataRepository;
 

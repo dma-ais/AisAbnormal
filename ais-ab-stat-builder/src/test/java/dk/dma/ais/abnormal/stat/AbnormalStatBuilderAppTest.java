@@ -70,7 +70,7 @@ public class AbnormalStatBuilderAppTest {
         app.execute(new String[]{});
 
         AppStatisticsService appStatistics = injector.getInstance(AppStatisticsService.class);
-        assertEquals((Long) 8L, appStatistics.getFeatureStatistics("ShipTypeAndSizeFeature","Events processed"));
+        assertEquals((Long) 8L, appStatistics.getFeatureStatistics("ShipTypeAndSizeFeature", "Events processed"));
     }
 
     @Test
@@ -91,7 +91,7 @@ public class AbnormalStatBuilderAppTest {
         FeatureDataRepository featureDataRepository = injector.getInstance(FeatureDataRepository.class);
 
         assertNotNull(featureDataRepository.getMetaData());
-        assertEquals((Double) 0.0017966313162819712 /* res 200.0 */, featureDataRepository.getMetaData().getGridSize(), 1e-10);
+        assertEquals((Double) 0.0017966313162819712 /* res 200.0 */, featureDataRepository.getMetaData().getGridResolution(), 1e-10);
         assertEquals((Integer) 60, featureDataRepository.getMetaData().getDownsampling());
         assertEquals((Short) (short) 1, featureDataRepository.getMetaData().getFormatVersion());
     }

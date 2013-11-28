@@ -33,6 +33,12 @@ import java.util.Set;
 public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(FeatureDataRepositoryMapDB.class);
+    static {
+        LOG.debug("FeatureDataRepositoryMapDB loaded.");
+    }
+    {
+        LOG.debug(this.getClass().getSimpleName() + " created (" + this + " ).");
+    }
 
     private static final String FILENAME_SUFFIX = ".featureData";
 

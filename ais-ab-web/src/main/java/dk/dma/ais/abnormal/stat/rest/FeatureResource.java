@@ -34,6 +34,12 @@ import java.util.Set;
 public class FeatureResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(FeatureResource.class);
+    static {
+        LOG.debug("FeatureResource loaded.");
+    }
+    {
+        LOG.debug(this.getClass().getSimpleName() + " created (" + this + " ).");
+    }
 
     private FeatureDataRepository featureDataRepository;
 

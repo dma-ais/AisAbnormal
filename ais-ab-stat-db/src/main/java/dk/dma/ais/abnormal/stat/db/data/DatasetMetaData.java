@@ -32,7 +32,7 @@ public final class DatasetMetaData implements Serializable {
         return formatVersion;
     }
 
-    public Double getGridSize() {
+    public Double getGridResolution() {
         return gridResolution;
     }
 
