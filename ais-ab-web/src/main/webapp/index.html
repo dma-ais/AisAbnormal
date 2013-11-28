@@ -2,13 +2,11 @@
 <head>
 	<title>OpenLayers Simplest Example</title>
 	<script type="text/javascript" src="js/OpenLayers.js"></script>
+    <script type="text/javascript" src="js/dma/abnormal.js"></script>
 </head>
 <body>
 	<div id="map"></div>
 	<script>
-    map = new OpenLayers.Map("map");
-    //map.addLayer(new OpenLayers.Layer.OSM("map", "http://homer/osmtiles/${z}/${x}/${y}.png"));
-    map.addLayer(new OpenLayers.Layer.OSM());
-    map.zoomToMaxExtent();
-</script>
+        dmaAbnormalApp.init();
+    </script>
 </body>
