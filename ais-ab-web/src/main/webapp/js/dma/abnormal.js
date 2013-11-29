@@ -9,12 +9,12 @@ var dmaAbnormalApp = {
         this.projectionWGS84 = new OpenLayers.Projection("EPSG:4326");
         this.projectionSphericalMercator = new OpenLayers.Projection("EPSG:900913");
 
-        map = new OpenLayers.Map("map");
-        //map.addLayer(new OpenLayers.Layer.OSM("map", "http://homer/osmtiles/${z}/${x}/${y}.png"));
-        map.addLayer(new OpenLayers.Layer.OSM());
+        this.map = new OpenLayers.Map("map");
+        //this.map.addLayer(new OpenLayers.Layer.OSM("map", "http://homer/osmtiles/${z}/${x}/${y}.png"));
+        this.map.addLayer(new OpenLayers.Layer.OSM());
 
         var zoom = new OpenLayers.Control.Zoom();
-        map.addControl(zoom);
+        this.map.addControl(zoom);
         zoom.activate();
 
         this.registerZoomEventHandler();
@@ -26,12 +26,12 @@ var dmaAbnormalApp = {
         var lat = 56;
         var lon = 12;
         var zoom = 7;
-        map.setCenter(new OpenLayers.LonLat(lon,lat).transform(this.projectionWGS84,this.projectionSphericalMercator), zoom)
+        dmaAbnormalApp.map.setCenter(new OpenLayers.LonLat(lon,lat).transform(this.projectionWGS84,this.projectionSphericalMercator), zoom)
     },
 
     registerZoomEventHandler: function() {
-        map.events.register('zoomend', map, function(evt) {
-            if (map.zoom >= 15) {
+        dmaAbnormalApp.map.events.register('zoomend', map, function(evt) {
+            if (dmaAbnormalApp.map.zoom >= 15) {
                 if (dmaAbnormalApp.isGridLayerVisible == false) {
                     console.log("Turning on GridLayer.")
                     dmaAbnormalApp.showGridLayer();
@@ -41,25 +41,26 @@ var dmaAbnormalApp = {
                 }
             } else {
                 console.log("Turning off GridLayer.")
-                dmaAbnormalApp.hideGridLayer();
+                // TODO - turned off for test only:
+                // dmaAbnormalApp.hideGridLayer();
                 dmaAbnormalApp.isGridLayerVisible = false;
             }
         });
     },
 
     showGridLayer: function() {
-        var layer = map.getLayersByName("DMA grid layer")[0];
-        if (layer) {
-            layer.display(true);
+        var gridLayer = dmaAbnormalApp.map.getLayersByName("DMA grid layer")[0];
+        if (gridLayer) {
+            gridLayer.display(true);
         } else {
             dmaAbnormalApp.constructGridLayer();
         }
     },
 
     hideGridLayer: function() {
-        var layer = map.getLayersByName("DMA grid layer")[0];
-        if (layer) {
-            layer.display(false);
+        var gridLayer = dmaAbnormalApp.map.getLayersByName("DMA grid layer")[0];
+        if (gridLayer) {
+            gridLayer.display(false);
         }
     },
 
@@ -73,66 +74,50 @@ var dmaAbnormalApp = {
         layerStyle.fillOpacity = 0.2;
         layerStyle.graphicOpacity = 1;
 
-        var vectorLayer = new OpenLayers.Layer.Vector("DMA grid layer", {
+        var gridLayer = new OpenLayers.Layer.Vector("DMA grid layer", {
             style: layerStyle,
             renderers: renderer,
-            eventListeners: dmaAbnormalApp.vectorLayerFeatureListeners
+            eventListeners: dmaAbnormalApp.gridLayerFeatureListeners
         });
 
-        dmaAbnormalApp.addGridToLayer(vectorLayer);
-        map.addLayer(vectorLayer);
-    },
-
-    addGridToLayer: function(layer) {
-        var cells = dmaAbnormalApp.loadCells(layer);
-        dmaAbnormalApp.addCells(layer, cells);
+        dmaAbnormalApp.loadCells(gridLayer);
+        dmaAbnormalApp.map.addLayer(gridLayer);
     },
 
     loadCells: function() {
         // http://localhost:8080/abnormal/featuredata/cell?north=55&east=11&south=54.91&west=10.91
-        var i = 100000000;
-        var cells = new Array();
-        for (var lon = 12.0; lon < 12.50; lon += 0.05) {
-            for (var lat = 56.0; lat < 56.50; lat += 0.05) {
-                var cell = {
-                    cellId: i++,
-                    data: { "stat1" : 5000, "stat2" : 4322},
-                    north: lat,
-                    east:  lon,
-                    south: lat - 0.049,
-                    west:  lon - 0.049
-                }
-                cells.push(cell);
-            }
-        }
-        return cells;
-    },
-
-    addCells: function(layer, cells) {
-        console.log("Adding cells");
-        for (c in cells) {
-            var cell = cells[c];
-            dmaAbnormalApp.addCell(layer, cell);
-        }
+        var cellResourceService = "/abnormal/featuredata/cell";
+        $.getJSON( cellResourceService, {
+            north: 55.0,
+            east: 11.0,
+            south: 54.91,
+            west: 10.91
+        }).done(function( cells ) {
+            var gridLayer = dmaAbnormalApp.map.getLayersByName("DMA grid layer")[0];
+            $.each(cells, function( i, cell ) {
+                console.log("Adding cell " + cell.cellId);
+                dmaAbnormalApp.addCell(gridLayer, cell);
+            });
+        });
     },
 
     addCell: function(layer, cell) {
         var cellCoords = new Array();
 
         point = new OpenLayers.Geometry.Point(cell.west, cell.north);
-        point.transform(dmaAbnormalApp.projectionWGS84, map.getProjectionObject());
+        point.transform(dmaAbnormalApp.projectionWGS84, dmaAbnormalApp.map.getProjectionObject());
         cellCoords.push(point);
 
         point = new OpenLayers.Geometry.Point(cell.east, cell.north);
-        point.transform(dmaAbnormalApp.projectionWGS84, map.getProjectionObject());
+        point.transform(dmaAbnormalApp.projectionWGS84, dmaAbnormalApp.map.getProjectionObject());
         cellCoords.push(point);
 
         point = new OpenLayers.Geometry.Point(cell.east, cell.south);
-        point.transform(dmaAbnormalApp.projectionWGS84, map.getProjectionObject());
+        point.transform(dmaAbnormalApp.projectionWGS84, dmaAbnormalApp.map.getProjectionObject());
         cellCoords.push(point);
 
         point = new OpenLayers.Geometry.Point(cell.west, cell.south);
-        point.transform(dmaAbnormalApp.projectionWGS84, map.getProjectionObject());
+        point.transform(dmaAbnormalApp.projectionWGS84, dmaAbnormalApp.map.getProjectionObject());
         cellCoords.push(point);
 
         var cellStyle = {
@@ -151,15 +136,30 @@ var dmaAbnormalApp = {
         layer.addFeatures([cellFeature]);
     },
 
-    vectorLayerFeatureListeners: {
+    gridLayerFeatureListeners: {
         featureclick: function(e) {
             var feature = e.feature;
             var cell = feature.data;
-            console.log("Cell id " + cell.cellId + " was clicked. Data carried: " + cell.data.toString());
+            console.log("Cell id " + cell.cellId + " was clicked.");
 
             var popupContents = $('div#popup > .contents');
             popupContents.empty();
-            popupContents.append('You have clicked in cell id ' + cell.cellId);
+            popupContents.append('<h2>Cell id ' + cell.cellId + '</h2>');
+
+            var north = OpenLayers.Util.getFormattedLonLat(cell.north, 'lat');
+            var east  = OpenLayers.Util.getFormattedLonLat(cell.east, 'lon');
+            var south = OpenLayers.Util.getFormattedLonLat(cell.south, 'lat');
+            var west  = OpenLayers.Util.getFormattedLonLat(cell.west, 'lon');
+            popupContents.append('<div>Bounded by (' + north + ',' + west + ') and (' + south + ',' + east + ').</div>');
+
+            popupContents.append('<div>Contains the following recorded statistics:</div>');
+            $.each(cell.featureData, function(i, fd ) {
+                var featureName = fd.featureClassName;
+                featureName = featureName.substring(featureName.lastIndexOf('.')+1);
+                popupContents.append('<div>' + featureName + '</div>');
+                console.log(featureName)
+            });
+
             $('#popup').bPopup();
 
             return false;
