@@ -63,7 +63,7 @@ public class ShipTypeAndSizeFeature implements Feature {
 
         Track track = event.getTrack();
 
-        Integer cellId = (Integer) track.getProperty(Track.CELL_ID);
+        Long cellId = (Long) track.getProperty(Track.CELL_ID);
         Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
         Integer shipLength = (Integer) track.getProperty(Track.VESSEL_LENGTH);
 

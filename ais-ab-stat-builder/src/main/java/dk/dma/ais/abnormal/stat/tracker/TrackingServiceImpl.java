@@ -81,8 +81,8 @@ public class TrackingServiceImpl implements TrackingService {
 
     private void updateGridId(Track track, AisMessage aisMessage) {
         if (aisMessage instanceof IPositionMessage) {
-            Integer oldCellId = (Integer) track.getProperty(Track.CELL_ID);
-            Integer newCellId;
+            Long oldCellId = (Long) track.getProperty(Track.CELL_ID);
+            Long newCellId;
 
             IPositionMessage positionMessage = (IPositionMessage) aisMessage;
             AisPosition position = positionMessage.getPos();

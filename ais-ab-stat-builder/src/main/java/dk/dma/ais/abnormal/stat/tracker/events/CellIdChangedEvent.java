@@ -20,14 +20,14 @@ import com.google.common.base.Objects;
 import dk.dma.ais.abnormal.stat.tracker.Track;
 
 public class CellIdChangedEvent extends TrackingEvent {
-    private final Integer oldCellId;
+    private final Long oldCellId;
 
-    public CellIdChangedEvent(Track track, Integer oldCellId) {
+    public CellIdChangedEvent(Track track, Long oldCellId) {
         super(track);
         this.oldCellId = oldCellId;
     }
 
-    public final Integer getOldCellId() {
+    public final Long getOldCellId() {
         return oldCellId;
     }
 
