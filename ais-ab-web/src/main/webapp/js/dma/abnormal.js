@@ -136,31 +136,39 @@ var dmaAbnormalApp = {
         layer.addFeatures([cellFeature]);
     },
 
+    populateFeatureDataPopup: function(cell) {
+        var popupContents = $('div#popup > .contents');
+        popupContents.empty();
+        popupContents.append('<h2>Cell id ' + cell.cellId + '</h2>');
+
+        var north = OpenLayers.Util.getFormattedLonLat(cell.north, 'lat');
+        var east  = OpenLayers.Util.getFormattedLonLat(cell.east, 'lon');
+        var south = OpenLayers.Util.getFormattedLonLat(cell.south, 'lat');
+        var west  = OpenLayers.Util.getFormattedLonLat(cell.west, 'lon');
+        popupContents.append('<div>Bounded by (' + north + ',' + west + ') and (' + south + ',' + east + ').</div>');
+
+        popupContents.append('<div>Contains feature statistics for:</div>');
+        popupContents.append('<ul>');
+        $.each(cell.featureData, function(i, fd ) {
+            var featureName = fd.featureClassName;
+            featureName = featureName.substring(featureName.lastIndexOf('.')+1);
+            popupContents.append('<li>' + featureName + '</li>');
+
+            var featureType = fd.featureClassName;
+
+            console.log("Detected feature type: " + featureType);
+        });
+        popupContents.append('</ul>');
+
+        $('#popup').bPopup();
+    },
+
     gridLayerFeatureListeners: {
         featureclick: function(e) {
             var feature = e.feature;
             var cell = feature.data;
-            console.log("Cell id " + cell.cellId + " was clicked.");
 
-            var popupContents = $('div#popup > .contents');
-            popupContents.empty();
-            popupContents.append('<h2>Cell id ' + cell.cellId + '</h2>');
-
-            var north = OpenLayers.Util.getFormattedLonLat(cell.north, 'lat');
-            var east  = OpenLayers.Util.getFormattedLonLat(cell.east, 'lon');
-            var south = OpenLayers.Util.getFormattedLonLat(cell.south, 'lat');
-            var west  = OpenLayers.Util.getFormattedLonLat(cell.west, 'lon');
-            popupContents.append('<div>Bounded by (' + north + ',' + west + ') and (' + south + ',' + east + ').</div>');
-
-            popupContents.append('<div>Contains the following recorded statistics:</div>');
-            $.each(cell.featureData, function(i, fd ) {
-                var featureName = fd.featureClassName;
-                featureName = featureName.substring(featureName.lastIndexOf('.')+1);
-                popupContents.append('<div>' + featureName + '</div>');
-                console.log(featureName)
-            });
-
-            $('#popup').bPopup();
+            dmaAbnormalApp.populateFeatureDataPopup(cell);
 
             return false;
         },

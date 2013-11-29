@@ -64,7 +64,6 @@ public class CellResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Set<CellWrapper> getCellIdsWithinBoundaries(@QueryParam("north") Double north, @QueryParam("east") Double east, @QueryParam("south") Double south, @QueryParam("west") Double west) {
         // http://localhost:8080/abnormal/featuredata/cell?north=55&east=11&south=54.91&west=10.91
-
         LOG.debug("Attempting get id's of cells inside boundary");
 
         if (north == null) {
@@ -99,19 +98,35 @@ public class CellResource {
         Grid grid = Grid.create(gridResolution);
         LOG.debug("Created grid with resolution " + gridResolution);
 
+        LOG.debug("Looking for cells touching area bounded by " + north + " north, " + east + " east, " + south + " south, and " + west + " west.");
         Position northWest = Position.create(north, west);
         Position southEast = Position.create(south, east);
         Area area = BoundingBox.create(northWest, southEast, CoordinateSystem.GEODETIC);
-        LOG.debug("Looking for cells touching area bounded by " + north + " north, " + east + " east, " + south + " south, and " + west + " west.");
 
-        //Set<Cell> cells = grid.getCells(area);
-        //LOG.debug("Found " + cells.size() + " cells inside area [" + northWest + "," + southEast + "]");
-        Set<CellWrapper> cells = loadDummyCells(grid);
-
+        Set<CellWrapper> cells = loadDummyCells(grid, area);
         return cells;
     }
 
-    private Set<CellWrapper> loadDummyCells(Grid grid) {
+    private Set<CellWrapper> loadCells(Grid grid, Area area) {
+        // These are the features stored in the data set
+        Set<String> featureNames = featureDataRepository.getFeatureNames();
+
+        // Compute the cells contained inside the area
+        Set<Cell> cells = grid.getCells(area);
+
+        // Load feature data for cells inside the area
+        for (Cell cell : cells) {
+           // featureDataRepository.getFeatureData(cell.getCellId());
+        }
+        //LOG.debug("Found " + cells.size() + " cells inside area [" + northWest + "," + southEast + "]");
+        //Set<CellWrapper> cells = loadDummyCells(grid);
+
+        Set<CellWrapper> cells2 = new LinkedHashSet<>();
+
+        return null;
+    }
+
+    private Set<CellWrapper> loadDummyCells(Grid grid, Area area) {
         Set<CellWrapper> cells = new LinkedHashSet<>();
 
         for (double lon = 12.0; lon < 12.50; lon += 0.05) {
@@ -141,7 +156,7 @@ public class CellResource {
         private final double west;
         private final Set<FeatureData> featureData;
 
-        public int getCellId() {
+        public long getCellId() {
             return cell.getCellId();
         }
 
