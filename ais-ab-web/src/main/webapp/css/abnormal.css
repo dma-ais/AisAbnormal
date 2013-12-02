@@ -7,10 +7,6 @@ div#map {
     margin: 20px auto;
 }
 
-input + label {
-    font-weight: normal;
-}
-
 /* Sticky footer styles
    -------------------------------------------------- */
 

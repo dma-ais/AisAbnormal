@@ -84,7 +84,7 @@ var dmaAbnormalApp = {
         }
         // Book-keeping
         dmaAbnormalApp.isGridLayerVisible = true;
-        $('#cell-layer-visible').prop('checked', true);
+        $('#cell-layer-display-status').html('Cell layer visible.');
     },
 
     hideGridLayer: function() {
@@ -94,7 +94,7 @@ var dmaAbnormalApp = {
 
             // Book-keeping
             dmaAbnormalApp.isGridLayerVisible = false;
-            $('#cell-layer-visible').prop('checked', false);
+            $('#cell-layer-display-status').html('Cell layer hidden.');
         }
     },
 
@@ -119,6 +119,8 @@ var dmaAbnormalApp = {
     },
 
     loadCells: function() {
+        $('#cell-layer-load-status').html('Loading cells...');
+
         var viewport = dmaAbnormalApp.map.getExtent();
 
         var nw = new OpenLayers.Geometry.Point(viewport.left, viewport.top);
@@ -138,6 +140,7 @@ var dmaAbnormalApp = {
                 // TODO do not add duplicate cells when loading multiple times
                 dmaAbnormalApp.addCell(gridLayer, cell);
             });
+            $('#cell-layer-load-status').html(cell.length + ' cells loaded.');
         });
     },
 

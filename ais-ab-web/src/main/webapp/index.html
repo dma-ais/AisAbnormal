@@ -4,6 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- JS -->
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
     <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/OpenLayers.js"></script>
@@ -36,12 +37,12 @@
                     <h5>Cursor</h5>
                     <p id="cursorpos">...</p>
                     <h5>Cells</h5>
-                    <input type="checkbox" id="cell-layer-visible" />
-                    <label for="cell-layer-visible">Cell layer visible</label>
+                    <p id="cell-layer-load-status">No cells loaded.</p>
+                    <p id="cell-layer-display-status">Cell layer hidden.</p>
                 </div>
                 <div >
                     <h5>Controls</h5>
-                    <p>...</p>
+                    <button id="test-cell-layer-visible">Force display cell layer</button>
                 </div>
             </div>
         </div>
