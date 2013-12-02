@@ -4,15 +4,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- JS -->
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-    <script type="text/javascript" src="js/toggles.min.js"></script>
     <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/OpenLayers.js"></script>
     <script type="text/javascript" src="js/dma/abnormal.js"></script>
     <!-- CSS -->
     <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css">
-    <link rel="stylesheet" href="css/toggles.css">
-    <link rel="stylesheet" href="css/toggles-light.css">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="css/abnormal.css">
@@ -38,10 +35,12 @@
                     <p id="viewport">...</p>
                     <h5>Cursor</h5>
                     <p id="cursorpos">...</p>
+                    <h5>Cells</h5>
+                    <input type="checkbox" id="cell-layer-visible" />
+                    <label for="cell-layer-visible">Cell layer visible</label>
                 </div>
                 <div >
                     <h5>Controls</h5>
-                    <div class="toggle toggle-light on"></div>
                     <p>...</p>
                 </div>
             </div>
@@ -63,8 +62,6 @@
 
 	<script>
         $( document ).ready(function() {
-            $('.toggle').toggles({on:true});
-
             $(window).resize(function(){
                 $('div#map').css('height', $(window).height() - 500);
             }).resize();

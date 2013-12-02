@@ -32,33 +32,46 @@ var dmaAbnormalApp = {
     },
 
     registerEventHandlers: function() {
-        dmaAbnormalApp.map.events.register('move', map, this.onMove);
-        dmaAbnormalApp.map.events.register('mousemove', map, this.onMouseMove);
-        dmaAbnormalApp.map.events.register('zoomend', map, this.onZoom);
+        dmaAbnormalApp.map.events.register('move', map, this.onMapMove);
+        dmaAbnormalApp.map.events.register('mousemove', map, this.onMapMouseMove);
+        dmaAbnormalApp.map.events.register('zoomend', map, this.onMapZoom);
+
+        $('#cell-layer-visible').change(this.onCheckBoxCellLayerVisibleChecked);
     },
 
-    onMove: function(evt) {
+    onMapMove: function(evt) {
         dmaAbnormalApp.userOutputUpdateViewPortInfo();
+
+        // Compensate for a bug in OpenLayers?
+        if (dmaAbnormalApp.isGridLayerVisible == false) {
+            dmaAbnormalApp.hideGridLayer();
+        }
     },
 
-    onMouseMove: function(evt) {
+    onMapMouseMove: function(evt) {
         dmaAbnormalApp.userOutputUpdateCursorPos(evt.xy);
     },
 
-    onZoom: function(evt) {
-        if (dmaAbnormalApp.map.zoom >= 15) {
+    onMapZoom: function(evt) {
+        if (dmaAbnormalApp.map.zoom >= 12) {
             if (dmaAbnormalApp.isGridLayerVisible == false) {
-                console.log("Turning on GridLayer.")
+                console.log("Turning on GridLayer.");
+                dmaAbnormalApp.loadCells();
                 dmaAbnormalApp.showGridLayer();
-                dmaAbnormalApp.isGridLayerVisible = true;
             } else {
                 console.log("GridLayer is already visible.")
             }
         } else {
             console.log("Turning off GridLayer.")
-            // TODO - turned off for test only:
-            // dmaAbnormalApp.hideGridLayer();
-            dmaAbnormalApp.isGridLayerVisible = false;
+            dmaAbnormalApp.hideGridLayer();
+        }
+    },
+
+    onCheckBoxCellLayerVisibleChecked: function(evt) {
+        if ($(this).is(':checked')) {
+            dmaAbnormalApp.showGridLayer();
+        } else {
+            dmaAbnormalApp.hideGridLayer();
         }
     },
 
@@ -69,12 +82,19 @@ var dmaAbnormalApp = {
         } else {
             dmaAbnormalApp.constructGridLayer();
         }
+        // Book-keeping
+        dmaAbnormalApp.isGridLayerVisible = true;
+        $('#cell-layer-visible').prop('checked', true);
     },
 
     hideGridLayer: function() {
         var gridLayer = dmaAbnormalApp.map.getLayersByName("DMA grid layer")[0];
         if (gridLayer) {
             gridLayer.display(false);
+
+            // Book-keeping
+            dmaAbnormalApp.isGridLayerVisible = false;
+            $('#cell-layer-visible').prop('checked', false);
         }
     },
 
@@ -99,19 +119,26 @@ var dmaAbnormalApp = {
     },
 
     loadCells: function() {
-        // http://localhost:8080/abnormal/featuredata/cell?north=55&east=11&south=54.91&west=10.91
+        var viewport = dmaAbnormalApp.map.getExtent();
+
+        var nw = new OpenLayers.Geometry.Point(viewport.left, viewport.top);
+        nw.transform(dmaAbnormalApp.map.getProjectionObject(), dmaAbnormalApp.projectionWGS84);
+        var se = new OpenLayers.Geometry.Point(viewport.right, viewport.bottom);
+        se.transform(dmaAbnormalApp.map.getProjectionObject(), dmaAbnormalApp.projectionWGS84);
+
         var cellResourceService = "/abnormal/featuredata/cell";
         $.getJSON( cellResourceService, {
-            north: 56.1,
-            east: 12.1,
-            south: 56.0,
-            west: 12.0
+            north: nw.y,
+            east: se.x,
+            south: se.y,
+            west: nw.x
         }).done(function( cells ) {
-                var gridLayer = dmaAbnormalApp.map.getLayersByName("DMA grid layer")[0];
-                $.each(cells, function( i, cell ) {
-                    dmaAbnormalApp.addCell(gridLayer, cell);
-                });
+            var gridLayer = dmaAbnormalApp.map.getLayersByName("DMA grid layer")[0];
+            $.each(cells, function( i, cell ) {
+                // TODO do not add duplicate cells when loading multiple times
+                dmaAbnormalApp.addCell(gridLayer, cell);
             });
+        });
     },
 
     addCell: function(layer, cell) {
@@ -164,9 +191,9 @@ var dmaAbnormalApp = {
     userOutputUpdateViewPortInfo: function() {
         var viewport = dmaAbnormalApp.map.getExtent();
 
-        var nw = new OpenLayers.Geometry.Point(viewport.right, viewport.top);
+        var nw = new OpenLayers.Geometry.Point(viewport.left, viewport.top);
         nw.transform(dmaAbnormalApp.map.getProjectionObject(), dmaAbnormalApp.projectionWGS84);
-        var se = new OpenLayers.Geometry.Point(viewport.left, viewport.bottom);
+        var se = new OpenLayers.Geometry.Point(viewport.right, viewport.bottom);
         se.transform(dmaAbnormalApp.map.getProjectionObject(), dmaAbnormalApp.projectionWGS84);
 
         var north = OpenLayers.Util.getFormattedLonLat(nw.y, 'lat');
