@@ -17,6 +17,8 @@ var dmaAbnormalApp = {
         this.map.addControl(zoom);
         zoom.activate();
 
+        this.userOutputClearCellData();
+
         this.registerZoomEventHandler();
         this.zoomToDenmark();
     },
@@ -95,7 +97,6 @@ var dmaAbnormalApp = {
         }).done(function( cells ) {
                 var gridLayer = dmaAbnormalApp.map.getLayersByName("DMA grid layer")[0];
                 $.each(cells, function( i, cell ) {
-                    console.log("Adding cell " + cell.cellId);
                     dmaAbnormalApp.addCell(gridLayer, cell);
                 });
             });
@@ -136,26 +137,31 @@ var dmaAbnormalApp = {
         layer.addFeatures([cellFeature]);
     },
 
-    populateFeatureDataPopup: function(cell) {
-        var popupContents = $('div#popup > .contents');
-        popupContents.empty();
-        popupContents.append('<h2>Cell id ' + cell.cellId + '</h2>');
+    userOutputClearCellData: function() {
+        var cellData = $('div#cell-data div.cell-data-contents');
+        cellData.empty();
+        cellData.append("<h5>No cell selected.</h5>");
+    },
 
+    userOutputShowCellData: function(cell) {
         var north = OpenLayers.Util.getFormattedLonLat(cell.north, 'lat');
         var east  = OpenLayers.Util.getFormattedLonLat(cell.east, 'lon');
         var south = OpenLayers.Util.getFormattedLonLat(cell.south, 'lat');
         var west  = OpenLayers.Util.getFormattedLonLat(cell.west, 'lon');
-        popupContents.append('<div>Bounded by (' + north + ',' + west + ') and (' + south + ',' + east + ').</div>');
 
-        popupContents.append('<div>Contains feature statistics for:</div>');
+        var cellData = $('div#cell-data div.cell-data-contents');
+
+        cellData.empty();
+        cellData.append("<h5>Cell id " + cell.cellId + " (" + north + "," + west + ") - (" + south + "," + east + ")</h5>");
+
         $.each(cell.featureData, function(i, fd ) {
             var featureName = fd.featureName;
             var featureType = fd.featureDataType;
 
-            popupContents.append('<br/><b>' + featureName + '</b><br/>');
+            cellData.append('<br/><b>' + featureName + '</b><br/>');
 
             if (featureType == 'FeatureData2Key') {
-                var tableHtml = "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"dataTable\" id=\"featureTable\">";
+                var tableHtml = "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"dataTable\" style=\”width: 260px;\” id=\"featureTable\">";
                 tableHtml += "<thead>";
                 tableHtml += "<tr>";
                 tableHtml += "<th>" + fd.meaningOfKey1 + " &#92; " + fd.meaningOfKey2 + "</th>";
@@ -190,8 +196,7 @@ var dmaAbnormalApp = {
                 tableHtml += "</tbody>";
                 tableHtml += "</table>";
             }
-            popupContents.append(tableHtml);
-
+            cellData.append(tableHtml);
         });
 
         $('#featureTable').dataTable({
@@ -202,7 +207,7 @@ var dmaAbnormalApp = {
             "bSort": false,
             "bAutoWidth": false
         });
-        $('#popup').bPopup();
+
     },
 
     gridLayerFeatureListeners: {
@@ -210,7 +215,7 @@ var dmaAbnormalApp = {
             var feature = e.feature;
             var cell = feature.data;
 
-            dmaAbnormalApp.populateFeatureDataPopup(cell);
+            dmaAbnormalApp.userOutputShowCellData(cell);
 
             return false;
         },

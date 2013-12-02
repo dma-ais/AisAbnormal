@@ -1,23 +1,73 @@
 <!doctype htmlL>
 <head>
 	<title>Danish Maritime Administration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- JS -->
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-    <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>    <script type="text/javascript" src="js/jquery.bpopup.min.js"></script>
+    <script type="text/javascript" src="js/toggles.min.js"></script>
+    <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/OpenLayers.js"></script>
     <script type="text/javascript" src="js/dma/abnormal.js"></script>
     <!-- CSS -->
     <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css">
-    <link rel="stylesheet" href="css/jquery.bpopup.min.css">
+    <link rel="stylesheet" href="css/toggles.css">
+    <link rel="stylesheet" href="css/toggles-light.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="css/abnormal.css">
 </head>
 <body>
-	<div id="map"></div>
-    <div id="popup">
-        <span class="button b-close"><span>X</span></span>
-        <div class="contents">
+
+    <div id="wrap" class="container">
+        <div class="page-header">
+            <h1>AIS Abnormal Behaviour</h1>
+            <p class="lead">A service delivered by the Danish Maritime Administration.</p>
+        </div>
+        <div class="row">
+            <div class="col-md-10">
+                <div id="map"></div>
+            </div>
+            <div class="col-md-2">
+                <div >
+                    <h4>Dataset</h4>
+                    <p>...</p>
+                </div>
+                <div >
+                    <h4>View</h4>
+                    <p id="viewCoords">...</p>
+                </div>
+                <div >
+                    <h4>Controls</h4>
+                    <div class="toggle toggle-light on"></div>
+                    <p>...</p>
+                </div>
+            </div>
+        </div>
+        <div id="cell-data" class="row">
+            <div class="col-md-12">
+                <h4>Cell data</h4>
+                <div class="cell-data-contents">...</div>
+            </div>
+        </div>
+        <div id="push"></div>
     </div>
+
+    <div id="footer">
+        <div class="container">
+            <p>(C) Copyright 2013 by the  <a href="http://www.dma.dk/">Danish Maritime Administration</a>.</p>
+        </div>
+    </div>
+
 	<script>
-        dmaAbnormalApp.init();
+        $( document ).ready(function() {
+            $('.toggle').toggles({on:true});
+
+            $(window).resize(function(){
+                $('div#map').css('height', $(window).height() - 500);
+            }).resize();
+
+            dmaAbnormalApp.init();
+        });
     </script>
 </body>
