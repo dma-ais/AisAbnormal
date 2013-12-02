@@ -1,0 +1,7 @@
+table.dataTable thead {
+    color: lightgray;;
+}
+
+table.dataTable tr.even {
+    color: lightgray;;
+}

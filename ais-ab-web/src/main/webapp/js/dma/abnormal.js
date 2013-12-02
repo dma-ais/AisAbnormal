@@ -88,17 +88,17 @@ var dmaAbnormalApp = {
         // http://localhost:8080/abnormal/featuredata/cell?north=55&east=11&south=54.91&west=10.91
         var cellResourceService = "/abnormal/featuredata/cell";
         $.getJSON( cellResourceService, {
-            north: 55.0,
-            east: 11.0,
-            south: 54.91,
-            west: 10.91
+            north: 56.1,
+            east: 12.1,
+            south: 56.0,
+            west: 12.0
         }).done(function( cells ) {
-            var gridLayer = dmaAbnormalApp.map.getLayersByName("DMA grid layer")[0];
-            $.each(cells, function( i, cell ) {
-                console.log("Adding cell " + cell.cellId);
-                dmaAbnormalApp.addCell(gridLayer, cell);
+                var gridLayer = dmaAbnormalApp.map.getLayersByName("DMA grid layer")[0];
+                $.each(cells, function( i, cell ) {
+                    console.log("Adding cell " + cell.cellId);
+                    dmaAbnormalApp.addCell(gridLayer, cell);
+                });
             });
-        });
     },
 
     addCell: function(layer, cell) {
@@ -148,18 +148,60 @@ var dmaAbnormalApp = {
         popupContents.append('<div>Bounded by (' + north + ',' + west + ') and (' + south + ',' + east + ').</div>');
 
         popupContents.append('<div>Contains feature statistics for:</div>');
-        popupContents.append('<ul>');
         $.each(cell.featureData, function(i, fd ) {
-            var featureName = fd.featureClassName;
-            featureName = featureName.substring(featureName.lastIndexOf('.')+1);
-            popupContents.append('<li>' + featureName + '</li>');
+            var featureName = fd.featureName;
+            var featureType = fd.featureDataType;
 
-            var featureType = fd.featureClassName;
+            popupContents.append('<br/><b>' + featureName + '</b><br/>');
 
-            console.log("Detected feature type: " + featureType);
+            if (featureType == 'FeatureData2Key') {
+                var tableHtml = "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"dataTable\" id=\"featureTable\">";
+                tableHtml += "<thead>";
+                tableHtml += "<tr>";
+                tableHtml += "<th>" + fd.meaningOfKey1 + " &#92; " + fd.meaningOfKey2 + "</th>";
+                for (var i=1; i<10; i++) {
+                    tableHtml += "<th>" + i + "</th>";
+                }
+                tableHtml += "</tr>";
+                tableHtml += "</thead>";
+                tableHtml += "<tbody>";
+                for (var i1=1; i1<10; i1++) {
+                    tableHtml += "<tr>";
+                    tableHtml += "<td>" + i1 + "</td>";
+                    for (var i2=1; i2<10; i2++) {
+                        tableHtml += "<td>";
+                        var data = fd.data;
+                        if (data) {
+                            var k1 = data[i1];
+                            if (k1) {
+                                var k2 = data[i1][i2];
+                                if (k2) {
+                                    var stats = data[i1][i2].shipCount;
+                                    if (stats) {
+                                        tableHtml += stats;
+                                    }
+                                }
+                            }
+                        }
+                        tableHtml += "</td>";
+                    }
+                    tableHtml += "</tr>";
+                }
+                tableHtml += "</tbody>";
+                tableHtml += "</table>";
+            }
+            popupContents.append(tableHtml);
+
         });
-        popupContents.append('</ul>');
 
+        $('#featureTable').dataTable({
+            "bFilter": false,
+            "bInfo": false,
+            "bPaginate": false,
+            "bLengthChange": false,
+            "bSort": false,
+            "bAutoWidth": false
+        });
         $('#popup').bPopup();
     },
 
@@ -184,4 +226,3 @@ var dmaAbnormalApp = {
     }
 
 }
-

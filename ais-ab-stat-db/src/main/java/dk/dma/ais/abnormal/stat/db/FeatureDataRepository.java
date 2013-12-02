@@ -31,8 +31,8 @@ public interface FeatureDataRepository {
 
     Set<String> getFeatureNames();
     long getNumberOfCells(String featureName);
+    Set<Long> getCellsWithData(String featureName);
+    Set<Long> getAllCellsWithData();
 
     void close();
-
-    Set<Long> getCellIds(String featureName);
 }

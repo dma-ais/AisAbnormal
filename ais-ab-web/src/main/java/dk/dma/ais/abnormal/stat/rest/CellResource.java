@@ -34,6 +34,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -84,11 +85,11 @@ public class CellResource {
         if (east <= west) {
             throw new IllegalArgumentException("'east' parameter must be > 'west' parameter");
         }
-        if (north - south > 0.1) {
-            throw new IllegalArgumentException("'north' and 'south' parameters must be within 0.1. The current difference is " + (north - south));
+        if (north - south > 0.1000000001) {
+      //      throw new IllegalArgumentException("'north' and 'south' parameters must be within 0.1. The current difference is " + (north - south));
         }
-        if (east - west > 0.1) {
-            throw new IllegalArgumentException("'east' and 'west' parameters must be within 0.1. The current difference is " + (east - west));
+        if (east - west > 0.1000000001) {
+      //      throw new IllegalArgumentException("'east' and 'west' parameters must be within 0.1. The current difference is " + (east - west));
         }
         LOG.debug("parameters are ok");
 
@@ -103,27 +104,78 @@ public class CellResource {
         Position southEast = Position.create(south, east);
         Area area = BoundingBox.create(northWest, southEast, CoordinateSystem.GEODETIC);
 
-        Set<CellWrapper> cells = loadDummyCells(grid, area);
+        //Set<CellWrapper> cells = loadCells(grid, area);
+        Set<CellWrapper> cells = loadCellsWithData(grid, area);
+        //Set<CellWrapper> cells = loadDummyCells(grid, area);
+
         return cells;
     }
 
-    private Set<CellWrapper> loadCells(Grid grid, Area area) {
+    private Set<CellWrapper> loadCellsInArea(Grid grid, Area area) {
         // These are the features stored in the data set
         Set<String> featureNames = featureDataRepository.getFeatureNames();
 
         // Compute the cells contained inside the area
+        LOG.debug("Computing which cells are in the area.");
         Set<Cell> cells = grid.getCells(area);
+        LOG.debug("There are " + cells.size() + " cells in the area.");
+
+        // Container to collect output data
+        Set<CellWrapper> wrappedCells = new LinkedHashSet<>();
 
         // Load feature data for cells inside the area
         for (Cell cell : cells) {
-           // featureDataRepository.getFeatureData(cell.getCellId());
+            ArrayList<FeatureData> featureDataArray = new ArrayList<>();
+            for (String featureName : featureNames) {
+                LOG.debug("Loading feature for feature " + featureName + ", cell id " + cell.getCellId());
+                FeatureData featureData = featureDataRepository.getFeatureData(featureName, cell.getCellId());
+                if (featureData != null) {
+                    featureDataArray.add(featureData);
+                } else {
+                    // LOG.warn("Missing data for feature " + featureName + ", cell id " + cell.getCellId());
+                }
+            }
+
+            // Add the cell to the output only if its has statistical data
+            if (featureDataArray.size() > 0) {
+                BoundingBox boundingBoxOfCell = grid.getBoundingBoxOfCell(cell);
+                CellWrapper wrappedCell = new CellWrapper(cell, boundingBoxOfCell, featureDataArray.toArray(new FeatureData[featureDataArray.size()]));
+                // Add cell to output
+                wrappedCells.add(wrappedCell);
+            }
         }
-        //LOG.debug("Found " + cells.size() + " cells inside area [" + northWest + "," + southEast + "]");
-        //Set<CellWrapper> cells = loadDummyCells(grid);
 
-        Set<CellWrapper> cells2 = new LinkedHashSet<>();
+        LOG.debug("There are " + wrappedCells.size() + " cells with feature data in the area");
+        return wrappedCells;
+    }
 
-        return null;
+    private Set<CellWrapper> loadCellsWithData(Grid grid, Area area) {
+        // CellId , BoundingBox , Set<FeatureData>
+
+        // Container to collect output data
+        Set<CellWrapper> wrappedCells = new LinkedHashSet<>();
+
+        Set<String> featureNames = featureDataRepository.getFeatureNames();
+        Set<Long> cellIds = featureDataRepository.getAllCellsWithData();
+        for (Long cellId : cellIds) {
+            ArrayList<FeatureData> featureDataArray = new ArrayList<>();
+
+            for (String featureName : featureNames) {
+                FeatureData featureData = featureDataRepository.getFeatureData(featureName, cellId);
+                if (featureData != null) {
+                    featureDataArray.add(featureData);
+                }
+            }
+
+            Cell cell = grid.getCell(cellId);
+            BoundingBox boundingBoxOfCell = grid.getBoundingBoxOfCell(cell);
+
+            CellWrapper wrappedCell = new CellWrapper(cell, boundingBoxOfCell, featureDataArray.toArray(new FeatureData[featureDataArray.size()]));
+            wrappedCells.add(wrappedCell);
+        }
+
+        LOG.debug("There are " + wrappedCells.size() + " cells with feature data in the area");
+        return wrappedCells;
     }
 
     private Set<CellWrapper> loadDummyCells(Grid grid, Area area) {
@@ -139,8 +191,12 @@ public class CellResource {
                 feature2Data.setStatistic((short) 1, (short) 2, "statA", (Integer) 8);
                 feature2Data.setStatistic((short) 2, (short) 1, "statA", (Integer) 7);
 
+                Position nw = Position.create(lat+0.02, lon-0.02);
+                Position se = Position.create(lat-0.02, lon+0.02);
+                BoundingBox boundingBoxOfCell = BoundingBox.create(nw, se, CoordinateSystem.GEODETIC);
+
                 Cell cell = grid.getCell(lat, lon);
-                CellWrapper cellWrapper = new CellWrapper(cell, lat+0.02, lon+0.02, lat-0.02, lon-0.02, feature1Data, feature2Data);
+                CellWrapper cellWrapper = new CellWrapper(cell, boundingBoxOfCell, feature1Data, feature2Data);
                 cells.add(cellWrapper);
             }
         }
@@ -180,12 +236,12 @@ public class CellResource {
             return featureData;
         }
 
-        public CellWrapper(Cell cell, double north, double east, double south, double west, FeatureData... featureData) {
+        public CellWrapper(Cell cell, BoundingBox boundingBox, FeatureData... featureData) {
             this.cell = cell;
-            this.north = north;
-            this.east = east;
-            this.south = south;
-            this.west = west;
+            this.north = boundingBox.getMaxLat();
+            this.east = boundingBox.getMaxLon();
+            this.south = boundingBox.getMinLat();
+            this.west = boundingBox.getMinLon();
             this.featureData = new HashSet<>(Arrays.asList(featureData));
         }
     }

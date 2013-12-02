@@ -55,7 +55,7 @@ public class FeatureResource {
         LOG.debug("Attempting get id's of cells with data feature "+ featureName);
 
         // http://localhost:8080/abnormal/feature/featureset/feature/ShipTypeAndSizeFeature/cell
-        Set<Long> cellIds = featureDataRepository.getCellIds(featureName);
+        Set<Long> cellIds = featureDataRepository.getCellsWithData(featureName);
 
         LOG.debug("There are" + (cellIds == null ? " no ":" ") + "matching cell ids");
         if (cellIds == null) {

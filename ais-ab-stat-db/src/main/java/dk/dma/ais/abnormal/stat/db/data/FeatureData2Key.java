@@ -115,13 +115,20 @@ public class FeatureData2Key implements FeatureData {
     }
 
     @Override
-    public Object getData() {
-        return data;
+    public String getFeatureName() {
+        final int n = featureClassName.lastIndexOf(".");
+        final String featureName = featureClassName.substring(n+1);
+        return featureName;
     }
 
     @Override
-    public String getFeatureClassName() {
-        return this.featureClassName;
+    public String getFeatureDataType() {
+        return this.getClass().getSimpleName();
+    }
+
+    @Override
+    public Object getData() {
+        return data;
     }
 
     public String getMeaningOfKey1() {

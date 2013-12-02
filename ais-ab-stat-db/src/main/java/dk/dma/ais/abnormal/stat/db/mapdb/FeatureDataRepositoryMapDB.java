@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -190,7 +191,7 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
     }
 
     @Override
-    public Set<Long> getCellIds(String featureName) {
+    public Set<Long> getCellsWithData(String featureName) {
         BTreeMap<Long, FeatureData> allCellDataForFeature;
 
         if (readOnly) {
@@ -201,4 +202,18 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
 
         return allCellDataForFeature.keySet();
     }
+
+    @Override
+    public Set<Long> getAllCellsWithData() {
+        Set<Long> cellsWithData = new HashSet<>();
+
+        Set<String> featureNames = getFeatureNames();
+        for (String featureName : featureNames) {
+            Set<Long> cellsWithForFeature = getCellsWithData(featureName);
+            cellsWithData.addAll(cellsWithForFeature);
+        }
+
+        return cellsWithData;
+    }
+
 }
