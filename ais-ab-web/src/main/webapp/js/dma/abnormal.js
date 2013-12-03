@@ -33,32 +33,23 @@ var dmaAbnormalApp = {
 
     registerEventHandlers: function() {
         dmaAbnormalApp.map.events.register('move', map, this.onMapMove);
+        dmaAbnormalApp.map.events.register('moveend', map, this.onMapMoveEnd);
         dmaAbnormalApp.map.events.register('mousemove', map, this.onMapMouseMove);
-        dmaAbnormalApp.map.events.register('zoomend', map, this.onMapZoom);
 
-        $('#cell-layer-visible').change(this.onCheckBoxCellLayerVisibleChecked);
+        $('#cells-force-load').click(this.onForceLoadCells);
     },
 
     onMapMove: function(evt) {
         dmaAbnormalApp.userOutputUpdateViewPortInfo();
-
-        // Compensate for a bug in OpenLayers?
-        if (dmaAbnormalApp.isGridLayerVisible == false) {
-            dmaAbnormalApp.hideGridLayer();
-        }
     },
 
-    onMapMouseMove: function(evt) {
-        dmaAbnormalApp.userOutputUpdateCursorPos(evt.xy);
-    },
-
-    onMapZoom: function(evt) {
+    onMapMoveEnd: function(evt) {
         if (dmaAbnormalApp.map.zoom >= 12) {
             if (dmaAbnormalApp.isGridLayerVisible == false) {
                 console.log("Turning on GridLayer.");
-                dmaAbnormalApp.loadCells();
                 dmaAbnormalApp.showGridLayer();
             } else {
+                dmaAbnormalApp.loadCells();
                 console.log("GridLayer is already visible.")
             }
         } else {
@@ -67,21 +58,24 @@ var dmaAbnormalApp = {
         }
     },
 
-    onCheckBoxCellLayerVisibleChecked: function(evt) {
-        if ($(this).is(':checked')) {
-            dmaAbnormalApp.showGridLayer();
-        } else {
-            dmaAbnormalApp.hideGridLayer();
-        }
+    onMapMouseMove: function(evt) {
+        dmaAbnormalApp.userOutputUpdateCursorPos(evt.xy);
+    },
+
+    onForceLoadCells: function(evt) {
+        dmaAbnormalApp.showGridLayer();
     },
 
     showGridLayer: function() {
         var gridLayer = dmaAbnormalApp.map.getLayersByName("DMA grid layer")[0];
+        // Display grid layer
         if (gridLayer) {
             gridLayer.display(true);
         } else {
             dmaAbnormalApp.constructGridLayer();
         }
+        // Load cells and data (required grid layer to be constructed)
+        dmaAbnormalApp.loadCells();
         // Book-keeping
         dmaAbnormalApp.isGridLayerVisible = true;
         $('#cell-layer-display-status').html('Cell layer visible.');
@@ -114,7 +108,6 @@ var dmaAbnormalApp = {
             eventListeners: dmaAbnormalApp.gridLayerFeatureListeners
         });
 
-        dmaAbnormalApp.loadCells(gridLayer);
         dmaAbnormalApp.map.addLayer(gridLayer);
     },
 
@@ -136,11 +129,17 @@ var dmaAbnormalApp = {
             west: nw.x
         }).done(function( cells ) {
             var gridLayer = dmaAbnormalApp.map.getLayersByName("DMA grid layer")[0];
+            var numCellsAdded = 0;
             $.each(cells, function( i, cell ) {
-                // TODO do not add duplicate cells when loading multiple times
-                dmaAbnormalApp.addCell(gridLayer, cell);
+                var cellAlreadyLoadded = gridLayer.getFeatureByFid(cell.cellId);
+                if (!cellAlreadyLoadded) {
+                    dmaAbnormalApp.addCell(gridLayer, cell);
+                    numCellsAdded++;
+                }
             });
-            $('#cell-layer-load-status').html(cell.length + ' cells loaded.');
+            $('#cell-layer-load-status').html(cells.length + ' cells loaded, ' + numCellsAdded + " added to map.");
+        }).fail(function(jqXHR, textStatus) {
+            $('#cell-layer-load-status').html("Cell load failed: " + textStatus);
         });
     },
 
@@ -169,13 +168,14 @@ var dmaAbnormalApp = {
             strokeDashstyle: "solid",
             pointRadius: 6,
             pointerEvents: "visiblePainted", // http://www.w3.org/TR/SVG11/interact.html#PointerEventsProperty
-            title: "cell",
+            title: "Cell " + cell.cellId,
             fillOpacity: 0.25
 
         };
 
         var cellGeometry = new OpenLayers.Geometry.LinearRing(cellCoords);
         cellFeature = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Polygon([cellGeometry]), cell, cellStyle);
+        cellFeature.fid = cell.cellId;
         layer.addFeatures([cellFeature]);
     },
 

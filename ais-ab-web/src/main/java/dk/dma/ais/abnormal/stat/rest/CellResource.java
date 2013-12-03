@@ -104,8 +104,8 @@ public class CellResource {
         Position southEast = Position.create(south, east);
         Area area = BoundingBox.create(northWest, southEast, CoordinateSystem.GEODETIC);
 
-        //Set<CellWrapper> cells = loadCells(grid, area);
-        Set<CellWrapper> cells = loadCellsWithData(grid, area);
+        Set<CellWrapper> cells = loadCellsInArea(grid, area);
+        //Set<CellWrapper> cells = loadCellsWithData(grid, area);
         //Set<CellWrapper> cells = loadDummyCells(grid, area);
 
         return cells;
@@ -127,12 +127,9 @@ public class CellResource {
         for (Cell cell : cells) {
             ArrayList<FeatureData> featureDataArray = new ArrayList<>();
             for (String featureName : featureNames) {
-                LOG.debug("Loading feature for feature " + featureName + ", cell id " + cell.getCellId());
                 FeatureData featureData = featureDataRepository.getFeatureData(featureName, cell.getCellId());
                 if (featureData != null) {
                     featureDataArray.add(featureData);
-                } else {
-                    // LOG.warn("Missing data for feature " + featureName + ", cell id " + cell.getCellId());
                 }
             }
 
@@ -149,6 +146,14 @@ public class CellResource {
         return wrappedCells;
     }
 
+    /**
+     * Load all cells with have statistical data from the repository. This method is not for production use, but intended
+     * for test and development only.
+     *
+     * @param grid the grid system to use
+     * @param area the area - not used; included for signature compliance.
+     * @return
+     */
     private Set<CellWrapper> loadCellsWithData(Grid grid, Area area) {
         // CellId , BoundingBox , Set<FeatureData>
 
@@ -178,6 +183,14 @@ public class CellResource {
         return wrappedCells;
     }
 
+    /**
+     * Simulate loading of cells from the repository, but actually generate an artificial pattern of cells with data.
+     * This method is not for production use, but intended for test and development only.
+     *
+     * @param grid the grid system to use
+     * @param area the area - not used; included for signature compliance.
+     * @return
+     */
     private Set<CellWrapper> loadDummyCells(Grid grid, Area area) {
         Set<CellWrapper> cells = new LinkedHashSet<>();
 
