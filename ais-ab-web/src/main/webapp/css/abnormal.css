@@ -1,3 +1,17 @@
+div.headline {
+    font-size: medium;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+div.headline:first-child {
+    margin-top: 0px;
+}
+
+div.useroutput {
+    font-size: smaller;
+}
+
 div#featureTable_wrapper {
     width: 600px;
 }
@@ -5,6 +19,10 @@ div#featureTable_wrapper {
 div#map {
    /* height: 640px; */
     margin: 20px auto;
+}
+
+li {
+    font-size: smaller;
 }
 
 /* Sticky footer styles

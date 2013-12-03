@@ -17,6 +17,7 @@ var dmaAbnormalApp = {
         this.map.addControl(zoom);
         zoom.activate();
 
+        this.userOutputMetadata();
         this.userOutputClearCellData();
 
         this.registerEventHandlers();
@@ -278,6 +279,27 @@ var dmaAbnormalApp = {
             "bAutoWidth": false
         });
 
+    },
+
+    userOutputMetadata: function() {
+        // http://localhost:8080/abnormal/featuredata/featureset/
+        var featuresetResourceService = "/abnormal/featuredata/featureset/";
+        $.getJSON(featuresetResourceService)
+            .done(function( featureset ) {
+                $('#gridsize > .data').html(featureset[0].gridResolution * 40075000.0 / 360 + ' m');
+                $('#downsampling > .data').html(featureset[0].downsampling + ' secs');
+
+                var html = "<ul>";
+                var featureNames = featureset[1].featureNames;
+                $.each(featureNames, function( i, featureName ) {
+                    html += "<li>" + featureName + "</li>";
+                });
+                html += "</ul>";
+                $('#feature-names').after(html);
+            })
+            .fail(function(jqXHR, textStatus) {
+                console.error(textStatus);
+            });
     },
 
     gridLayerFeatureListeners: {

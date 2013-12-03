@@ -3,46 +3,52 @@
 	<title>Danish Maritime Administration</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- JS -->
-    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="//code.jquery.com/jquery-2.0.3.js"></script>
+    <script type="text/javascript" src="//code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+    <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/OpenLayers.js"></script>
     <script type="text/javascript" src="js/dma/abnormal.js"></script>
     <!-- CSS -->
-    <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css">
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">
-    <link rel="stylesheet" href="css/abnormal.css">
+    <link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" type="text/css" href="css/abnormal.css">
 </head>
 <body>
-
     <div id="wrap" class="container">
         <div class="page-header">
             <h1>AIS Abnormal Behaviour</h1>
             <p class="lead">A service delivered by the Danish Maritime Administration.</p>
         </div>
         <div class="row">
-            <div class="col-md-10">
+            <div class="col-md-9">
                 <div id="map"></div>
             </div>
-            <div class="col-md-2">
-                <div >
-                    <h5>Dataset</h5>
-                    <p>...</p>
-                </div>
-                <div >
-                    <h5>View</h5>
-                    <p id="viewport">...</p>
-                    <h5>Cursor</h5>
-                    <p id="cursorpos">...</p>
-                    <h5>Cells</h5>
-                    <p id="cell-layer-load-status">No cells loaded.</p>
-                    <p id="cell-layer-display-status">Cell layer hidden.</p>
-                </div>
-                <div >
-                    <h5>Controls</h5>
-                    <button id="cells-force-load">Load and display cells</button>
+            <div class="col-md-3">
+                <div id="tabs">
+                    <ul>
+                        <li><a href="#tabs-1">Map</a></li>
+                        <li><a href="#tabs-2">Features</a></li>
+                    </ul>
+                    <div id="tabs-1">
+                        <div class="headline">View</div>
+                        <div class="useroutput" id="viewport">...</div>
+                        <div class="headline">Cursor</div>
+                        <div class="useroutput" id="cursorpos">...</div>
+                        <div class="headline">Cells</div>
+                        <div class="useroutput" id="cell-layer-load-status">No cells loaded.</div>
+                        <div class="useroutput" id="cell-layer-display-status">Cell layer hidden.</div>
+                        <div class="headline">Controls</div>
+                        <button id="cells-force-load">Load and display cells</button>
+                    </div>
+                    <div id="tabs-2">
+                        <div class="headline">Dataset</div>
+                        <div class="useroutput" id="gridsize">Grid size: <span class="data">...</span></div>
+                        <div class="useroutput" id="downsampling">Down sampling: <span class="data">...</span></div>
+                        <div class="headline" id="feature-names">Features</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -67,6 +73,10 @@
                 $('div#map').css('height', $(window).height() - 500);
             }).resize();
 
+
+            $(function() {
+                $( "#tabs" ).tabs();
+            });
             dmaAbnormalApp.init();
         });
     </script>
