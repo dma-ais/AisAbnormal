@@ -34,5 +34,7 @@ public interface FeatureDataRepository {
     Set<Long> getCellsWithData(String featureName);
     Set<Long> getAllCellsWithData();
 
+    void openForRead();
+    void openForWrite(boolean cacheInMemoryDumpToDiskOnClose);
     void close();
 }

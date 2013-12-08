@@ -15,13 +15,21 @@
  */
 package dk.dma.ais.abnormal.stat;
 
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import dk.dma.ais.concurrency.stripedexecutor.StripedExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Class for holding information on the file processing process
@@ -31,25 +39,51 @@ public final class AppStatisticsServiceImpl implements AppStatisticsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AppStatisticsServiceImpl.class);
 
-    private final long DEFAULT_LOG_INTERVAL = 60 * 1000; // 1 minute
+    @Inject
+    private StripedExecutorService executorService;
 
+    private static final long DEFAULT_LOG_INTERVAL = 60 * 1000; // 1 minute
     private final long logInterval;
-    private final long startTime = System.currentTimeMillis();
+    private final AtomicLong lastLog = new AtomicLong(System.currentTimeMillis());
+    private final AtomicLong lastMessageCount = new AtomicLong(0);
 
-    private long unfilteredPacketCount;
-    private long filteredPacketCount;
-    private long messageCount;
-    private long posMsgCount;
-    private long statMsgCount;
-    private int trackCount;
+    private final AtomicLong unfilteredPacketCount = new AtomicLong(0);
+    private final AtomicLong filteredPacketCount = new AtomicLong(0);
+    private final AtomicLong messageCount = new AtomicLong(0);
+    private final AtomicLong posMsgCount = new AtomicLong(0);
+    private final AtomicLong statMsgCount = new AtomicLong(0);
+    private final AtomicInteger trackCount = new AtomicInteger(0);
 
-    private HashMap<String, HashMap<String, Long>> allFeatureStatistics = new HashMap<>();
+    private Map<String, HashMap<String, Long>> allFeatureStatistics = new ConcurrentHashMap<>();
 
-    private long lastLog;
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(5);
 
     public AppStatisticsServiceImpl() {
         this.logInterval = DEFAULT_LOG_INTERVAL;
-        this.lastLog = new Date().getTime();
+    }
+
+    @Override
+    public void start() {
+        LOG.debug("Starting statistics service.");
+        scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+            dumpStatistics();
+            }
+        }, 0 /* logInterval */, logInterval, TimeUnit.MILLISECONDS);
+        LOG.info("Statistics service started.");
+    }
+
+    @Override
+    public void stop() {
+        LOG.debug("Stopping statistics service.");
+        scheduledExecutorService.shutdown();
+        try {
+            scheduledExecutorService.awaitTermination(2*logInterval, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            LOG.error(e.getMessage(), e);
+        }
+        LOG.info("Statistics service stopped.");
     }
 
     @Override
@@ -91,99 +125,92 @@ public final class AppStatisticsServiceImpl implements AppStatisticsService {
         featureStatistics.put(statisticsName, statisticsValue);
     }
 
-    /*
-    public AppStatisticsServiceImpl(long interval, TimeUnit unit) {
-        this.logInterval = unit.toMillis(interval);
-    }
-    */
-
     @Override
     public void incFilteredPacketCount() {
-        filteredPacketCount++;
+        filteredPacketCount.incrementAndGet();
     }
 
     @Override
     public void incUnfilteredPacketCount() {
-        unfilteredPacketCount++;
+        this.unfilteredPacketCount.incrementAndGet();
     }
 
     @Override
     public void incMessageCount() {
-        messageCount++;
+        messageCount.incrementAndGet();
     }
 
     @Override
     public void incPosMsgCount() {
-        posMsgCount++;
+        posMsgCount.incrementAndGet();
     }
 
     @Override
     public void incStatMsgCount() {
-        statMsgCount++;
+        statMsgCount.incrementAndGet();
     }
     
     @Override
     public long getFilteredPacketCount() {
-        return filteredPacketCount;
+        return filteredPacketCount.get();
     }
 
     @Override
     public long getUnfilteredPacketCount() {
-        return unfilteredPacketCount;
+        return unfilteredPacketCount.get();
     }
 
     @Override
     public long getMessageCount() {
-        return messageCount;
+        return messageCount.get();
     }
 
     @Override
     public long getPosMsgCount() {
-        return posMsgCount;
+        return posMsgCount.get();
     }
 
     @Override
     public long getStatMsgCount() {
-        return statMsgCount;
-    }
-
-    @Override
-    public long getStartTime() {
-        return startTime;
-    }
-    
-    @Override
-    public long getLastLog() {
-        return lastLog;
+        return statMsgCount.get();
     }
 
     @Override
     public void setTrackCount(int trackCount) {
-        this.trackCount = trackCount;
+        this.trackCount.set(trackCount);
     }
 
     @Override
     public double getMessageRate() {
-        double secs = (double)(System.currentTimeMillis() - startTime) / 1000.0;
-        return (double) messageCount / secs;
+        double secs = (double)(System.currentTimeMillis() - lastLog.get()) / 1000.0;
+        long msgs = messageCount.get() - lastMessageCount.get();
+
+        lastLog.set(System.currentTimeMillis());
+        lastMessageCount.set(messageCount.get());
+
+        return (double) msgs / secs;
     }
-    
+
     @Override
-    public void log(boolean force) {
-        if (logInterval <= 0) {
-            return;
-        }
-        long now = System.currentTimeMillis();
-        if (!force && (now - lastLog < logInterval)) {
-            return;
+    public void dumpStatistics() {
+        LOG.info("==== Stat build application statistics (tasks) ====");
+
+        LOG.info(String.format("%-30s %s", "Executor isShutdown", executorService.isShutdown()));
+        LOG.info(String.format("%-30s %s", "Executor isTerminated", executorService.isTerminated()));
+        LOG.info(String.format("%-30s %9d", "Executor no. of threads", executorService.numberOfExecutors()));
+        Map<String,Integer> queueSizes = executorService.serialExecutorQueueSizes();
+        for (Map.Entry<String,Integer> queueSize : queueSizes.entrySet()) {
+            LOG.info(String.format("%-30s %9d", "Queue size, thread " + queueSize.getKey(), queueSize.getValue()));
         }
         LOG.info("==== Stat build application statistics ====");
-        LOG.info(String.format("%-30s %9d", "Unfiltered packet count", unfilteredPacketCount));
-        LOG.info(String.format("%-30s %9d", "Filtered packet count", filteredPacketCount));
-        LOG.info(String.format("%-30s %9d", "Message count", messageCount));
-        LOG.info(String.format("%-30s %9d", "Pos message count", posMsgCount));
-        LOG.info(String.format("%-30s %9d", "Stat message count", statMsgCount));
-        LOG.info(String.format("%-30s %9d", "Track count", trackCount));
+
+        LOG.info("==== Stat build application statistics ====");
+        LOG.info(String.format("%-30s %9d", "Unfiltered packet count", unfilteredPacketCount.get()));
+        LOG.info(String.format("%-30s %9d", "Filtered packet count", filteredPacketCount.get()));
+        LOG.info(String.format("%-30s %9d", "Message count", messageCount.get()));
+        LOG.info(String.format("%-30s %9d", "Pos message count", posMsgCount.get()));
+        LOG.info(String.format("%-30s %9d", "Stat message count", statMsgCount.get()));
+        LOG.info(String.format("%-30s %9d", "Track count", trackCount.get()));
         LOG.info(String.format("%-30s %9.0f msg/sec", "Message rate", getMessageRate()));
         LOG.info("==== Stat build application statistics ====");
 
@@ -201,13 +228,5 @@ public final class AppStatisticsServiceImpl implements AppStatisticsService {
 
         }
         LOG.info("==== Stat build feature statistics ====");
-
-        lastLog = now;
     }
-
-    @Override
-    public void log() {
-        log(false);
-    }
-
 }

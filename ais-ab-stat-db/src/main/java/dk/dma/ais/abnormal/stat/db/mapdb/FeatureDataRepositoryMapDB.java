@@ -22,10 +22,13 @@ import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 import org.mapdb.BTreeMap;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
+import org.mapdb.Pump;
+import org.mapdb.StoreHeap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -48,19 +51,20 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
 
     private DB db;
 
-    private final boolean readOnly;
+    private File dbFile;
+    private boolean readOnly;
+    private boolean dumpToDiskOnClose;
 
-    public FeatureDataRepositoryMapDB(String dbFileName, boolean readOnly) throws Exception {
-
-        this.readOnly = readOnly;
+    public FeatureDataRepositoryMapDB(String dbFileName) throws Exception {
 
         if (! dbFileName.endsWith(FILENAME_SUFFIX)) {
             dbFileName = dbFileName.concat(FILENAME_SUFFIX);
         }
 
         // Assert that stated file is usable
-        File dbFile = new File(dbFileName);
+        dbFile = new File(dbFileName);
         String canonicalPath = dbFile.getCanonicalPath();// Check that path is valid
+        LOG.debug("Using file " + canonicalPath);
 
         if (!readOnly && dbFile.exists()) {
             LOG.warn("File " + dbFile.getName() + " already exists!");
@@ -71,39 +75,90 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
         if (readOnly && dbFile.exists() && !dbFile.canRead()) {
             LOG.error("Cannot read from file " + dbFile.getName());
         }
-
-        LOG.debug("Attempting to access feature data in file " + canonicalPath);
-
         if (dbFile.exists()) {
             LOG.debug("Will reuse existing file: " + canonicalPath);
         } else {
             LOG.debug("Will create new file: " + canonicalPath);
         }
+    }
 
-        if (readOnly) {
-            db = DBMaker
-                    .newFileDB(dbFile)
-                    .transactionDisable()
-                    .fullChunkAllocationEnable()
-                    .randomAccessFileEnable()
-                            //.asyncWriteDisable()
-                    .cacheDisable()
-                    .closeOnJvmShutdown()
-                    .readOnly()
-                    .make();
+    @Override
+    public void openForRead() {
+        this.readOnly = true;
+
+        db = DBMaker
+                .newFileDB(dbFile)
+                .transactionDisable()
+                .fullChunkAllocationEnable()
+                .randomAccessFileEnable()
+                        //.asyncWriteDisable()
+                .cacheDisable()
+                .closeOnJvmShutdown()
+                .readOnly()
+                .make();
+
+        LOG.debug("File successfully opened for read by MapDB.");
+    }
+
+    @Override
+    public void openForWrite(boolean cacheInMemoryDumpToDiskOnClose) {
+        this.readOnly = false;
+        this.dumpToDiskOnClose = cacheInMemoryDumpToDiskOnClose;
+
+        if (cacheInMemoryDumpToDiskOnClose) {
+            //LOG.error("cacheInMemoryDumpToDiskOnClose not yet supported.");
+            //throw new UnsupportedOperationException("cacheInMemoryDumpToDiskOnClose not yet supported.");
+            //db = DBMaker.newDirectMemoryDB().make();    // Serialize off-heap
+            db = new DB(new StoreHeap());               // Use heap; subject to GC
+            LOG.debug("Opened memory-based database.");
         } else {
             db = DBMaker
                     .newFileDB(dbFile)
                     .transactionDisable()
                     .fullChunkAllocationEnable()
                     .randomAccessFileEnable()
+                    //.asyncWriteDisable()
+                    .cacheDisable()
+                    .closeOnJvmShutdown()
+                    .make();
+            LOG.debug("Opened disk-based database.");
+        }
+
+        LOG.debug("Database successfully opened for write by MapDB.");
+    }
+
+    @Override
+    public void close() {
+        LOG.info("Attempting to commit feature data repository.");
+        if (!readOnly) {
+            db.commit();
+        }
+        LOG.info("Feature data repository committed.");
+
+        if (this.dumpToDiskOnClose) {
+            LOG.info("Dump in-memory data to disk.");
+            DB onDisk = DBMaker
+                    .newFileDB(dbFile)
+                    .transactionDisable()
+                    .fullChunkAllocationEnable()
+                    .randomAccessFileEnable()
                             //.asyncWriteDisable()
                     .cacheDisable()
                     .closeOnJvmShutdown()
                     .make();
+
+            Pump.copy(db, onDisk);
+            onDisk.close();
+            LOG.info("Dump in-memory data to disk: Done.");
         }
 
-        LOG.debug("File " + canonicalPath + " successfully opened by MapDB.");
+        // LOG.info("Attempting to compact feature data repository.");
+        // db.compact();
+        // LOG.info("Feature data repository compacted.");
+
+        LOG.info("Attempting to close feature data repository.");
+        db.close();
+        LOG.info("Feature data repository closed.");
     }
 
     @Override
@@ -171,23 +226,6 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
     public void putFeatureData(String featureName, long cellId, FeatureData featureData) {
         BTreeMap<Object, Object> allCellDataForFeature = db.createTreeMap(featureName).makeOrGet();
         allCellDataForFeature.put(cellId, featureData);
-    }
-
-    @Override
-    public void close() {
-        LOG.info("Attempting to commit feature data repository.");
-        if (!readOnly) {
-            db.commit();
-        }
-        LOG.info("Feature data repository committed.");
-
-        // LOG.info("Attempting to compact feature data repository.");
-        // db.compact();
-        // LOG.info("Feature data repository compacted.");
-
-        LOG.info("Attempting to close feature data repository.");
-        db.close();
-        LOG.info("Feature data repository closed.");
     }
 
     @Override

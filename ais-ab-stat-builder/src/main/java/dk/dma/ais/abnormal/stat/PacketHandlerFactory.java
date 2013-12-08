@@ -16,42 +16,6 @@
 
 package dk.dma.ais.abnormal.stat;
 
-public interface AppStatisticsService {
-
-    void start();
-
-    void stop();
-
-    void incMessageCount();
-
-    void incPosMsgCount();
-
-    void incStatMsgCount();
-
-    void incFilteredPacketCount();
-
-    void incUnfilteredPacketCount();
-
-    long getFilteredPacketCount();
-
-    long getUnfilteredPacketCount();
-
-    long getMessageCount();
-
-    long getPosMsgCount();
-
-    long getStatMsgCount();
-
-    void setTrackCount(int trackCount);
-
-    double getMessageRate();
-
-    void incFeatureStatistics(String featureName, String statisticsName);
-
-    Long getFeatureStatistics(String featureName, String statisticsName);
-
-    void setFeatureStatistics(String featureName, String statisticsName, Long statisticsValue);
-
-    void dumpStatistics();
-
+interface PacketHandlerFactory {
+    PacketHandler create(boolean multiThreaded);
 }

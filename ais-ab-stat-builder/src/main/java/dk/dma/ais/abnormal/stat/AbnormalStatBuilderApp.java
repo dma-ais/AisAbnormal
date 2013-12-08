@@ -16,21 +16,26 @@
 package dk.dma.ais.abnormal.stat;
 
 import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.DatasetMetaData;
+import dk.dma.ais.concurrency.stripedexecutor.StripedExecutorService;
 import dk.dma.ais.reader.AisReader;
-import dk.dma.ais.reader.AisReaders;
 import dk.dma.commons.app.AbstractDaemon;
 import dk.dma.enav.model.geometry.grid.Grid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * AIS Abnormal Behavior statistics builder
@@ -44,8 +49,10 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
     // TODO find a way to share injector stored in AbstractDmaApplication
     private static Injector injector;
 
+    private PacketHandler packetHandler;
+
     @Inject
-    private PacketHandler handler;
+    private PacketHandlerFactory packetHandlerFactory;
 
     @Inject
     private AisReader reader;
@@ -53,11 +60,21 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
     @Inject
     private FeatureDataRepository featureDataRepository;
 
+    @Inject
+    private AppStatisticsService statisticsService;
+
+    @Inject
+    private StripedExecutorService executorService;
+
     static UserArguments userArguments;
 
     @Override
     protected void runDaemon(Injector injector) throws Exception {
         LOG.info("Application starting.");
+
+        packetHandler = packetHandlerFactory.create(userArguments.isMultiThreaded());
+
+        statisticsService.start();
 
         // Write dataset metadata before we start
         Grid grid = getInjector().getInstance(Grid.class);
@@ -65,9 +82,22 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
         DatasetMetaData metadata = new DatasetMetaData(grid.getResolution(), userArguments.getDownSampling());
         featureDataRepository.putMetaData(metadata);
 
-        reader.registerPacketHandler(handler);
+        reader.registerPacketHandler(packetHandler);
         reader.start();
         reader.join();
+
+        executorService.shutdown();
+        boolean shutdown = false;
+        do {
+            LOG.debug("Waiting for worker tasks to complete.");
+            shutdown = executorService.awaitTermination(1, TimeUnit.MINUTES);
+        } while(!shutdown);
+        LOG.info("All worker tasks completed.");
+
+        statisticsService.dumpStatistics();
+
+        featureDataRepository.close();
+        statisticsService.stop();
     }
     
     @Override
@@ -76,10 +106,10 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
         if (reader != null) {
             reader.stopReader();
         }
-        if (handler != null) {
-            handler.getBuildStats().log(true);
-            handler.cancel();
+        if (packetHandler != null) {
+            packetHandler.cancel();
         }
+        statisticsService.dumpStatistics();
         super.preShutdown();
     }
 
@@ -126,7 +156,7 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
             jCommander.setProgramName("AbnormalStatBuilderApp");
             jCommander.usage();
         } else {
-            Injector injector = Guice.createInjector(new AbnormalStatBuilderAppModule(userArguments.getOutputFilename(), userArguments.getInputDirectory(), userArguments.getInputFilenamePattern(), userArguments.isRecursive(), userArguments.getGridSize(), userArguments.getDownSampling()));
+            Injector injector = Guice.createInjector(new AbnormalStatBuilderAppModule(userArguments.getOutputFilename(), userArguments.getInputDirectory(), userArguments.getInputFilenamePattern(), userArguments.isRecursive(), userArguments.isMultiThreaded(), userArguments.getGridSize(), userArguments.getDownSampling()));
             AbnormalStatBuilderApp.setInjector(injector);
             AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
             app.execute(new String[]{} /* no cmd args - we handled them already */ );

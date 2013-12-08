@@ -21,6 +21,7 @@ import dk.dma.ais.abnormal.stat.db.data.DatasetMetaData;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData2Key;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,8 @@ public class FeatureDataRepositoryMapDBTest {
         dbFileName = tmpFilePath + "/" + UUID.randomUUID();
         LOG.info("dbFileName: " + dbFileName);
 
-        FeatureDataRepository featureDataRepository = new FeatureDataRepositoryMapDB(dbFileName, false);
+        FeatureDataRepository featureDataRepository = new FeatureDataRepositoryMapDB(dbFileName);
+        featureDataRepository.openForWrite(false);
 
         LOG.info("Generating " + N_PROD + " test data... ");
         for (long cellId = 0; cellId < NUM_CELLS; cellId++) {
@@ -94,7 +96,8 @@ public class FeatureDataRepositoryMapDBTest {
         final long testCellId = (NUM_CELLS / 2) + 7;
         final short key1 = N1 - 1, key2 = N2 - 2;
 
-        FeatureDataRepository featureDataRepository = new FeatureDataRepositoryMapDB(dbFileName, true);
+        FeatureDataRepository featureDataRepository = new FeatureDataRepositoryMapDB(dbFileName);
+        featureDataRepository.openForWrite(false);
 
         FeatureData2Key featureData = (FeatureData2Key) featureDataRepository.getFeatureData(TEST_FEATURE_NAME, testCellId);
         assertEquals(N1, (int) featureData.numberOfLevel1Entries());
@@ -112,7 +115,8 @@ public class FeatureDataRepositoryMapDBTest {
         final long testCellId = (NUM_CELLS / 2) + 7;
         final short key1 = N1 - 1, key2 = N2 - 3;
 
-        FeatureDataRepository featureDataRepository = new FeatureDataRepositoryMapDB(dbFileName, true);
+        FeatureDataRepository featureDataRepository = new FeatureDataRepositoryMapDB(dbFileName);
+        featureDataRepository.openForWrite(false);
 
         FeatureData2Key featureData = (FeatureData2Key) featureDataRepository.getFeatureData(TEST_FEATURE_NAME, testCellId);
         assertEquals(N1, (int) featureData.numberOfLevel1Entries());
@@ -130,7 +134,8 @@ public class FeatureDataRepositoryMapDBTest {
         final short key1 = N1 - 1, key2 = N2 - 2;
 
         LOG.info("Getting FeatureData and verifying original contents");
-        FeatureDataRepository featureDataRepository1 = new FeatureDataRepositoryMapDB(dbFileName, false);
+        FeatureDataRepository featureDataRepository1 = new FeatureDataRepositoryMapDB(dbFileName);
+        featureDataRepository1.openForWrite(false);
         FeatureData2Key featureData1 = (FeatureData2Key) featureDataRepository1.getFeatureData(TEST_FEATURE_NAME, testCellId);
         assertEquals((key1*key2) % 100, featureData1.getStatistic(key1, key2, "t"));
         LOG.info("Updating FeatureData");
@@ -142,7 +147,8 @@ public class FeatureDataRepositoryMapDBTest {
         LOG.info("Done");
 
         LOG.info("Opening repository");
-        FeatureDataRepository featureDataRepository2 = new FeatureDataRepositoryMapDB(dbFileName, true);
+        FeatureDataRepository featureDataRepository2 = new FeatureDataRepositoryMapDB(dbFileName);
+        featureDataRepository2.openForRead();
         LOG.info("Reading FeatureData");
         FeatureData2Key featureData2 = (FeatureData2Key) featureDataRepository2.getFeatureData(TEST_FEATURE_NAME, testCellId);
         LOG.info("Checking that value is updated");
@@ -158,7 +164,8 @@ public class FeatureDataRepositoryMapDBTest {
         final short key1 = N1 - 1, key2 = N2 - 2;
 
         LOG.info("Getting FeatureData and verifying original contents");
-        FeatureDataRepository featureDataRepository1 = new FeatureDataRepositoryMapDB(dbFileName, false);
+        FeatureDataRepository featureDataRepository1 = new FeatureDataRepositoryMapDB(dbFileName);
+        featureDataRepository1.openForWrite(false);
         FeatureData2Key featureData1 = (FeatureData2Key) featureDataRepository1.getFeatureData(TEST_FEATURE_NAME, testCellId);
         assertNull(featureData1.getStatistic(key1, key2, "newStatistic"));
         LOG.info("Adding FeatureData statistic");
@@ -170,7 +177,8 @@ public class FeatureDataRepositoryMapDBTest {
         LOG.info("Done");
 
         LOG.info("Opening repository");
-        FeatureDataRepository featureDataRepository2 = new FeatureDataRepositoryMapDB(dbFileName, true);
+        FeatureDataRepository featureDataRepository2 = new FeatureDataRepositoryMapDB(dbFileName);
+        featureDataRepository2.openForRead();
         LOG.info("Reading FeatureData");
         FeatureData2Key featureData2 = (FeatureData2Key) featureDataRepository2.getFeatureData(TEST_FEATURE_NAME, testCellId);
         LOG.info("Checking that statistic is added");
@@ -184,7 +192,8 @@ public class FeatureDataRepositoryMapDBTest {
     @Test
     public void testFeatureNames() throws Exception {
         LOG.info("Opening datastore");
-        FeatureDataRepository featureDataRepository = new FeatureDataRepositoryMapDB(dbFileName, true);
+        FeatureDataRepository featureDataRepository = new FeatureDataRepositoryMapDB(dbFileName);
+        featureDataRepository.openForRead();
         LOG.info("Done.");
 
         LOG.info("Gettings feature names");
@@ -200,7 +209,8 @@ public class FeatureDataRepositoryMapDBTest {
 
     @Test
     public void testRepositoryCanBeReadInReadOnlyMode() throws Exception {
-        FeatureDataRepository featureDataRepository = new FeatureDataRepositoryMapDB(dbFileName, true);
+        FeatureDataRepository featureDataRepository = new FeatureDataRepositoryMapDB(dbFileName);
+        featureDataRepository.openForRead();
 
         DatasetMetaData metaData = featureDataRepository.getMetaData();
         assertNotNull(metaData);
@@ -214,6 +224,28 @@ public class FeatureDataRepositoryMapDBTest {
             assertNotNull(featureData);
         }
     }
+
+    // TODO
+    @Ignore
+    @Test
+    public void testInMemoryDatabase() throws Exception {
+        final long testCellId = (NUM_CELLS / 2) + 7;
+        final short key1 = N1 - 1, key2 = N2 - 2;
+
+        FeatureDataRepository featureDataRepository = new FeatureDataRepositoryMapDB(dbFileName);
+        featureDataRepository.openForWrite(true);
+
+        FeatureData2Key featureData = (FeatureData2Key) featureDataRepository.getFeatureData(TEST_FEATURE_NAME, testCellId);
+        assertEquals(N1, (int) featureData.numberOfLevel1Entries());
+        assertEquals((1*1)%100, featureData.getStatistic((short) 1, (short) 1, "t"));
+        assertEquals((7*7)%100, featureData.getStatistic((short) 7, (short) 7, "t"));
+        assertEquals((9*8)%100, featureData.getStatistic((short) 9, (short) 8, "t"));
+        assertEquals((key1 * key2) % 100, featureData.getStatistic(key1, key2, "t"));
+        assertNull(featureData.getStatistic((short) (N1 + 1), (short) 4, "t"));
+        assertNull(featureData.getStatistic((short) 1, (short) (N2 + 2), "t"));
+        assertNull(featureData.getStatistic((short) 8, (short) 9, "wrongt"));
+    }
+
 
     private static String getTempFilePath() {
         String tempFilePath = null;

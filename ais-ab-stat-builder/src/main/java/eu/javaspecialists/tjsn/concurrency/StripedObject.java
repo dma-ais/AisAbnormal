@@ -1,0 +1,46 @@
+/* Copyright (c) 2011 Danish Maritime Authority
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * Copyright (C) 2000-2013 Heinz Max Kabutz
+ *
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.  Heinz Max Kabutz licenses
+ * this file to you under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package eu.javaspecialists.tjsn.concurrency;
+
+/**
+ * Used to indicate which "stripe" this Runnable or Callable belongs to.  The
+ * stripe is determined by the identity of the object, rather than its hash
+ * code and equals.
+ *
+ * @author Dr Heinz M. Kabutz
+ */
+public interface StripedObject {
+    Object getStripe();
+}

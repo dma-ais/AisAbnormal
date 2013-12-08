@@ -19,11 +19,13 @@ package dk.dma.ais.abnormal.stat;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.mapdb.FeatureDataRepositoryMapDB;
 import dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature;
 import dk.dma.ais.abnormal.stat.tracker.TrackingService;
 import dk.dma.ais.abnormal.stat.tracker.TrackingServiceImpl;
+import dk.dma.ais.concurrency.stripedexecutor.StripedExecutorService;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
 import dk.dma.enav.model.geometry.grid.Grid;
@@ -50,18 +52,22 @@ public class AbnormalStatBuilderAppTestModule extends AbstractModule {
 
     @Override
     public void configure() {
+        install(new FactoryModuleBuilder()
+                .implement(PacketHandler.class, PacketHandlerImpl.class)
+                .build(PacketHandlerFactory.class));
+
+        bind(StripedExecutorService.class).in(Singleton.class);
         bind(AbnormalStatBuilderApp.class).in(Singleton.class);
-        bind(PacketHandler.class).to(PacketHandlerImpl.class).in(Singleton.class);
         bind(AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
         bind(TrackingService.class).to(TrackingServiceImpl.class).in(Singleton.class);
         bind(ShipTypeAndSizeFeature.class);
 
         // Test stubs
         // bind(FeatureDataRepository.class).to(FeatureDataRepositoryTestStub);
-
     }
 
-    @Provides @Singleton
+    @Provides
+    @Singleton
     Grid provideGrid() {
         Grid grid = null;
         try {
@@ -78,7 +84,8 @@ public class AbnormalStatBuilderAppTestModule extends AbstractModule {
         FeatureDataRepository featureDataRepository = null;
         try {
             LOG.info("Using dbFileName: " + outputFilename);
-            featureDataRepository = new FeatureDataRepositoryMapDB(outputFilename, false);
+            featureDataRepository = new FeatureDataRepositoryMapDB(outputFilename);
+            featureDataRepository.openForWrite(false);
         } catch (Exception e) {
             e.printStackTrace();
         }

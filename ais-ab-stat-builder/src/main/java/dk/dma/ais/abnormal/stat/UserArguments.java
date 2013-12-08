@@ -23,6 +23,9 @@ public class UserArguments {
     @Parameter(names = "-help", help = true, description = "Print this help", hidden = true)
     protected boolean help;
 
+    @Parameter(names = "-mt", description = "Run multi-threaded.")
+    private boolean multiThreaded;
+
     @Parameter(names = "-inputDirectory", description = "Directory to scan for files to read")
     private String inputDirectory = ".";
 
@@ -47,6 +50,10 @@ public class UserArguments {
 
     public boolean isHelp() {
         return help;
+    }
+
+    public boolean isMultiThreaded() {
+        return multiThreaded;
     }
 
     public Integer getGridSize() {

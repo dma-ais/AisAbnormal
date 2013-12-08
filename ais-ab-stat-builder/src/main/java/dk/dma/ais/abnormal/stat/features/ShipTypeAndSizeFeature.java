@@ -16,6 +16,7 @@
 
 package dk.dma.ais.abnormal.stat.features;
 
+import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import dk.dma.ais.abnormal.stat.AppStatisticsService;
@@ -55,6 +56,7 @@ public class ShipTypeAndSizeFeature implements Feature {
     /*
      * This feature is only updated once per cell; i.e. when a cell is entered.
      */
+    @AllowConcurrentEvents
     @Subscribe
     public void onCellIdChanged(CellIdChangedEvent event) {
         appStatisticsService.incFeatureStatistics(this.getClass().getSimpleName(), "Events processed");
@@ -68,7 +70,7 @@ public class ShipTypeAndSizeFeature implements Feature {
         Integer shipLength = (Integer) track.getProperty(Track.VESSEL_LENGTH);
 
         if (cellId == null) {
-            LOG.error("cellId is unexpectedly null (mmsi " + track.getMmsi() + ")");
+            LOG.warn("cellId is unexpectedly null (mmsi " + track.getMmsi() + ")");
             appStatisticsService.incFeatureStatistics(this.getClass().getSimpleName(), "Unknown mmsi");
             return;
         }
@@ -101,7 +103,7 @@ public class ShipTypeAndSizeFeature implements Feature {
         featureDataRepository.putFeatureData(FEATURE_NAME, cellId, featureData);
         LOG.debug("Feature data for cellId " + cellId + ", featureName " + FEATURE_NAME + " stored.");
 
-        appStatisticsService.setFeatureStatistics(this.getClass().getSimpleName(), "Cell count", featureDataRepository.getNumberOfCells(FEATURE_NAME));
+        // TODO expensive: appStatisticsService.setFeatureStatistics(this.getClass().getSimpleName(), "Cell count", featureDataRepository.getNumberOfCells(FEATURE_NAME));
         appStatisticsService.incFeatureStatistics(this.getClass().getSimpleName(), "Events processed ok");
     }
 

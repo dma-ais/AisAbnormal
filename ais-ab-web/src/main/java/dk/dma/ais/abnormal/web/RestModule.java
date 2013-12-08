@@ -63,7 +63,8 @@ public final class RestModule extends ServletModule {
     FeatureDataRepository provideFeatureDataRepository() {
         FeatureDataRepository featureDataRepository = null;
         try {
-            featureDataRepository = new FeatureDataRepositoryMapDB(repositoryFilename, true);
+            featureDataRepository = new FeatureDataRepositoryMapDB(repositoryFilename);
+            featureDataRepository.openForRead();
         } catch (Exception e) {
             LOG.error("Problems opening repository for read: " + repositoryFilename);
             LOG.error(e.getMessage(), e);

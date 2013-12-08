@@ -19,11 +19,13 @@ package dk.dma.ais.abnormal.stat;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.mapdb.FeatureDataRepositoryMapDB;
 import dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature;
 import dk.dma.ais.abnormal.stat.tracker.TrackingService;
 import dk.dma.ais.abnormal.stat.tracker.TrackingServiceImpl;
+import dk.dma.ais.concurrency.stripedexecutor.StripedExecutorService;
 import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
@@ -38,22 +40,28 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
     private final String inputDirectory;
     private final String inputFilenamePattern;
     private final boolean inputRecursive;
+    private final boolean multiThreaded;
     private final Integer gridSize;
     private final Integer downSampling;
 
-    public AbnormalStatBuilderAppModule(String outputFilename, String inputDirectory, String inputFilenamePattern, boolean inputRecursive, Integer gridSize, Integer downSampling) {
+    public AbnormalStatBuilderAppModule(String outputFilename, String inputDirectory, String inputFilenamePattern, boolean inputRecursive, boolean multiThreaded, Integer gridSize, Integer downSampling) {
         this.outputFilename = outputFilename;
         this.inputDirectory = inputDirectory;
         this.inputFilenamePattern = inputFilenamePattern;
         this.inputRecursive = inputRecursive;
+        this.multiThreaded = multiThreaded;
         this.gridSize = gridSize;
         this.downSampling = downSampling;
     }
 
     @Override
     public void configure() {
+        install(new FactoryModuleBuilder()
+                .implement(PacketHandler.class, PacketHandlerImpl.class)
+                .build(PacketHandlerFactory.class));
+
+        bind(StripedExecutorService.class).in(Singleton.class);
         bind(AbnormalStatBuilderApp.class).in(Singleton.class);
-        bind(PacketHandler.class).to(PacketHandlerImpl.class).in(Singleton.class);
         bind(AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
         bind(TrackingService.class).to(TrackingServiceImpl.class).in(Singleton.class);
         bind(ShipTypeAndSizeFeature.class);
@@ -87,7 +95,8 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
     FeatureDataRepository provideFeatureDataRepository() {
         FeatureDataRepository featureDataRepository = null;
         try {
-            featureDataRepository = new FeatureDataRepositoryMapDB(outputFilename, false);
+            featureDataRepository = new FeatureDataRepositoryMapDB(outputFilename);
+            featureDataRepository.openForWrite(true);
             LOG.info("Opened feature set database with filename '" + outputFilename + "'.");
         } catch (Exception e) {
             LOG.error("Failed to create FeatureDataRepository object", e);

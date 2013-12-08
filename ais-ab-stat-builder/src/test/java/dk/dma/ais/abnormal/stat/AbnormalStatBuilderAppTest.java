@@ -44,8 +44,8 @@ public class AbnormalStatBuilderAppTest {
         Injector injector = Guice.createInjector(new AbnormalStatBuilderAppTestModule(tempFile.getCanonicalPath(), inputDirectory, inputFilenamePattern, false, 200.0));
         AbnormalStatBuilderApp.setInjector(injector);
         AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
+        AbnormalStatBuilderApp.userArguments = parseUserArguments(args);
 
-        AbnormalStatBuilderApp.userArguments =  parseUserArguments(args);
         app.execute(new String[]{});
 
         AppStatisticsService appStatistics = injector.getInstance(AppStatisticsService.class);
@@ -66,7 +66,7 @@ public class AbnormalStatBuilderAppTest {
         AbnormalStatBuilderApp.setInjector(injector);
         AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
 
-        AbnormalStatBuilderApp.userArguments =  parseUserArguments(args);
+        AbnormalStatBuilderApp.userArguments = parseUserArguments(args);
         app.execute(new String[]{});
 
         AppStatisticsService appStatistics = injector.getInstance(AppStatisticsService.class);
@@ -85,10 +85,12 @@ public class AbnormalStatBuilderAppTest {
         AbnormalStatBuilderApp.setInjector(injector);
         AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
 
-        AbnormalStatBuilderApp.userArguments =  parseUserArguments(args);
+        AbnormalStatBuilderApp.userArguments = parseUserArguments(args);
         app.execute(new String[]{});
 
-        FeatureDataRepository featureDataRepository = injector.getInstance(FeatureDataRepository.class);
+        // Repo is closed by app. Get a new one.
+        Injector injector2 = Guice.createInjector(new AbnormalStatBuilderAppTestModule(tempFile.getCanonicalPath(), inputDirectory, inputFilenamePattern, false, 200.0));
+        FeatureDataRepository featureDataRepository = injector2.getInstance(FeatureDataRepository.class);
 
         assertNotNull(featureDataRepository.getMetaData());
         assertEquals((Double) 0.0017966313162819712 /* res 200.0 */, featureDataRepository.getMetaData().getGridResolution(), 1e-10);

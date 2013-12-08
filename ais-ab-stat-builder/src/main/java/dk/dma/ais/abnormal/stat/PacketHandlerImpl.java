@@ -18,23 +18,26 @@ package dk.dma.ais.abnormal.stat;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.assistedinject.Assisted;
 import dk.dma.ais.abnormal.stat.features.Feature;
 import dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature;
 import dk.dma.ais.abnormal.stat.tracker.TrackingService;
+import dk.dma.ais.concurrency.stripedexecutor.StripedExecutorService;
 import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.message.AisMessage5;
 import dk.dma.ais.message.IPositionMessage;
+import eu.javaspecialists.tjsn.concurrency.StripedRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dk.dma.ais.filter.DownSampleFilter;
-import dk.dma.ais.filter.DuplicateFilter;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.packet.AisPacket;
 
 import java.io.PrintStream;
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * Handler for read AIS packets
@@ -43,36 +46,55 @@ public class PacketHandlerImpl implements PacketHandler {
 
     static final Logger LOG = LoggerFactory.getLogger(PacketHandler.class);
     
-    @Inject
     private AppStatisticsService statisticsService; // = new AppStatisticsServiceImpl(1, TimeUnit.MINUTES);
-
-    @Inject
     private TrackingService trackingService;
-
-    @Inject
     private ReplayDownSampleFilter downSampleFilter;
+    private StripedExecutorService workerThreads;
+    private final boolean multiThreaded;
 
     private volatile boolean cancel;
 
     private Set<Feature> features;
 
-    public PacketHandlerImpl() {
+    // Concurrency bookkeeping
+    private static final int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
+    private Long nextStripe = Long.valueOf(0);
+    private final Map<Integer,Long> userIdToStripe = new TreeMap<>();
+
+    @Inject
+    public PacketHandlerImpl(AppStatisticsService statisticsService, TrackingService trackingService, ReplayDownSampleFilter downSampleFilter, StripedExecutorService executorService, @Assisted boolean multiThreaded) {
+        LOG.debug("Detected " + NUMBER_OF_CORES + " CPU cores.");
+        LOG.info("Creating " + (multiThreaded ? "multi threaded ":"single threaded ")+ "AIS packet handler.");
+
+        this.statisticsService = statisticsService;
+        this.trackingService = trackingService;
+        this.downSampleFilter = downSampleFilter;
+        this.workerThreads = executorService;
+        this.multiThreaded = multiThreaded;
+
         initFeatures();
     }
 
-    public void accept(AisPacket packet) {
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+    }
+
+    public void accept(final AisPacket packet) {
         if (cancel) {
             return;
         }
 
         statisticsService.incUnfilteredPacketCount();
-
-        // Duplicate and down sampling filtering
         if (downSampleFilter.rejectedByFilter(packet)) {
             return;
         }
-
         statisticsService.incFilteredPacketCount();
+
+        long n = statisticsService.getFilteredPacketCount();
+        if (n % 100000L == 0) {
+            LOG.debug(n + " packets through filter.");
+        }
 
         // Get AisMessage from packet or drop
         AisMessage message = packet.tryGetAisMessage();
@@ -87,11 +109,30 @@ public class PacketHandlerImpl implements PacketHandler {
             statisticsService.incStatMsgCount();
         }
 
-        final Date timestamp = packet.getTags().getTimestamp();
-        trackingService.update(timestamp, message);
+        Date timestamp = packet.getTimestamp();
 
+        if (multiThreaded) {
+            Object stripe = assignStripe(message);
+            workerThreads.submit(new Task(message, timestamp, stripe));
+        } else {
+            doWork(timestamp, message);
+        }
+    }
+
+    private Object assignStripe(AisMessage message) {
+        //return Integer.valueOf(String.valueOf(message.getUserId())).hashCode() % 8;
+        Integer userId = message.getUserId();
+        Long stripe = userIdToStripe.get(userId);
+        if (stripe == null) {
+            stripe = (nextStripe++) % NUMBER_OF_CORES;
+            userIdToStripe.put(userId, stripe);
+        }
+        return stripe;
+    }
+
+    private void doWork(Date timestamp, AisMessage message) {
+        trackingService.update(timestamp, message);
         statisticsService.setTrackCount(trackingService.getNumberOfTracks());
-        statisticsService.log();
     }
 
     @Override
@@ -120,5 +161,31 @@ public class PacketHandlerImpl implements PacketHandler {
         this.features = new ImmutableSet.Builder<Feature>()
             .add(injector.getInstance(ShipTypeAndSizeFeature.class))
             .build();
+    }
+
+    private final class Task implements StripedRunnable {
+        final Date timestamp;
+        final AisMessage message;
+        final Object stripe;
+
+        public Task(AisMessage message, Date timestamp, Object stripe) {
+            this.message = message;
+            this.timestamp = timestamp;
+            this.stripe = stripe;
+        }
+
+        @Override
+        public void run() {
+            try {
+                doWork(timestamp, message);
+            } catch(Throwable t) {
+                LOG.error(t.getMessage(), t);
+            }
+        }
+
+        @Override
+        public Object getStripe() {
+            return stripe;
+        }
     }
 }

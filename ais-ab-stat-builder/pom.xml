@@ -38,7 +38,12 @@
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>${dependencies.slf4j.version}</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>com.google.inject.extensions</groupId>
+            <artifactId>guice-assistedinject</artifactId>
+            <version>3.0</version>
+        </dependency>
+    </dependencies>
 
 	<build>
 		<plugins>
