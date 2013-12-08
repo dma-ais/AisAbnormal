@@ -86,17 +86,26 @@
 					<failOnMissingWebXml>false</failOnMissingWebXml>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.eclipse.jetty</groupId>
-				<artifactId>jetty-maven-plugin</artifactId>
-				<version>${dependencies.jetty.version}</version>
-				<configuration>
-					<scanIntervalSeconds>1</scanIntervalSeconds>
-					<httpConnector>
-						<port>8080</port>
-					</httpConnector>
-				</configuration>
-			</plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>dk.dma.ais.abnormal.web.Main</mainClass>
+                    <executable>maven</executable>
+                    <arguments>
+                        <argument>-featureData</argument>
+                        <argument>../ais-ab-stat-builder/data/ais-sample.featureData</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
 		</plugins>
 	</build>
 
