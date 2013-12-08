@@ -64,7 +64,7 @@ public class Main extends AbstractDaemon {
         }
 
         if (userArguments.isHelp()) {
-            jCommander = new JCommander(userArguments, new String[] { "-help", "-featureDirectory", "" });
+            jCommander = new JCommander(userArguments, new String[] { "-help", "-featureData", "" });
             jCommander.setProgramName("ais-ab-web");
             jCommander.usage();
         } else {
