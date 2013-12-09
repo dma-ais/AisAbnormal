@@ -17,9 +17,7 @@
 package dk.dma.ais.abnormal.stat.db.data;
 
 import java.io.PrintStream;
-import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.TreeMap;
 
 public class FeatureData2Key implements FeatureData {

@@ -20,8 +20,6 @@ import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
-import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
-import dk.dma.ais.abnormal.stat.db.data.DatasetMetaData;
 import dk.dma.ais.abnormal.stat.tracker.events.CellIdChangedEvent;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisMessage5;

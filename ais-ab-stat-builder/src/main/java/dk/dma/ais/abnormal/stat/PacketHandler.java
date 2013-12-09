@@ -16,8 +16,8 @@
 
 package dk.dma.ais.abnormal.stat;
 
-import dk.dma.enav.util.function.Consumer;
 import dk.dma.ais.packet.AisPacket;
+import dk.dma.enav.util.function.Consumer;
 
 import java.io.PrintStream;
 

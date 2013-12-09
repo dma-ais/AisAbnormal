@@ -19,12 +19,10 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
+import dk.dma.commons.app.AbstractDaemon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.inject.Injector;
-
-import dk.dma.commons.app.AbstractDaemon;
 
 public class Main extends AbstractDaemon {
 

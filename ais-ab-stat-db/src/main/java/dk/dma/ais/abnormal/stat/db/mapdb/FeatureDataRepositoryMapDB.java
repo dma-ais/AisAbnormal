@@ -22,13 +22,11 @@ import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 import org.mapdb.BTreeMap;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
-import org.mapdb.Pump;
 import org.mapdb.StoreHeap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;

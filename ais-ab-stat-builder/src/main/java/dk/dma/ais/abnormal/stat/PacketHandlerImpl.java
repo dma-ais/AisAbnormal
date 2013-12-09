@@ -24,20 +24,17 @@ import dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature;
 import dk.dma.ais.abnormal.stat.tracker.TrackingService;
 import dk.dma.ais.concurrency.stripedexecutor.StripedExecutorService;
 import dk.dma.ais.filter.ReplayDownSampleFilter;
+import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisMessage5;
 import dk.dma.ais.message.IPositionMessage;
+import dk.dma.ais.packet.AisPacket;
 import eu.javaspecialists.tjsn.concurrency.StripedRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dk.dma.ais.message.AisMessage;
-import dk.dma.ais.packet.AisPacket;
-
 import java.io.PrintStream;
 import java.util.Date;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 /**
  * Handler for read AIS packets

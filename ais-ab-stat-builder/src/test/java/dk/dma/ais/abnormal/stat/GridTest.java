@@ -15,13 +15,6 @@
  */
 package dk.dma.ais.abnormal.stat;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.junit.Test;
-
 import dk.dma.ais.filter.DownSampleFilter;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisPositionMessage;
@@ -32,6 +25,12 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.grid.Cell;
 import dk.dma.enav.model.geometry.grid.Grid;
 import dk.dma.enav.util.function.Consumer;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class GridTest {
     

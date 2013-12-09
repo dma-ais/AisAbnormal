@@ -21,7 +21,6 @@ import dk.dma.ais.abnormal.stat.db.data.DatasetMetaData;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData2Key;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +30,11 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 public class FeatureDataRepositoryMapDBTest {
     static final Logger LOG = LoggerFactory.getLogger(FeatureDataRepositoryMapDB.class);

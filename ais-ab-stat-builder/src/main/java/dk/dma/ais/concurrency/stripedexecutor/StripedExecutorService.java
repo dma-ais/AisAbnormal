@@ -16,7 +16,6 @@
 
 package dk.dma.ais.concurrency.stripedexecutor;
 
-import dk.dma.ais.abnormal.stat.PacketHandler;
 import eu.javaspecialists.tjsn.concurrency.StripedObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

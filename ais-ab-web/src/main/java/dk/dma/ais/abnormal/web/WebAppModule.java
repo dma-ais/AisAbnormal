@@ -18,16 +18,11 @@ package dk.dma.ais.abnormal.web;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.google.inject.Scopes;
 import com.google.inject.Singleton;
-import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
-import dk.dma.ais.abnormal.stat.db.mapdb.FeatureDataRepositoryMapDB;
-//import dk.dma.commons.web.rest.AbstractResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.ws.handler.MessageContext;
-import java.security.Signature;
+//import dk.dma.commons.web.rest.AbstractResource;
 
 
 public final class WebAppModule extends AbstractModule {
