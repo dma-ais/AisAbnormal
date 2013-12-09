@@ -56,10 +56,7 @@ public class PacketHandlerImpl implements PacketHandler {
 
     private Set<Feature> features;
 
-    // Concurrency bookkeeping
     private static final int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
-    private Long nextStripe = Long.valueOf(0);
-    private final Map<Integer,Long> userIdToStripe = new TreeMap<>();
 
     @Inject
     public PacketHandlerImpl(AppStatisticsService statisticsService, TrackingService trackingService, ReplayDownSampleFilter downSampleFilter, StripedExecutorService executorService, @Assisted boolean multiThreaded) {
@@ -119,15 +116,19 @@ public class PacketHandlerImpl implements PacketHandler {
         }
     }
 
-    private Object assignStripe(AisMessage message) {
-        //return Integer.valueOf(String.valueOf(message.getUserId())).hashCode() % 8;
-        Integer userId = message.getUserId();
-        Long stripe = userIdToStripe.get(userId);
-        if (stripe == null) {
-            stripe = (nextStripe++) % NUMBER_OF_CORES;
-            userIdToStripe.put(userId, stripe);
-        }
-        return stripe;
+    private static int hash(int a) {
+        // https://gist.github.com/badboy/6267743
+        a = ~a + (a << 15); // key = (key << 15) - key - 1;
+        a = a ^ (a >>> 12);
+        a = a + (a << 2);
+        a = a ^ (a >>> 4);
+        a = a * 2057; // key = (key + (key << 3)) + (key << 11);
+        a = a ^ (a >>> 16);
+        return a;
+    }
+
+    private static Object assignStripe(AisMessage message) {
+        return Integer.valueOf(Math.abs(hash(message.getUserId())) % NUMBER_OF_CORES);
     }
 
     private void doWork(Date timestamp, AisMessage message) {
