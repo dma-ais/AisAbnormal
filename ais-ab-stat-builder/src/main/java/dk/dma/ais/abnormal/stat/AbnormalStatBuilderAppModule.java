@@ -40,16 +40,14 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
     private final String inputDirectory;
     private final String inputFilenamePattern;
     private final boolean inputRecursive;
-    private final boolean multiThreaded;
     private final Integer gridSize;
     private final Integer downSampling;
 
-    public AbnormalStatBuilderAppModule(String outputFilename, String inputDirectory, String inputFilenamePattern, boolean inputRecursive, boolean multiThreaded, Integer gridSize, Integer downSampling) {
+    public AbnormalStatBuilderAppModule(String outputFilename, String inputDirectory, String inputFilenamePattern, boolean inputRecursive, Integer gridSize, Integer downSampling) {
         this.outputFilename = outputFilename;
         this.inputDirectory = inputDirectory;
         this.inputFilenamePattern = inputFilenamePattern;
         this.inputRecursive = inputRecursive;
-        this.multiThreaded = multiThreaded;
         this.gridSize = gridSize;
         this.downSampling = downSampling;
     }

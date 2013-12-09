@@ -29,8 +29,6 @@ public class Main extends AbstractDaemon {
     /** The logger */
     static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
-    private static UserArguments userArguments;
-
     @Inject
     private WebServer webServer;
 
@@ -51,7 +49,8 @@ public class Main extends AbstractDaemon {
 
     public static void main(String[] args) throws Exception {
         // TODO find a way to share DMA AbtractCommandLineTool parameters with Guice module/userArguments
-        userArguments = new UserArguments();
+        UserArguments userArguments = new UserArguments();
+
         JCommander jCommander=null;
 
         try {

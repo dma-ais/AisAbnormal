@@ -29,7 +29,7 @@ public final class DatasetMetaData implements Serializable {
     }
 
     public Short getFormatVersion() {
-        return formatVersion;
+        return FORMAT_VERSION;
     }
 
     public Double getGridResolution() {
@@ -40,7 +40,7 @@ public final class DatasetMetaData implements Serializable {
         return downSampling;
     }
 
-    private final Short   formatVersion = 1;
+    private static final Short FORMAT_VERSION = 1;
     private final Double  gridResolution;
     private final Integer downSampling;
 

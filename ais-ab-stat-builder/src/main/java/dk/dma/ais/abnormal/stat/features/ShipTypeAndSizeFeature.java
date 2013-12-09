@@ -37,7 +37,6 @@ public class ShipTypeAndSizeFeature implements Feature {
     private static final transient Logger LOG = LoggerFactory.getLogger(ShipTypeAndSizeFeature.class);
 
     private final transient AppStatisticsService appStatisticsService;
-    private final transient TrackingService trackingService;
     private final transient FeatureDataRepository featureDataRepository;
 
     private static final String FEATURE_NAME = ShipTypeAndSizeFeature.class.getSimpleName();
@@ -49,8 +48,7 @@ public class ShipTypeAndSizeFeature implements Feature {
     public ShipTypeAndSizeFeature(AppStatisticsService appStatisticsService, TrackingService trackingService, FeatureDataRepository featureDataRepository) {
         this.appStatisticsService = appStatisticsService;
         this.featureDataRepository = featureDataRepository;
-        this.trackingService = trackingService;
-        this.trackingService.registerSubscriber(this);
+        trackingService.registerSubscriber(this);
     }
 
     /*

@@ -16,7 +16,6 @@
 
 package dk.dma.ais.abnormal.stat.db.data;
 
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.TreeMap;
 
@@ -86,37 +85,16 @@ public class FeatureData2Key implements FeatureData {
 
         Object statistic = statistics.get(statisticName);
         if (! (statistic instanceof Integer)) {
-            statistic = Integer.valueOf(0);
+            statistic = 0;
         }
         statistic = (Integer) statistic + 1;
         statistics.put(statisticName, statistic);
     }
 
     @Override
-    public void printStatistics(PrintStream stream) {
-    /*
-        for (Integer key1 : data.keySet()) {
-            TreeMap<Integer, TreeMap<Integer, HashMap<String, Object>>> level2 = data.getFeatureData(key1);
-            for (Integer key2 : level2.keySet()) {
-                TreeMap<Integer, HashMap<String, Object>> level3 = level2.getFeatureData(key2);
-                for (Integer key3 : level3.keySet()) {
-                    HashMap<String, Object> statistics = level3.getFeatureData(key3);
-                    for (String statisticsName : statistics.keySet()) {
-                        Object statisticsValue =  statistics.getFeatureData(statisticsName);
-                        String output = String.format("%12d | %9d | %9d | %-16s | %9s", key1, key2, key3, statisticsName, statisticsValue);
-                        stream.println(output);
-                    }
-                }
-            }
-        }
-    */
-    }
-
-    @Override
     public String getFeatureName() {
         final int n = featureClassName.lastIndexOf(".");
-        final String featureName = featureClassName.substring(n+1);
-        return featureName;
+        return featureClassName.substring(n+1);
     }
 
     @Override
@@ -129,10 +107,12 @@ public class FeatureData2Key implements FeatureData {
         return data;
     }
 
+    @SuppressWarnings("unused")
     public String getMeaningOfKey1() {
         return meaningOfKey1;
     }
 
+    @SuppressWarnings("unused")
     public String getMeaningOfKey2() {
         return meaningOfKey2;
     }

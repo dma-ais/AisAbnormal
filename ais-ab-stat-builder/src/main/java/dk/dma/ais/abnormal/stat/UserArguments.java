@@ -18,6 +18,7 @@ package dk.dma.ais.abnormal.stat;
 
 import com.beust.jcommander.Parameter;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class UserArguments {
 
     @Parameter(names = "-help", help = true, description = "Print this help", hidden = true)
