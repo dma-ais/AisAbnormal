@@ -55,6 +55,8 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
     private boolean readOnly;
     private boolean dumpToDiskOnClose;
 
+    private int lastPercentageWrittenToLog;
+
     public FeatureDataRepositoryMapDB(String dbFileName) throws Exception {
 
         if (! dbFileName.endsWith(FILENAME_SUFFIX)) {
@@ -89,10 +91,6 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
         db = DBMaker
                 .newFileDB(dbFile)
                 .transactionDisable()
-                .fullChunkAllocationEnable()
-                .randomAccessFileEnable()
-                        //.asyncWriteDisable()
-                .cacheDisable()
                 .closeOnJvmShutdown()
                 .readOnly()
                 .make();
@@ -106,8 +104,6 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
         this.dumpToDiskOnClose = cacheInMemoryDumpToDiskOnClose;
 
         if (cacheInMemoryDumpToDiskOnClose) {
-            //LOG.error("cacheInMemoryDumpToDiskOnClose not yet supported.");
-            //throw new UnsupportedOperationException("cacheInMemoryDumpToDiskOnClose not yet supported.");
             //db = DBMaker.newDirectMemoryDB().make();    // Serialize off-heap
             db = new DB(new StoreHeap());               // Use heap; subject to GC
             LOG.debug("Opened memory-based database.");
@@ -117,7 +113,6 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
                     .transactionDisable()
                     .fullChunkAllocationEnable()
                     .randomAccessFileEnable()
-                    //.asyncWriteDisable()
                     .cacheDisable()
                     .closeOnJvmShutdown()
                     .make();
@@ -140,25 +135,66 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
             DB onDisk = DBMaker
                     .newFileDB(dbFile)
                     .transactionDisable()
-                    .fullChunkAllocationEnable()
-                    .randomAccessFileEnable()
-                            //.asyncWriteDisable()
-                    .cacheDisable()
+                    .cacheDisable() // save memory to avoid heap problems during copy to disk
                     .closeOnJvmShutdown()
                     .make();
-
-            Pump.copy(db, onDisk);
+            copyToDatabase(onDisk);
+            onDisk.commit();
             onDisk.close();
             LOG.info("Dump in-memory data to disk: Done.");
         }
 
-        // LOG.info("Attempting to compact feature data repository.");
-        // db.compact();
-        // LOG.info("Feature data repository compacted.");
-
         LOG.info("Attempting to close feature data repository.");
         db.close();
         LOG.info("Feature data repository closed.");
+    }
+
+    private void copyToDatabase(DB toDatabase) {
+        // Pump.copy(db, onDisk);
+        // Causes java.lang.ArrayIndexOutOfBoundsException
+        // at java.lang.System.arraycopy(Native Method)
+        // at org.mapdb.BTreeKeySerializer.leadingValuePackRead(BTreeKeySerializer.java:189)
+        // on read
+        // Seems like an unfinished feature?
+        // https://github.com/jankotek/MapDB/issues/208
+
+        // Copy metadata to other database
+        putMetaData(toDatabase, getMetaData());
+
+        // Copy feature data to other database
+        Set<String> featureNames = getFeatureNames();
+
+        // Bookkeeping for progress output
+        long i = 0;
+        long estimatedTotalNumberOfCellsWithData = -1;
+
+        for (String featureName : featureNames) {
+            Set<Long> cellsWithData = getCellsWithData(featureName);
+            if (estimatedTotalNumberOfCellsWithData < 0) {
+                estimatedTotalNumberOfCellsWithData = featureNames.size() * cellsWithData.size();
+            }
+            for (Long cellId : cellsWithData) {
+                FeatureData featureData = getFeatureData(featureName, cellId);
+                putFeatureData(toDatabase, featureName, cellId, featureData);
+                progressOutput(i++, estimatedTotalNumberOfCellsWithData);
+            }
+        }
+
+        // Apparently not necessary:
+        // toDatabase.compact();
+    }
+
+    /**
+     * Not reentrant / MT-safe.
+     * @param currentIndex
+     * @param estimatedTotalNumberOfCellsWithData
+     */
+    private void progressOutput(long currentIndex, long estimatedTotalNumberOfCellsWithData) {
+        int percentageComplete =  (int) (100.0 * ((float) currentIndex) / ((float) estimatedTotalNumberOfCellsWithData));
+        if ((percentageComplete % 10 == 0) && percentageComplete != lastPercentageWrittenToLog) {
+            lastPercentageWrittenToLog = percentageComplete;
+            LOG.info("Dump in-memory data to disk: " + percentageComplete + "% complete.");
+        }
     }
 
     @Override
@@ -197,6 +233,10 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
 
     @Override
     public void putMetaData(DatasetMetaData datasetMetadata) {
+        putMetaData(db, datasetMetadata);
+    }
+
+    public void putMetaData(DB db, DatasetMetaData datasetMetadata) {
         BTreeMap<String, DatasetMetaData> allMetadata = db.createTreeMap(COLLECTION_METADATA).makeOrGet();
         allMetadata.put(KEY_METADATA, datasetMetadata);
         db.commit();
@@ -224,6 +264,10 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
 
     @Override
     public void putFeatureData(String featureName, long cellId, FeatureData featureData) {
+        putFeatureData(db, featureName, cellId, featureData);
+    }
+
+    private void putFeatureData(DB db, String featureName, long cellId, FeatureData featureData) {
         BTreeMap<Object, Object> allCellDataForFeature = db.createTreeMap(featureName).makeOrGet();
         allCellDataForFeature.put(cellId, featureData);
     }

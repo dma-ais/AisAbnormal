@@ -31,10 +31,7 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class FeatureDataRepositoryMapDBTest {
 
@@ -42,7 +39,7 @@ public class FeatureDataRepositoryMapDBTest {
 
     // 10e6 giver p fil på 8719932942 på 16 min
     // 10e3 giver p fil på 8579854 på 2-3sek
-    static final long NUM_CELLS = (long) 10e3;
+    static final long NUM_CELLS = (long) 1e3;
 
     static final long ONE_PCT_OF_CELLS = NUM_CELLS / 100;
     static final short N1 = 10;
@@ -62,29 +59,7 @@ public class FeatureDataRepositoryMapDBTest {
         FeatureDataRepository featureDataRepository = new FeatureDataRepositoryMapDB(dbFileName);
         featureDataRepository.openForWrite(false);
 
-        LOG.info("Generating " + N_PROD + " test data... ");
-        for (long cellId = 0; cellId < NUM_CELLS; cellId++) {
-            FeatureData2Key featureData = new FeatureData2Key(FeatureDataRepositoryMapDBTest.class, "key1", "key2");
-
-            for (short key1 = 0; key1 < N1; key1++) {
-                for (short key2 = 0; key2 < N2; key2++) {
-                    featureData.setStatistic(key1, key2, "t", (key1*key2) % 100);
-                }
-            }
-
-            featureDataRepository.putFeatureData(TEST_FEATURE_NAME, cellId, featureData);
-
-            if (cellId % ONE_PCT_OF_CELLS == 0) {
-                LOG.info(100 * cellId / NUM_CELLS + "%");
-                //printMemInfo();
-            }
-        }
-        LOG.info("done.");
-
-        LOG.info("storing dataset metadata.");
-        DatasetMetaData datasetMetaData = new DatasetMetaData(123.0, 60);
-        featureDataRepository.putMetaData(datasetMetaData);
-        LOG.info("done.");
+        writeTestDataToRepository(featureDataRepository);
 
         LOG.info("Closing repository... ");
         featureDataRepository.close();
@@ -101,13 +76,15 @@ public class FeatureDataRepositoryMapDBTest {
 
         FeatureData2Key featureData = (FeatureData2Key) featureDataRepository.getFeatureData(TEST_FEATURE_NAME, testCellId);
         assertEquals(N1, (int) featureData.numberOfLevel1Entries());
-        assertEquals((1*1)%100, featureData.getStatistic((short) 1, (short) 1, "t"));
-        assertEquals((7*7)%100, featureData.getStatistic((short) 7, (short) 7, "t"));
+        assertEquals((1 * 1) % 100, featureData.getStatistic((short) 1, (short) 1, "t"));
+        assertEquals((7 * 7) % 100, featureData.getStatistic((short) 7, (short) 7, "t"));
         assertEquals((9*8)%100, featureData.getStatistic((short) 9, (short) 8, "t"));
         assertEquals((key1 * key2) % 100, featureData.getStatistic(key1, key2, "t"));
         assertNull(featureData.getStatistic((short) (N1 + 1), (short) 4, "t"));
         assertNull(featureData.getStatistic((short) 1, (short) (N2 + 2), "t"));
         assertNull(featureData.getStatistic((short) 8, (short) 9, "wrongt"));
+
+        featureDataRepository.close();
     }
 
     @Test
@@ -126,6 +103,8 @@ public class FeatureDataRepositoryMapDBTest {
         assertNull(featureData.getStatistic((short) (N1 + 1), (short) 4, "t"));
         assertNull(featureData.getStatistic((short) 1, (short) (N2 +2), "t"));
         assertNull(featureData.getStatistic((short) 8, (short) 9, "wrongt"));
+
+        featureDataRepository.close();
     }
 
     @Test
@@ -205,6 +184,8 @@ public class FeatureDataRepositoryMapDBTest {
 
         assertEquals(1, featureNames.size());
         assertEquals(TEST_FEATURE_NAME, featureNames.toArray(new String[0])[0]);
+
+        featureDataRepository.close();
     }
 
     @Test
@@ -223,19 +204,66 @@ public class FeatureDataRepositoryMapDBTest {
             assertTrue(numberOfCells >= 0);
             assertNotNull(featureData);
         }
+
+        featureDataRepository.close();
     }
 
-    // TODO
-    @Ignore
+    @Test(expected = UnsupportedOperationException.class)
+    public void testRepositoryCannotBeWrittenInReadOnlyMode() throws Exception {
+        // We cannot use same db file as for other tests, because this one will not .close() and therefore
+        // probably corrupt checksums in the file. So we make our own dbFile:
+        String tmpFilePath = getTempFilePath();
+        String dbFileName = tmpFilePath + "/" + UUID.randomUUID() + ".featureData";
+        LOG.debug("testRepositoryCannotBeWrittenInReadOnlyMode: dbFileName = " + dbFileName);
+        File dbFile = new File(dbFileName);
+        assertFalse(dbFile.exists());
+
+        FeatureDataRepository featureDataRepository = new FeatureDataRepositoryMapDB(dbFileName);
+        featureDataRepository.openForRead();
+
+        DatasetMetaData metaData = featureDataRepository.getMetaData();
+        assertNotNull(metaData);
+
+        Set<String> featureNames = featureDataRepository.getFeatureNames();
+        assertTrue(featureNames.size() > 0);
+        String testFeatureName = featureNames.iterator().next();
+
+        Set<Long> allCellsWithData = featureDataRepository.getAllCellsWithData();
+        assertTrue(allCellsWithData.size() > 0);
+        Long testCellId = allCellsWithData.iterator().next();
+
+        LOG.debug("Trying to write to feature "  + testFeatureName + ", cell " + testCellId);
+
+        FeatureData featureData = featureDataRepository.getFeatureData(testFeatureName, testCellId);
+        featureDataRepository.putFeatureData(testFeatureName, testCellId, featureData);
+        assertTrue(false); // Should never get to here
+    }
+
     @Test
-    public void testInMemoryDatabase() throws Exception {
+    public void testInMemoryDumpToDiskOnClose() throws Exception {
+        String tmpFilePath = getTempFilePath();
+        String dbFileName = tmpFilePath + "/" + UUID.randomUUID() + ".featureData";
+        LOG.debug("testInMemoryDumpToDiskOnClose: dbFileName = " + dbFileName);
+        File dbFile = new File(dbFileName);
+        assertFalse(dbFile.exists());
+
+        // Create in-memory database
+        FeatureDataRepository featureDataRepository = new FeatureDataRepositoryMapDB(dbFileName);
+        featureDataRepository.openForWrite(true);
+        assertFalse(dbFile.exists());
+        writeTestDataToRepository(featureDataRepository);
+        assertFalse(dbFile.exists());
+        featureDataRepository.close();
+        assertTrue(dbFile.exists());
+
+        // Re-open database from disk to check contents
+        FeatureDataRepositoryMapDB featureDataRepository1 = new FeatureDataRepositoryMapDB(dbFileName);
+        featureDataRepository1.openForRead();
+
         final long testCellId = (NUM_CELLS / 2) + 7;
         final short key1 = N1 - 1, key2 = N2 - 2;
 
-        FeatureDataRepository featureDataRepository = new FeatureDataRepositoryMapDB(dbFileName);
-        featureDataRepository.openForWrite(true);
-
-        FeatureData2Key featureData = (FeatureData2Key) featureDataRepository.getFeatureData(TEST_FEATURE_NAME, testCellId);
+        FeatureData2Key featureData = (FeatureData2Key) featureDataRepository1.getFeatureData(TEST_FEATURE_NAME, testCellId);
         assertEquals(N1, (int) featureData.numberOfLevel1Entries());
         assertEquals((1*1)%100, featureData.getStatistic((short) 1, (short) 1, "t"));
         assertEquals((7*7)%100, featureData.getStatistic((short) 7, (short) 7, "t"));
@@ -245,7 +273,6 @@ public class FeatureDataRepositoryMapDBTest {
         assertNull(featureData.getStatistic((short) 1, (short) (N2 + 2), "t"));
         assertNull(featureData.getStatistic((short) 8, (short) 9, "wrongt"));
     }
-
 
     private static String getTempFilePath() {
         String tempFilePath = null;
@@ -260,6 +287,32 @@ public class FeatureDataRepositoryMapDBTest {
         }
 
         return tempFilePath;
+    }
+
+    private static void writeTestDataToRepository(FeatureDataRepository featureDataRepository) {
+        LOG.info("Generating " + N_PROD + " test data... ");
+        for (long cellId = 0; cellId < NUM_CELLS; cellId++) {
+            FeatureData2Key featureData = new FeatureData2Key(FeatureDataRepositoryMapDBTest.class, "key1", "key2");
+
+            for (short key1 = 0; key1 < N1; key1++) {
+                for (short key2 = 0; key2 < N2; key2++) {
+                    featureData.setStatistic(key1, key2, "t", (key1*key2) % 100);
+                }
+            }
+
+            featureDataRepository.putFeatureData(TEST_FEATURE_NAME, cellId, featureData);
+
+            if (cellId % ONE_PCT_OF_CELLS == 0) {
+                LOG.info(100 * cellId / NUM_CELLS + "%");
+                //printMemInfo();
+            }
+        }
+        LOG.info("done.");
+
+        LOG.info("storing dataset metadata.");
+        DatasetMetaData datasetMetaData = new DatasetMetaData(123.0, 60);
+        featureDataRepository.putMetaData(datasetMetaData);
+        LOG.info("done.");
     }
 
 }
