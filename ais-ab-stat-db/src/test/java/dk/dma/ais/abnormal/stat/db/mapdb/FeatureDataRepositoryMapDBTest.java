@@ -34,7 +34,6 @@ import java.util.UUID;
 import static org.junit.Assert.*;
 
 public class FeatureDataRepositoryMapDBTest {
-
     static final Logger LOG = LoggerFactory.getLogger(FeatureDataRepositoryMapDB.class);
 
     // 10e6 giver p fil på 8719932942 på 16 min
