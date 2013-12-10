@@ -118,7 +118,7 @@ public class FeatureDataRepositoryMapDBTest {
         FeatureDataRepository featureDataRepository1 = new FeatureDataRepositoryMapDB(dbFileName);
         featureDataRepository1.openForWrite(false);
         FeatureData2Key featureData1 = (FeatureData2Key) featureDataRepository1.getFeatureData(TEST_FEATURE_NAME, testCellId);
-        assertEquals((key1*key2) % 100, featureData1.getStatistic(key1, key2, "t"));
+        assertEquals((key1 * key2) % 100, featureData1.getStatistic(key1, key2, "t"));
         LOG.info("Updating FeatureData");
         featureData1.setStatistic(key1, key2, "t", 2157);
         featureDataRepository1.putFeatureData(TEST_FEATURE_NAME, testCellId, featureData1);
@@ -270,6 +270,58 @@ public class FeatureDataRepositoryMapDBTest {
         assertNull(featureData.getStatistic((short) (N1 + 1), (short) 4, "t"));
         assertNull(featureData.getStatistic((short) 1, (short) (N2 + 2), "t"));
         assertNull(featureData.getStatistic((short) 8, (short) 9, "wrongt"));
+    }
+
+    @Test
+    public void testPrepareBackupDBFile() throws IOException {
+        // Prepare test data
+        String tmpFilePath = getTempFilePath();
+        String databaseName = UUID.randomUUID().toString();
+
+        String dbFileName = tmpFilePath + "/" + databaseName + ".featureData";
+        String dbBackupFileName = tmpFilePath + "/" + databaseName + ".backup.featureData";
+        String dbPrevBackupFileName = tmpFilePath + "/" + databaseName + ".backup.previous.featureData";
+
+        String dbPFileName = dbFileName.concat(".p");
+        String dbBackupPFileName = dbBackupFileName.concat(".p");
+        String dbPrevBackupPFileName = dbPrevBackupFileName.concat(".p");
+
+        File dbFile = new File(dbFileName);
+        File dbBackupFile = new File(dbBackupFileName);
+        File dbPrevBackupFile = new File(dbPrevBackupFileName);
+
+        File dbPFile = new File(dbPFileName);
+        File dbBackupPFile = new File(dbBackupPFileName);
+        File dbPrevBackupPFile = new File(dbPrevBackupPFileName);
+
+        LOG.debug("dbFileName: " + dbFileName);
+        LOG.debug("dbBackupFileName: " + dbBackupFileName);
+        LOG.debug("dbPrevBackupFileName: " + dbPrevBackupFileName);
+
+        // Assert start condition
+        assertFalse(dbFile.exists());
+        assertFalse(dbPFile.exists());
+        assertFalse(dbBackupFile.exists());
+        assertFalse(dbBackupPFile.exists());
+        assertFalse(dbPrevBackupFile.exists());
+        assertFalse(dbPrevBackupPFile.exists());
+
+        // Test backup file can be created
+        dbBackupFile = FeatureDataRepositoryMapDB.prepareBackupDBFileFor(dbFile);
+        assertNotNull(dbBackupFile);
+        assertFalse(dbBackupFile.exists());
+        LOG.debug("dbBackupFile: " + dbBackupFile.getAbsolutePath());
+        dbBackupFile.createNewFile();
+        dbBackupPFile.createNewFile();
+        assertTrue(dbBackupFile.exists());
+        assertTrue(dbBackupFile.isFile());
+        assertEquals(dbBackupFileName, dbBackupFile.getAbsolutePath());
+        assertFalse(dbPrevBackupFile.exists());
+
+        // Test 1st file rotation
+        dbBackupFile = FeatureDataRepositoryMapDB.prepareBackupDBFileFor(dbFile);
+        assertFalse(dbBackupFile.exists());
+        assertTrue(dbPrevBackupFile.exists());
     }
 
     private static String getTempFilePath() {

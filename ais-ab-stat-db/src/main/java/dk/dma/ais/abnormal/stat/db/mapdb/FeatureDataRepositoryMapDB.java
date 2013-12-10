@@ -27,10 +27,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
 
@@ -39,7 +42,7 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
         LOG.debug("FeatureDataRepositoryMapDB loaded.");
     }
     {
-        LOG.debug(this.getClass().getSimpleName() + " created (" + this + " ).");
+        LOG.debug(this.getClass().getSimpleName() + " created (" + this + ").");
     }
 
     private static final String FILENAME_SUFFIX = ".featureData";
@@ -54,6 +57,9 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
     private boolean dumpToDiskOnClose;
 
     private int lastPercentageWrittenToLog;
+
+    private final ReentrantLock backupToDiskLock = new ReentrantLock();
+    private Date nextBackupToDisk;
 
     public FeatureDataRepositoryMapDB(String dbFileName) throws Exception {
 
@@ -85,14 +91,7 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
     @Override
     public void openForRead() {
         this.readOnly = true;
-
-        db = DBMaker
-                .newFileDB(dbFile)
-                .transactionDisable()
-                .closeOnJvmShutdown()
-                .readOnly()
-                .make();
-
+        this.db = openDiskDatabase(dbFile, this.readOnly);
         LOG.debug("File successfully opened for read by MapDB.");
     }
 
@@ -102,19 +101,10 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
         this.dumpToDiskOnClose = cacheInMemoryDumpToDiskOnClose;
 
         if (cacheInMemoryDumpToDiskOnClose) {
-            //db = DBMaker.newDirectMemoryDB().make();    // Serialize off-heap
-            db = new DB(new StoreHeap());               // Use heap; subject to GC
-            LOG.debug("Opened memory-based database.");
+            this.db = openInMemoryOnHeapDatabase();
+            scheduleNextBackupDBToDisk();
         } else {
-            db = DBMaker
-                    .newFileDB(dbFile)
-                    .transactionDisable()
-                    .fullChunkAllocationEnable()
-                    .randomAccessFileEnable()
-                    .cacheDisable()
-                    .closeOnJvmShutdown()
-                    .make();
-            LOG.debug("Opened disk-based database.");
+            this.db = openDiskDatabase(dbFile, this.readOnly);
         }
 
         LOG.debug("Database successfully opened for write by MapDB.");
@@ -130,12 +120,7 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
 
         if (this.dumpToDiskOnClose) {
             LOG.info("Dump in-memory data to disk.");
-            DB onDisk = DBMaker
-                    .newFileDB(dbFile)
-                    .transactionDisable()
-                    .cacheDisable() // save memory to avoid heap problems during copy to disk
-                    .closeOnJvmShutdown()
-                    .make();
+            DB onDisk = openDiskDatabase(dbFile, false);
             copyToDatabase(onDisk);
             onDisk.commit();
             onDisk.close();
@@ -193,6 +178,78 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
             lastPercentageWrittenToLog = percentageComplete;
             LOG.info("Dump in-memory data to disk: " + percentageComplete + "% complete.");
         }
+    }
+
+    private void backupDBToDisk() {
+        LOG.debug("Preparing to backup database to disk.");
+
+        this.backupToDiskLock.lock();
+        try {
+            File backupDBFile = prepareBackupDBFileFor(dbFile);
+            if (backupDBFile == null) {
+                LOG.error("Failed to prepare DB backup file. Cannot backup database to disk.");
+                return;
+            }
+
+            DB backupDB = openDiskDatabase(backupDBFile, false);
+            copyToDatabase(backupDB);
+            backupDB.commit();
+            backupDB.close();
+
+            LOG.info("Database successfully backed up to to disk (\"" + backupDBFile.getName() + "\").");
+        } finally {
+            this.backupToDiskLock.unlock();
+        }
+    }
+
+    /**
+     * Prepare a new xxx.backup.featureData file that can be used by MapDB to store a copy of the database. If a xxx.backup.featureData
+     * already exist it will be renamed to xxx.backup.previous.featureData.
+     * @return  The file that MapDB can use to store its data in.
+     */
+     static File prepareBackupDBFileFor(File dbFile) {
+        // Calc name of backup file
+        StringBuilder tmp = new StringBuilder(dbFile.getPath());
+        int n = tmp.lastIndexOf(FILENAME_SUFFIX);
+        tmp.replace(n, n + FILENAME_SUFFIX.length(), ".backup" + FILENAME_SUFFIX);
+        String backupFileName = tmp.toString();
+        LOG.debug("backupFileName: " + backupFileName);
+
+        File backupFile = new File(backupFileName);
+        File backupFileP = new File(backupFileName+".p");
+        if (backupFile.exists()) {
+            LOG.debug("Previous backup database exists.");
+            String previousBackupFileName = backupFileName.replaceFirst(".backup.", ".backup.previous.");
+            File previousBackupFile = new File(previousBackupFileName);
+            File previousBackupFileP = new File(previousBackupFileName+".p");
+            if (previousBackupFile.exists()) {
+                LOG.debug("Will delete previous backup file.");
+                boolean prevBackupFileDeleted = previousBackupFile.delete();
+                if (!prevBackupFileDeleted) {
+                    LOG.error("Could not delete previous backup file: " + previousBackupFile.getAbsolutePath());
+                    return null;
+                }
+                boolean prevBackupFilePDeleted = previousBackupFileP.delete();
+                if (!prevBackupFilePDeleted) {
+                    LOG.error("Could not delete previous backup .p file: " + previousBackupFileP.getAbsolutePath());
+                    return null;
+                }
+            }
+            LOG.debug("Will rename previous backup file from " + backupFile.getName() + " to " + previousBackupFile.getName());
+            boolean backupFileRenamed = backupFile.renameTo(previousBackupFile);
+            if (!backupFileRenamed) {
+                LOG.error("Failed to rename backup file from " + backupFile.getName() + " to " + previousBackupFile.getName());
+                return null;
+            }
+            boolean backupFilePRenamed = backupFileP.renameTo(previousBackupFileP);
+            if (!backupFilePRenamed) {
+                LOG.error("Failed to rename backup .p file from " + backupFile.getName() + " to " + previousBackupFileP.getName());
+                return null;
+            }
+            backupFile = new File(backupFileName);
+        }
+
+        return backupFile;
     }
 
     @Override
@@ -263,6 +320,19 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
     @Override
     public void putFeatureData(String featureName, long cellId, FeatureData featureData) {
         putFeatureData(db, featureName, cellId, featureData);
+
+        // Check if it is time for a memory backup to disk
+        if (this.dumpToDiskOnClose && isBackupToDiskScheduled()) {
+           try {
+               backupToDiskLock.lock();
+               if (isBackupToDiskScheduled()) {
+                   backupDBToDisk();
+                   scheduleNextBackupDBToDisk();
+               }
+            } finally {
+                backupToDiskLock.unlock();
+            }
+        }
     }
 
     private void putFeatureData(DB db, String featureName, long cellId, FeatureData featureData) {
@@ -294,6 +364,56 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
         }
 
         return cellsWithData;
+    }
+
+    private boolean isBackupToDiskScheduled() {
+        return nextBackupToDisk.getTime() < System.currentTimeMillis();
+    }
+
+    private void scheduleNextBackupDBToDisk() {
+        backupToDiskLock.lock();
+        try {
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.HOUR, 24);
+            this.nextBackupToDisk =  calendar.getTime();
+            LOG.info("Next backup from memory to disk scheduled for " + this.nextBackupToDisk);
+        } finally {
+            this.backupToDiskLock.unlock();
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private static DB openInMemoryOffHeapDatabase() {
+        DB db = DBMaker.newDirectMemoryDB().make();   // Serialize to off-heap
+        LOG.debug("Opened memory-based off-heap database.");
+        return db;
+    }
+
+    private static DB openInMemoryOnHeapDatabase() {
+        DB db = new DB(new StoreHeap());            // On-heap; subject to garbage collection
+        LOG.debug("Opened memory-based on-heap database.");
+        return db;
+    }
+
+    private static DB openDiskDatabase(File dbFile, boolean readOnly) {
+        DB db = readOnly ?
+                DBMaker
+                        .newFileDB(dbFile)
+                        .transactionDisable()
+                        .closeOnJvmShutdown()
+                        .readOnly()
+                        .make()
+                :
+                DBMaker
+                        .newFileDB(dbFile)
+                        .transactionDisable()
+                        .cacheDisable()
+                        .closeOnJvmShutdown()
+                        .make();
+
+        LOG.debug("Opened disk-based database (\"" + dbFile.getName()+ "\") for " + (readOnly ? "read only.":"read/write."));
+
+        return db;
     }
 
 }
