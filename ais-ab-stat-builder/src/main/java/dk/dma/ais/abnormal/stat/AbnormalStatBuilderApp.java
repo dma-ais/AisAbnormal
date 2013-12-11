@@ -59,6 +59,9 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
     private AppStatisticsService statisticsService;
 
     @Inject
+    private ProgressIndicator progressIndicator;
+
+    @Inject
     private StripedExecutorService executorService;
 
     static UserArguments userArguments;
@@ -67,22 +70,23 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
     protected void runDaemon(Injector injector) throws Exception {
         LOG.info("Application starting.");
 
-        packetHandler = packetHandlerFactory.create(userArguments.isMultiThreaded());
-
-        statisticsService.start();
-
-        // Write dataset metadata before we start
         Grid grid = getInjector().getInstance(Grid.class);
 
+        progressIndicator.init();
+        packetHandler = packetHandlerFactory.create(userArguments.isMultiThreaded());
+        // Write dataset metadata before we start
         DatasetMetaData metadata = new DatasetMetaData(grid.getResolution(), userArguments.getDownSampling());
         featureDataRepository.putMetaData(metadata);
+        statisticsService.start();
+        progressIndicator.start();
 
         reader.registerPacketHandler(packetHandler);
         reader.start();
         reader.join();
 
+        progressIndicator.shutdown();
         executorService.shutdown();
-        boolean shutdown = false;
+        boolean shutdown;
         do {
             LOG.debug("Waiting for worker tasks to complete.");
             shutdown = executorService.awaitTermination(1, TimeUnit.MINUTES);
@@ -137,17 +141,17 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
 
         // TODO find a way to share DMA AbtractCommandLineTool parameters with Guice module/userArguments
         userArguments = new UserArguments();
-        JCommander jCommander=null;
+        JCommander jCommander;
 
         try {
-            jCommander = new JCommander(userArguments, args);
+            new JCommander(userArguments, args);
         } catch (ParameterException e) {
             System.out.println(e.getMessage());
             userArguments.setHelp(true);
         }
 
         if (userArguments.isHelp()) {
-            jCommander = new JCommander(userArguments, new String[] { "-help", "-input", "-output" });
+            jCommander = new JCommander(userArguments, "-help", "-input", "-output");
             jCommander.setProgramName("AbnormalStatBuilderApp");
             jCommander.usage();
         } else {

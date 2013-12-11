@@ -60,6 +60,7 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
 
         bind(StripedExecutorService.class).in(Singleton.class);
         bind(AbnormalStatBuilderApp.class).in(Singleton.class);
+        bind(ProgressIndicator.class).in(Singleton.class);
         bind(AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
         bind(TrackingService.class).to(TrackingServiceImpl.class).in(Singleton.class);
         bind(ShipTypeAndSizeFeature.class);
@@ -77,7 +78,8 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
         return filter;
     }
 
-    @Provides @Singleton
+    @Provides
+    @Singleton
     Grid provideGrid() {
         Grid grid = null;
         try {
@@ -89,7 +91,8 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
         return grid;
     }
 
-    @Provides @Singleton
+    @Provides
+    @Singleton
     FeatureDataRepository provideFeatureDataRepository() {
         FeatureDataRepository featureDataRepository = null;
         try {
@@ -103,6 +106,7 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
     }
 
     @Provides
+    @Singleton
     AisReader provideAisReader() {
         AisReader aisReader = null;
         try {
@@ -113,5 +117,4 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
         }
         return aisReader;
     }
-
 }
