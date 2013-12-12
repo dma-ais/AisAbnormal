@@ -26,7 +26,6 @@ import dk.dma.ais.abnormal.stat.tracker.events.CellIdChangedEvent;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -153,10 +152,6 @@ public class ShipTypeAndSizeFeatureTest {
         assertEquals(ShipTypeAndSizeFeature.STATISTICS_NAME, statName);
         Object statValue = data.get(shipType).get(shipSize).get(statName);
         assertEquals(2, statValue);
-    }
-
-    @Test @Ignore
-    public void testVesselPassingGreatBeltBridge() {
     }
 
 }
