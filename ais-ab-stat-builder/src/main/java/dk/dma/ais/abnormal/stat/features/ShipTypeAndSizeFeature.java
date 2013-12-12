@@ -30,6 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ShipTypeAndSizeFeature implements Feature {
 
@@ -38,17 +40,31 @@ public class ShipTypeAndSizeFeature implements Feature {
 
     private final transient AppStatisticsService appStatisticsService;
     private final transient FeatureDataRepository featureDataRepository;
+    private final transient TrackingService trackingService;
 
-    private static final String FEATURE_NAME = ShipTypeAndSizeFeature.class.getSimpleName();
+    static final String STATISTICS_KEY_1 = "shipType";
+    static final String STATISTICS_KEY_2 = "shipSize";
+    static final String STATISTICS_NAME = "shipCount";
 
-    private static final String STATISTICS_KEY_1 = "shipType";
-    private static final String STATISTICS_KEY_2 = "shipSize";
+    private transient boolean started;
+
+    static final String FEATURE_NAME = ShipTypeAndSizeFeature.class.getSimpleName();
 
     @Inject
     public ShipTypeAndSizeFeature(AppStatisticsService appStatisticsService, TrackingService trackingService, FeatureDataRepository featureDataRepository) {
         this.appStatisticsService = appStatisticsService;
+        this.trackingService = trackingService;
         this.featureDataRepository = featureDataRepository;
-        trackingService.registerSubscriber(this);
+    }
+
+    /**
+     * Start listening to tracking events.
+     */
+    public void start() {
+        if (! started) {
+            trackingService.registerSubscriber(this);
+            started = true;
+        }
     }
 
     /*
@@ -95,7 +111,7 @@ public class ShipTypeAndSizeFeature implements Feature {
         }
         FeatureData2Key featureData = (FeatureData2Key) featureDataTmp;
 
-        featureData.incrementStatistic(shipTypeBucket, shipSizeBucket, "shipCount");
+        featureData.incrementStatistic(shipTypeBucket, shipSizeBucket, STATISTICS_NAME);
 
         LOG.debug("Storing feature data for cellId " + cellId + ", featureName " + FEATURE_NAME);
         featureDataRepository.putFeatureData(FEATURE_NAME, cellId, featureData);
@@ -147,8 +163,4 @@ public class ShipTypeAndSizeFeature implements Feature {
         return bucket;
     }
 
-    @Override
-    public void printStatistics(PrintStream stream) {
-     //   this.featureData.printStatistics(stream);
-    }
 }

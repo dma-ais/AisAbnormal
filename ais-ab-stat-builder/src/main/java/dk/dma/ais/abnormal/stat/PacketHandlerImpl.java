@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -144,21 +145,17 @@ public class PacketHandlerImpl implements PacketHandler {
         return statisticsService;
     }
 
-    @Override
-    public void printAllFeatureStatistics(PrintStream stream) {
-        stream.println("Collected statistics for all features:");
-        stream.println();
-        for (Feature feature : features) {
-            feature.printStatistics(stream);
-        }
-    }
-
     private void initFeatures() {
         Injector injector = AbnormalStatBuilderApp.getInjector();
 
         this.features = new ImmutableSet.Builder<Feature>()
             .add(injector.getInstance(ShipTypeAndSizeFeature.class))
             .build();
+
+        Iterator<Feature> featureIterator = this.features.iterator();
+        while (featureIterator.hasNext()) {
+            featureIterator.next().start();
+        }
     }
 
     private final class Task implements StripedRunnable {

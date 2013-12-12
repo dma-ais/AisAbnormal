@@ -103,7 +103,7 @@ public class FeatureData2Key implements FeatureData {
     }
 
     @Override
-    public Object getData() {
+    public TreeMap<Short, TreeMap<Short, HashMap<String,Object>>> getData() {
         return data;
     }
 

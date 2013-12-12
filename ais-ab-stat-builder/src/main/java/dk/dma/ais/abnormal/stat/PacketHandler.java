@@ -24,5 +24,4 @@ import java.io.PrintStream;
 public interface PacketHandler extends Consumer<AisPacket> {
     void cancel();
     AppStatisticsService getBuildStats();
-    void printAllFeatureStatistics(PrintStream stream);
 }
