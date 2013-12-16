@@ -14,16 +14,29 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package dk.dma.ais.abnormal.stat.tracker;
+package dk.dma.ais.abnormal.tracker.events;
 
-import dk.dma.ais.message.AisMessage;
+import com.google.common.base.Objects;
+import dk.dma.ais.abnormal.tracker.Track;
 
-import java.util.Date;
+public class CellIdChangedEvent extends TrackingEvent {
+    private final Long oldCellId;
 
-public interface TrackingService {
-    void update(Date timestamp, AisMessage aisMessage);
-    Integer getNumberOfTracks();
+    public CellIdChangedEvent(Track track, Long oldCellId) {
+        super(track);
+        this.oldCellId = oldCellId;
+    }
 
-    /* Subscribe to tracking events */
-    void registerSubscriber(Object subscriber);
+    public final Long getOldCellId() {
+        return oldCellId;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("mmsi", getTrack().getMmsi())
+                .add("oldCellId", oldCellId)
+                .add("newCellId", getTrack().getProperty(Track.CELL_ID))
+                .toString();
+    }
 }

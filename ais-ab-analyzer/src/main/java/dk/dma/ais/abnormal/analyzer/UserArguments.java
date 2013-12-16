@@ -18,8 +18,6 @@ package dk.dma.ais.abnormal.analyzer;
 
 import com.beust.jcommander.Parameter;
 
-import java.io.File;
-
 @SuppressWarnings("FieldCanBeLocal")
 public class UserArguments {
 
@@ -29,11 +27,14 @@ public class UserArguments {
     @Parameter(names = "-inputDirectory", description = "Directory to scan for files to read", required = true)
     private String inputDirectory = ".";
 
+    @Parameter(names = "-input", description = "Glob pattern for files to read. '.zip' and '.gz' files are decompressed automatically.", required = true)
+    private String inputFilenamePattern;
+
     @Parameter(names = "-r", description = "Recursive directory scan")
     private boolean recursive;
 
     @Parameter(names = "-featureData", description = "Name of file containing feature data statistics.", required = true)
-    private File featureData;
+    private String featureData;
 
     public void setHelp(boolean help) {
         this.help = help;
@@ -47,11 +48,15 @@ public class UserArguments {
         return inputDirectory;
     }
 
+    public String getInputFilenamePattern() {
+        return inputFilenamePattern;
+    }
+
     public boolean isRecursive() {
         return recursive;
     }
 
-    public File getFeatureData() {
+    public String getFeatureData() {
         return featureData;
     }
 

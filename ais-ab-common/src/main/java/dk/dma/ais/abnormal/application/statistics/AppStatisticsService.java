@@ -80,6 +80,8 @@ public interface AppStatisticsService {
 
     long getStatMsgCount();
 
+    void setTrackCount(int trackCount);
+
     /**
      * Dump the current state of application statistics to the system log service.
      */

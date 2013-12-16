@@ -396,6 +396,7 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
     }
 
     private static DB openDiskDatabase(File dbFile, boolean readOnly) {
+        LOG.debug("Attempting to open database file \"" + dbFile.getAbsolutePath() + (readOnly ? "\" (for read only).":"(for read/write)."));
         DB db = readOnly ?
                 DBMaker
                         .newFileDB(dbFile)

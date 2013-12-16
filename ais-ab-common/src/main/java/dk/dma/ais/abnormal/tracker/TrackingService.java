@@ -13,16 +13,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.ais.abnormal.analyzer;
 
-import org.junit.Ignore;
-import org.junit.Test;
+package dk.dma.ais.abnormal.tracker;
 
-public class AbnormalAnalyzerAppTest {
-    
-    @Test @Ignore
-    public void appTest() throws Exception {
-        String[] args = new String[]{};
-        new AbnormalAnalyzerApp().execute(args);
-    }
+import dk.dma.ais.message.AisMessage;
+
+import java.util.Date;
+
+public interface TrackingService {
+    void update(Date timestamp, AisMessage aisMessage);
+    Integer getNumberOfTracks();
+
+    /* Subscribe to tracking events */
+    void registerSubscriber(Object subscriber);
 }

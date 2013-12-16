@@ -17,10 +17,11 @@
 	<description>AisAbnormal analyzer module</description>
 
 	<dependencies>
-		<dependency>
-			<groupId>dk.dma.ais.abnormal</groupId>
-			<artifactId>ais-ab-common</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${dependencies.slf4j.version}</version>
+        </dependency>
 		<dependency>
 			<groupId>dk.dma.commons</groupId>
 			<artifactId>dma-commons-app</artifactId>
@@ -30,10 +31,13 @@
             <artifactId>ais-lib-communication</artifactId>
         </dependency>
         <dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>${dependencies.slf4j.version}</version>
-		</dependency>
+            <groupId>dk.dma.ais.abnormal</groupId>
+            <artifactId>ais-ab-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dk.dma.ais.abnormal</groupId>
+            <artifactId>ais-ab-stat-db</artifactId>
+        </dependency>
 	</dependencies>
 
 	<build>

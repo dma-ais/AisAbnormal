@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Class for holding information on the file processing process
@@ -38,7 +37,6 @@ public final class AppStatisticsServiceImpl extends dk.dma.ais.abnormal.applicat
     @Inject
     private StripedExecutorService executorService;
 
-    private final AtomicInteger trackCount = new AtomicInteger(0);
     private Map<String, HashMap<String, Long>> allFeatureStatistics = new ConcurrentHashMap<>();
 
     public AppStatisticsServiceImpl() {
@@ -74,16 +72,10 @@ public final class AppStatisticsServiceImpl extends dk.dma.ais.abnormal.applicat
     }
 
     @Override
-    public void setTrackCount(int trackCount) {
-        this.trackCount.set(trackCount);
-    }
-
-    @Override
     public void dumpStatistics() {
         super.dumpStatistics();
 
-        LOG.info("==== Stat build application statistics (tasks) ====");
-
+        LOG.info("==== Stat builder application statistics (tasks) ====");
         LOG.info(String.format("%-30s %s", "Executor isShutdown", executorService.isShutdown()));
         LOG.info(String.format("%-30s %s", "Executor isTerminated", executorService.isTerminated()));
         LOG.info(String.format("%-30s %9d", "Executor no. of threads", executorService.numberOfExecutors()));
@@ -91,11 +83,8 @@ public final class AppStatisticsServiceImpl extends dk.dma.ais.abnormal.applicat
         for (Map.Entry<String,Integer> queueSize : queueSizes.entrySet()) {
             LOG.info(String.format("%-30s %9d", "Queue size, thread " + queueSize.getKey(), queueSize.getValue()));
         }
-        LOG.info("==== Stat build application statistics ====");
-        LOG.info(String.format("%-30s %9d", "Track count", trackCount.get()));
-        LOG.info("==== Stat build application statistics ====");
 
-        LOG.info("==== Stat build feature statistics ====");
+        LOG.info("==== Stat builder feature statistics (features) ====");
         Set<String> featureNames = this.allFeatureStatistics.keySet();
         for (String featureName : featureNames) {
             LOG.info(String.format("%-30s %s", "Feature name", featureName));
@@ -108,6 +97,6 @@ public final class AppStatisticsServiceImpl extends dk.dma.ais.abnormal.applicat
             }
 
         }
-        LOG.info("==== Stat build feature statistics ====");
+        LOG.info("==== Stat builder feature statistics ====");
     }
 }

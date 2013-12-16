@@ -13,15 +13,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.ais.abnormal;
 
-import org.junit.Test;
+package dk.dma.ais.abnormal.analyzer.analysis;
 
-public class DummyTest {
-    
-    @Test
-    public void dummyTest() {
-        
-    }
-
+public interface Analysis {
 }

@@ -120,6 +120,11 @@ public class AppStatisticsServiceImpl implements AppStatisticsService {
         statMsgCount.incrementAndGet();
     }
 
+    @Override
+    public void setTrackCount(int trackCount) {
+        this.trackCount.set(trackCount);
+    }
+
     protected double getMessageRate() {
         double secs = (double)(System.currentTimeMillis() - lastLog.get()) / 1000.0;
         long msgs = messageCount.get() - lastMessageCount.get();

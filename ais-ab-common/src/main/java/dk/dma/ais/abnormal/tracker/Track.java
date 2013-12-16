@@ -14,7 +14,7 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package dk.dma.ais.abnormal.stat.tracker;
+package dk.dma.ais.abnormal.tracker;
 
 import java.util.HashMap;
 

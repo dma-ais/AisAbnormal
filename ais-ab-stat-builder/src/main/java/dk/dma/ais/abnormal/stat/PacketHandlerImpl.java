@@ -21,7 +21,7 @@ import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
 import dk.dma.ais.abnormal.stat.features.Feature;
 import dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature;
-import dk.dma.ais.abnormal.stat.tracker.TrackingService;
+import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.concurrency.stripedexecutor.StripedExecutorService;
 import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.message.AisMessage;
@@ -32,7 +32,6 @@ import eu.javaspecialists.tjsn.concurrency.StripedRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.PrintStream;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;

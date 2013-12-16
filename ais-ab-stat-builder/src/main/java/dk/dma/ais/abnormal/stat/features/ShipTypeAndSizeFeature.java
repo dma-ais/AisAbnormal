@@ -23,15 +23,11 @@ import dk.dma.ais.abnormal.stat.AppStatisticsService;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData2Key;
-import dk.dma.ais.abnormal.stat.tracker.Track;
-import dk.dma.ais.abnormal.stat.tracker.TrackingService;
-import dk.dma.ais.abnormal.stat.tracker.events.CellIdChangedEvent;
+import dk.dma.ais.abnormal.tracker.Track;
+import dk.dma.ais.abnormal.tracker.TrackingService;
+import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.PrintStream;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class ShipTypeAndSizeFeature implements Feature {
 

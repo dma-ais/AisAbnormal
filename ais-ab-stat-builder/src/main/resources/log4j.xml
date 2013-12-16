@@ -27,7 +27,7 @@
         <level value="INFO"/>
     </logger>
 
-    <logger name="dk.dma.ais.abnormal.stat.tracker">
+    <logger name="dk.dma.ais.abnormal.tracker">
         <level value="ERROR"/>
     </logger>
 

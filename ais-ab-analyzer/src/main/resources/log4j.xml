@@ -17,6 +17,10 @@
         <level value="DEBUG"></level>
     </logger>
 
+    <logger name="dk.dma.ais.abnormal.stat.db.mapdb">
+        <level value="DEBUG"></level>
+    </logger>
+
 	<root>
         <level value="INFO" />
         <appender-ref ref="CONSOLE" />

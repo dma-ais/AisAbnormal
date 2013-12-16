@@ -14,27 +14,16 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package dk.dma.ais.abnormal.stat.tracker.events;
+package dk.dma.ais.abnormal.analyzer.analysis;
 
-import com.google.common.base.Objects;
-import dk.dma.ais.abnormal.stat.tracker.Track;
+import com.google.inject.Inject;
+import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 
-public abstract class TrackingEvent {
+public class ShipTypeAndSizeAnalysis implements Analysis {
 
-    private final Track track;
+    @Inject
+    FeatureDataRepository featureDataRepository;
 
-    TrackingEvent(Track track) {
-        this.track = track;
-    }
-
-    public final Track getTrack() {
-        return track;
-    }
-
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this)
-                .add("track", track)
-                .toString();
+    public ShipTypeAndSizeAnalysis() {
     }
 }

@@ -14,13 +14,13 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package dk.dma.ais.abnormal.stat.tracker;
+package dk.dma.ais.abnormal.tracker;
 
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
-import dk.dma.ais.abnormal.stat.tracker.events.CellIdChangedEvent;
+import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisMessage5;
 import dk.dma.ais.message.AisPosition;

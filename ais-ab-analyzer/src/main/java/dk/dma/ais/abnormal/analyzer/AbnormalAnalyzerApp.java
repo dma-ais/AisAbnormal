@@ -20,6 +20,7 @@ import com.beust.jcommander.ParameterException;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import dk.dma.ais.reader.AisReader;
 import dk.dma.commons.app.AbstractDaemon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,12 +41,18 @@ public class AbnormalAnalyzerApp extends AbstractDaemon {
     static UserArguments userArguments;
 
     @Inject
+    private AisReader reader;
+
+    @Inject
     private PacketHandler packetHandler;
 
     @Override
     protected void runDaemon(Injector injector) throws Exception {
         LOG.info("Starting AbnormalAnalyzerApp");
 
+        reader.registerPacketHandler(packetHandler);
+        reader.start();
+        reader.join();
 
 
         /*
@@ -80,8 +87,12 @@ public class AbnormalAnalyzerApp extends AbstractDaemon {
         super.execute(args);
     }
 
-    public static void setInjector(Injector injector) {
+    private static void setInjector(Injector injector) {
         AbnormalAnalyzerApp.injector = injector;
+    }
+
+    public static Injector getInjector() {
+        return injector;
     }
 
     public static void main(String[] args) throws Exception {
@@ -114,7 +125,7 @@ public class AbnormalAnalyzerApp extends AbstractDaemon {
             jCommander.setProgramName("AbnormalAnalyzerApp");
             jCommander.usage();
         } else {
-            Injector injector = Guice.createInjector(new AbnormalAnalyzerAppModule());
+            Injector injector = Guice.createInjector(new AbnormalAnalyzerAppModule(userArguments.getInputDirectory(), userArguments.getInputFilenamePattern(), userArguments.isRecursive(), userArguments.getFeatureData()));
             AbnormalAnalyzerApp.setInjector(injector);
             AbnormalAnalyzerApp app = injector.getInstance(AbnormalAnalyzerApp.class);
             app.execute(new String[]{} /* no cmd args - we handled them already */ );
