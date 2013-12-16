@@ -7,14 +7,19 @@
 	<!-- CONSOLE -->
 	<appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
 		<param name="Target" value="System.out" />
-		<param name="Threshold" value="INFO" />
+		<param name="Threshold" value="DEBUG" />
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c{1}] %m%n" />
+            <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p %-16t %-32c{1} %m%n" />
 		</layout>
 	</appender>
 
+    <logger name="dk.dma.ais.abnormal.analyzer">
+        <level value="DEBUG"></level>
+    </logger>
+
 	<root>
-		<appender-ref ref="CONSOLE" />
+        <level value="INFO" />
+        <appender-ref ref="CONSOLE" />
 	</root>
 
 </log4j:configuration>

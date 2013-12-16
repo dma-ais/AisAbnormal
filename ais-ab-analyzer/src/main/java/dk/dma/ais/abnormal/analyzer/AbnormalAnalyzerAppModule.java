@@ -14,10 +14,24 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package dk.dma.ais.abnormal.stat;
+package dk.dma.ais.abnormal.analyzer;
 
-public interface AppStatisticsService extends dk.dma.ais.abnormal.application.statistics.AppStatisticsService {
-    void setTrackCount(int trackCount);
-    void incFeatureStatistics(String featureName, String statisticsName);
-    Long getFeatureStatistics(String featureName, String statisticsName);
+import com.google.inject.AbstractModule;
+import com.google.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public final class AbnormalAnalyzerAppModule extends AbstractModule {
+    private static Logger LOG = LoggerFactory.getLogger(AbnormalAnalyzerAppModule.class);
+
+    public AbnormalAnalyzerAppModule() {
+    }
+
+    @Override
+    public void configure() {
+        bind(AbnormalAnalyzerApp.class).in(Singleton.class);
+        bind(AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
+        bind(PacketHandler.class).to(PacketHandlerImpl.class).in(Singleton.class);
+    }
+
 }

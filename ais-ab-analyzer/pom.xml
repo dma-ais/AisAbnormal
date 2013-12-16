@@ -25,7 +25,11 @@
 			<groupId>dk.dma.commons</groupId>
 			<artifactId>dma-commons-app</artifactId>
 		</dependency>
-		<dependency>
+        <dependency>
+            <groupId>dk.dma.ais.lib</groupId>
+            <artifactId>ais-lib-communication</artifactId>
+        </dependency>
+        <dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>${dependencies.slf4j.version}</version>

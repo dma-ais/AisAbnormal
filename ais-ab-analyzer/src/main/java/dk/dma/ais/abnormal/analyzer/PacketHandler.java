@@ -14,10 +14,10 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package dk.dma.ais.abnormal.stat;
+package dk.dma.ais.abnormal.analyzer;
 
-public interface AppStatisticsService extends dk.dma.ais.abnormal.application.statistics.AppStatisticsService {
-    void setTrackCount(int trackCount);
-    void incFeatureStatistics(String featureName, String statisticsName);
-    Long getFeatureStatistics(String featureName, String statisticsName);
+import dk.dma.ais.packet.AisPacket;
+import dk.dma.enav.util.function.Consumer;
+
+public interface PacketHandler extends Consumer<AisPacket> {
 }

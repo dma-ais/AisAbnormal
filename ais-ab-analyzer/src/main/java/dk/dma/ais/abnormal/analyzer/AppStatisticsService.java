@@ -14,10 +14,13 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package dk.dma.ais.abnormal.stat;
+package dk.dma.ais.abnormal.analyzer;
+
+/**
+ * A statistics service class which can be called with updates for certain events, such as reception of
+ * a packet or a message. Via the dumpStatistics() method the service can dump its collected statistics
+ * to the system logger.
+ */
 
 public interface AppStatisticsService extends dk.dma.ais.abnormal.application.statistics.AppStatisticsService {
-    void setTrackCount(int trackCount);
-    void incFeatureStatistics(String featureName, String statisticsName);
-    Long getFeatureStatistics(String featureName, String statisticsName);
 }

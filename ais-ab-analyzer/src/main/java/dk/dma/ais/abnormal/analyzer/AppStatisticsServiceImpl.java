@@ -13,11 +13,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
+package dk.dma.ais.abnormal.analyzer;
 
-package dk.dma.ais.abnormal.stat;
+import com.google.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public interface AppStatisticsService extends dk.dma.ais.abnormal.application.statistics.AppStatisticsService {
-    void setTrackCount(int trackCount);
-    void incFeatureStatistics(String featureName, String statisticsName);
-    Long getFeatureStatistics(String featureName, String statisticsName);
+/**
+ * Class for holding information on the file processing process
+ */
+@Singleton
+public class AppStatisticsServiceImpl extends dk.dma.ais.abnormal.application.statistics.AppStatisticsServiceImpl implements AppStatisticsService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AppStatisticsServiceImpl.class);
+
+    public AppStatisticsServiceImpl() {
+        LOG.info("AppStatisticsServiceImpl created (" + this + ").");
+    }
+
 }

@@ -9,8 +9,8 @@
 		<param name="Target" value="System.out" />
 		<param name="Threshold" value="DEBUG" />
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%t] [%c{1}] %m%n" />
-		</layout>
+            <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p %-16t %-32c{1} %m%n" />
+        </layout>
 	</appender>
 
     <!--
@@ -18,6 +18,10 @@
         <level value="DEBUG"/>
     </logger>
     -->
+
+    <logger name="dk.dma.ais.reader">
+        <level value="DEBUG"/>
+    </logger>
 
     <logger name="dk.dma.ais.abnormal.stat.features">
         <level value="INFO"/>
