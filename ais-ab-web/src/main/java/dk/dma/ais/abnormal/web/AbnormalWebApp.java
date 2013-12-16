@@ -24,10 +24,10 @@ import dk.dma.commons.app.AbstractDaemon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Main extends AbstractDaemon {
+public class AbnormalWebApp extends AbstractDaemon {
 
     /** The logger */
-    static final Logger LOG = LoggerFactory.getLogger(Main.class);
+    static final Logger LOG = LoggerFactory.getLogger(AbnormalWebApp.class);
 
     @Inject
     private WebServer webServer;
@@ -67,7 +67,7 @@ public class Main extends AbstractDaemon {
         } else {
             WebAppModule module = new WebAppModule(userArguments.getPort(), userArguments.getFeatureDataName());
             injector = Guice.createInjector(module);
-            Main app = injector.getInstance(Main.class);
+            AbnormalWebApp app = injector.getInstance(AbnormalWebApp.class);
             app.execute(new String[]{} /* no cmd args - we handled them already */ );
         }
     }

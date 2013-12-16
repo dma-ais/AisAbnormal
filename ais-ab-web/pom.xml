@@ -98,7 +98,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>dk.dma.ais.abnormal.web.Main</mainClass>
+                    <mainClass>dk.dma.ais.abnormal.web.AbnormalWebApp</mainClass>
                     <executable>maven</executable>
                     <arguments>
                         <argument>-featureData</argument>
