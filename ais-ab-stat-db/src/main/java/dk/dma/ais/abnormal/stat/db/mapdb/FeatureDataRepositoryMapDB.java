@@ -354,6 +354,19 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
     }
 
     @Override
+    public FeatureData getFeatureDataForRandomCell(String featureName) {
+        BTreeMap<Long, FeatureData> allCellDataForFeature;
+
+        if (readOnly) {
+            allCellDataForFeature = (BTreeMap<Long, FeatureData>) db.getAll().get(featureName);
+        } else {
+            allCellDataForFeature = db.createTreeMap(featureName).makeOrGet();
+        }
+
+        return allCellDataForFeature.get(allCellDataForFeature.firstKey());
+    }
+
+    @Override
     public Set<Long> getAllCellsWithData() {
         Set<Long> cellsWithData = new HashSet<>();
 

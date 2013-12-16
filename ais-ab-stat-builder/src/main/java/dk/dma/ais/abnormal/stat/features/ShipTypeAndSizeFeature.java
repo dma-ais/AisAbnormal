@@ -26,6 +26,7 @@ import dk.dma.ais.abnormal.stat.db.data.FeatureData2Key;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
+import dk.dma.ais.abnormal.util.Categorizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,8 +98,8 @@ public class ShipTypeAndSizeFeature implements Feature {
             return;
         }
 
-        short shipTypeBucket = mapShipTypeToBucket(shipType);
-        short shipSizeBucket = mapShipLengthToBucket(shipLength);
+        short shipTypeBucket = Categorizer.mapShipTypeToCategory(shipType);
+        short shipSizeBucket = Categorizer.mapShipLengthToCategory(shipLength);
 
         FeatureData featureDataTmp = featureDataRepository.getFeatureData(FEATURE_NAME, cellId);
         if (! (featureDataTmp instanceof FeatureData2Key)) {
@@ -115,48 +116,6 @@ public class ShipTypeAndSizeFeature implements Feature {
 
         // TODO expensive: appStatisticsService.setFeatureStatistics(this.getClass().getSimpleName(), "Cell count", featureDataRepository.getNumberOfCells(FEATURE_NAME));
         appStatisticsService.incFeatureStatistics(this.getClass().getSimpleName(), "Events processed ok");
-    }
-
-    private static short mapShipTypeToBucket(Integer shipType) {
-        short bucket = 8;
-        if (shipType>79 && shipType<90) {
-            bucket = 1;
-        } else if (shipType>69 && shipType<80) {
-            bucket = 2;
-        } else if ((shipType>39 && shipType<50) || (shipType>59 && shipType<70)) {
-            bucket = 3;
-        } else if ((shipType>30 && shipType<36) || (shipType>49 && shipType<56)) {
-            bucket = 4;
-        } else if (shipType == 30) {
-            bucket = 5;
-        } else if (shipType == 36 || shipType == 37) {    // TODO Class B
-            bucket = 6;
-        } else if ((shipType>0 && shipType<30) || (shipType>89 && shipType<100)) {
-            bucket = 7;
-        } else if (shipType == 0) {
-            bucket = 8;
-        }
-
-        return bucket;
-    }
-
-    private static short mapShipLengthToBucket(Integer shipLength) {
-        short bucket;
-        if (shipLength >= 0 && shipLength < 1) {
-            bucket = 1;
-        } else if (shipLength >= 1 && shipLength < 50) {
-            bucket = 2;
-        } else if (shipLength >= 50 && shipLength < 100) {
-            bucket = 3;
-        } else if (shipLength >= 100 && shipLength < 200) {
-            bucket = 4;
-        } else if (shipLength >= 200 && shipLength < 999) {
-            bucket = 5;
-        } else {
-            bucket = 6;
-        }
-
-        return bucket;
     }
 
 }

@@ -23,4 +23,5 @@ package dk.dma.ais.abnormal.analyzer;
  */
 
 public interface AppStatisticsService extends dk.dma.ais.abnormal.application.statistics.AppStatisticsService {
+    void incAnalysisStatistics(String analysis, String statistic);
 }

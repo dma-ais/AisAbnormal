@@ -19,6 +19,10 @@ import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Class for holding information on the file processing process
  */
@@ -27,8 +31,25 @@ public class AppStatisticsServiceImpl extends dk.dma.ais.abnormal.application.st
 
     private static final Logger LOG = LoggerFactory.getLogger(AppStatisticsServiceImpl.class);
 
+    private Map<String, HashMap<String, Long>> allAnalysisStatistics = new ConcurrentHashMap<>();
+
     public AppStatisticsServiceImpl() {
         LOG.info("AppStatisticsServiceImpl created (" + this + ").");
     }
 
+    @Override
+    public void incAnalysisStatistics(String analysisName, String statisticsName) {
+        HashMap<String, Long> analysisStatistics = (HashMap<String, Long>) this.allAnalysisStatistics.get(analysisName);
+        if (analysisStatistics == null) {
+            analysisStatistics = new HashMap<>();
+            this.allAnalysisStatistics.put(analysisName, analysisStatistics);
+        }
+        Long statistic = analysisStatistics.get(statisticsName);
+        if (statistic == null) {
+            statistic = 0L;
+            analysisStatistics.put(statisticsName, statistic);
+        }
+        statistic++;
+        analysisStatistics.put(statisticsName, statistic);
+    }
 }

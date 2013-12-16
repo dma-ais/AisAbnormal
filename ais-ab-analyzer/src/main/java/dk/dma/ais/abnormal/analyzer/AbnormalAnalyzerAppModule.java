@@ -21,6 +21,7 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.DatasetMetaData;
+import dk.dma.ais.abnormal.stat.db.data.FeatureData2Key;
 import dk.dma.ais.abnormal.stat.db.mapdb.FeatureDataRepositoryMapDB;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.TrackingServiceImpl;
@@ -30,8 +31,10 @@ import dk.dma.enav.model.geometry.grid.Grid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Set;
+
 public final class AbnormalAnalyzerAppModule extends AbstractModule {
-    private static Logger LOG = LoggerFactory.getLogger(AbnormalAnalyzerAppModule.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbnormalAnalyzerAppModule.class);
 
     private final String inputDirectory;
     private final String inputFilenamePattern;
@@ -62,6 +65,11 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
             featureDataRepository = new FeatureDataRepositoryMapDB(featureDataFilename);
             featureDataRepository.openForRead();
             LOG.info("Opened feature set database with filename '" + featureDataFilename + "' for read.");
+            if (!isValidFeatureDataRepositoryFormat(featureDataRepository)) {
+                LOG.error("Feature data repository is invalid. Analyses will be unreliable!");
+            } else {
+                LOG.info("Feature data repository is valid.");
+            }
         } catch (Exception e) {
             LOG.error("Failed to create or open FeatureDataRepository.", e);
         }
@@ -95,6 +103,49 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
             LOG.error("Failed to create Grid object", e);
         }
         return grid;
+    }
+
+    private static boolean isValidFeatureDataRepositoryFormat(FeatureDataRepository featureDataRepository) {
+        boolean valid = true;
+
+        // TODO Check format version no.
+
+        // Ensure that all expected features are present in the feature file
+        boolean containsFeatureShipSizeAndTypeFeature = false;
+        Set<String> featureNames = featureDataRepository.getFeatureNames();
+        for (String featureName : featureNames) {
+            if ("ShipTypeAndSizeFeature".equals(featureName)) {
+                containsFeatureShipSizeAndTypeFeature = true;
+            }
+        }
+
+        if (!containsFeatureShipSizeAndTypeFeature) {
+            LOG.error("Feature data do not contain data for feature \"ShipTypeAndSizeFeature\"");
+            valid = false;
+        }
+
+        // Check ShipTypeAndSizeFeature
+        FeatureData2Key shipSizeAndTypeFeature = (FeatureData2Key) featureDataRepository.getFeatureDataForRandomCell("ShipTypeAndSizeFeature");
+
+        if (! "FeatureData2Key".equals(shipSizeAndTypeFeature.getFeatureDataType())) {
+            LOG.error("ShipTypeAndSizeFeature: Not stored in the expected format. Cannot analyse against this feature.");
+            valid = false;
+        }
+
+        String meaningOfKey1 = shipSizeAndTypeFeature.getMeaningOfKey1();
+        String meaningOfKey2 = shipSizeAndTypeFeature.getMeaningOfKey2();
+        String expectedMeaningOfKey1 = "shipType";
+        String expectedMeaningOfKey2 = "shipSize";
+        if (! expectedMeaningOfKey1.equals(meaningOfKey1)) {
+            LOG.error("ShipTypeAndSizeFeature: Meaning of key 1 is " + meaningOfKey1 + "; not " + expectedMeaningOfKey1 + " as expected. Cannot analyse against this feature.");
+            valid = false;
+        }
+        if (! expectedMeaningOfKey2.equals(meaningOfKey2)) {
+            LOG.error("ShipTypeAndSizeFeature: Meaning of key 2 is " + meaningOfKey2 + "; not " + expectedMeaningOfKey2 + " as expected. Cannot analyse against this feature.");
+            valid = false;
+        }
+
+        return valid;
     }
 
 }

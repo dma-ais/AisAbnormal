@@ -29,8 +29,11 @@ public interface FeatureDataRepository {
     void putFeatureData(String featureName, long cellId, FeatureData featureData);
 
     Set<String> getFeatureNames();
+
     long getNumberOfCells(String featureName);
     Set<Long> getCellsWithData(String featureName);
+    FeatureData getFeatureDataForRandomCell(String featureName);
+
     Set<Long> getAllCellsWithData();
 
     void openForRead();

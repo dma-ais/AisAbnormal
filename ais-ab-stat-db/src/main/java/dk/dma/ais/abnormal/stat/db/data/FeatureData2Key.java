@@ -17,6 +17,7 @@
 package dk.dma.ais.abnormal.stat.db.data;
 
 import java.util.HashMap;
+import java.util.Set;
 import java.util.TreeMap;
 
 public class FeatureData2Key implements FeatureData {
@@ -47,6 +48,23 @@ public class FeatureData2Key implements FeatureData {
         }
 
         return statistics;
+    }
+
+    public Integer getSumFor(String statisticName) {
+        Integer sum = 0;
+        Set<Short> key1s = data.keySet();
+        for (Short key1 : key1s) {
+            TreeMap<Short, HashMap<String, Object>> level2 = data.get(key1);
+            Set<Short> key2s = level2.keySet();
+            for (Short key2 : key2s) {
+                HashMap<String, Object> stats = level2.get(key2);
+                Object statAsObject = stats.get(statisticName);
+                if (statAsObject instanceof Integer) {
+                    sum += (Integer) statAsObject;
+                }
+            }
+        }
+        return sum;
     }
 
     public Object getStatistic(Short key1, Short key2, String statisticName) {

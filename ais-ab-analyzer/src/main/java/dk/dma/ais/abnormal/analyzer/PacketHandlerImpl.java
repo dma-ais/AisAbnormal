@@ -52,8 +52,6 @@ public class PacketHandlerImpl implements PacketHandler {
     }
 
     public void accept(final AisPacket packet) {
-        LOG.debug("Packet received: " + packet);
-
         statisticsService.incUnfilteredPacketCount();
         // TODO no packet filtering yet
         statisticsService.incFilteredPacketCount();
