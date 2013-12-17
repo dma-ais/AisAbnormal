@@ -65,7 +65,7 @@ public class TrackingServiceImpl implements TrackingService {
             Long currentUpdate = timestamp.getTime();
 
             if (currentUpdate >= lastUpdate) {
-                updateGridId(track, aisMessage);
+                updateCellId(track, aisMessage);
                 updateShipType(track, aisMessage);
                 updateVesselLength(track, aisMessage);
             } else {
@@ -77,7 +77,7 @@ public class TrackingServiceImpl implements TrackingService {
         }
     }
 
-    private void updateGridId(Track track, AisMessage aisMessage) {
+    private void updateCellId(Track track, AisMessage aisMessage) {
         if (aisMessage instanceof IPositionMessage) {
             Long oldCellId = (Long) track.getProperty(Track.CELL_ID);
             Long newCellId;
@@ -97,7 +97,7 @@ public class TrackingServiceImpl implements TrackingService {
             } else {
                 track.removeProperty(Track.CELL_ID);
                 if (oldCellId != null) {
-                    eventBus.post(new CellIdChangedEvent(track, null));
+                    eventBus.post(new CellIdChangedEvent(track, oldCellId));
                 }
                 LOG.warn("Message type " + aisMessage.getMsgId()  + " contained no valid position: " + position.getRawLatitude() + ", " + position.getRawLongitude() + " (mmsi " + track.getMmsi() + ")");
             }

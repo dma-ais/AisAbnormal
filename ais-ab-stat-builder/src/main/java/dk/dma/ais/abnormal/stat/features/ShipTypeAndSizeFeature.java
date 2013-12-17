@@ -81,7 +81,7 @@ public class ShipTypeAndSizeFeature implements Feature {
         Integer shipLength = (Integer) track.getProperty(Track.VESSEL_LENGTH);
 
         if (cellId == null) {
-            LOG.warn("cellId is unexpectedly null (mmsi " + track.getMmsi() + ")");
+            LOG.debug("cellId is null - position is likely not valid (mmsi " + track.getMmsi() + ")");
             appStatisticsService.incFeatureStatistics(this.getClass().getSimpleName(), "Unknown mmsi");
             return;
         }
