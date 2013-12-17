@@ -29,8 +29,8 @@ public class FeatureData2Key implements FeatureData {
     private final String meaningOfKey1;
     private final String meaningOfKey2;
 
-    public FeatureData2Key(Class featureClass, String meaningOfKey1, String meaningOfKey2) {
-        this.featureClassName = featureClass.getCanonicalName();
+    public FeatureData2Key(String featureClassCanonicalName, String meaningOfKey1, String meaningOfKey2) {
+        this.featureClassName = featureClassCanonicalName;
         this.meaningOfKey1 = meaningOfKey1;
         this.meaningOfKey2 = meaningOfKey2;
     }

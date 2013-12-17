@@ -19,8 +19,6 @@ package dk.dma.ais.abnormal.stat;
 import dk.dma.ais.packet.AisPacket;
 import dk.dma.enav.util.function.Consumer;
 
-import java.io.PrintStream;
-
 public interface PacketHandler extends Consumer<AisPacket> {
     void cancel();
     AppStatisticsService getBuildStats();

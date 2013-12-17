@@ -32,17 +32,18 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 
-public class ShipTypeAndSizeAnalysis implements Analysis {
+public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
     private static final Logger LOG = LoggerFactory.getLogger(ShipTypeAndSizeAnalysis.class);
 
     private final AppStatisticsService statisticsService;
     private final TrackingService trackingService;
-    private final FeatureDataRepository featureDataRepository;
+    private static final int TOTAL_COUNT_THRESHOLD = 1; // TODO 1000
 
     @Inject
     public ShipTypeAndSizeAnalysis(AppStatisticsService statisticsService, FeatureDataRepository featureDataRepository, TrackingService trackingService) {
+        super(featureDataRepository);
+
         this.statisticsService = statisticsService;
-        this.featureDataRepository = featureDataRepository;
         this.trackingService = trackingService;
 
         trackingService.registerSubscriber(this);
@@ -99,33 +100,39 @@ public class ShipTypeAndSizeAnalysis implements Analysis {
      * @param shipSizeBucket
      * @return true if the presence of size/type in this cell is abnormal. False otherwise.
      */
-    private boolean isAbnormalCellForShipTypeAndSize(Long cellId, short shipTypeBucket, short shipSizeBucket) {
+    boolean isAbnormalCellForShipTypeAndSize(Long cellId, short shipTypeBucket, short shipSizeBucket) {
         float pd = 1.0f;
 
-        FeatureData shipSizeAndTypeFeature = featureDataRepository.getFeatureData("ShipTypeAndSizeFeature", cellId);
+        FeatureData shipSizeAndTypeFeature = getFeatureDataRepository().getFeatureData("ShipTypeAndSizeFeature", cellId);
 
         if (shipSizeAndTypeFeature instanceof FeatureData2Key) {
             Integer totalCount  = ((FeatureData2Key) shipSizeAndTypeFeature).getSumFor("shipCount");
-
-            if (totalCount > 1000) {
-                HashMap<String,Object> statistics = ((FeatureData2Key) shipSizeAndTypeFeature).getStatistics(shipSizeBucket, shipSizeBucket);
+            if (totalCount > TOTAL_COUNT_THRESHOLD) {
+                Integer shipCount = 0;
+                HashMap<String,Object> statistics = ((FeatureData2Key) shipSizeAndTypeFeature).getStatistics(shipTypeBucket, shipSizeBucket);
                 if (statistics != null) {
                     Object shipCountAsObject = statistics.get("shipCount");
                     if (shipCountAsObject instanceof Integer) {
-                        Integer shipCount = (Integer) shipCountAsObject;
-                        pd = shipCount / totalCount;
+                        shipCount = (Integer) shipCountAsObject;
                     }
                 }
+                pd = (float) shipCount / (float) totalCount;
+                LOG.debug("cellId=" + cellId + ", shipType=" + shipTypeBucket + ", shipSize=" + shipSizeBucket + ", shipCount=" + shipCount + ", totalCount=" + totalCount + ", pd=" + pd);
+            } else {
+                LOG.debug("totalCount of " + totalCount + " is not enough statistical data for cell " + cellId);
             }
-
         }
+
+        LOG.debug("pd = " + pd);
 
         boolean isAbnormalCellForShipTypeAndSize = pd < 0.001;
         if (isAbnormalCellForShipTypeAndSize) {
             LOG.debug("Abnormal event detected.");
         } else {
-            LOG.debug("Normal or indeterminate event detected.");
+            LOG.debug("Normal or inconclusive event detected.");
         }
+
+        statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Analyses performed");
 
         return isAbnormalCellForShipTypeAndSize;
     }

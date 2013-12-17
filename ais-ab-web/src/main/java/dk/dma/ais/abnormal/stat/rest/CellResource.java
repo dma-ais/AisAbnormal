@@ -194,10 +194,10 @@ public class CellResource {
 
         for (double lon = 12.0; lon < 12.50; lon += 0.05) {
             for (double lat = 56.0; lat < 56.50; lat += 0.05) {
-                FeatureData2Key feature1Data = new FeatureData2Key(this.getClass(), "shipType", "shipSize");
+                FeatureData2Key feature1Data = new FeatureData2Key(this.getClass().getCanonicalName(), "shipType", "shipSize");
                 feature1Data.setStatistic((short) 1, (short) 1, "stat1", (Integer) 7);
 
-                FeatureData2Key feature2Data = new FeatureData2Key(Integer.class, "prime", "square");
+                FeatureData2Key feature2Data = new FeatureData2Key(Integer.class.getCanonicalName(), "prime", "square");
                 feature2Data.setStatistic((short) 1, (short) 1, "statA", (Integer) 9);
                 feature2Data.setStatistic((short) 1, (short) 2, "statA", (Integer) 8);
                 feature2Data.setStatistic((short) 2, (short) 1, "statA", (Integer) 7);

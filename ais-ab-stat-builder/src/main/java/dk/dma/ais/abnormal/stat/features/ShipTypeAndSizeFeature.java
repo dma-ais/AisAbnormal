@@ -104,7 +104,7 @@ public class ShipTypeAndSizeFeature implements Feature {
         FeatureData featureDataTmp = featureDataRepository.getFeatureData(FEATURE_NAME, cellId);
         if (! (featureDataTmp instanceof FeatureData2Key)) {
             LOG.debug("No suitable feature data for cell id " + cellId + " found in repo. Creating new.");
-            featureDataTmp = new FeatureData2Key(this.getClass(), STATISTICS_KEY_1, STATISTICS_KEY_2);
+            featureDataTmp = new FeatureData2Key(this.getClass().getCanonicalName(), STATISTICS_KEY_1, STATISTICS_KEY_2);
         }
         FeatureData2Key featureData = (FeatureData2Key) featureDataTmp;
 

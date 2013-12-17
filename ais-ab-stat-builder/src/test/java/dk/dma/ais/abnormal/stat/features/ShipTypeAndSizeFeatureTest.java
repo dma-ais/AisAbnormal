@@ -107,7 +107,7 @@ public class ShipTypeAndSizeFeatureTest {
         // Setup expectations
         final ShipTypeAndSizeFeature feature = new ShipTypeAndSizeFeature(statisticsService, trackingService, featureDataRepository);
 
-        final FeatureData existingFeatureData = new FeatureData2Key(ShipTypeAndSizeFeature.class, ShipTypeAndSizeFeature.STATISTICS_KEY_1, ShipTypeAndSizeFeature.STATISTICS_KEY_2);
+        final FeatureData existingFeatureData = new FeatureData2Key(ShipTypeAndSizeFeature.class.getCanonicalName(), ShipTypeAndSizeFeature.STATISTICS_KEY_1, ShipTypeAndSizeFeature.STATISTICS_KEY_2);
         final TreeMap<Short, TreeMap<Short, HashMap<String,Object>>> existingData = (TreeMap<Short, TreeMap<Short, HashMap<String, Object>>>) existingFeatureData.getData();
         HashMap<String, Object> existingStatistics = new HashMap<String, Object>();
         existingStatistics.put(ShipTypeAndSizeFeature.STATISTICS_NAME, Integer.valueOf(1));

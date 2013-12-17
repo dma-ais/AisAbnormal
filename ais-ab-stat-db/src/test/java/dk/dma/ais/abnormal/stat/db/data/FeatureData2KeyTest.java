@@ -25,7 +25,7 @@ public class FeatureData2KeyTest {
 
     @Test
     public void canStoreAndRetrieveSingleStatistic() {
-        FeatureData2Key featureData = new FeatureData2Key(this.getClass(), "key1", "key2");
+        FeatureData2Key featureData = new FeatureData2Key(this.getClass().getCanonicalName(), "key1", "key2");
 
         featureData.setStatistic((short) 3, (short) 1, "testStat", 42);
 
@@ -38,7 +38,7 @@ public class FeatureData2KeyTest {
 
     @Test
     public void canIncrementInitializedStatistic() {
-        FeatureData2Key featureData = new FeatureData2Key(this.getClass(), "key1", "key2");
+        FeatureData2Key featureData = new FeatureData2Key(this.getClass().getCanonicalName(), "key1", "key2");
 
         featureData.setStatistic((short) 3, (short) 1, "testStat", 42);
         featureData.incrementStatistic((short) 3, (short) 1,"testStat");
@@ -48,13 +48,24 @@ public class FeatureData2KeyTest {
 
     @Test
     public void canIncrementUninitializedStatistic() {
-        FeatureData2Key featureData = new FeatureData2Key(this.getClass(), "key1", "key2");
+        FeatureData2Key featureData = new FeatureData2Key(this.getClass().getCanonicalName(), "key1", "key2");
         featureData.incrementStatistic((short) 3, (short) 1,"testStat");
         assertEquals(1, featureData.getStatistic((short) 3, (short) 1, "testStat"));
 
-        featureData = new FeatureData2Key(this.getClass(), "key1", "key2");
+        featureData = new FeatureData2Key(this.getClass().getCanonicalName(), "key1", "key2");
         featureData.incrementStatistic((short) 3, (short) 1,"testStat");
         featureData.incrementStatistic((short) 3, (short) 1,"testStat");
         assertEquals(2, featureData.getStatistic((short) 3, (short) 1, "testStat"));
+    }
+
+    @Test
+    public void canSumFor() {
+        FeatureData2Key featureData = new FeatureData2Key(this.getClass().getCanonicalName(), "testKey1", "testKey2");
+        featureData.setStatistic((short) 1, (short) 3, "shipCount", 17);
+        featureData.setStatistic((short) 2, (short) 3, "shipCount", 42);
+        featureData.setStatistic((short) 3, (short) 5, "shipCount", 22);
+        featureData.setStatistic((short) 4, (short) 7, "shipCount", 431);
+
+        assertEquals(17+42+22+431, (long) featureData.getSumFor("shipCount"));
     }
 }

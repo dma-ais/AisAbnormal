@@ -16,8 +16,6 @@
 
 package dk.dma.ais.abnormal.stat.features;
 
-import java.io.PrintStream;
-
 public interface Feature {
     /**
      * Start to listen for tracking events

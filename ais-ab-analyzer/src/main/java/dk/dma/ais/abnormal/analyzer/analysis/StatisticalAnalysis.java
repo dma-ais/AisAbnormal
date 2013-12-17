@@ -13,16 +13,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.ais.abnormal.analyzer;
 
-import org.junit.Ignore;
-import org.junit.Test;
+package dk.dma.ais.abnormal.analyzer.analysis;
 
-public class AbnormalAnalyzerAppTest {
-    
-    @Test @Ignore
-    public void appTest() throws Exception {
-        String[] args = new String[]{};
-        new AbnormalAnalyzerApp().execute(args);
+import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public abstract class StatisticalAnalysis implements Analysis {
+
+    private static final Logger LOG = LoggerFactory.getLogger(StatisticalAnalysis.class);
+    private final FeatureDataRepository featureDataRepository;
+
+    protected StatisticalAnalysis(FeatureDataRepository featureDataRepository) {
+        this.featureDataRepository = featureDataRepository;
     }
+
+    protected final FeatureDataRepository getFeatureDataRepository() {
+        return featureDataRepository;
+    }
+
+
 }

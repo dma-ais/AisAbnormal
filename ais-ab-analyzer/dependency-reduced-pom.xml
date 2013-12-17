@@ -45,6 +45,22 @@
   </build>
   <dependencies>
     <dependency>
+      <groupId>org.jmock</groupId>
+      <artifactId>jmock-junit4</artifactId>
+      <version>2.6.0</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>jmock</artifactId>
+          <groupId>org.jmock</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-dep</artifactId>
+          <groupId>junit</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.11</version>

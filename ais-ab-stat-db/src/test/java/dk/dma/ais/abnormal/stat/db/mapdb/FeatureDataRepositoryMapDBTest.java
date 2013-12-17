@@ -30,11 +30,11 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 public class FeatureDataRepositoryMapDBTest {
     static final Logger LOG = LoggerFactory.getLogger(FeatureDataRepositoryMapDB.class);
@@ -342,7 +342,7 @@ public class FeatureDataRepositoryMapDBTest {
     private static void writeTestDataToRepository(FeatureDataRepository featureDataRepository) {
         LOG.info("Generating " + N_PROD + " test data... ");
         for (long cellId = 0; cellId < NUM_CELLS; cellId++) {
-            FeatureData2Key featureData = new FeatureData2Key(FeatureDataRepositoryMapDBTest.class, "key1", "key2");
+            FeatureData2Key featureData = new FeatureData2Key(FeatureDataRepositoryMapDBTest.class.getCanonicalName(), "key1", "key2");
 
             for (short key1 = 0; key1 < N1; key1++) {
                 for (short key2 = 0; key2 < N2; key2++) {
