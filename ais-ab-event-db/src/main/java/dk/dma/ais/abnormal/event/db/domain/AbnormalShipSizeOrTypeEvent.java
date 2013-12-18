@@ -18,9 +18,12 @@ package dk.dma.ais.abnormal.event.db.domain;
 
 import com.google.common.base.Objects;
 
+import javax.persistence.Entity;
+
 /**
  * An event
  */
+@Entity
 public class AbnormalShipSizeOrTypeEvent extends Event {
 
     private int shipType;

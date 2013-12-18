@@ -17,6 +17,7 @@
 package dk.dma.ais.abnormal.analyzer.analysis;
 
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
+import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData2Key;
 import dk.dma.ais.abnormal.tracker.TrackingService;
@@ -40,6 +41,7 @@ public class ShipTypeAndSizeAnalysisTest {
     private TrackingService trackingService;
     private AppStatisticsService statisticsService;
     private FeatureDataRepository featureDataRepository;
+    private EventRepository eventRepository;
     private FeatureData2Key featureData;
 
     @Before
@@ -50,6 +52,7 @@ public class ShipTypeAndSizeAnalysisTest {
         trackingService = context.mock(TrackingService.class);
         statisticsService = context.mock(AppStatisticsService.class);
         featureDataRepository = context.mock(FeatureDataRepository.class);
+        eventRepository = context.mock(EventRepository.class);
 
         // Mock shipCount table
         featureData = new FeatureData2Key(this.getClass().getCanonicalName(), "testKey1", "testKey2");
@@ -77,7 +80,7 @@ public class ShipTypeAndSizeAnalysisTest {
         }});
 
         // Create object under test
-        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService);
+        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository);
 
         // Perform test
         boolean isAbnormalEvent = analysis.isAbnormalCellForShipTypeAndSize(testCellId, (short) 1, (short) 1);
@@ -105,7 +108,7 @@ public class ShipTypeAndSizeAnalysisTest {
         }});
 
         // Create object under test
-        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService);
+        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository);
 
         // Perform test
         boolean isAbnormalEvent = analysis.isAbnormalCellForShipTypeAndSize(testCellId, (short) 3, (short) 2);
@@ -133,7 +136,7 @@ public class ShipTypeAndSizeAnalysisTest {
         }});
 
         // Create object under test
-        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService);
+        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository);
 
         // Perform test
         boolean isAbnormalEvent = analysis.isAbnormalCellForShipTypeAndSize(testCellId, (short) 3, (short) 4);

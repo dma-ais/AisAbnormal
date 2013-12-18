@@ -21,15 +21,15 @@ import dk.dma.ais.abnormal.event.db.domain.Vessel;
 public class VesselBuilder {
 
     Vessel vessel;
-    AbnormalShipSizeOrTypeEventBuilder abnormalShipSizeOrTypeEventBuilder;
+    EventBuilder eventBuilder;
 
     public VesselBuilder() {
         vessel = new Vessel();
     }
 
-    public VesselBuilder(AbnormalShipSizeOrTypeEventBuilder abnormalShipSizeOrTypeEventBuilder) {
+    public VesselBuilder(EventBuilder eventBuilder) {
         vessel = new Vessel();
-        this.abnormalShipSizeOrTypeEventBuilder = abnormalShipSizeOrTypeEventBuilder;
+        this.eventBuilder = eventBuilder;
     }
 
     public static VesselBuilder Vessel(){

@@ -18,20 +18,28 @@ package dk.dma.ais.abnormal.event.db.domain;
 
 import com.google.common.collect.ImmutableSortedSet;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.SortedSet;
 
-import static java.util.Collections.sort;
-
+@Entity
 public class Behaviour {
 
     public Behaviour() {
-        positions = new ArrayList<>();
+        positions = new LinkedList<>(); //new ArrayList<>();
     }
 
     public SortedSet<Position> getPositions() {
-        sort(positions);
+        //sort(positions);
         return ImmutableSortedSet.copyOf(positions);
     }
 
@@ -39,7 +47,13 @@ public class Behaviour {
         positions.add(position);
     }
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
+
     @NotNull
-    private ArrayList<Position> positions;
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OrderBy("timestamp")
+    private List<Position> positions;
 
 }

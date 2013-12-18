@@ -30,11 +30,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AppStatisticsServiceImpl extends dk.dma.ais.abnormal.application.statistics.AppStatisticsServiceImpl implements AppStatisticsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AppStatisticsServiceImpl.class);
+    {
+        LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
+    }
 
     private Map<String, HashMap<String, Long>> allAnalysisStatistics = new ConcurrentHashMap<>();
 
     public AppStatisticsServiceImpl() {
-        LOG.info("AppStatisticsServiceImpl created (" + this + ").");
     }
 
     @Override

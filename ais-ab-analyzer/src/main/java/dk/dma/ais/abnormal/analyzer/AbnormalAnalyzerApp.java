@@ -34,6 +34,9 @@ public class AbnormalAnalyzerApp extends AbstractDaemon {
 
     /** The logger */
     static final Logger LOG = LoggerFactory.getLogger(AbnormalAnalyzerApp.class);
+    {
+        LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
+    }
 
     // TODO find a way to share injector stored in AbstractDmaApplication
     private static Injector injector;

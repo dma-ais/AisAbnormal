@@ -22,7 +22,7 @@ import dk.dma.ais.abnormal.event.db.domain.AbnormalShipSizeOrTypeEvent;
  * This builder follows the expression builder pattern
  * http://martinfowler.com/bliki/ExpressionBuilder.html
  */
-public class AbnormalShipSizeOrTypeEventBuilder {
+public class AbnormalShipSizeOrTypeEventBuilder extends EventBuilder {
 
     AbnormalShipSizeOrTypeEvent event;
 
@@ -34,11 +34,6 @@ public class AbnormalShipSizeOrTypeEventBuilder {
         return new AbnormalShipSizeOrTypeEventBuilder();
     }
 
-    public AbnormalShipSizeOrTypeEventBuilder description(String description){
-        event.setDescription(description);
-        return this;
-    }
-
     public AbnormalShipSizeOrTypeEventBuilder shipLength(int shipLength) {
         event.setShipLength(shipLength);
         return this;
@@ -47,12 +42,6 @@ public class AbnormalShipSizeOrTypeEventBuilder {
     public AbnormalShipSizeOrTypeEventBuilder shipType(int shipType) {
         event.setShipLength(shipType);
         return this;
-    }
-
-    public VesselBuilder vessel() {
-        VesselBuilder builder = new VesselBuilder(this);
-        event.setVessel(builder.getVessel());
-        return builder;
     }
 
     public AbnormalShipSizeOrTypeEvent getEvent() {

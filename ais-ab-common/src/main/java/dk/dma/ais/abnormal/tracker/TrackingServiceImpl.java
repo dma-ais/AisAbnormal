@@ -38,6 +38,9 @@ import java.util.HashMap;
 public class TrackingServiceImpl implements TrackingService {
 
     static final Logger LOG = LoggerFactory.getLogger(TrackingServiceImpl.class);
+    {
+        LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
+    }
 
     private EventBus eventBus = new EventBus();
 
@@ -47,9 +50,7 @@ public class TrackingServiceImpl implements TrackingService {
 
     @Inject
     public TrackingServiceImpl(Grid grid) {
-        LOG.debug("TrackingServiceImpl created.");
         eventBus.register(this);
-
         this.grid = grid;
     }
 

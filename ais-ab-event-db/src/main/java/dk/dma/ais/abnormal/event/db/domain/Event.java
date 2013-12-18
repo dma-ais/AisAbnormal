@@ -18,6 +18,13 @@ package dk.dma.ais.abnormal.event.db.domain;
 
 import com.google.common.base.Objects;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
 import java.util.Date;
@@ -29,7 +36,13 @@ import java.util.Date;
  * An Event is also related to at least one vessel. Some event types can be related to further vessels or to
  * other Events.
  */
+@Entity
 public abstract class Event {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
+
     /**
      * Time on which the event started.
      */
@@ -50,6 +63,7 @@ public abstract class Event {
      * The primary vessel involved the event and its behaviour.
      */
     @NotNull
+    @OneToOne(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
     private Vessel vessel;
 
     /**

@@ -20,7 +20,8 @@ import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
-import dk.dma.ais.abnormal.event.db.domain.AbnormalShipSizeOrTypeEvent;
+import dk.dma.ais.abnormal.event.db.EventRepository;
+import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData2Key;
@@ -39,17 +40,22 @@ import static dk.dma.ais.abnormal.event.db.domain.builders.AbnormalShipSizeOrTyp
 
 public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
     private static final Logger LOG = LoggerFactory.getLogger(ShipTypeAndSizeAnalysis.class);
+    {
+        LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
+    }
 
     private final AppStatisticsService statisticsService;
     private final TrackingService trackingService;
     private static final int TOTAL_COUNT_THRESHOLD = 1; // TODO 1000
+    private final EventRepository eventRepository;
 
     @Inject
-    public ShipTypeAndSizeAnalysis(AppStatisticsService statisticsService, FeatureDataRepository featureDataRepository, TrackingService trackingService) {
+    public ShipTypeAndSizeAnalysis(AppStatisticsService statisticsService, FeatureDataRepository featureDataRepository, TrackingService trackingService, EventRepository eventRepository) {
         super(featureDataRepository);
 
         this.statisticsService = statisticsService;
         this.trackingService = trackingService;
+        this.eventRepository = eventRepository;
 
         trackingService.registerSubscriber(this);
     }
@@ -71,19 +77,19 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
         String shipName = (String) track.getProperty(Track.SHIP_NAME);
 
         if (cellId == null) {
-            LOG.warn("cellId is unexpectedly null (mmsi " + mmsi + ")");
+            // LOG.warn("cellId is unexpectedly null (mmsi " + mmsi + ")");
             statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Unknown mmsi");
             return;
         }
 
         if (shipType == null) {
-            LOG.debug("shipType is null - probably no static data received yet (mmsi " + mmsi + ")");
+            // LOG.debug("shipType is null - probably no static data received yet (mmsi " + mmsi + ")");
             statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Unknown ship type");
             return;
         }
 
         if (shipLength == null) {
-            LOG.debug("shipLength is null - probably no static data received yet (mmsi " + mmsi + ")");
+            // LOG.debug("shipLength is null - probably no static data received yet (mmsi " + mmsi + ")");
             statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Unknown ship length");
             return;
         }
@@ -101,11 +107,12 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
             description.append(cellId);
             description.append(".");
 
-            AbnormalShipSizeOrTypeEvent event =
+            Event event =
             AbnormalShipSizeOrTypeEvent()
-                            .description(description.toString())
                             .shipType(shipType)
                             .shipLength(shipLength)
+                            .description(description.toString())
+                            .startTime(new Date())
                             .vessel()
                                 .mmsi(mmsi)
                                 .name(shipName)
@@ -114,9 +121,10 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
                                         .timestamp(new Date())
                                         .latitude(0)
                                         .longitude(0)
-                    .buildEvent();
+                            .buildEvent();
 
             LOG.debug("Abnormal event: " + event);
+            eventRepository.save(event);
         }
 
         statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events processed");

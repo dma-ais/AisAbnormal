@@ -19,6 +19,8 @@ package dk.dma.ais.abnormal.analyzer;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import dk.dma.ais.abnormal.event.db.EventRepository;
+import dk.dma.ais.abnormal.event.db.h2.H2EventRepository;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.DatasetMetaData;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData2Key;
@@ -35,6 +37,9 @@ import java.util.Set;
 
 public final class AbnormalAnalyzerAppModule extends AbstractModule {
     private static final Logger LOG = LoggerFactory.getLogger(AbnormalAnalyzerAppModule.class);
+    {
+        LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
+    }
 
     private final String inputDirectory;
     private final String inputFilenamePattern;
@@ -54,6 +59,7 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
         bind(AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
         bind(PacketHandler.class).to(PacketHandlerImpl.class).in(Singleton.class);
         bind(TrackingService.class).to(TrackingServiceImpl.class).in(Singleton.class);
+        bind(EventRepository.class).to(H2EventRepository.class).in(Singleton.class);
     }
 
     @Provides

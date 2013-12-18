@@ -37,7 +37,10 @@ import java.util.Set;
 public class PacketHandlerImpl implements PacketHandler {
 
     static final Logger LOG = LoggerFactory.getLogger(PacketHandler.class);
-    
+    {
+        LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
+    }
+
     private AppStatisticsService statisticsService;
     private TrackingService trackingService;
 
@@ -45,7 +48,6 @@ public class PacketHandlerImpl implements PacketHandler {
 
     @Inject
     public PacketHandlerImpl(AppStatisticsService statisticsService, TrackingService trackingService) {
-        LOG.info("AIS packet handler created (" + this + ").");
         this.statisticsService = statisticsService;
         this.trackingService = trackingService;
         initAnalyses();

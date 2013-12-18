@@ -16,7 +16,7 @@
 
 package dk.dma.ais.abnormal.event.db.domain.builders;
 
-import dk.dma.ais.abnormal.event.db.domain.AbnormalShipSizeOrTypeEvent;
+import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.Position;
 
 import java.util.Date;
@@ -58,7 +58,7 @@ public class PositionBuilder {
         return position;
     }
 
-    public AbnormalShipSizeOrTypeEvent buildEvent() {
-        return this.behaviourBuilder.vesselBuilder.abnormalShipSizeOrTypeEventBuilder.getEvent();
+    public Event buildEvent() {
+        return this.behaviourBuilder.vesselBuilder.eventBuilder.getEvent();
     }
 }

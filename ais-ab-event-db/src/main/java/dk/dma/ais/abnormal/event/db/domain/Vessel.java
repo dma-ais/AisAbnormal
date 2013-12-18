@@ -16,6 +16,14 @@
 
 package dk.dma.ais.abnormal.event.db.domain;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
+
+@Entity
 public class Vessel {
 
     public Vessel() {
@@ -61,10 +69,16 @@ public class Vessel {
         this.behaviour = behaviour;
     }
 
+    @Id
+    @GeneratedValue
+    private long id;
+
     private String name;
     private int mmsi;
     private int imo;
     private String callsign;
+
+    @OneToOne (fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Behaviour behaviour;
 
 }
