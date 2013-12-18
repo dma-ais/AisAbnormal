@@ -13,26 +13,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.ais.abnormal.event;
 
-import java.util.Date;
+package dk.dma.ais.abnormal.event.db.domain;
 
-import net.jcip.annotations.Immutable;
-import dk.dma.enav.model.geometry.Position;
-import dk.dma.enav.model.ship.ShipType;
+import com.google.common.collect.ImmutableSortedSet;
 
-@Immutable
-public class AbnormalEventCog extends AbnormalEvent {
-    
-    private final double cog;
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.SortedSet;
 
-    public AbnormalEventCog(Date time, long shipMmsi, String shipName, ShipType shipType, Position position, String description, double cog) {
-        super(time, shipMmsi, shipName, shipType, position, description);
-        this.cog = cog;
+import static java.util.Collections.sort;
+
+public class Behaviour {
+
+    public Behaviour() {
+        positions = new ArrayList<>();
     }
-    
-    public double getCog() {
-        return cog;
+
+    public SortedSet<Position> getPositions() {
+        sort(positions);
+        return ImmutableSortedSet.copyOf(positions);
     }
+
+    public void addPosition(Position position) {
+        positions.add(position);
+    }
+
+    @NotNull
+    private ArrayList<Position> positions;
 
 }

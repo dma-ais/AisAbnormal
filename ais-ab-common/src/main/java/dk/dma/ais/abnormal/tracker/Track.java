@@ -17,16 +17,21 @@
 package dk.dma.ais.abnormal.tracker;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public final class Track {
 
     public static final String TIMESTAMP = "lastUpdate";
+    public static final String POSITION = "position";
     public static final String CELL_ID = "cellId";
-    public static final String SHIP_TYPE = "shipType";
+    public static final String SHIP_TYPE = "vesselType";
     public static final String VESSEL_LENGTH = "vesselLength";
+    public static final String SHIP_NAME = "vesselName";
+    public static final String IMO = "imo";
+    public static final String CALLSIGN = "callsign";
 
     private final Integer mmsi;
-    private final HashMap<String, Object> properties = new HashMap<>(10);
+    private final Map<String, Object> properties = new HashMap<>(10);
 
     public Track(Long timestamp, Integer mmsi) {
         this.mmsi = mmsi;

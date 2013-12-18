@@ -33,5 +33,4 @@ public abstract class StatisticalAnalysis implements Analysis {
         return featureDataRepository;
     }
 
-
 }

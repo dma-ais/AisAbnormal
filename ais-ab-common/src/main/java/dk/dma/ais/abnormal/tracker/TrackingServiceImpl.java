@@ -57,7 +57,7 @@ public class TrackingServiceImpl implements TrackingService {
     public void update(Date timestamp, AisMessage aisMessage) {
         final AisTargetType targetType = aisMessage.getTargetType();
 
-        Integer mmsi = aisMessage.getUserId();
+        int mmsi = aisMessage.getUserId();
         if (targetType == AisTargetType.A || targetType == AisTargetType.B) {
             Track track = getOrCreateTrack(timestamp, mmsi);
 
@@ -65,6 +65,10 @@ public class TrackingServiceImpl implements TrackingService {
             Long currentUpdate = timestamp.getTime();
 
             if (currentUpdate >= lastUpdate) {
+                updateVesselName(track, aisMessage);
+                updateImo(track, aisMessage);
+                updateCallsign(track, aisMessage);
+                updatePosition(track, aisMessage);
                 updateCellId(track, aisMessage);
                 updateShipType(track, aisMessage);
                 updateVesselLength(track, aisMessage);
@@ -77,21 +81,58 @@ public class TrackingServiceImpl implements TrackingService {
         }
     }
 
+    private void updateVesselName(Track track, AisMessage aisMessage) {
+        if (aisMessage instanceof AisMessage5) {
+            AisMessage5 aisMessage5 = (AisMessage5) aisMessage;
+            String name = aisMessage5.getName();
+            track.setProperty(Track.SHIP_NAME, name);
+        }
+    }
+
+    private void updateImo(Track track, AisMessage aisMessage) {
+        if (aisMessage instanceof AisMessage5) {
+            AisMessage5 aisMessage5 = (AisMessage5) aisMessage;
+            long imo = aisMessage5.getImo();
+            track.setProperty(Track.IMO, imo);
+        }
+    }
+
+    private void updateCallsign(Track track, AisMessage aisMessage) {
+        if (aisMessage instanceof AisMessage5) {
+            AisMessage5 aisMessage5 = (AisMessage5) aisMessage;
+            String callsign = aisMessage5.getCallsign();
+            track.setProperty(Track.CALLSIGN, callsign);
+        }
+    }
+
+    private void updatePosition(Track track, AisMessage aisMessage) {
+        if (aisMessage instanceof IPositionMessage) {
+            IPositionMessage positionMessage = (IPositionMessage) aisMessage;
+            AisPosition aisPosition = positionMessage.getPos();
+            Position position = aisPosition.getGeoLocation();
+            if (position != null) {
+                track.setProperty(Track.POSITION, position);
+            } else {
+                track.removeProperty(Track.POSITION);
+            }
+        }
+    }
+
     private void updateCellId(Track track, AisMessage aisMessage) {
         if (aisMessage instanceof IPositionMessage) {
             Long oldCellId = (Long) track.getProperty(Track.CELL_ID);
             Long newCellId;
 
             IPositionMessage positionMessage = (IPositionMessage) aisMessage;
-            AisPosition position = positionMessage.getPos();
-            Position geoLocation = position.getGeoLocation();
-            if (geoLocation != null) {
-                Cell cell = grid.getCell(position.getGeoLocation());
+            AisPosition aisPosition = positionMessage.getPos();
+            Position position = aisPosition.getGeoLocation();
+            if (position != null) {
+                Cell cell = grid.getCell(aisPosition.getGeoLocation());
                 newCellId = cell.getCellId();
                 track.setProperty(Track.CELL_ID, newCellId);
                 if ( (oldCellId == null && newCellId != null) ||
-                     (oldCellId != null && newCellId == null) ||
-                     (oldCellId != null && newCellId != null && !oldCellId.equals(newCellId))) {
+                        (oldCellId != null && newCellId == null) ||
+                        (oldCellId != null && newCellId != null && !oldCellId.equals(newCellId))) {
                     eventBus.post(new CellIdChangedEvent(track, oldCellId));
                 }
             } else {
@@ -99,7 +140,7 @@ public class TrackingServiceImpl implements TrackingService {
                 if (oldCellId != null) {
                     eventBus.post(new CellIdChangedEvent(track, oldCellId));
                 }
-                LOG.warn("Message type " + aisMessage.getMsgId()  + " contained no valid position: " + position.getRawLatitude() + ", " + position.getRawLongitude() + " (mmsi " + track.getMmsi() + ")");
+                LOG.warn("Message type " + aisMessage.getMsgId()  + " contained no valid position: " + aisPosition.getRawLatitude() + ", " + aisPosition.getRawLongitude() + " (mmsi " + track.getMmsi() + ")");
             }
         }
     }

@@ -1,29 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
+    <parent>
+        <groupId>dk.dma.ais.abnormal</groupId>
+        <artifactId>ais-ab-parent</artifactId>
+        <version>0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
     <groupId>dk.dma.ais.abnormal</groupId>
-    <artifactId>ais-ab-parent</artifactId>
-    <version>0.1-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
+    <artifactId>ais-ab-event-db</artifactId>
+    <packaging>jar</packaging>
+    <name>AisAbnormal Event DB</name>
+    <description>AisAbnormal event db module</description>
 
-  <groupId>dk.dma.ais.abnormal</groupId>
-  <artifactId>ais-ab-event-db</artifactId>
-  <packaging>jar</packaging>
-  <name>AisAbnormal Event DB</name>
-  <description>AisAbnormal event db module</description>
+    <dependencies>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>1.1.0.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>15.0</version>
+        </dependency>
+        <dependency>
+            <groupId>dk.dma.ais.abnormal</groupId>
+            <artifactId>ais-ab-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dk.dma.enav</groupId>
+            <artifactId>enav-model</artifactId>
+        </dependency>
+    </dependencies>
 
-  <dependencies>
-    <dependency>
-      <groupId>dk.dma.ais.abnormal</groupId>
-      <artifactId>ais-ab-common</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>dk.dma.enav</groupId>
-      <artifactId>enav-model</artifactId>
-    </dependency>
-  </dependencies>
-  
 </project>

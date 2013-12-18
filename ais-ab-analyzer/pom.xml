@@ -36,6 +36,10 @@
         </dependency>
         <dependency>
             <groupId>dk.dma.ais.abnormal</groupId>
+            <artifactId>ais-ab-event-db</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dk.dma.ais.abnormal</groupId>
             <artifactId>ais-ab-stat-db</artifactId>
         </dependency>
         <dependency>
