@@ -19,7 +19,7 @@ package dk.dma.ais.abnormal.event.db;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.Vessel;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * Database-agnostic interface for the Event repository.
@@ -28,6 +28,6 @@ import java.util.Set;
 public interface EventRepository {
     void save(Event event);
 
-    Set<Event> findActiveEventsByVessel(Vessel vessel);
-    boolean hasActiveEvent(Vessel vessel, Class<? extends Event> eventClass);
+    List<Event> findOngoingEventsByVessel(Vessel vessel);
+    List<Event> findOngoingEventByVessel(Vessel vessel, Class<? extends Event> eventClass);
 }

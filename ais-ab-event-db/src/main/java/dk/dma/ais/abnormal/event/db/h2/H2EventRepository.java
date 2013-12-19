@@ -14,7 +14,6 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 package dk.dma.ais.abnormal.event.db.h2;
 
 import dk.dma.ais.abnormal.event.db.EventRepository;
@@ -22,8 +21,10 @@ import dk.dma.ais.abnormal.event.db.domain.AbnormalShipSizeOrTypeEvent;
 import dk.dma.ais.abnormal.event.db.domain.Behaviour;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.Position;
+import dk.dma.ais.abnormal.event.db.domain.SuddenSpeedChangeEvent;
 import dk.dma.ais.abnormal.event.db.domain.Vessel;
 import dk.dma.ais.abnormal.event.db.domain.VesselId;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -32,8 +33,10 @@ import org.hibernate.service.ServiceRegistryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
+import java.io.File;
+import java.util.List;
 
+@SuppressWarnings("JpaQlInspection")
 public class H2EventRepository implements EventRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(H2EventRepository.class);
@@ -42,13 +45,16 @@ public class H2EventRepository implements EventRepository {
     }
 
     private final SessionFactory sessionFactory;
+    private final boolean readonly;
 
-    public H2EventRepository() {
+    public H2EventRepository(File dbFilename, boolean readonly) {
+        this.readonly = readonly;
+
         try{
             LOG.debug("Loading Hibernate configuration.");
             Configuration configuration = new Configuration()
                     .setProperty("hibernate.connection.driver_class", "org.h2.Driver")
-                    .setProperty("hibernate.connection.url", "jdbc:h2:./db/repository")
+                    .setProperty("hibernate.connection.url", "jdbc:h2:" + dbFilename.getAbsolutePath())
                     .setProperty("hibernate.connection.username", "sa")
                     .setProperty("hibernate.connection.password", "")
                     .setProperty("hibernate.default_schema", "PUBLIC")
@@ -57,6 +63,7 @@ public class H2EventRepository implements EventRepository {
                     .setProperty("hibernate.hbm2ddl.auto", "update")
                     .setProperty("hibernate.order_updates", "true")
                     .addAnnotatedClass(AbnormalShipSizeOrTypeEvent.class)
+                    .addAnnotatedClass(SuddenSpeedChangeEvent.class)
                     .addAnnotatedClass(Vessel.class)
                     .addAnnotatedClass(VesselId.class)
                     .addAnnotatedClass(Behaviour.class)
@@ -67,6 +74,15 @@ public class H2EventRepository implements EventRepository {
             LOG.info("Starting Hibernate.");
             sessionFactory = configuration.buildSessionFactory(serviceRegistry);
             LOG.info("Hibernate started.");
+
+            Session session = getSession();
+            try {
+                List<Number> list = session.createQuery("SELECT count(*) FROM Event").list();
+                Number number = list.get(0);
+                LOG.info("Connected to an event database containing " + number + " events.");
+            } finally {
+                session.close();
+            }
 
         }catch (Throwable ex) {
             System.err.println("Failed to create sessionFactory object." + ex);
@@ -80,28 +96,62 @@ public class H2EventRepository implements EventRepository {
         sessionFactory.close();
     }
 
+    private Session getSession() {
+        Session session = sessionFactory.openSession();
+        if (readonly) {
+            session.setDefaultReadOnly(true);
+        }
+        return session;
+    }
+
     @Override
     public void save(Event event) {
-        Session session = sessionFactory.openSession();
+        Session session = getSession();
         session.beginTransaction();
         session.save(event);
         session.getTransaction().commit();
     }
 
     @Override
-    public Set<Event> findActiveEventsByVessel(Vessel vessel) {
-        return null;
-    }
+    public List<Event> findOngoingEventsByVessel(Vessel vessel) {
+        Session session = getSession();
+        session.beginTransaction();
 
-    //@Override
-    public Set<Event> findOngoingEventByVessel(Vessel vessel, Class<? extends Event> eventClass) {
-        // TODO
-        return null;
+        List events = null;
+        try {
+            Query query = session.createQuery("SELECT e FROM Event e WHERE e.state=:state AND e.behaviour.vessel.id.name=:name AND e.behaviour.vessel.id.callsign=:callsign AND e.behaviour.vessel.id.imo=:imo AND e.behaviour.vessel.id.mmsi=:mmsi");
+            query.setString("state", "ONGOING");
+            query.setString("name", vessel.getId().getName());
+            query.setString("callsign", vessel.getId().getCallsign());
+            query.setInteger("imo", vessel.getId().getImo());
+            query.setInteger("mmsi", vessel.getId().getMmsi());
+            events = query.list();
+        } finally {
+            session.close();
+        }
+
+        return events;
     }
 
     @Override
-    public boolean hasActiveEvent(Vessel vessel, Class<? extends Event> eventClass) {
-        // TODO
-        return false;
+    public List<Event> findOngoingEventByVessel(Vessel vessel, Class<? extends Event> eventClass) {
+        Session session = getSession();
+        session.beginTransaction();
+
+        List events = null;
+        try {
+            Query query = session.createQuery("SELECT e FROM Event e WHERE TYPE(e)=:class AND e.state=:state AND e.behaviour.vessel.id.name=:name AND e.behaviour.vessel.id.callsign=:callsign AND e.behaviour.vessel.id.imo=:imo AND e.behaviour.vessel.id.mmsi=:mmsi");
+            query.setParameter("class", eventClass);
+            query.setString("state", "ONGOING");
+            query.setString("name", vessel.getId().getName());
+            query.setString("callsign", vessel.getId().getCallsign());
+            query.setInteger("imo", vessel.getId().getImo());
+            query.setInteger("mmsi", vessel.getId().getMmsi());
+            events = query.list();
+        } finally {
+            session.close();
+        }
+
+        return events;
     }
 }
