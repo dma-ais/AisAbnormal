@@ -20,6 +20,8 @@ import com.google.common.base.Objects;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -42,6 +44,13 @@ public abstract class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
+
+    /**
+     * State of the event.
+     */
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private State state = State.ONGOING;
 
     /**
      * Time on which the event started.
@@ -72,6 +81,18 @@ public abstract class Event {
     private String description;
 
     protected Event() {
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
     }
 
     public Date getStartTime() {
@@ -115,4 +136,10 @@ public abstract class Event {
                 .add("description", description)
                 .toString();
     }
+
+    public enum State {
+        ONGOING,
+        PAST;
+    };
+
 }

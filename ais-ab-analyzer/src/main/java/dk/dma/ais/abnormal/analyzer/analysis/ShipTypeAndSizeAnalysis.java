@@ -69,6 +69,7 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
 
         Track track = trackEvent.getTrack();
 
+        Date timestamp = new Date((Long) track.getProperty(Track.TIMESTAMP));
         Integer mmsi = trackEvent.getTrack().getMmsi();
         Position position = (Position) trackEvent.getTrack().getProperty(Track.POSITION);
         Long cellId = (Long) trackEvent.getTrack().getProperty(Track.CELL_ID);
@@ -95,32 +96,31 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
         }
 
         short shipTypeBucket = Categorizer.mapShipTypeToCategory(shipType);
-        short shipSizeBucket = Categorizer.mapShipLengthToCategory(shipLength);
+        short shipLengthBucket = Categorizer.mapShipLengthToCategory(shipLength);
 
-        if (isAbnormalCellForShipTypeAndSize(cellId, shipTypeBucket, shipSizeBucket)) {
+        if (isAbnormalCellForShipTypeAndSize(cellId, shipTypeBucket, shipLengthBucket)) {
             StringBuffer description = new StringBuffer(64);
             description.append("Vessel of type ");
             description.append(shipType);
             description.append(" and length ");
-            description.append(shipSizeBucket);
+            description.append(shipLength);
             description.append(" is abnormal for cell ");
             description.append(cellId);
-            description.append(".");
 
             Event event =
             AbnormalShipSizeOrTypeEvent()
-                            .shipType(shipType)
-                            .shipLength(shipLength)
+                            .shipType(shipTypeBucket)
+                            .shipLength(shipLengthBucket)
                             .description(description.toString())
-                            .startTime(new Date())
+                            .startTime(timestamp)
                             .vessel()
                                 .mmsi(mmsi)
                                 .name(shipName)
                                 .behaviour()
                                     .position()
-                                        .timestamp(new Date())
-                                        .latitude(0)
-                                        .longitude(0)
+                                        .timestamp(timestamp)
+                                        .latitude(position.getLatitude())
+                                        .longitude(position.getLongitude())
                             .buildEvent();
 
             LOG.debug("Abnormal event: " + event);

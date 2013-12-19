@@ -23,7 +23,7 @@ import dk.dma.ais.abnormal.event.db.domain.Behaviour;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.Position;
 import dk.dma.ais.abnormal.event.db.domain.Vessel;
-import dk.dma.ais.abnormal.event.db.domain.builders.AbnormalShipSizeOrTypeEventBuilder;
+import dk.dma.ais.abnormal.event.db.domain.VesselId;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -32,7 +32,7 @@ import org.hibernate.service.ServiceRegistryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
+import java.util.Set;
 
 public class H2EventRepository implements EventRepository {
 
@@ -58,6 +58,7 @@ public class H2EventRepository implements EventRepository {
                     .setProperty("hibernate.order_updates", "true")
                     .addAnnotatedClass(AbnormalShipSizeOrTypeEvent.class)
                     .addAnnotatedClass(Vessel.class)
+                    .addAnnotatedClass(VesselId.class)
                     .addAnnotatedClass(Behaviour.class)
                     .addAnnotatedClass(Position.class);
             ServiceRegistryBuilder serviceRegistryBuilder = new ServiceRegistryBuilder();
@@ -83,25 +84,19 @@ public class H2EventRepository implements EventRepository {
     public void save(Event event) {
         Session session = sessionFactory.openSession();
         session.beginTransaction();
-
-         event =
-                AbnormalShipSizeOrTypeEventBuilder.AbnormalShipSizeOrTypeEvent()
-                        .shipType(7)
-                        .shipLength(6)
-                        .description("cxx".toString())
-                        .startTime(new Date())
-                        .vessel()
-                        .mmsi(4324)
-                        .name("jgjhgjh")
-                        .behaviour()
-                        .position()
-                        .timestamp(new Date())
-                        .latitude(0)
-                        .longitude(0)
-                        .buildEvent();
-
-
         session.save(event);
         session.getTransaction().commit();
+    }
+
+    @Override
+    public Set<Event> findActiveEventsByVessel(Vessel vessel) {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public boolean hasActiveEvent(Vessel vessel, Class<? extends Event> eventClass) {
+        // TODO
+        return false;
     }
 }

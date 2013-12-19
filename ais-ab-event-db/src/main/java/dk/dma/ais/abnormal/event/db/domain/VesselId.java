@@ -16,39 +16,46 @@
 
 package dk.dma.ais.abnormal.event.db.domain;
 
-import javax.persistence.CascadeType;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.OneToOne;
+import javax.persistence.Embeddable;
 import java.io.Serializable;
 
-@Entity
-public class Vessel implements Serializable {
+@Embeddable
+public class VesselId implements Serializable {
 
-    public Vessel() {
-        id = new VesselId();
-        id.setCallsign("TEST");
-        id.setImo(1234);
-        id.setName("TESTNAME");
+    private String name;
+    private int mmsi;
+    private int imo;
+    private String callsign;
+
+    public String getName() {
+        return name;
     }
 
-    public VesselId getId() {
-        return id;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public Behaviour getBehaviour() {
-        return behaviour;
+    public int getMmsi() {
+        return mmsi;
     }
 
-    public void setBehaviour(Behaviour behaviour) {
-        this.behaviour = behaviour;
+    public void setMmsi(int mmsi) {
+        this.mmsi = mmsi;
     }
 
-    @EmbeddedId
-    private VesselId id;
+    public int getImo() {
+        return imo;
+    }
 
-    @OneToOne (fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Behaviour behaviour;
+    public void setImo(int imo) {
+        this.imo = imo;
+    }
 
+    public String getCallsign() {
+        return callsign;
+    }
+
+    public void setCallsign(String callsign) {
+        this.callsign = callsign;
+    }
 }

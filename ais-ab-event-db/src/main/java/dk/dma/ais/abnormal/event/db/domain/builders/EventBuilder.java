@@ -29,6 +29,11 @@ public abstract class EventBuilder {
         return this;
     }
 
+    public EventBuilder state(Event.State state) {
+        getEvent().setState(state);
+        return this;
+    }
+
     public EventBuilder description(String description){
         getEvent().setDescription(description);
         return this;

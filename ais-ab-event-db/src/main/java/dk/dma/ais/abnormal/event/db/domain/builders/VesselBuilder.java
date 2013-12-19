@@ -37,22 +37,22 @@ public class VesselBuilder {
     }
 
     public VesselBuilder name(String name){
-        vessel.setName(name);
+        vessel.getId().setName(name);
         return this;
     }
 
     public VesselBuilder callsign(String callsign){
-        vessel.setCallsign(callsign);
+        vessel.getId().setCallsign(callsign);
         return this;
     }
 
     public VesselBuilder imo(int imo){
-        vessel.setImo(imo);
+        vessel.getId().setImo(imo);
         return this;
     }
 
     public VesselBuilder mmsi(int mmsi){
-        vessel.setMmsi(mmsi);
+        vessel.getId().setMmsi(mmsi);
         return this;
     }
 

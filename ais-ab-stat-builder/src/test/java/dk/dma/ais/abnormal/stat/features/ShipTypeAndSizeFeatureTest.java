@@ -44,7 +44,7 @@ public class ShipTypeAndSizeFeatureTest {
         final FeatureDataRepository featureDataRepository = context.mock(FeatureDataRepository.class);
 
         // Setup test data
-        final Track track = new Track(1386832929000L, 1234567);
+        final Track track = new Track(1234567);
         track.setProperty(Track.CELL_ID, 5674365784L);
         track.setProperty(Track.SHIP_TYPE, 40);
         track.setProperty(Track.VESSEL_LENGTH, 75);
@@ -97,7 +97,7 @@ public class ShipTypeAndSizeFeatureTest {
         final FeatureDataRepository featureDataRepository = context.mock(FeatureDataRepository.class);
 
         // Setup test data
-        final Track track = new Track(1386832929000L, 1234567);
+        final Track track = new Track(1234567);
         track.setProperty(Track.CELL_ID, 5674365784L);
         track.setProperty(Track.SHIP_TYPE, 40);
         track.setProperty(Track.VESSEL_LENGTH, 75);

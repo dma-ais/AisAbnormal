@@ -39,12 +39,12 @@ public class PositionBuilder {
         return new PositionBuilder();
     }
 
-    public PositionBuilder latitude(float latitude) {
+    public PositionBuilder latitude(double latitude) {
         position.setLatitude(latitude);
         return this;
     }
 
-    public PositionBuilder longitude(float longitude) {
+    public PositionBuilder longitude(double longitude) {
         position.setLongitude(longitude);
         return this;
     }

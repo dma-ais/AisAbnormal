@@ -40,7 +40,7 @@ public class AbnormalShipSizeOrTypeEventBuilder extends EventBuilder {
     }
 
     public AbnormalShipSizeOrTypeEventBuilder shipType(int shipType) {
-        event.setShipLength(shipType);
+        event.setShipType(shipType);
         return this;
     }
 

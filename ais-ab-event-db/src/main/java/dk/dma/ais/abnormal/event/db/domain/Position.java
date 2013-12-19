@@ -35,10 +35,10 @@ public class Position implements Comparable<Position> {
     private long id;
 
     @NotNull
-    private float latitude;
+    private double latitude;
 
     @NotNull
-    private float longitude;
+    private double longitude;
 
     @NotNull
     @Past
@@ -47,19 +47,19 @@ public class Position implements Comparable<Position> {
     public Position() {
     }
 
-    public float getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(float latitude) {
+    public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
-    public float getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(float longitude) {
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 
