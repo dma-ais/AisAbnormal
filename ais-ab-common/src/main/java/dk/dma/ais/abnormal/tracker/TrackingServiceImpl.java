@@ -43,10 +43,8 @@ public class TrackingServiceImpl implements TrackingService {
     }
 
     private EventBus eventBus = new EventBus();
-
-    private final HashMap<Integer, Track> tracks = new HashMap<>(256);
-
-    private final Grid grid;
+    final HashMap<Integer, Track> tracks = new HashMap<>(256);
+    final Grid grid;
 
     @Inject
     public TrackingServiceImpl(Grid grid) {
@@ -60,11 +58,17 @@ public class TrackingServiceImpl implements TrackingService {
 
         int mmsi = aisMessage.getUserId();
         if (targetType == AisTargetType.A || targetType == AisTargetType.B) {
-            Track track = getOrCreateTrack(timestamp, mmsi);
+            Track track = getOrCreateTrack(mmsi);
 
+            // Manage timestamps
             Long lastUpdate = (Long) track.getProperty(Track.TIMESTAMP);
+            if (lastUpdate == null) {
+                lastUpdate = 0L;
+            }
             Long currentUpdate = timestamp.getTime();
+            updateTimestamp(track, currentUpdate);
 
+            // Perform track updates
             if (currentUpdate >= lastUpdate) {
                 updateVesselName(track, aisMessage);
                 updateImo(track, aisMessage);
@@ -80,6 +84,10 @@ public class TrackingServiceImpl implements TrackingService {
         } else {
             LOG.debug("Tracker does not support target type " + targetType + " (mmsi " + mmsi + ")");
         }
+    }
+
+    private void updateTimestamp(Track track, Long timestampMillis) {
+        track.setProperty(Track.TIMESTAMP, timestampMillis);
     }
 
     private void updateVesselName(Track track, AisMessage aisMessage) {
@@ -165,10 +173,10 @@ public class TrackingServiceImpl implements TrackingService {
         }
     }
 
-    private Track getOrCreateTrack(Date timestamp, Integer mmsi) {
+    private Track getOrCreateTrack(int mmsi) {
         Track track = tracks.get(mmsi);
         if (track == null) {
-            track = new Track(timestamp.getTime(), mmsi);
+            track = new Track(mmsi);
             tracks.put(mmsi, track);
         }
         return track;

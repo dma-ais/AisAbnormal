@@ -31,8 +31,11 @@ import org.junit.Test;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class TrackingServiceTest {
 
@@ -189,6 +192,49 @@ public class TrackingServiceTest {
         assertEquals(Integer.valueOf(1), tracker.getNumberOfTracks());
     }
 
+    /**
+     *  Test that Track.setProperty(Track.TIMESTAMP, ...) is called on every update
+     */
+    @Test
+    public void testTrackTimestampIsUpdatedOnUpdates() {
+        // Create object under test
+        final TrackingServiceImpl tracker = new TrackingServiceImpl(grid);
+
+        // Prepare test data
+        Position startingPosition = Position.create((55.33714285714286 + 55.33624454148472) / 2, (11.039401122894573 + 11.040299438552713) / 2);
+        dk.dma.ais.message.AisPosition aisStartingPosition = new AisPosition(startingPosition);
+        AisMessage3 firstPositionMessage = getAisMessage3(aisStartingPosition);
+
+        Date firstTimestamp = new Date(System.currentTimeMillis());
+
+        // Execute test
+        tracker.update(firstTimestamp, firstPositionMessage);
+
+        // Assert results
+        Set<Integer> keys = tracker.tracks.keySet();
+        assertNotNull(keys);
+        assertEquals(1, keys.size());
+        Integer key = keys.iterator().next();
+        assertNotNull(key);
+        Object trackTimestamp = tracker.tracks.get(key).getProperty(Track.TIMESTAMP);
+        assertTrue(trackTimestamp instanceof Long);
+        assertEquals(trackTimestamp, firstTimestamp.getTime());
+
+        // Update track with newer timestamp - then test again
+        Date secondTimestamp = new Date(firstTimestamp.getTime() + 600);
+        tracker.update(secondTimestamp, firstPositionMessage);
+
+        // Assert results
+        keys = tracker.tracks.keySet();
+        assertNotNull(keys);
+        assertEquals(1, keys.size());
+        key = keys.iterator().next();
+        assertNotNull(key);
+        trackTimestamp = tracker.tracks.get(key).getProperty(Track.TIMESTAMP);
+        assertTrue(trackTimestamp instanceof Long);
+        assertEquals(trackTimestamp, secondTimestamp.getTime());
+    }
+
     private static AisMessage3 cloneAisMessage3(AisMessage3 msgToClone) {
         AisMessage3 message = new AisMessage3();
         message.setCog(msgToClone.getCog());
@@ -214,10 +260,6 @@ public class TrackingServiceTest {
         message5.setCallsign("OY1234");
         message5.setImo(1234567);
         return message5;
-    }
-
-    @Test
-    public void testGridChangeEventsNotEmittedForMovementsInsideCell() {
     }
 
     public class TestSubscriber {

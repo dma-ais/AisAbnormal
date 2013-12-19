@@ -33,9 +33,8 @@ public final class Track {
     private final Integer mmsi;
     private final Map<String, Object> properties = new HashMap<>(10);
 
-    public Track(Long timestamp, Integer mmsi) {
+    public Track(Integer mmsi) {
         this.mmsi = mmsi;
-        setProperty(TIMESTAMP, timestamp);
     }
 
     public Integer getMmsi() {
