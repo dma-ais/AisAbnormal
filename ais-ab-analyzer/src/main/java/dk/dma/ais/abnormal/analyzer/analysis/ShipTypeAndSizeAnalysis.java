@@ -113,14 +113,14 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
                             .shipLength(shipLengthBucket)
                             .description(description.toString())
                             .startTime(timestamp)
-                            .vessel()
-                                .mmsi(mmsi)
-                                .name(shipName)
-                                .behaviour()
-                                    .position()
-                                        .timestamp(timestamp)
-                                        .latitude(position.getLatitude())
-                                        .longitude(position.getLongitude())
+                            .behaviour()
+                                .vessel()
+                                    .mmsi(mmsi)
+                                    .name(shipName)
+                                .position()
+                                    .timestamp(timestamp)
+                                    .latitude(position.getLatitude())
+                                    .longitude(position.getLongitude())
                             .buildEvent();
 
             LOG.debug("Abnormal event: " + event);

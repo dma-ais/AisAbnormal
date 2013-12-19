@@ -16,29 +16,33 @@
 
 package dk.dma.ais.abnormal.event.db.domain.builders;
 
+import com.google.common.base.Strings;
 import dk.dma.ais.abnormal.event.db.domain.Vessel;
 
 public class VesselBuilder {
 
     Vessel vessel;
-    EventBuilder eventBuilder;
+    BehaviourBuilder behaviourBuilder;
 
     public VesselBuilder() {
         vessel = new Vessel();
     }
 
-    public VesselBuilder(EventBuilder eventBuilder) {
+    public VesselBuilder(BehaviourBuilder behaviourBuilder) {
         vessel = new Vessel();
-        this.eventBuilder = eventBuilder;
+        this.behaviourBuilder = behaviourBuilder;
     }
 
     public static VesselBuilder Vessel(){
         return new VesselBuilder();
     }
 
-    public VesselBuilder name(String name){
+    public BehaviourBuilder name(String name){
+        if (!Strings.isNullOrEmpty(name)) {
+            name = name.replace('@', ' ').trim();
+        }
         vessel.getId().setName(name);
-        return this;
+        return behaviourBuilder;
     }
 
     public VesselBuilder callsign(String callsign){
@@ -54,12 +58,6 @@ public class VesselBuilder {
     public VesselBuilder mmsi(int mmsi){
         vessel.getId().setMmsi(mmsi);
         return this;
-    }
-
-    public BehaviourBuilder behaviour(){
-        BehaviourBuilder builder = new BehaviourBuilder(this);
-        getVessel().setBehaviour(builder.getBehaviour());
-        return builder;
     }
 
     public Vessel getVessel() {

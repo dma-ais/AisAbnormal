@@ -69,11 +69,10 @@ public abstract class Event {
      */
 
     /**
-     * The primary vessel involved the event and its behaviour.
+     * The behaviour observed in connection with this event
      */
-    @NotNull
-    @OneToOne(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
-    private Vessel vessel;
+    @OneToOne (fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Behaviour behaviour;
 
     /**
      * A textual description of the event in English language.
@@ -111,12 +110,12 @@ public abstract class Event {
         this.endTime = endTime;
     }
 
-    public Vessel getVessel() {
-        return vessel;
+    public Behaviour getBehaviour() {
+        return behaviour;
     }
 
-    public void setVessel(Vessel vessel) {
-        this.vessel = vessel;
+    public void setBehaviour(Behaviour behaviour) {
+        this.behaviour = behaviour;
     }
 
     public String getDescription() {
@@ -132,7 +131,7 @@ public abstract class Event {
         return Objects.toStringHelper(this)
                 .add("startTime", startTime)
                 .add("endTime", endTime)
-                .add("vessel", vessel)
+                .add("behaviour", behaviour)
                 .add("description", description)
                 .toString();
     }

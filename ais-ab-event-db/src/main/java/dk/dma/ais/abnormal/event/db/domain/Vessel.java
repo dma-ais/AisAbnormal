@@ -16,11 +16,8 @@
 
 package dk.dma.ais.abnormal.event.db.domain;
 
-import javax.persistence.CascadeType;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.OneToOne;
 import java.io.Serializable;
 
 @Entity
@@ -28,27 +25,13 @@ public class Vessel implements Serializable {
 
     public Vessel() {
         id = new VesselId();
-        id.setCallsign("TEST");
-        id.setImo(1234);
-        id.setName("TESTNAME");
     }
 
     public VesselId getId() {
         return id;
     }
 
-    public Behaviour getBehaviour() {
-        return behaviour;
-    }
-
-    public void setBehaviour(Behaviour behaviour) {
-        this.behaviour = behaviour;
-    }
-
     @EmbeddedId
     private VesselId id;
-
-    @OneToOne (fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Behaviour behaviour;
 
 }

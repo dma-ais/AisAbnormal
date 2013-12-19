@@ -39,9 +39,9 @@ public abstract class EventBuilder {
         return this;
     }
 
-    public VesselBuilder vessel() {
-        VesselBuilder builder = new VesselBuilder(this);
-        getEvent().setVessel(builder.getVessel());
+    public BehaviourBuilder behaviour() {
+        BehaviourBuilder builder = new BehaviourBuilder(this);
+        getEvent().setBehaviour(builder.getBehaviour());
         return builder;
     }
 

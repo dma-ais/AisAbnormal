@@ -22,11 +22,11 @@ import dk.dma.ais.abnormal.event.db.domain.Position;
 public class BehaviourBuilder {
 
     Behaviour behaviour;
-    VesselBuilder vesselBuilder;
+    EventBuilder eventBuilder;
 
-    public BehaviourBuilder(VesselBuilder vesselBuilder) {
+    public BehaviourBuilder(EventBuilder eventBuilder) {
         this.behaviour = new Behaviour();
-        this.vesselBuilder = vesselBuilder;
+        this.eventBuilder = eventBuilder;
     }
 
     public BehaviourBuilder() {
@@ -35,6 +35,12 @@ public class BehaviourBuilder {
 
     public static BehaviourBuilder Behaviour() {
         return new BehaviourBuilder();
+    }
+
+    public VesselBuilder vessel() {
+        VesselBuilder builder = new VesselBuilder(this);
+        behaviour.setVessel(builder.getVessel());
+        return builder;
     }
 
     public PositionBuilder position(){

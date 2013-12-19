@@ -59,6 +59,6 @@ public class PositionBuilder {
     }
 
     public Event buildEvent() {
-        return this.behaviourBuilder.vesselBuilder.eventBuilder.getEvent();
+        return this.behaviourBuilder.eventBuilder.getEvent();
     }
 }

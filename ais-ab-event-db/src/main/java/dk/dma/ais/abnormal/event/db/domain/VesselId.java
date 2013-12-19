@@ -22,10 +22,10 @@ import java.io.Serializable;
 @Embeddable
 public class VesselId implements Serializable {
 
-    private String name;
+    private String name = "?";
     private int mmsi;
     private int imo;
-    private String callsign;
+    private String callsign = "?";
 
     public String getName() {
         return name;

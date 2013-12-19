@@ -25,6 +25,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.validation.constraints.NotNull;
 import java.util.LinkedList;
@@ -47,9 +48,24 @@ public class Behaviour {
         positions.add(position);
     }
 
+    public Vessel getVessel() {
+        return vessel;
+    }
+
+    public void setVessel(Vessel vessel) {
+        this.vessel = vessel;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
+
+    /**
+     * The vessel involved in this behaviour.
+     */
+    @NotNull
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Vessel vessel;
 
     @NotNull
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
