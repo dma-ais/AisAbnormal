@@ -27,6 +27,8 @@ import java.io.File;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class H2EventRepositoryTest {
 
@@ -48,9 +50,9 @@ public class H2EventRepositoryTest {
         vessel.getId().setImo(8207379);
         vessel.getId().setMmsi(219886000);
 
-        List<Event> vessels = h2EventRepository.findOngoingEventsByVessel(vessel);
+        List<Event> events = h2EventRepository.findOngoingEventsByVessel(vessel);
 
-        assertEquals(17, vessels.size());
+        assertEquals(17, events.size());
     }
 
     @Test
@@ -61,11 +63,11 @@ public class H2EventRepositoryTest {
         vessel.getId().setImo(8207379);
         vessel.getId().setMmsi(219886000);
 
-        List<Event> vessels = h2EventRepository.findOngoingEventByVessel(vessel, AbnormalShipSizeOrTypeEvent.class);
-        assertEquals(17, vessels.size());
+        AbnormalShipSizeOrTypeEvent event1 = h2EventRepository.findOngoingEventByVessel(vessel, AbnormalShipSizeOrTypeEvent.class);
+        assertNotNull(event1);
 
-        vessels = h2EventRepository.findOngoingEventByVessel(vessel, SuddenSpeedChangeEvent.class);
-        assertEquals(0, vessels.size());
+        SuddenSpeedChangeEvent event2 = h2EventRepository.findOngoingEventByVessel(vessel, SuddenSpeedChangeEvent.class);
+        assertNull(event2);
     }
 
 }

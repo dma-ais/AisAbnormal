@@ -128,10 +128,22 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
                             .buildEvent();
 
             LOG.debug("Abnormal event: " + event);
-            eventRepository.save(event);
+
+            raiseOrMaintainEvent(event);
         }
 
         statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events processed");
+    }
+
+    private void raiseOrMaintainEvent(Event event) {
+        Event ongoingEvent = eventRepository.findOngoingEventByVessel(event.getBehaviour().getVessel(), event.getClass());
+
+        if (ongoingEvent != null) {
+            ongoingEvent.getBehaviour().addPositions(event.getBehaviour().getPositions());
+            event = ongoingEvent;
+        }
+
+        eventRepository.save(event);
     }
 
     /**

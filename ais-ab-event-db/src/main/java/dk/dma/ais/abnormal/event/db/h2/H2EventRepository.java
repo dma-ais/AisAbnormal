@@ -49,12 +49,11 @@ public class H2EventRepository implements EventRepository {
 
     public H2EventRepository(File dbFilename, boolean readonly) {
         this.readonly = readonly;
-
         try{
             LOG.debug("Loading Hibernate configuration.");
             Configuration configuration = new Configuration()
                     .setProperty("hibernate.connection.driver_class", "org.h2.Driver")
-                    .setProperty("hibernate.connection.url", "jdbc:h2:" + dbFilename.getAbsolutePath())
+                    .setProperty("hibernate.connection.url", buildConnectionUrl(dbFilename))
                     .setProperty("hibernate.connection.username", "sa")
                     .setProperty("hibernate.connection.password", "")
                     .setProperty("hibernate.default_schema", "PUBLIC")
@@ -96,6 +95,18 @@ public class H2EventRepository implements EventRepository {
         sessionFactory.close();
     }
 
+    private static String buildConnectionUrl(File dbFilename) {
+        StringBuffer connectionUrl = new StringBuffer();
+        connectionUrl.append("jdbc:h2:");
+        connectionUrl.append(dbFilename.getAbsolutePath());
+        connectionUrl.append(";");
+        connectionUrl.append("TRACE_LEVEL_FILE=0");
+        connectionUrl.append(";");
+        connectionUrl.append("TRACE_LEVEL_SYSTEM_OUT=2");
+        LOG.debug("Using connectionUrl=" + connectionUrl);
+        return connectionUrl.toString();
+    }
+
     private Session getSession() {
         Session session = sessionFactory.openSession();
         if (readonly) {
@@ -134,11 +145,11 @@ public class H2EventRepository implements EventRepository {
     }
 
     @Override
-    public List<Event> findOngoingEventByVessel(Vessel vessel, Class<? extends Event> eventClass) {
+    public <T extends Event> T findOngoingEventByVessel(Vessel vessel, Class<T> eventClass) {
         Session session = getSession();
         session.beginTransaction();
 
-        List events = null;
+        T event = null;
         try {
             Query query = session.createQuery("SELECT e FROM Event e WHERE TYPE(e)=:class AND e.state=:state AND e.behaviour.vessel.id.name=:name AND e.behaviour.vessel.id.callsign=:callsign AND e.behaviour.vessel.id.imo=:imo AND e.behaviour.vessel.id.mmsi=:mmsi");
             query.setParameter("class", eventClass);
@@ -147,11 +158,19 @@ public class H2EventRepository implements EventRepository {
             query.setString("callsign", vessel.getId().getCallsign());
             query.setInteger("imo", vessel.getId().getImo());
             query.setInteger("mmsi", vessel.getId().getMmsi());
-            events = query.list();
+            List events = query.list();
+
+            if (events.size() > 0) {
+                if (events.size() > 1) {
+                    LOG.warn("More than one (" + events.size() + ") ongoing event of type " + eventClass + "; expected max. 1. Using first.");
+                }
+                event = (T) events.get(0);
+            }
+
         } finally {
             session.close();
         }
 
-        return events;
+        return event;
     }
 }

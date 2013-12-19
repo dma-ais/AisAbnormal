@@ -29,5 +29,5 @@ public interface EventRepository {
     void save(Event event);
 
     List<Event> findOngoingEventsByVessel(Vessel vessel);
-    List<Event> findOngoingEventByVessel(Vessel vessel, Class<? extends Event> eventClass);
+    <T extends Event> T findOngoingEventByVessel(Vessel vessel, Class<T> eventClass);
 }

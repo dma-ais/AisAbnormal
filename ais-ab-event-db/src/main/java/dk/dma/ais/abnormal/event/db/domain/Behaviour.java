@@ -30,22 +30,29 @@ import javax.persistence.OrderBy;
 import javax.validation.constraints.NotNull;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
+
+import static java.util.Collections.sort;
 
 @Entity
 public class Behaviour {
 
     public Behaviour() {
-        positions = new LinkedList<>(); //new ArrayList<>();
+        positions = new LinkedList<>();
     }
 
     public SortedSet<Position> getPositions() {
-        //sort(positions);
+        sort(positions);
         return ImmutableSortedSet.copyOf(positions);
     }
 
     public void addPosition(Position position) {
         positions.add(position);
+    }
+
+    public void addPositions(Set<Position> positions) {
+        this.positions.addAll(positions);
     }
 
     public Vessel getVessel() {
