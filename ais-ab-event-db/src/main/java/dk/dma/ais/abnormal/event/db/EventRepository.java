@@ -17,7 +17,7 @@
 package dk.dma.ais.abnormal.event.db;
 
 import dk.dma.ais.abnormal.event.db.domain.Event;
-import dk.dma.ais.abnormal.event.db.domain.Vessel;
+import dk.dma.ais.abnormal.event.db.domain.VesselId;
 
 import java.util.List;
 
@@ -28,6 +28,6 @@ import java.util.List;
 public interface EventRepository {
     void save(Event event);
 
-    List<Event> findOngoingEventsByVessel(Vessel vessel);
-    <T extends Event> T findOngoingEventByVessel(Vessel vessel, Class<T> eventClass);
+    List<Event> findOngoingEventsByVessel(VesselId vesselId);
+    <T extends Event> T findOngoingEventByVessel(VesselId vesselId, Class<T> eventClass);
 }

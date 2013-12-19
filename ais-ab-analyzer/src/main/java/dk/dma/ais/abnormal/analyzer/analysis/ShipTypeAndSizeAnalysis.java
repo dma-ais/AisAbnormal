@@ -21,7 +21,10 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.event.db.EventRepository;
+import dk.dma.ais.abnormal.event.db.domain.AbnormalShipSizeOrTypeEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
+import dk.dma.ais.abnormal.event.db.domain.VesselId;
+import dk.dma.ais.abnormal.event.db.domain.builders.PositionBuilder;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData2Key;
@@ -45,16 +48,15 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
     }
 
     private final AppStatisticsService statisticsService;
-    private final TrackingService trackingService;
-    private static final int TOTAL_COUNT_THRESHOLD = 1; // TODO 1000
     private final EventRepository eventRepository;
+
+    private static final int TOTAL_COUNT_THRESHOLD = 1; // TODO 1000
 
     @Inject
     public ShipTypeAndSizeAnalysis(AppStatisticsService statisticsService, FeatureDataRepository featureDataRepository, TrackingService trackingService, EventRepository eventRepository) {
         super(featureDataRepository);
 
         this.statisticsService = statisticsService;
-        this.trackingService = trackingService;
         this.eventRepository = eventRepository;
 
         trackingService.registerSubscriber(this);
@@ -65,19 +67,10 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
     public void onCellIdChanged(CellIdChangedEvent trackEvent) {
         statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events received");
 
-        //LOG.debug("Received " + event.toString());
-
         Track track = trackEvent.getTrack();
-
-        Date timestamp = new Date((Long) track.getProperty(Track.TIMESTAMP));
-        Integer mmsi = trackEvent.getTrack().getMmsi();
-        Integer imo = (Integer) trackEvent.getTrack().getProperty(Track.IMO);
-        String callsign = (String) trackEvent.getTrack().getProperty(Track.CALLSIGN);
-        Position position = (Position) trackEvent.getTrack().getProperty(Track.POSITION);
-        Long cellId = (Long) trackEvent.getTrack().getProperty(Track.CELL_ID);
+        Long cellId = (Long) track.getProperty(Track.CELL_ID);
         Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
         Integer shipLength = (Integer) track.getProperty(Track.VESSEL_LENGTH);
-        String shipName = (String) track.getProperty(Track.SHIP_NAME);
 
         if (cellId == null) {
             // LOG.warn("cellId is unexpectedly null (mmsi " + mmsi + ")");
@@ -101,19 +94,76 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
         short shipLengthBucket = Categorizer.mapShipLengthToCategory(shipLength);
 
         if (isAbnormalCellForShipTypeAndSize(cellId, shipTypeBucket, shipLengthBucket)) {
-            StringBuffer description = new StringBuffer(64);
-            description.append("Vessel of type ");
-            description.append(shipType);
-            description.append(" and length ");
-            description.append(shipLength);
-            description.append(" is abnormal for cell ");
-            description.append(cellId);
+            raiseOrMaintainAbnormalEvent(trackEvent);
+        } else {
+            lowerExistingAbnormalEventIfExists(trackEvent);
+        }
+
+        statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events processed");
+    }
+
+    private void lowerExistingAbnormalEventIfExists(CellIdChangedEvent trackEvent) {
+        Track track = trackEvent.getTrack();
+
+        Integer mmsi = track.getMmsi();
+        Integer imo = (Integer) track.getProperty(Track.IMO);
+        String callsign = (String) track.getProperty(Track.CALLSIGN);
+        String shipName = (String) track.getProperty(Track.SHIP_NAME);
+
+        VesselId vesselId = new VesselId();
+        vesselId.setImo(imo);
+        vesselId.setMmsi(mmsi);
+        vesselId.setCallsign(callsign);
+        vesselId.setName(shipName);
+
+        Event ongoingEvent = eventRepository.findOngoingEventByVessel(vesselId, AbnormalShipSizeOrTypeEvent.class);
+        if (ongoingEvent != null) {
+            Date timestamp = new Date((Long) track.getProperty(Track.TIMESTAMP));
+            ongoingEvent.setState(Event.State.PAST);
+            ongoingEvent.setEndTime(timestamp);
+            eventRepository.save(ongoingEvent);
+        }
+    }
+
+    private void raiseOrMaintainAbnormalEvent(CellIdChangedEvent trackEvent) {
+        Track track = trackEvent.getTrack();
+
+        Date timestamp = new Date((Long) track.getProperty(Track.TIMESTAMP));
+        Integer mmsi = track.getMmsi();
+        Integer imo = (Integer) track.getProperty(Track.IMO);
+        String callsign = (String) track.getProperty(Track.CALLSIGN);
+        String shipName = (String) track.getProperty(Track.SHIP_NAME);
+        Position position = (Position) track.getProperty(Track.POSITION);
+
+        VesselId vesselId = new VesselId();
+        vesselId.setImo(imo);
+        vesselId.setMmsi(mmsi);
+        vesselId.setCallsign(callsign);
+        vesselId.setName(shipName);
+
+        Event ongoingEvent = eventRepository.findOngoingEventByVessel(vesselId, AbnormalShipSizeOrTypeEvent.class);
+
+        if (ongoingEvent != null) {
+            ongoingEvent.getBehaviour().addPosition(
+                    PositionBuilder.Position()
+                            .latitude(position.getLatitude())
+                            .longitude(position.getLongitude())
+                            .timestamp(timestamp).getPosition()
+            );
+
+            eventRepository.save(ongoingEvent);
+        } else {
+            Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
+            Integer shipLength = (Integer) track.getProperty(Track.VESSEL_LENGTH);
+
+            short shipTypeBucket = Categorizer.mapShipTypeToCategory(shipType);
+            short shipLengthBucket = Categorizer.mapShipLengthToCategory(shipLength);
 
             Event event =
-            AbnormalShipSizeOrTypeEvent()
+                    AbnormalShipSizeOrTypeEvent()
                             .shipType(shipTypeBucket)
                             .shipLength(shipLengthBucket)
-                            .description(description.toString())
+                            .description("It is abnormal to see this vessel in this area.")
                             .startTime(timestamp)
                             .behaviour()
                                 .vessel()
@@ -127,23 +177,9 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
                                     .longitude(position.getLongitude())
                             .buildEvent();
 
-            LOG.debug("Abnormal event: " + event);
-
-            raiseOrMaintainEvent(event);
+            eventRepository.save(event);
         }
 
-        statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events processed");
-    }
-
-    private void raiseOrMaintainEvent(Event event) {
-        Event ongoingEvent = eventRepository.findOngoingEventByVessel(event.getBehaviour().getVessel(), event.getClass());
-
-        if (ongoingEvent != null) {
-            ongoingEvent.getBehaviour().addPositions(event.getBehaviour().getPositions());
-            event = ongoingEvent;
-        }
-
-        eventRepository.save(event);
     }
 
     /**

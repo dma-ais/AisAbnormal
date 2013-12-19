@@ -50,7 +50,7 @@ public class H2EventRepositoryTest {
         vessel.getId().setImo(8207379);
         vessel.getId().setMmsi(219886000);
 
-        List<Event> events = h2EventRepository.findOngoingEventsByVessel(vessel);
+        List<Event> events = h2EventRepository.findOngoingEventsByVessel(vessel.getId());
 
         assertEquals(17, events.size());
     }
@@ -63,10 +63,10 @@ public class H2EventRepositoryTest {
         vessel.getId().setImo(8207379);
         vessel.getId().setMmsi(219886000);
 
-        AbnormalShipSizeOrTypeEvent event1 = h2EventRepository.findOngoingEventByVessel(vessel, AbnormalShipSizeOrTypeEvent.class);
+        AbnormalShipSizeOrTypeEvent event1 = h2EventRepository.findOngoingEventByVessel(vessel.getId(), AbnormalShipSizeOrTypeEvent.class);
         assertNotNull(event1);
 
-        SuddenSpeedChangeEvent event2 = h2EventRepository.findOngoingEventByVessel(vessel, SuddenSpeedChangeEvent.class);
+        SuddenSpeedChangeEvent event2 = h2EventRepository.findOngoingEventByVessel(vessel.getId(), SuddenSpeedChangeEvent.class);
         assertNull(event2);
     }
 

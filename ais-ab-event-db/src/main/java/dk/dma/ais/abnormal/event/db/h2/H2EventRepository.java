@@ -118,24 +118,27 @@ public class H2EventRepository implements EventRepository {
     @Override
     public void save(Event event) {
         Session session = getSession();
-        session.beginTransaction();
-        session.save(event);
-        session.getTransaction().commit();
+        try {
+            session.beginTransaction();
+            session.saveOrUpdate(event);
+            session.getTransaction().commit();
+        } finally {
+            session.close();
+        }
     }
 
     @Override
-    public List<Event> findOngoingEventsByVessel(Vessel vessel) {
+    public List<Event> findOngoingEventsByVessel(VesselId vesselId) {
         Session session = getSession();
-        session.beginTransaction();
 
         List events = null;
         try {
             Query query = session.createQuery("SELECT e FROM Event e WHERE e.state=:state AND e.behaviour.vessel.id.name=:name AND e.behaviour.vessel.id.callsign=:callsign AND e.behaviour.vessel.id.imo=:imo AND e.behaviour.vessel.id.mmsi=:mmsi");
             query.setString("state", "ONGOING");
-            query.setString("name", vessel.getId().getName());
-            query.setString("callsign", vessel.getId().getCallsign());
-            query.setInteger("imo", vessel.getId().getImo());
-            query.setInteger("mmsi", vessel.getId().getMmsi());
+            query.setString("name", vesselId.getName());
+            query.setString("callsign", vesselId.getCallsign());
+            query.setInteger("imo", vesselId.getImo());
+            query.setInteger("mmsi", vesselId.getMmsi());
             events = query.list();
         } finally {
             session.close();
@@ -145,19 +148,18 @@ public class H2EventRepository implements EventRepository {
     }
 
     @Override
-    public <T extends Event> T findOngoingEventByVessel(Vessel vessel, Class<T> eventClass) {
+    public <T extends Event> T findOngoingEventByVessel(VesselId vesselId, Class<T> eventClass) {
         Session session = getSession();
-        session.beginTransaction();
 
         T event = null;
         try {
             Query query = session.createQuery("SELECT e FROM Event e WHERE TYPE(e)=:class AND e.state=:state AND e.behaviour.vessel.id.name=:name AND e.behaviour.vessel.id.callsign=:callsign AND e.behaviour.vessel.id.imo=:imo AND e.behaviour.vessel.id.mmsi=:mmsi");
             query.setParameter("class", eventClass);
             query.setString("state", "ONGOING");
-            query.setString("name", vessel.getId().getName());
-            query.setString("callsign", vessel.getId().getCallsign());
-            query.setInteger("imo", vessel.getId().getImo());
-            query.setInteger("mmsi", vessel.getId().getMmsi());
+            query.setString("name", vesselId.getName());
+            query.setString("callsign", vesselId.getCallsign());
+            query.setInteger("imo", vesselId.getImo());
+            query.setInteger("mmsi", vesselId.getMmsi());
             List events = query.list();
 
             if (events.size() > 0) {

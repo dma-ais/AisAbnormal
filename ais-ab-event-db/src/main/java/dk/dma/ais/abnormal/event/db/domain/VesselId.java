@@ -16,6 +16,8 @@
 
 package dk.dma.ais.abnormal.event.db.domain;
 
+import com.google.common.base.Strings;
+
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 
@@ -32,7 +34,7 @@ public class VesselId implements Serializable {
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = trimAisString(name);
     }
 
     public int getMmsi() {
@@ -56,6 +58,13 @@ public class VesselId implements Serializable {
     }
 
     public void setCallsign(String callsign) {
-        this.callsign = callsign;
+        this.callsign = trimAisString(callsign);
+    }
+
+    private static String trimAisString(String name) {
+        if (!Strings.isNullOrEmpty(name)) {
+            name = name.replace('@', ' ').trim();
+        }
+        return name;
     }
 }
