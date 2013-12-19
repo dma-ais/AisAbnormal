@@ -101,7 +101,7 @@ public class TrackingServiceImpl implements TrackingService {
     private void updateImo(Track track, AisMessage aisMessage) {
         if (aisMessage instanceof AisMessage5) {
             AisMessage5 aisMessage5 = (AisMessage5) aisMessage;
-            long imo = aisMessage5.getImo();
+            Integer imo = (int) aisMessage5.getImo();
             track.setProperty(Track.IMO, imo);
         }
     }

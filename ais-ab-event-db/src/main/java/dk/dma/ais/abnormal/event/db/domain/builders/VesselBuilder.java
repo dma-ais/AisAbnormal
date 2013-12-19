@@ -33,35 +33,39 @@ public class VesselBuilder {
         this.behaviourBuilder = behaviourBuilder;
     }
 
-    public static VesselBuilder Vessel(){
+    public static VesselBuilder Vessel() {
         return new VesselBuilder();
     }
 
-    public BehaviourBuilder name(String name){
-        if (!Strings.isNullOrEmpty(name)) {
-            name = name.replace('@', ' ').trim();
-        }
-        vessel.getId().setName(name);
+    public BehaviourBuilder name(String name) {
+        vessel.getId().setName(trimAisString(name));
         return behaviourBuilder;
     }
 
-    public VesselBuilder callsign(String callsign){
-        vessel.getId().setCallsign(callsign);
+    public VesselBuilder callsign(String callsign) {
+        vessel.getId().setCallsign(trimAisString(callsign));
         return this;
     }
 
-    public VesselBuilder imo(int imo){
+    public VesselBuilder imo(int imo) {
         vessel.getId().setImo(imo);
         return this;
     }
 
-    public VesselBuilder mmsi(int mmsi){
+    public VesselBuilder mmsi(int mmsi) {
         vessel.getId().setMmsi(mmsi);
         return this;
     }
 
     public Vessel getVessel() {
         return vessel;
+    }
+
+    private static String trimAisString(String name) {
+        if (!Strings.isNullOrEmpty(name)) {
+            name = name.replace('@', ' ').trim();
+        }
+        return name;
     }
 
 }

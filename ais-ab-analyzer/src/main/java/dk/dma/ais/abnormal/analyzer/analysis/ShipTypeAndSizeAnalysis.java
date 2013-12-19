@@ -71,6 +71,8 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
 
         Date timestamp = new Date((Long) track.getProperty(Track.TIMESTAMP));
         Integer mmsi = trackEvent.getTrack().getMmsi();
+        Integer imo = (Integer) trackEvent.getTrack().getProperty(Track.IMO);
+        String callsign = (String) trackEvent.getTrack().getProperty(Track.CALLSIGN);
         Position position = (Position) trackEvent.getTrack().getProperty(Track.POSITION);
         Long cellId = (Long) trackEvent.getTrack().getProperty(Track.CELL_ID);
         Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
@@ -116,6 +118,8 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
                             .behaviour()
                                 .vessel()
                                     .mmsi(mmsi)
+                                    .imo(imo)
+                                    .callsign(callsign)
                                     .name(shipName)
                                 .position()
                                     .timestamp(timestamp)

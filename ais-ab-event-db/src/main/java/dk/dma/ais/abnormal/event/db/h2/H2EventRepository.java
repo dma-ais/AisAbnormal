@@ -90,6 +90,11 @@ public class H2EventRepository implements EventRepository {
 
     @Override
     public Set<Event> findActiveEventsByVessel(Vessel vessel) {
+        return null;
+    }
+
+    //@Override
+    public Set<Event> findOngoingEventByVessel(Vessel vessel, Class<? extends Event> eventClass) {
         // TODO
         return null;
     }
