@@ -36,6 +36,9 @@ public class UserArguments {
     @Parameter(names = "-featureData", description = "Name of file containing feature data statistics.", required = true)
     private String featureData;
 
+    @Parameter(names = "-eventData", description = "Name of file to hold event data.", required = true)
+    private String pathToEventDatabase;
+
     public void setHelp(boolean help) {
         this.help = help;
     }
@@ -60,4 +63,7 @@ public class UserArguments {
         return featureData;
     }
 
+    public String getPathToEventDatabase() {
+        return pathToEventDatabase;
+    }
 }

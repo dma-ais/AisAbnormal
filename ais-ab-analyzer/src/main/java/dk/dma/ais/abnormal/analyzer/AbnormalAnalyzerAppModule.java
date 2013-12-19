@@ -33,6 +33,7 @@ import dk.dma.enav.model.geometry.grid.Grid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.Set;
 
 public final class AbnormalAnalyzerAppModule extends AbstractModule {
@@ -45,12 +46,14 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     private final String inputFilenamePattern;
     private final boolean inputRecursive;
     private final String featureData;
+    private final String pathToEventDatabase;
 
-    public AbnormalAnalyzerAppModule(String inputDirectory, String inputFilenamePattern, boolean inputRecursive, String featureData) {
+    public AbnormalAnalyzerAppModule(String inputDirectory, String inputFilenamePattern, boolean inputRecursive, String featureData, String pathToEventDatabase) {
         this.inputDirectory = inputDirectory;
         this.inputFilenamePattern = inputFilenamePattern;
         this.inputRecursive = inputRecursive;
         this.featureData = featureData;
+        this.pathToEventDatabase = pathToEventDatabase;
     }
 
     @Override
@@ -59,7 +62,14 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
         bind(AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
         bind(PacketHandler.class).to(PacketHandlerImpl.class).in(Singleton.class);
         bind(TrackingService.class).to(TrackingServiceImpl.class).in(Singleton.class);
-        bind(EventRepository.class).to(H2EventRepository.class).in(Singleton.class);
+    }
+
+    @Provides
+    @Singleton
+    EventRepository provideEventRepository() {
+        EventRepository eventRepository = null;
+        eventRepository = new H2EventRepository(new File(pathToEventDatabase), false);
+        return eventRepository;
     }
 
     @Provides
