@@ -22,7 +22,7 @@ import com.google.inject.Inject;
 import dk.dma.ais.abnormal.stat.AppStatisticsService;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
-import dk.dma.ais.abnormal.stat.db.data.FeatureData2Key;
+import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
@@ -38,10 +38,6 @@ public class ShipTypeAndSizeFeature implements Feature {
     private final transient AppStatisticsService appStatisticsService;
     private final transient FeatureDataRepository featureDataRepository;
     private final transient TrackingService trackingService;
-
-    static final String STATISTICS_KEY_1 = "shipType";
-    static final String STATISTICS_KEY_2 = "shipSize";
-    static final String STATISTICS_NAME = "shipCount";
 
     private transient boolean started;
 
@@ -102,13 +98,13 @@ public class ShipTypeAndSizeFeature implements Feature {
         short shipSizeBucket = Categorizer.mapShipLengthToCategory(shipLength);
 
         FeatureData featureDataTmp = featureDataRepository.getFeatureData(FEATURE_NAME, cellId);
-        if (! (featureDataTmp instanceof FeatureData2Key)) {
+        if (! (featureDataTmp instanceof ShipTypeAndSizeData)) {
             LOG.debug("No suitable feature data for cell id " + cellId + " found in repo. Creating new.");
-            featureDataTmp = new FeatureData2Key(this.getClass().getCanonicalName(), STATISTICS_KEY_1, STATISTICS_KEY_2);
+            featureDataTmp = new ShipTypeAndSizeData();
         }
-        FeatureData2Key featureData = (FeatureData2Key) featureDataTmp;
+        ShipTypeAndSizeData featureData = (ShipTypeAndSizeData) featureDataTmp;
 
-        featureData.incrementStatistic(shipTypeBucket, shipSizeBucket, STATISTICS_NAME);
+        featureData.incrementStatistic(shipTypeBucket, shipSizeBucket, ShipTypeAndSizeData.STAT_SHIP_COUNT);
 
         LOG.debug("Storing feature data for cellId " + cellId + ", featureName " + FEATURE_NAME);
         featureDataRepository.putFeatureData(FEATURE_NAME, cellId, featureData);

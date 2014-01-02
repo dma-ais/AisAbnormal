@@ -231,7 +231,7 @@ var dmaAbnormalApp = {
 
             cellData.append('<br/><b>' + featureName + '</b><br/>');
 
-            if (featureType == 'FeatureData2Key') {
+            if (featureType == 'FeatureDataTwoKey') {
                 var tableHtml = "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"dataTable\" style=\”width: 260px;\” id=\"featureTable\">";
                 tableHtml += "<thead>";
                 tableHtml += "<tr>";

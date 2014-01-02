@@ -16,30 +16,9 @@
 
 package dk.dma.ais.abnormal.stat.db.data;
 
-import java.io.Serializable;
-
-/**
- * Feature data is a set of statistics calculated for a certain feature.
- */
-public interface FeatureData extends Serializable {
-
-    /**
-     * Get the name of the feature which produced these data.
-     * @return the name of the feature which produced these feature data.
-     */
-    String getFeatureName();
-
-    /**
-     * Get the name of the feature type / data structure.
-     * @return the name of the feature type / data structure.
-     */
-    String getFeatureDataType();
-
-    /**
-     * Get the internal data structure of this future.
-     * Intended for use with JSON serialization.
-     * @return the actual feature data.
-     */
-    Object getData();
-
+public interface FeatureDataTwoKey extends FeatureData {
+    void incrementStatistic(int key1, int key2, String statisticName);
+    void setStatistic(int key1, int key2, String statisticName, int statisticValue);
+    Integer getStatistic(int key1, int key2, String statisticName);
+    int getSumFor(String statisticName);
 }

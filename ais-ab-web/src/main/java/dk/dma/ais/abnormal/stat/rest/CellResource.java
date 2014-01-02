@@ -19,7 +19,8 @@ import com.google.inject.Inject;
 import com.google.inject.servlet.RequestScoped;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
-import dk.dma.ais.abnormal.stat.db.data.FeatureData2Key;
+import dk.dma.ais.abnormal.stat.db.data.FeatureDataTwoKey;
+import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeData;
 import dk.dma.enav.model.geometry.Area;
 import dk.dma.enav.model.geometry.BoundingBox;
 import dk.dma.enav.model.geometry.CoordinateSystem;
@@ -103,7 +104,6 @@ public class CellResource {
         Area area = BoundingBox.create(northWest, southEast, CoordinateSystem.GEODETIC);
 
         Set<CellWrapper> cells = loadCellsInArea(grid, area);
-        //Set<CellWrapper> cells = loadCellsWithData(grid, area);
         //Set<CellWrapper> cells = loadDummyCells(grid, area);
 
         return cells;
@@ -145,43 +145,6 @@ public class CellResource {
     }
 
     /**
-     * Load all cells with have statistical data from the repository. This method is not for production use, but intended
-     * for test and development only.
-     *
-     * @param grid the grid system to use
-     * @param area the area - not used; included for signature compliance.
-     * @return
-     */
-    private Set<CellWrapper> loadCellsWithData(Grid grid, Area area) {
-        // CellId , BoundingBox , Set<FeatureData>
-
-        // Container to collect output data
-        Set<CellWrapper> wrappedCells = new LinkedHashSet<>();
-
-        Set<String> featureNames = featureDataRepository.getFeatureNames();
-        Set<Long> cellIds = featureDataRepository.getAllCellsWithData();
-        for (Long cellId : cellIds) {
-            ArrayList<FeatureData> featureDataArray = new ArrayList<>();
-
-            for (String featureName : featureNames) {
-                FeatureData featureData = featureDataRepository.getFeatureData(featureName, cellId);
-                if (featureData != null) {
-                    featureDataArray.add(featureData);
-                }
-            }
-
-            Cell cell = grid.getCell(cellId);
-            BoundingBox boundingBoxOfCell = grid.getBoundingBoxOfCell(cell);
-
-            CellWrapper wrappedCell = new CellWrapper(cell, boundingBoxOfCell, featureDataArray.toArray(new FeatureData[featureDataArray.size()]));
-            wrappedCells.add(wrappedCell);
-        }
-
-        LOG.debug("There are " + wrappedCells.size() + " cells with feature data in the area");
-        return wrappedCells;
-    }
-
-    /**
      * Simulate loading of cells from the repository, but actually generate an artificial pattern of cells with data.
      * This method is not for production use, but intended for test and development only.
      *
@@ -194,10 +157,10 @@ public class CellResource {
 
         for (double lon = 12.0; lon < 12.50; lon += 0.05) {
             for (double lat = 56.0; lat < 56.50; lat += 0.05) {
-                FeatureData2Key feature1Data = new FeatureData2Key(this.getClass().getCanonicalName(), "shipType", "shipSize");
+                FeatureDataTwoKey feature1Data = new ShipTypeAndSizeData(); // TODO FeatureData2Key(this.getClass().getCanonicalName(), "shipType", "shipSize");
                 feature1Data.setStatistic((short) 1, (short) 1, "stat1", (Integer) 7);
 
-                FeatureData2Key feature2Data = new FeatureData2Key(Integer.class.getCanonicalName(), "prime", "square");
+                FeatureDataTwoKey feature2Data = new ShipTypeAndSizeData(); // TODO new FeatureData2Key(Integer.class.getCanonicalName(), "prime", "square");
                 feature2Data.setStatistic((short) 1, (short) 1, "statA", (Integer) 9);
                 feature2Data.setStatistic((short) 1, (short) 2, "statA", (Integer) 8);
                 feature2Data.setStatistic((short) 2, (short) 1, "statA", (Integer) 7);

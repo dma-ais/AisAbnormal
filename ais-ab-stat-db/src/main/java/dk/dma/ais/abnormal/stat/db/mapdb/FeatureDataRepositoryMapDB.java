@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -291,7 +290,7 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
         putMetaData(db, datasetMetadata);
     }
 
-    public void putMetaData(DB db, DatasetMetaData datasetMetadata) {
+    private void putMetaData(DB db, DatasetMetaData datasetMetadata) {
         BTreeMap<String, DatasetMetaData> allMetadata = db.createTreeMap(COLLECTION_METADATA).makeOrGet();
         allMetadata.put(KEY_METADATA, datasetMetadata);
         db.commit();
@@ -364,19 +363,6 @@ public class FeatureDataRepositoryMapDB implements FeatureDataRepository {
         }
 
         return allCellDataForFeature.get(allCellDataForFeature.firstKey());
-    }
-
-    @Override
-    public Set<Long> getAllCellsWithData() {
-        Set<Long> cellsWithData = new HashSet<>();
-
-        Set<String> featureNames = getFeatureNames();
-        for (String featureName : featureNames) {
-            Set<Long> cellsWithForFeature = getCellsWithData(featureName);
-            cellsWithData.addAll(cellsWithForFeature);
-        }
-
-        return cellsWithData;
     }
 
     private boolean isBackupToDiskScheduled() {

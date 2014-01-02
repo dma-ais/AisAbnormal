@@ -23,7 +23,7 @@ import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.h2.H2EventRepository;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.DatasetMetaData;
-import dk.dma.ais.abnormal.stat.db.data.FeatureData2Key;
+import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeData;
 import dk.dma.ais.abnormal.stat.db.mapdb.FeatureDataRepositoryMapDB;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.TrackingServiceImpl;
@@ -141,25 +141,7 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
         }
 
         // Check ShipTypeAndSizeFeature
-        FeatureData2Key shipSizeAndTypeFeature = (FeatureData2Key) featureDataRepository.getFeatureDataForRandomCell("ShipTypeAndSizeFeature");
-
-        if (! "FeatureData2Key".equals(shipSizeAndTypeFeature.getFeatureDataType())) {
-            LOG.error("ShipTypeAndSizeFeature: Not stored in the expected format. Cannot analyse against this feature.");
-            valid = false;
-        }
-
-        String meaningOfKey1 = shipSizeAndTypeFeature.getMeaningOfKey1();
-        String meaningOfKey2 = shipSizeAndTypeFeature.getMeaningOfKey2();
-        String expectedMeaningOfKey1 = "shipType";
-        String expectedMeaningOfKey2 = "shipSize";
-        if (! expectedMeaningOfKey1.equals(meaningOfKey1)) {
-            LOG.error("ShipTypeAndSizeFeature: Meaning of key 1 is " + meaningOfKey1 + "; not " + expectedMeaningOfKey1 + " as expected. Cannot analyse against this feature.");
-            valid = false;
-        }
-        if (! expectedMeaningOfKey2.equals(meaningOfKey2)) {
-            LOG.error("ShipTypeAndSizeFeature: Meaning of key 2 is " + meaningOfKey2 + "; not " + expectedMeaningOfKey2 + " as expected. Cannot analyse against this feature.");
-            valid = false;
-        }
+        ShipTypeAndSizeData shipSizeAndTypeFeature = (ShipTypeAndSizeData) featureDataRepository.getFeatureDataForRandomCell("ShipTypeAndSizeFeature");
 
         return valid;
     }

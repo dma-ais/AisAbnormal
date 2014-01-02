@@ -19,7 +19,7 @@ package dk.dma.ais.abnormal.stat.features;
 import dk.dma.ais.abnormal.stat.AppStatisticsService;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
-import dk.dma.ais.abnormal.stat.db.data.FeatureData2Key;
+import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
@@ -56,10 +56,10 @@ public class ShipTypeAndSizeFeatureTest {
         final ArgumentCaptor<FeatureData> featureData = ArgumentCaptor.forClass(FeatureData.class);
         context.checking(new Expectations() {{
             oneOf(trackingService).registerSubscriber(feature);
-            ignoring(statisticsService).incFeatureStatistics(with(feature.FEATURE_NAME), with(any(String.class)));
+            ignoring(statisticsService).incFeatureStatistics(with(ShipTypeAndSizeFeature.FEATURE_NAME), with(any(String.class)));
 
-            oneOf(featureDataRepository).getFeatureData(with(feature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)));
-            oneOf(featureDataRepository).putFeatureData(with(feature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)), with(featureData.getMatcher()));
+            oneOf(featureDataRepository).getFeatureData(with(ShipTypeAndSizeFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)));
+            oneOf(featureDataRepository).putFeatureData(with(ShipTypeAndSizeFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)), with(featureData.getMatcher()));
         }});
 
         // Execute
@@ -68,22 +68,22 @@ public class ShipTypeAndSizeFeatureTest {
 
         // Assert expectations and captured values
         context.assertIsSatisfied();
-        assertEquals(feature.FEATURE_NAME, featureData.getCapturedObject().getFeatureName());
-        assertEquals(FeatureData2Key.class, featureData.getCapturedObject().getClass());
-        FeatureData2Key capturedFeatureData = (FeatureData2Key) featureData.getCapturedObject();
-        assertEquals(ShipTypeAndSizeFeature.STATISTICS_KEY_1, capturedFeatureData.getMeaningOfKey1()); // shipType
-        assertEquals(ShipTypeAndSizeFeature.STATISTICS_KEY_2, capturedFeatureData.getMeaningOfKey2()); // shipSize
+        // TODO assertEquals(ShipTypeAndSizeFeature.FEATURE_NAME, featureData.getCapturedObject().getFeatureName());
+        assertEquals(ShipTypeAndSizeData.class, featureData.getCapturedObject().getClass());
+        ShipTypeAndSizeData capturedFeatureData = (ShipTypeAndSizeData) featureData.getCapturedObject();
+        assertEquals("shipType", capturedFeatureData.getMeaningOfKey1());
+        assertEquals("shipSize", capturedFeatureData.getMeaningOfKey2());
         assertEquals(TreeMap.class, featureData.getCapturedObject().getData().getClass());
-        TreeMap<Short, TreeMap<Short, HashMap<String,Object>>> data = (TreeMap<Short, TreeMap<Short, HashMap<String,Object>>>) capturedFeatureData.getData();
+        TreeMap<Integer, TreeMap<Integer, HashMap<String,Integer>>> data = capturedFeatureData.getData();
         assertEquals(1, data.size()); // Assert one statistic recorded
-        short shipType = data.firstKey();
+        int shipType = data.firstKey();
         assertEquals(3, shipType);
-        short shipSize = data.get(shipType).firstKey();
+        int shipSize = data.get(shipType).firstKey();
         assertEquals(3, shipSize);
         int numberOfStatsForShipTypeAndShipSize = data.get(shipType).get(shipSize).size();
         assertEquals(1, numberOfStatsForShipTypeAndShipSize);
         String statName = data.get(shipType).get(shipSize).keySet().iterator().next();
-        assertEquals(ShipTypeAndSizeFeature.STATISTICS_NAME, statName);
+        assertEquals(ShipTypeAndSizeData.STAT_SHIP_COUNT, statName);
         Object statValue = data.get(shipType).get(shipSize).get(statName);
         assertEquals(Integer.class, statValue.getClass());
         assertEquals(1, statValue);
@@ -107,24 +107,20 @@ public class ShipTypeAndSizeFeatureTest {
         // Setup expectations
         final ShipTypeAndSizeFeature feature = new ShipTypeAndSizeFeature(statisticsService, trackingService, featureDataRepository);
 
-        final FeatureData existingFeatureData = new FeatureData2Key(ShipTypeAndSizeFeature.class.getCanonicalName(), ShipTypeAndSizeFeature.STATISTICS_KEY_1, ShipTypeAndSizeFeature.STATISTICS_KEY_2);
-        final TreeMap<Short, TreeMap<Short, HashMap<String,Object>>> existingData = (TreeMap<Short, TreeMap<Short, HashMap<String, Object>>>) existingFeatureData.getData();
-        HashMap<String, Object> existingStatistics = new HashMap<String, Object>();
-        existingStatistics.put(ShipTypeAndSizeFeature.STATISTICS_NAME, Integer.valueOf(1));
-        TreeMap<Short, HashMap<String, Object>> key2Value = new TreeMap<Short, HashMap<String, Object>>();
-        key2Value.put((short) 3, existingStatistics);
-        existingData.put((short) 3, key2Value);
+        final ShipTypeAndSizeData existingFeatureData = new ShipTypeAndSizeData();
+        existingFeatureData.setStatistic(3, 3, ShipTypeAndSizeData.STAT_SHIP_COUNT, 1);
 
+        final ArgumentCaptor<FeatureData> featureData1 = ArgumentCaptor.forClass(FeatureData.class);
         final ArgumentCaptor<FeatureData> featureData2 = ArgumentCaptor.forClass(FeatureData.class);
         context.checking(new Expectations() {{
             oneOf(trackingService).registerSubscriber(feature);
-            ignoring(statisticsService).incFeatureStatistics(with(feature.FEATURE_NAME), with(any(String.class)));
+            ignoring(statisticsService).incFeatureStatistics(with(ShipTypeAndSizeFeature.FEATURE_NAME), with(any(String.class)));
 
-            oneOf(featureDataRepository).getFeatureData(with(feature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID))); will(returnValue(null));
-            oneOf(featureDataRepository).putFeatureData(with(feature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)), with(featureData2.getMatcher()));
+            oneOf(featureDataRepository).getFeatureData(with(ShipTypeAndSizeFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID))); will(returnValue(null));
+            oneOf(featureDataRepository).putFeatureData(with(ShipTypeAndSizeFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)), with(featureData1.getMatcher()));
 
-            oneOf(featureDataRepository).getFeatureData(with(feature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID))); will(returnValue(existingFeatureData));
-            oneOf(featureDataRepository).putFeatureData(with(feature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)), with(featureData2.getMatcher()));
+            oneOf(featureDataRepository).getFeatureData(with(ShipTypeAndSizeFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID))); will(returnValue(existingFeatureData));
+            oneOf(featureDataRepository).putFeatureData(with(ShipTypeAndSizeFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)), with(featureData2.getMatcher()));
         }});
 
         // Execute
@@ -134,24 +130,23 @@ public class ShipTypeAndSizeFeatureTest {
 
         // Assert expectations and captured values
         context.assertIsSatisfied();
-        assertEquals(feature.FEATURE_NAME, featureData2.getCapturedObject().getFeatureName());
-        assertEquals(FeatureData2Key.class, featureData2.getCapturedObject().getClass());
-        FeatureData2Key capturedFeatureData = (FeatureData2Key) featureData2.getCapturedObject();
-        assertEquals(ShipTypeAndSizeFeature.STATISTICS_KEY_1, capturedFeatureData.getMeaningOfKey1()); // shipType
-        assertEquals(ShipTypeAndSizeFeature.STATISTICS_KEY_2, capturedFeatureData.getMeaningOfKey2()); // shipSize
+        // TODO assertEquals(ShipTypeAndSizeFeature.FEATURE_NAME, featureData2.getCapturedObject().getFeatureName());
+        assertEquals(ShipTypeAndSizeData.class, featureData2.getCapturedObject().getClass());
+        ShipTypeAndSizeData capturedFeatureData = (ShipTypeAndSizeData) featureData2.getCapturedObject();
+        assertEquals("shipType", capturedFeatureData.getMeaningOfKey1());
+        assertEquals("shipSize", capturedFeatureData.getMeaningOfKey2());
         assertEquals(TreeMap.class, featureData2.getCapturedObject().getData().getClass());
-        TreeMap<Short, TreeMap<Short, HashMap<String,Object>>> data = (TreeMap<Short, TreeMap<Short, HashMap<String,Object>>>) capturedFeatureData.getData();
+        TreeMap<Integer, TreeMap<Integer, HashMap<String,Integer>>> data = capturedFeatureData.getData();
         assertEquals(1, data.size()); // Assert one statistic recorded
-        short shipType = data.firstKey();
+        int shipType = data.firstKey();
         assertEquals(3, shipType);
-        short shipSize = data.get(shipType).firstKey();
+        int shipSize = data.get(shipType).firstKey();
         assertEquals(3, shipSize);
         int numberOfStatsForShipTypeAndShipSize = data.get(shipType).get(shipSize).size();
         assertEquals(1, numberOfStatsForShipTypeAndShipSize);
         String statName = data.get(shipType).get(shipSize).keySet().iterator().next();
-        assertEquals(ShipTypeAndSizeFeature.STATISTICS_NAME, statName);
+        assertEquals(ShipTypeAndSizeData.STAT_SHIP_COUNT, statName);
         Object statValue = data.get(shipType).get(shipSize).get(statName);
         assertEquals(2, statValue);
     }
-
 }

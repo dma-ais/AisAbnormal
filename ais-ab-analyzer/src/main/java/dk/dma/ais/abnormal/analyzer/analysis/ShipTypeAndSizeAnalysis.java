@@ -27,7 +27,7 @@ import dk.dma.ais.abnormal.event.db.domain.VesselId;
 import dk.dma.ais.abnormal.event.db.domain.builders.PositionBuilder;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
-import dk.dma.ais.abnormal.stat.db.data.FeatureData2Key;
+import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
@@ -37,7 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
-import java.util.HashMap;
 
 import static dk.dma.ais.abnormal.event.db.domain.builders.AbnormalShipSizeOrTypeEventBuilder.AbnormalShipSizeOrTypeEvent;
 
@@ -191,21 +190,17 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
      * @param shipSizeBucket
      * @return true if the presence of size/type in this cell is abnormal. False otherwise.
      */
-    boolean isAbnormalCellForShipTypeAndSize(Long cellId, short shipTypeBucket, short shipSizeBucket) {
+    boolean isAbnormalCellForShipTypeAndSize(Long cellId, int shipTypeBucket, int shipSizeBucket) {
         float pd = 1.0f;
 
-        FeatureData shipSizeAndTypeFeature = getFeatureDataRepository().getFeatureData("ShipTypeAndSizeFeature", cellId);
+        FeatureData shipSizeAndTypeData = getFeatureDataRepository().getFeatureData("ShipTypeAndSizeFeature", cellId);
 
-        if (shipSizeAndTypeFeature instanceof FeatureData2Key) {
-            Integer totalCount  = ((FeatureData2Key) shipSizeAndTypeFeature).getSumFor("shipCount");
+        if (shipSizeAndTypeData instanceof ShipTypeAndSizeData) {
+            Integer totalCount  = ((ShipTypeAndSizeData) shipSizeAndTypeData).getSumFor("shipCount");
             if (totalCount > TOTAL_COUNT_THRESHOLD) {
-                Integer shipCount = 0;
-                HashMap<String,Object> statistics = ((FeatureData2Key) shipSizeAndTypeFeature).getStatistics(shipTypeBucket, shipSizeBucket);
-                if (statistics != null) {
-                    Object shipCountAsObject = statistics.get("shipCount");
-                    if (shipCountAsObject instanceof Integer) {
-                        shipCount = (Integer) shipCountAsObject;
-                    }
+                Integer shipCount = ((ShipTypeAndSizeData) shipSizeAndTypeData).getStatistic(shipTypeBucket, shipSizeBucket, ShipTypeAndSizeData.STAT_SHIP_COUNT);
+                if (shipCount == null) {
+                    shipCount = 0;
                 }
                 pd = (float) shipCount / (float) totalCount;
                 LOG.debug("cellId=" + cellId + ", shipType=" + shipTypeBucket + ", shipSize=" + shipSizeBucket + ", shipCount=" + shipCount + ", totalCount=" + totalCount + ", pd=" + pd);

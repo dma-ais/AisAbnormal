@@ -19,7 +19,7 @@ package dk.dma.ais.abnormal.analyzer.analysis;
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
-import dk.dma.ais.abnormal.stat.db.data.FeatureData2Key;
+import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeData;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
 import org.jmock.Expectations;
@@ -42,7 +42,7 @@ public class ShipTypeAndSizeAnalysisTest {
     private AppStatisticsService statisticsService;
     private FeatureDataRepository featureDataRepository;
     private EventRepository eventRepository;
-    private FeatureData2Key featureData;
+    private ShipTypeAndSizeData featureData;
 
     @Before
     public void prepareTest() {
@@ -55,7 +55,7 @@ public class ShipTypeAndSizeAnalysisTest {
         eventRepository = context.mock(EventRepository.class);
 
         // Mock shipCount table
-        featureData = new FeatureData2Key(this.getClass().getCanonicalName(), "testKey1", "testKey2");
+        featureData = new ShipTypeAndSizeData();
         featureData.setStatistic((short) 3, (short) 1, "shipCount", 17);
         featureData.setStatistic((short) 3, (short) 2, "shipCount", 2);
         featureData.setStatistic((short) 3, (short) 3, "shipCount", 87);
