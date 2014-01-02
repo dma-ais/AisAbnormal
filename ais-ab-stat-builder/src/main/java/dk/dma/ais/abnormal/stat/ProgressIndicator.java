@@ -35,7 +35,7 @@ public class ProgressIndicator {
     private final AisReader reader;
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
     private long startTime;
-    private static final int PROGRESS_INDICATION_PERIOD_MINUTES = 30;
+    private static final int PROGRESS_INDICATION_PERIOD_MINUTES = 10;
 
     @Inject
     public ProgressIndicator(AisReader reader) {
