@@ -134,6 +134,7 @@ var dmaAbnormalApp = {
                 $.each(cells, function (i, cell) {
                     var cellAlreadyLoadded = gridLayer.getFeatureByFid(cell.cellId);
                     if (!cellAlreadyLoadded) {
+                        dmaAbnormalApp.preProcessCell(cell);
                         dmaAbnormalApp.addCell(gridLayer, cell);
                         numCellsAdded++;
                     }
@@ -142,6 +143,19 @@ var dmaAbnormalApp = {
             }).fail(function (jqXHR, textStatus) {
                 $('#cell-layer-load-status').html("Cell load failed: " + textStatus);
             });
+    },
+
+    preProcessCell: function (cell) {
+        // add totalcounts to cell
+        cell.totalShipCount = [];
+        $.each(cell.featureData, function (fdidx, fd) {
+            cell.totalShipCount[fd.featureName] = 0;
+            $.each(fd.data, function(key1, value1) {
+                $.each(value1, function(key2, statistic) {
+                    cell.totalShipCount[fd['featureName']] += parseInt(statistic.shipCount);
+                })
+            })
+        });
     },
 
     addCell: function (layer, cell) {
@@ -163,15 +177,18 @@ var dmaAbnormalApp = {
         point.transform(dmaAbnormalApp.projectionWGS84, dmaAbnormalApp.map.getProjectionObject());
         cellCoords.push(point);
 
+        var fillOpacity = 0.05 + (Math.min(cell.totalShipCount["ShipTypeAndSizeData"]/100, 1))*0.9;
+        var strokeOpacity = fillOpacity;
+
         var cellStyle = {
             strokeColor: "#aaaaaa",
             strokeWidth: 2,
             strokeDashstyle: "solid",
+            strokeOpacity: strokeOpacity,
             pointRadius: 6,
             pointerEvents: "visiblePainted", // http://www.w3.org/TR/SVG11/interact.html#PointerEventsProperty
             title: "Cell " + cell.cellId,
-            fillOpacity: 0.25
-
+            fillOpacity: fillOpacity
         };
 
         var cellGeometry = new OpenLayers.Geometry.LinearRing(cellCoords);
@@ -267,6 +284,7 @@ var dmaAbnormalApp = {
                 tableHtml += "</tbody>";
                 tableHtml += "</table>";
             }
+            tableHtml = "<div>(total ship count is " + cell.totalShipCount[featureName] + ")</div>" + tableHtml;
             cellData.append(tableHtml);
         });
 
