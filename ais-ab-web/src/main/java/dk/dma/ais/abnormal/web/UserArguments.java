@@ -21,14 +21,17 @@ import com.beust.jcommander.Parameter;
 @SuppressWarnings("FieldCanBeLocal")
 public class UserArguments {
 
-    @Parameter(names = "-help", help = true, description = "Print this help", hidden = true)
+    @Parameter(names = "-help", help = true, description = "Print this help.", hidden = true)
     protected boolean help;
 
     @Parameter(names = "-port", description = "Port no. for listening to HTTP.")
     private int port = 8080;
 
-    @Parameter(names = "-featureData", description = "Filename of feature data file to read", required = true)
-    private String featureDataName;
+    @Parameter(names = "-featureData", description = "Filename of feature data file to read.", required = true)
+    private String pathToFeatureData;
+
+    @Parameter(names = "-eventData", description = "Path to H2 database files holding event data.", required = true)
+    private String pathToEventDatabase;
 
     public void setHelp(boolean help) {
         this.help = help;
@@ -42,8 +45,11 @@ public class UserArguments {
         return port;
     }
 
-    public String getFeatureDataName() {
-        return featureDataName;
+    public String getPathToFeatureData() {
+        return pathToFeatureData;
     }
 
+    public String getPathToEventDatabase() {
+        return pathToEventDatabase;
+    }
 }

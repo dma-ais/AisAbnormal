@@ -122,13 +122,14 @@ var dmaAbnormalApp = {
         var se = new OpenLayers.Geometry.Point(viewport.right, viewport.bottom);
         se.transform(dmaAbnormalApp.map.getProjectionObject(), dmaAbnormalApp.projectionWGS84);
 
-        var cellResourceService = "/abnormal/featuredata/cell";
+        var cellResourceService = "/abnormal/rest/cell";
         $.getJSON(cellResourceService, {
             north: nw.y,
             east: se.x,
             south: se.y,
             west: nw.x
         }).done(function (cells) {
+                $('#cell-layer-load-status').html('Processing cells...');
                 var gridLayer = dmaAbnormalApp.map.getLayersByName("DMA grid layer")[0];
                 var numCellsAdded = 0;
                 $.each(cells, function (i, cell) {
@@ -300,8 +301,7 @@ var dmaAbnormalApp = {
     },
 
     userOutputMetadata: function () {
-        // http://localhost:8080/abnormal/featuredata/featureset/
-        var featuresetResourceService = "/abnormal/featuredata/featureset/";
+        var featuresetResourceService = "/abnormal/rest/featureset/";
         $.getJSON(featuresetResourceService)
             .done(function (featureset) {
                 $('#gridsize > .data').html(featureset[0].gridResolution * 40075000.0 / 360 + ' m');

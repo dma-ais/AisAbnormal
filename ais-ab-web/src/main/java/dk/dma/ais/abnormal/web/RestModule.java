@@ -23,10 +23,14 @@ import com.google.inject.servlet.ServletModule;
 import com.sun.jersey.api.core.PackagesResourceConfig;
 import com.sun.jersey.api.core.ResourceConfig;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
+import dk.dma.ais.abnormal.event.db.EventRepository;
+import dk.dma.ais.abnormal.event.db.h2.H2EventRepository;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.mapdb.FeatureDataRepositoryMapDB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
 
 
 public final class RestModule extends ServletModule {
@@ -34,14 +38,17 @@ public final class RestModule extends ServletModule {
     static final Logger LOG = LoggerFactory.getLogger(RestModule.class);
 
     private final String repositoryFilename;
+    private final String pathToEventDatabase;
 
-    public RestModule(String repositoryFilename) {
+    public RestModule(String repositoryFilename, String pathToEventDatabase) {
         this.repositoryFilename = repositoryFilename;
+        this.pathToEventDatabase = pathToEventDatabase;
     }
 
     @Override
     protected void configureServlets() {
         ResourceConfig rc = new PackagesResourceConfig(
+                "dk.dma.ais.abnormal.event.rest",
                 "dk.dma.ais.abnormal.stat.rest",
                 "dk.dma.commons.web.rest.defaults",
                 "org.codehaus.jackson.jaxrs"
@@ -56,10 +63,11 @@ public final class RestModule extends ServletModule {
             }
         }
 
-        serve("/featuredata/*").with( GuiceContainer.class );
+        serve("/rest/*").with( GuiceContainer.class );
     }
 
-    @Provides @Singleton
+    @Provides
+    @Singleton
     FeatureDataRepository provideFeatureDataRepository() {
         FeatureDataRepository featureDataRepository = null;
         try {
@@ -70,6 +78,12 @@ public final class RestModule extends ServletModule {
             LOG.error(e.getMessage(), e);
         }
         return featureDataRepository;
+    }
+
+    @Provides
+    @Singleton
+    EventRepository provideEventRepository() {
+        return new H2EventRepository(new File(pathToEventDatabase), false);
     }
 
 }

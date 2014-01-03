@@ -75,7 +75,6 @@
             <version>1.17.1</version>
         </dependency>
     </dependencies>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -101,8 +100,10 @@
                     <mainClass>dk.dma.ais.abnormal.web.AbnormalWebApp</mainClass>
                     <executable>maven</executable>
                     <arguments>
+                        <argument>-eventData</argument>
+                        <argument>/Users/tbsalling/Documents/tbsalling.dk/Udvikling/SFS/idea.workspace/AisAbnormal/ais-ab-analyzer/src/test/resources/db/repository.h2.db</argument>
                         <argument>-featureData</argument>
-                        <argument>../ais-ab-stat-builder/data/ais-sample.featureData</argument>
+                        <argument>/Users/tbsalling/Documents/tbsalling.dk/Udvikling/SFS/data/features/aisdk-2013H2-grid500-dwn5-test</argument>
                     </arguments>
                 </configuration>
             </plugin>

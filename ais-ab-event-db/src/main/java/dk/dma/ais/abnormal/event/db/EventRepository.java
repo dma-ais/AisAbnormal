@@ -28,6 +28,13 @@ import java.util.List;
 public interface EventRepository {
     void save(Event event);
 
+    /**
+     * Get an event from the database.
+     * @param eventId The id of the event to get.
+     * @return the event loaded from the database.
+     */
+    Event getEvent(long eventId);
+
     List<Event> findOngoingEventsByVessel(VesselId vesselId);
     <T extends Event> T findOngoingEventByVessel(VesselId vesselId, Class<T> eventClass);
 }

@@ -58,7 +58,7 @@ public class H2EventRepository implements EventRepository {
                     .setProperty("hibernate.connection.password", "")
                     .setProperty("hibernate.default_schema", "PUBLIC")
                     .setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect")
-                    .setProperty("hibernate.show_sql", "true")
+                    //.setProperty("hibernate.show_sql", "true")
                     .setProperty("hibernate.hbm2ddl.auto", "update")
                     .setProperty("hibernate.order_updates", "true")
                     .addAnnotatedClass(AbnormalShipSizeOrTypeEvent.class)
@@ -125,6 +125,13 @@ public class H2EventRepository implements EventRepository {
         } finally {
             session.close();
         }
+    }
+
+    @Override
+    public Event getEvent(long eventId) {
+        Session session = getSession();
+        Event event = (Event) session.get(Event.class, eventId);
+        return event;
     }
 
     @Override

@@ -12,13 +12,17 @@
 		</layout>
 	</appender>
 
-    <logger name="dk.dma.ais.abnormal">
+    <logger name="dk.dma.ais.abnormal.event.rest">
+        <level value="DEBUG"/>
+    </logger>
+
+    <logger name="dk.dma.ais.abnormal.stat.rest">
         <level value="DEBUG"/>
     </logger>
 
     <root>
-		<appender-ref ref="CONSOLE" />
         <level value="INFO" />
+        <appender-ref ref="CONSOLE" />
 	</root>
 
 </log4j:configuration>

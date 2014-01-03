@@ -47,11 +47,13 @@ public class WebServer {
     private final Server server;
 
     private final String repositoryName;
+    private final String pathToEventDatabase;
 
-    public WebServer(int port, String repositoryName) {
+    public WebServer(int port, String repositoryName, String pathToEventDatabase) {
         server = new Server(port);
         this.context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         this.repositoryName = repositoryName;
+        this.pathToEventDatabase = pathToEventDatabase;
     }
 
     /**
@@ -79,10 +81,10 @@ public class WebServer {
         context.addEventListener(new GuiceServletContextListener() {
             @Override
             protected Injector getInjector() {
-                return Guice.createInjector(new RestModule(repositoryName));
+                return Guice.createInjector(new RestModule(repositoryName, pathToEventDatabase));
             }
         });
-        context.addFilter(com.google.inject.servlet.GuiceFilter.class, "/featuredata/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(com.google.inject.servlet.GuiceFilter.class, "/rest/*", EnumSet.allOf(DispatcherType.class));
 
         // Setup diagnostic logging
         HandlerWrapper hw = new HandlerWrapper() {

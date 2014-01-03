@@ -31,22 +31,24 @@ public final class WebAppModule extends AbstractModule {
 
     private final int    port;
     private final String repositoryName;
+    private final String pathToEventDatabase;
 
-    public WebAppModule(int port, String repositoryName) {
+    public WebAppModule(int port, String repositoryName, String pathToEventDatabase) {
         this.port = port;
         this.repositoryName = repositoryName;
+        this.pathToEventDatabase = pathToEventDatabase;
     }
 
     @Override
     public void configure() {
     }
 
-    @Provides @Singleton
+    @Provides
+    @Singleton
     WebServer provideWebServer() {
         WebServer webServer = null;
         try {
-            webServer = new WebServer(port, repositoryName);
-            //webServer.getContext().setAttribute(AbstractResource.CONFIG, AbstractResource.create());
+            webServer = new WebServer(port, repositoryName, pathToEventDatabase);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
