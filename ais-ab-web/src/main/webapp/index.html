@@ -1,4 +1,4 @@
-<!doctype htmlL>
+<!doctype html>
 <head>
 	<title>Danish Maritime Administration</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,6 +21,8 @@
             <h1>AIS Abnormal Behaviour</h1>
             <p class="lead">A service delivered by the Danish Maritime Authority.</p>
         </div>
+        <div id="event-search-modal-wrapper">
+        </div>
         <div class="row">
             <div class="col-md-9">
                 <div id="map"></div>
@@ -29,7 +31,8 @@
                 <div id="tabs">
                     <ul>
                         <li><a href="#tabs-1">Map</a></li>
-                        <li><a href="#tabs-2">Features</a></li>
+                        <li><a href="#tabs-2">Statistics</a></li>
+                        <li><a href="#tabs-3">Events</a></li>
                     </ul>
                     <div id="tabs-1">
                         <div class="headline">View</div>
@@ -48,6 +51,10 @@
                         <div class="useroutput" id="downsampling">Down sampling: <span class="data">...</span></div>
                         <div class="headline" id="feature-names">Features</div>
                     </div>
+                    <div id="tabs-3">
+                        <div class="headline">Event</div>
+                        <button data-toggle="modal" data-target="#event-search-modal">Search events...</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -62,7 +69,7 @@
 
     <div id="footer">
         <div class="container">
-            <p>(C) Copyright 2013 by the  <a href="http://www.dma.dk/">Danish Maritime Authority</a>.</p>
+            <p>(C) Copyright 2013-4 by the <a href="http://www.dma.dk/">Danish Maritime Authority</a>.</p>
         </div>
     </div>
 
