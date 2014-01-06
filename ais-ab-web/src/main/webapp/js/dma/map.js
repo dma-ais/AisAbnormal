@@ -25,6 +25,18 @@ var mapModule = {
         this.zoomToDenmark();
     },
 
+    zoomTo: function(westernLongitude, northernLatitude, easternLongitude, southernLatitude) {
+        var nw = new OpenLayers.LonLat(westernLongitude, northernLatitude).transform(this.projectionWGS84, this.projectionSphericalMercator);
+        var se = new OpenLayers.LonLat(easternLongitude, southernLatitude).transform(this.projectionWGS84, this.projectionSphericalMercator);
+
+        var bounds = new OpenLayers.Bounds();
+        bounds.extend(nw);
+        bounds.extend(se);
+        bounds.toBBOX();
+
+        mapModule.map.zoomToExtent(bounds, true);
+    },
+
     zoomToDenmark: function() {
         // set the map centre on the middle of Denmark
         var lat = 56;

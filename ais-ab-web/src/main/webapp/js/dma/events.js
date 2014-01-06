@@ -45,12 +45,12 @@ var eventModule = {
                 var eventEnd = new Date(0);
                 eventEnd.setUTCSeconds(event.endTime / 1000);
 
-                var tableHtml  = "<table class='table'>"
+                var tableHtml  = "<table class='table search-results'>"
                     tableHtml += "<thead><tr>";
                     tableHtml += "<td>Action</td><td>Id</td><td>State</td><td>Start</td><td>End</td><td>Vessel</td>";
                     tableHtml += "</tr></thead>";
                     tableHtml += "<tbody><tr>";
-                    tableHtml += "<td><span class='glyphicon glyphicon-film'></span></td>";
+                    tableHtml += "<td><span id='result-0' class='glyphicon glyphicon-film'></span></td>";
                     tableHtml += "<td>" + event.id + "</td>";
                     tableHtml += "<td>" + event.state + "</td>";
                     tableHtml += "<td>" + eventModule.formatDate(eventStart) + "</td>";
@@ -62,9 +62,41 @@ var eventModule = {
                 var events = $('div#event-search-modal div.search-results');
                 events.empty();
                 events.append(tableHtml);
+                $("#event-search-modal .search-results #result-0").on("click", function() {
+                    eventModule.visualizeEvent(event);
+                    $('#event-search-modal').modal('hide');
+                });
+
             }).fail(function (jqXHR, textStatus) {
                 console.log(textStatus);
             });
         }
+    },
+
+    computeEventExtent: function(event) {
+        var e=-180, n=-90, w=180, s=90;
+
+        var positions = event.behaviour.positions;
+            $.each(positions, function (idx, position) {
+                if (position.longitude > e) {
+                    e = position.longitude;
+                }
+                if (position.longitude < w) {
+                    w = position.longitude;
+                }
+                if (position.latitude < s) {
+                    s = position.latitude;
+                }
+                if (position.latitude > n) {
+                    n = position.latitude;
+                }
+            });
+
+        return [w, n, e, s];
+    },
+
+    visualizeEvent: function(event) {
+        var extent = eventModule.computeEventExtent(event);
+        mapModule.zoomTo(extent[0],extent[1],extent[2],extent[3]);
     }
 };
