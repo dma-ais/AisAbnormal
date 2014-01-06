@@ -54,6 +54,11 @@
 			<artifactId>jetty-servlet</artifactId>
 			<version>${dependencies.jetty.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-rewrite</artifactId>
+            <version>9.1.0.v20131115</version>
+        </dependency>
 		<dependency>
 			<groupId>dk.dma.web</groupId>
 			<artifactId>dma-web-rest</artifactId>
