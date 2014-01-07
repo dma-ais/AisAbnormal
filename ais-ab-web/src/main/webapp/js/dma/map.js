@@ -5,7 +5,9 @@
 var mapModule = {
 
     map: null,
+
     isGridLayerVisible: false,
+    isVesselLayerVisible: false,
 
     projectionWGS84: null,
     projectionSphericalMercator: null,
@@ -20,6 +22,9 @@ var mapModule = {
         var zoom = new OpenLayers.Control.Zoom();
         this.map.addControl(zoom);
         zoom.activate();
+
+        mapModule.constructGridLayer();
+        mapModule.constructVesselLayer();
 
         this.registerEventHandlers();
         this.zoomToDenmark();
@@ -95,6 +100,16 @@ var mapModule = {
         $('#cell-layer-display-status').html('Cell layer visible.');
     },
 
+    showVesselLayer: function () {
+        var vesselLayer = mapModule.map.getLayersByName("DMA vessel layer")[0];
+        if (vesselLayer) {
+            vesselLayer.display(true);
+        } else {
+            mapModule.constructVesselLayer();
+        }
+        mapModule.isVesselLayerVisible = true;
+    },
+
     hideGridLayer: function () {
         var gridLayer = mapModule.map.getLayersByName("DMA grid layer")[0];
         if (gridLayer) {
@@ -106,8 +121,20 @@ var mapModule = {
         }
     },
 
+    hideVesselLayer: function () {
+        var vesselLayer = mapModule.map.getLayersByName("DMA vessel layer")[0];
+        if (vesselLayer) {
+            vesselLayer.display(false);
+            mapModule.isVesselLayerVisible = false;
+        }
+    },
+
     getGridLayer: function () {
         return mapModule.map.getLayersByName("DMA grid layer")[0];
+    },
+
+    getVesselLayer: function () {
+        return mapModule.map.getLayersByName("DMA vessel layer")[0];
     },
 
     constructGridLayer: function () {
@@ -127,6 +154,25 @@ var mapModule = {
         });
 
         mapModule.map.addLayer(gridLayer);
+        mapModule.map.setLayerIndex(gridLayer, 1);
+    },
+
+    constructVesselLayer: function () {
+        var renderer = OpenLayers.Util.getParameters(window.location.href).renderer;
+        renderer = (renderer) ? [renderer] : OpenLayers.Layer.Vector.prototype.renderers;
+
+        var layerStyle = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+        layerStyle.fillOpacity = 0.2;
+        layerStyle.graphicOpacity = 1;
+
+        var vesselLayer = new OpenLayers.Layer.Vector("DMA vessel layer", {
+            style: layerStyle,
+            renderers: renderer,
+            eventListeners: this.vesselLayerFeatureListeners
+        });
+
+        mapModule.map.addLayer(vesselLayer);
+        mapModule.map.setLayerIndex(vesselLayer, 2);
     },
 
     userOutputUpdateCursorPos: function (screenpos) {
@@ -175,6 +221,9 @@ var mapModule = {
         featureout: function (e) {
             // console.log(e.object.name + " says: " + e.feature.id + " left.");
         }
+    },
+
+    vesselLayerFeatureListeners: {
     }
 
 };

@@ -155,5 +155,6 @@ var eventModule = {
     visualizeEvent: function(event) {
         var extent = eventModule.computeEventExtent(event);
         mapModule.zoomTo(extent[0],extent[1],extent[2],extent[3]);
+        vesselModule.addBehavior(event.behaviour);
     }
 };

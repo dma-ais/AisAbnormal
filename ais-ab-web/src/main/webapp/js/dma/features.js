@@ -27,13 +27,13 @@ var featureModule = {
             west: nw.x
         }).done(function (cells) {
                 $('#cell-layer-load-status').html('Processing cells...');
-                var gridLayer = mapModule.getGridLayer();
                 var numCellsAdded = 0;
+                var gridLayer = mapModule.getGridLayer();
                 $.each(cells, function (i, cell) {
                     var cellAlreadyLoadded = gridLayer.getFeatureByFid(cell.cellId);
                     if (!cellAlreadyLoadded) {
                         featureModule.preProcessCell(cell);
-                        featureModule.addCell(gridLayer, cell);
+                        featureModule.addCell(cell);
                         numCellsAdded++;
                     }
                 });
@@ -56,7 +56,7 @@ var featureModule = {
         });
     },
 
-    addCell: function (layer, cell) {
+    addCell: function (cell) {
         var cellCoords = new Array();
 
         point = new OpenLayers.Geometry.Point(cell.west, cell.north);
@@ -92,7 +92,9 @@ var featureModule = {
         var cellGeometry = new OpenLayers.Geometry.LinearRing(cellCoords);
         cellFeature = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Polygon([cellGeometry]), cell, cellStyle);
         cellFeature.fid = cell.cellId;
-        layer.addFeatures([cellFeature]);
+
+        var gridLayer = mapModule.getGridLayer();
+        gridLayer.addFeatures([cellFeature]);
     },
 
     userOutputClearCellData: function () {
