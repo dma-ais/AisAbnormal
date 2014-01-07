@@ -19,6 +19,7 @@ package dk.dma.ais.abnormal.event.rest;
 import com.google.inject.Inject;
 import com.google.inject.servlet.RequestScoped;
 import dk.dma.ais.abnormal.event.db.EventRepository;
+import dk.dma.ais.abnormal.event.rest.parameters.DateParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 @RequestScoped
@@ -53,4 +55,9 @@ public class EventResource {
         return eventRepository.getEvent(id);
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Object get(@QueryParam("from") DateParameter from, @QueryParam("to") DateParameter to, @QueryParam("type") String type, @QueryParam("vessel") String vessel) {
+        return eventRepository.findEventsByFromAndToAndTypeAndVessel(from.value(), to.value(), type, vessel);
+    }
 }

@@ -25,6 +25,26 @@ li {
     font-size: smaller;
 }
 
+span.glyphicon {
+    margin-right: 1ex;
+}
+
+/* Event modal */
+.modal.large {
+    width: 80%;
+    /*margin-left: -40%;*/
+}
+
+.modal-dialog {
+    width: 80%;
+}
+
+/* Event search result modal */
+#event-search-modal .search-results .search-data {
+    max-height: 256px;
+    overflow: scroll;
+}
+
 /* Sticky footer styles
    -------------------------------------------------- */
 

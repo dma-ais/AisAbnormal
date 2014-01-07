@@ -5,7 +5,9 @@
 var eventModule = {
     init: function () {
         $('#event-search-modal-wrapper').load("event-search-modal.html", function () {
+            $('.tabs#event-search-tabs').tabs();
             $('#event-search-by-id').click(eventModule.findEventById);
+            $('#event-search-by-other').click(eventModule.findEventByCriteria);
         });
     },
 
@@ -32,43 +34,98 @@ var eventModule = {
         return curr_date + "-" + curr_month + "-" + curr_year + " " + curr_hour + ":" + curr_min + ":" + curr_sec;
     },
 
+    setSearchStatus: function(statusText) {
+        $("#event-search-modal .search-results .search-status").empty();
+        $("#event-search-modal .search-results .search-status").append(statusText);
+    },
+
+    clearSearchResults: function () {
+        eventModule.setSearchStatus("");
+
+        var searchResults = $('#event-search-modal .search-results .search-data');
+
+        searchResults.empty();
+
+        var tableHtml  = "<table class='table search-results'>"
+        tableHtml += "<thead><tr>";
+        tableHtml += "<td>Action</td><td>Id</td><td>State</td><td>Start</td><td>End</td><td>Vessel</td>";
+        tableHtml += "</tr></thead><tbody></tbody>";
+        tableHtml += "</table>";
+
+        searchResults.append(tableHtml);
+    },
+
+    addSearchResult: function(searchResult) {
+        var searchResults = $('#event-search-modal table.search-results tbody');
+
+        var eventStart = '';
+        if (searchResult.startTime > 0) {
+            var time = new Date(0);
+            time.setUTCSeconds(searchResult.startTime / 1000);
+            eventStart = eventModule.formatDate(time);
+        }
+
+        var eventEnd = '';
+        if (searchResult.endTime > 0) {
+            var time = new Date(0);
+            time.setUTCSeconds(searchResult.endTime / 1000);
+            eventEnd = eventModule.formatDate(time);
+        }
+
+        var searchResultHtml  = "<tr>";
+        searchResultHtml += "<td><span id='result-" + searchResult.id + "' class='glyphicon glyphicon-film'></span></td>";
+        searchResultHtml += "<td>" + searchResult.id + "</td>";
+        searchResultHtml += "<td>" + searchResult.state + "</td>";
+        searchResultHtml += "<td>" + eventStart + "</td>";
+        searchResultHtml += "<td>" + eventEnd + "</td>";
+        searchResultHtml += "<td>" + searchResult.behaviour.vessel.id.name + "</td>";
+        searchResultHtml += "</tr>";
+
+        searchResults.append(searchResultHtml);
+
+        $("#event-search-modal .search-results #result-" + searchResult.id).on("click", function() {
+            eventModule.visualizeEvent(searchResult);
+            $('#event-search-modal').modal('hide');
+        });
+    },
+
+    findEventByCriteria: function () {
+        eventModule.clearSearchResults();
+        eventModule.setSearchStatus("Searching...");
+
+        var eventResourceService = "/abnormal/rest/event";
+        var queryParams = {
+            from: $('input#search-event-from').val(),
+            to: $('input#search-event-to').val(),
+            type: $('input#search-event-type').val(),
+            vessel: '%' + $('input#search-event-vessel').val().replace("*","%") + '%'
+        };
+        var eventRequest = eventResourceService + "?" + $.param(queryParams);
+
+        $.getJSON(eventRequest).done(function (events) {
+            eventModule.setSearchStatus("Found " + events.length + " matching events.");
+            $.each(events, function (idx, event) {
+                eventModule.addSearchResult(event);
+            });
+        }).fail(function (jqXHR, textStatus) {
+            eventModule.setSearchStatus("Search error: " + textStatus);
+        });
+    },
+
     findEventById: function () {
+        eventModule.clearSearchResults();
+        eventModule.setSearchStatus("Searching...");
+
         var eventId = $('input#search-event-id').val();
         if (eventId) {
             //http://localhost:8080/abnormal/rest/event/1
             var eventResourceService = "/abnormal/rest/event";
             var eventResource = eventResourceService + "/" + eventId;
             $.getJSON(eventResource).done(function (event) {
-                var eventStart = new Date(0);
-                eventStart.setUTCSeconds(event.startTime / 1000);
-
-                var eventEnd = new Date(0);
-                eventEnd.setUTCSeconds(event.endTime / 1000);
-
-                var tableHtml  = "<table class='table search-results'>"
-                    tableHtml += "<thead><tr>";
-                    tableHtml += "<td>Action</td><td>Id</td><td>State</td><td>Start</td><td>End</td><td>Vessel</td>";
-                    tableHtml += "</tr></thead>";
-                    tableHtml += "<tbody><tr>";
-                    tableHtml += "<td><span id='result-0' class='glyphicon glyphicon-film'></span></td>";
-                    tableHtml += "<td>" + event.id + "</td>";
-                    tableHtml += "<td>" + event.state + "</td>";
-                    tableHtml += "<td>" + eventModule.formatDate(eventStart) + "</td>";
-                    tableHtml += "<td>" + eventModule.formatDate(eventEnd) + "</td>";
-                    tableHtml += "<td>" + event.behaviour.vessel.id.name + "</td>";
-                    tableHtml += "</tr></tbody>";
-                    tableHtml += "</table>";
-
-                var events = $('div#event-search-modal div.search-results');
-                events.empty();
-                events.append(tableHtml);
-                $("#event-search-modal .search-results #result-0").on("click", function() {
-                    eventModule.visualizeEvent(event);
-                    $('#event-search-modal').modal('hide');
-                });
-
+                eventModule.setSearchStatus("Found " + (event ? "":"no ") + "matching event.");
+                eventModule.addSearchResult(event);
             }).fail(function (jqXHR, textStatus) {
-                console.log(textStatus);
+                eventModule.setSearchStatus("Search error: " + textStatus);
             });
         }
     },

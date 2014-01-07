@@ -24,6 +24,7 @@ import dk.dma.ais.abnormal.event.db.domain.Position;
 import dk.dma.ais.abnormal.event.db.domain.SuddenSpeedChangeEvent;
 import dk.dma.ais.abnormal.event.db.domain.Vessel;
 import dk.dma.ais.abnormal.event.db.domain.VesselId;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -34,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 
 @SuppressWarnings("JpaQlInspection")
@@ -132,6 +134,80 @@ public class H2EventRepository implements EventRepository {
         Session session = getSession();
         Event event = (Event) session.get(Event.class, eventId);
         return event;
+    }
+
+    @Override
+    public List<Event> findEventsByFromAndToAndTypeAndVessel(Date from, Date to, String type, String vessel) {
+        Session session = getSession();
+
+        boolean usesFrom = false, usesTo = false, usesType = false, usesVessel = false;
+
+        List events = null;
+        try {
+            //Query query = session.createQuery("SELECT e FROM Event e WHERE e.behaviour.vessel.id.name LIKE :vessel OR e.behaviour.vessel.id.callsign LIKE :vessel OR e.behaviour.vessel.id.imo=:vessel OR e.behaviour.vessel.id.mmsi=:vessel");
+            StringBuilder hql = new StringBuilder();
+            hql.append("SELECT e FROM Event e WHERE ");
+
+            // from
+            if (from != null) {
+                hql.append("(e.startTime >= :from OR e.endTime >= :from) AND ");
+                usesFrom = true;
+            }
+
+            // to
+            if (to != null) {
+                hql.append("(e.startTime <= :to OR e.endTime <= :to) AND ");
+                usesTo = true;
+            }
+
+            // type
+            if (! StringUtils.isBlank(type)) {
+                hql.append("TYPE(e) IN (:classes) AND ");
+                usesType = true;
+            }
+
+            // vessel
+            if (! StringUtils.isBlank(vessel)) {
+                hql.append("(");
+                hql.append("e.behaviour.vessel.id.callsign LIKE :vessel OR ");
+                hql.append("e.behaviour.vessel.id.name LIKE :vessel OR ");
+                try {
+                    Long vesselAsLong = Long.valueOf(vessel);
+                    hql.append("e.behaviour.vessel.id.mmsi = :vessel OR ");
+                    hql.append("e.behaviour.vessel.id.imo = :vessel OR ");
+                } catch (NumberFormatException e) {
+                }
+                hql.replace(hql.length()-3, hql.length(), ")"); // "OR " -> ")"
+                usesVessel = true;
+            }
+
+            //
+            String hqlAsString = hql.toString().trim();
+            if (hqlAsString.endsWith("AND")) {
+                hqlAsString = hqlAsString.substring(0, hqlAsString.lastIndexOf("AND"));
+            }
+
+            //
+            Query query = session.createQuery(hqlAsString);
+            if (usesFrom) {
+                query.setParameter("from", from);
+            }
+            if (usesTo) {
+                query.setParameter("to", to);
+            }
+            if (usesType) {
+                query.setParameter("type", "NIY");
+            }
+            if (usesVessel) {
+                query.setParameter("vessel", vessel);
+            }
+            events = query.list();
+        } finally {
+            session.close();
+        }
+
+        return events;
+
     }
 
     @Override

@@ -64,9 +64,6 @@ public abstract class Event {
      */
     @Past
     private Date endTime;
-    /**
-     * MMSI no. of the primary involved vessel.
-     */
 
     /**
      * The behaviour observed in connection with this event

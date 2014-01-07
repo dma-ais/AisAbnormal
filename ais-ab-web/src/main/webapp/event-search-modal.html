@@ -1,26 +1,59 @@
 <!doctype html>
 <head></head>
 <body>
-    <div class="modal fade" id="event-search-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal large fade" id="event-search-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+                    <h4 class="modal-title">Search for events</h4>
                 </div>
                 <div class="modal-body">
-                    <form class="form-horizontal" role="form">
-                        <div class="form-group">
-                            <label for="search-event-id" class="col-sm-2 control-label">Event ID</label>
-                            <div class="col-sm-10">
-                                <input type="event-id" class="form-control" id="search-event-id" placeholder="Event ID">
-                                <button type="button" class="btn btn-default" id="event-search-by-id">Search...</button>
-                            </div>
+                    <div id="event-search-tabs" class="tabs">
+                        <ul>
+                            <li><a href="#event-search-tab-by-other">By *</a></li>
+                            <li><a href="#event-search-tab-by-id">By event-id</a></li>
+                        </ul>
+                        <div id="event-search-tab-by-other" class="tab-pane active">
+                            <form class="form-horizontal" role="form">
+                                <div class="form-group">
+                                    <label for="search-event-from" class="col-sm-2 control-label">From</label>
+                                    <div class="col-sm-4">
+                                        <input class="form-control" id="search-event-from" placeholder="dd/mm/yyyy hh:mm">
+                                    </div>
+                                    <label for="search-event-to" class="col-sm-2 control-label">To</label>
+                                    <div class="col-sm-4">
+                                        <input class="form-control" id="search-event-to" placeholder="dd/mm/yyyy hh:mm">
+                                    </div>
+                                    <label for="search-event-type" class="col-sm-2 control-label">Event type</label>
+                                    <div class="col-sm-4">
+                                        <input class="form-control" id="search-event-type" placeholder="Not yet supported" disabled>
+                                    </div>
+                                    <label for="search-event-vessel" class="col-sm-2 control-label">Vessel</label>
+                                    <div class="col-sm-4">
+                                        <input class="form-control" id="search-event-vessel" placeholder="name/cs/imo">
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-default" id="event-search-by-other"><span class="glyphicon glyphicon-search"></span>Search</button>
+                            </form>
                         </div>
-                    </form>
-                    <div class="search-results">
+                        <div id="event-search-tab-by-id">
+                            <form class="form-horizontal" role="form">
+                                <div class="form-group">
+                                    <label for="search-event-id" class="col-sm-2 control-label">ID</label>
+                                    <div class="col-sm-10">
+                                        <input type="event-id" class="form-control" id="search-event-id" placeholder="Event ID">
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-default" id="event-search-by-id"><span class="glyphicon glyphicon-search"></span>Search</button>
+                            </form>
+                        </div>
                     </div>
+                <div class="search-results">
+                    <div class="search-status"></div>
+                    <div class="search-data"></div>
                 </div>
+            </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>

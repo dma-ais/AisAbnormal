@@ -73,6 +73,9 @@ public class WebServer {
         context.setResourceBase("src/main/webapp/");
         context.addServlet(DefaultServlet.class, "/");
 
+        // Enable Jersey debug output
+        context.setInitParameter("com.sun.jersey.config.feature.Trace", "true");
+
         // Little hack to satisfy OpenLayers URLs in DMA context
         RewritePatternRule openlayersRewriteRule = new RewritePatternRule();
         openlayersRewriteRule.setPattern("/abnormal/theme/*");

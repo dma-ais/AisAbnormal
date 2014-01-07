@@ -21,14 +21,15 @@
             <h1>AIS Abnormal Behaviour</h1>
             <p class="lead">A service delivered by the Danish Maritime Authority.</p>
         </div>
-        <div id="event-search-modal-wrapper">
+        <div class="row">
+            <div class="col-md-12" id="event-search-modal-wrapper" />
         </div>
         <div class="row">
             <div class="col-md-9">
                 <div id="map"></div>
             </div>
             <div class="col-md-3">
-                <div id="tabs">
+                <div class="tabs">
                     <ul>
                         <li><a href="#tabs-1">Map</a></li>
                         <li><a href="#tabs-2">Statistics</a></li>
@@ -78,10 +79,8 @@
             $(window).resize(function(){
                 $('div#map').css('height', $(window).height() - 500);
             }).resize();
-
-
             $(function() {
-                $( "#tabs" ).tabs();
+                $('.tabs').tabs();
             });
             dmaAbnormalApp.init();
         });
