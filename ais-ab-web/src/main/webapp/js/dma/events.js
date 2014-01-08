@@ -11,6 +11,16 @@ var eventModule = {
         });
     },
 
+    formatTimestamp: function (t) {
+        var res = "";
+        if (t > 0) {
+            var time = new Date(0);
+            time.setUTCSeconds(t / 1000);
+            res = eventModule.formatDate(time);
+        }
+        return res;
+    },
+
     formatDate: function(d) {
         var curr_date = d.getDate();
         var curr_month = d.getMonth();
@@ -58,19 +68,8 @@ var eventModule = {
     addSearchResult: function(searchResult) {
         var searchResults = $('#event-search-modal table.search-results tbody');
 
-        var eventStart = '';
-        if (searchResult.startTime > 0) {
-            var time = new Date(0);
-            time.setUTCSeconds(searchResult.startTime / 1000);
-            eventStart = eventModule.formatDate(time);
-        }
-
-        var eventEnd = '';
-        if (searchResult.endTime > 0) {
-            var time = new Date(0);
-            time.setUTCSeconds(searchResult.endTime / 1000);
-            eventEnd = eventModule.formatDate(time);
-        }
+        var eventStart = eventModule.formatTimestamp(searchResult.startTime);
+        var eventEnd = eventModule.formatTimestamp(searchResult.endTime);
 
         var searchResultHtml  = "<tr>";
         searchResultHtml += "<td><span id='result-" + searchResult.id + "' class='glyphicon glyphicon-film'></span></td>";
@@ -130,31 +129,32 @@ var eventModule = {
         }
     },
 
+    expandBounds: function(bounds, meters) {
+        var nw = new OpenLayers.LonLat(bounds.left, bounds.top);
+        var se = new OpenLayers.LonLat(bounds.right, bounds.bottom);
+
+        nw = OpenLayers.Util.destinationVincenty(nw, -45, meters);
+        se = OpenLayers.Util.destinationVincenty(se, 135, meters);
+
+        bounds.extend(nw);
+        bounds.extend(se);
+
+        return bounds;
+    },
+
     computeEventExtent: function(event) {
-        var e=-180, n=-90, w=180, s=90;
+        var bounds = new OpenLayers.Bounds();
 
         var trackingPoints = event.behaviour.trackingPoints;
-            $.each(trackingPoints, function (idx, trackingPoint) {
-                if (trackingPoint.longitude > e) {
-                    e = trackingPoint.longitude;
-                }
-                if (trackingPoint.longitude < w) {
-                    w = trackingPoint.longitude;
-                }
-                if (trackingPoint.latitude < s) {
-                    s = trackingPoint.latitude;
-                }
-                if (trackingPoint.latitude > n) {
-                    n = trackingPoint.latitude;
-                }
-            });
+        $.each(trackingPoints, function (idx, trackingPoint) {
+            var point = new OpenLayers.LonLat(trackingPoint.longitude, trackingPoint.latitude);
+            bounds.extend(point);
+        });
 
-        return [w, n, e, s];
+        return eventModule.expandBounds(bounds, 1000);
     },
 
     visualizeEvent: function(event) {
-        var extent = eventModule.computeEventExtent(event);
-        mapModule.zoomTo(extent[0]-0.01,extent[1]+0.01,extent[2]+0.01,extent[3]-0.01);
-        vesselModule.addBehavior(event.behaviour);
+        vesselModule.addEvent(event);
     }
 };

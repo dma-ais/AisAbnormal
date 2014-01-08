@@ -30,9 +30,9 @@ var mapModule = {
         this.zoomToDenmark();
     },
 
-    zoomTo: function(westernLongitude, northernLatitude, easternLongitude, southernLatitude) {
-        var nw = new OpenLayers.LonLat(westernLongitude, northernLatitude).transform(this.projectionWGS84, this.projectionSphericalMercator);
-        var se = new OpenLayers.LonLat(easternLongitude, southernLatitude).transform(this.projectionWGS84, this.projectionSphericalMercator);
+    zoomTo: function(bounds) {
+        var nw = new OpenLayers.LonLat(bounds.left, bounds.top).transform(this.projectionWGS84, this.projectionSphericalMercator);
+        var se = new OpenLayers.LonLat(bounds.right, bounds.bottom).transform(this.projectionWGS84, this.projectionSphericalMercator);
 
         var bounds = new OpenLayers.Bounds();
         bounds.extend(nw);
@@ -224,6 +224,13 @@ var mapModule = {
     },
 
     vesselLayerFeatureListeners: {
+        featureclick: function (e) {
+            var feature = e.feature;
+            var data = feature.data;
+            console.info("Logged: " + data);
+
+            return false;
+        }
     }
 
 };
