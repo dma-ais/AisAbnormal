@@ -24,7 +24,7 @@ import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.AbnormalShipSizeOrTypeEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.VesselId;
-import dk.dma.ais.abnormal.event.db.domain.builders.PositionBuilder;
+import dk.dma.ais.abnormal.event.db.domain.builders.TrackingPointBuilder;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeData;
@@ -133,6 +133,8 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
         String callsign = (String) track.getProperty(Track.CALLSIGN);
         String shipName = (String) track.getProperty(Track.SHIP_NAME);
         Position position = (Position) track.getProperty(Track.POSITION);
+        Float cog = (Float) track.getProperty(Track.COURSE_OVER_GROUND);
+        Float sog = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
 
         VesselId vesselId = new VesselId();
         vesselId.setImo(imo);
@@ -143,11 +145,14 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
         Event ongoingEvent = eventRepository.findOngoingEventByVessel(vesselId, AbnormalShipSizeOrTypeEvent.class);
 
         if (ongoingEvent != null) {
-            ongoingEvent.getBehaviour().addPosition(
-                    PositionBuilder.Position()
+            ongoingEvent.getBehaviour().addTrackingPoint(
+                    TrackingPointBuilder.TrackingPoint()
+                            .timestamp(timestamp)
+                            .speedOverGround(sog)
+                            .courseOverGround(cog)
                             .latitude(position.getLatitude())
                             .longitude(position.getLongitude())
-                            .timestamp(timestamp).getPosition()
+                    .getTrackingPoint()
             );
 
             eventRepository.save(ongoingEvent);
@@ -170,11 +175,13 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
                                     .imo(imo)
                                     .callsign(callsign)
                                     .name(shipName)
-                                .position()
+                                .trackingPoint()
                                     .timestamp(timestamp)
+                                    .speedOverGround(sog)
+                                    .courseOverGround(cog)
                                     .latitude(position.getLatitude())
                                     .longitude(position.getLongitude())
-                            .buildEvent();
+                            .getEvent();
 
             eventRepository.save(event);
         }

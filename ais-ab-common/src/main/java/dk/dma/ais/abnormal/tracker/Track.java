@@ -23,6 +23,8 @@ public final class Track {
 
     public static final String TIMESTAMP = "lastUpdate";
     public static final String POSITION = "position";
+    public static final String SPEED_OVER_GROUND = "sog";
+    public static final String COURSE_OVER_GROUND = "cog";
     public static final String CELL_ID = "cellId";
     public static final String SHIP_TYPE = "vesselType";
     public static final String VESSEL_LENGTH = "vesselLength";

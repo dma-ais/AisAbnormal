@@ -20,8 +20,8 @@ import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.AbnormalShipSizeOrTypeEvent;
 import dk.dma.ais.abnormal.event.db.domain.Behaviour;
 import dk.dma.ais.abnormal.event.db.domain.Event;
-import dk.dma.ais.abnormal.event.db.domain.Position;
 import dk.dma.ais.abnormal.event.db.domain.SuddenSpeedChangeEvent;
+import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
 import dk.dma.ais.abnormal.event.db.domain.Vessel;
 import dk.dma.ais.abnormal.event.db.domain.VesselId;
 import org.apache.commons.lang.StringUtils;
@@ -68,7 +68,7 @@ public class H2EventRepository implements EventRepository {
                     .addAnnotatedClass(Vessel.class)
                     .addAnnotatedClass(VesselId.class)
                     .addAnnotatedClass(Behaviour.class)
-                    .addAnnotatedClass(Position.class);
+                    .addAnnotatedClass(TrackingPoint.class);
             ServiceRegistryBuilder serviceRegistryBuilder = new ServiceRegistryBuilder();
             serviceRegistryBuilder.applySettings(configuration.getProperties());
             ServiceRegistry serviceRegistry = serviceRegistryBuilder.buildServiceRegistry();
@@ -131,8 +131,13 @@ public class H2EventRepository implements EventRepository {
 
     @Override
     public Event getEvent(long eventId) {
+        Event event;
         Session session = getSession();
-        Event event = (Event) session.get(Event.class, eventId);
+        try {
+            event = (Event) session.get(Event.class, eventId);
+        } finally {
+            session.close();
+        }
         return event;
     }
 

@@ -17,7 +17,7 @@
 package dk.dma.ais.abnormal.event.db.domain.builders;
 
 import dk.dma.ais.abnormal.event.db.domain.Behaviour;
-import dk.dma.ais.abnormal.event.db.domain.Position;
+import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
 
 public class BehaviourBuilder {
 
@@ -43,15 +43,15 @@ public class BehaviourBuilder {
         return builder;
     }
 
-    public PositionBuilder position(){
-        PositionBuilder builder = new PositionBuilder(this);
-        behaviour.addPosition(builder.getPosition());
+    public TrackingPointBuilder trackingPoint(){
+        TrackingPointBuilder builder = new TrackingPointBuilder(this);
+        behaviour.addTrackingPoint(builder.trackingPoint);
         return builder;
     }
 
-    public BehaviourBuilder positions(Position... positions){
-        for (Position position : positions) {
-            behaviour.addPosition(position);
+    public BehaviourBuilder trackingPoints(TrackingPoint... trackingPoints){
+        for (TrackingPoint trackingPoint : trackingPoints) {
+            behaviour.addTrackingPoint(trackingPoint);
         }
         return this;
     }

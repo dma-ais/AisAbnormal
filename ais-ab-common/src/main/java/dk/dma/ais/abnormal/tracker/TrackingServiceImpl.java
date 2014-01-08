@@ -26,6 +26,7 @@ import dk.dma.ais.message.AisMessage5;
 import dk.dma.ais.message.AisPosition;
 import dk.dma.ais.message.AisTargetType;
 import dk.dma.ais.message.IPositionMessage;
+import dk.dma.ais.message.IVesselPositionMessage;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.grid.Cell;
 import dk.dma.enav.model.geometry.grid.Grid;
@@ -73,10 +74,12 @@ public class TrackingServiceImpl implements TrackingService {
                 updateVesselName(track, aisMessage);
                 updateImo(track, aisMessage);
                 updateCallsign(track, aisMessage);
-                updatePosition(track, aisMessage);
-                updateCellId(track, aisMessage);
                 updateShipType(track, aisMessage);
                 updateVesselLength(track, aisMessage);
+                updatePosition(track, aisMessage);
+                updateSpeedOverGround(track, aisMessage);
+                updateCourseOverGround(track, aisMessage);
+                updateCellId(track, aisMessage);
             } else {
                 Long timeDelta = lastUpdate - currentUpdate;
                 LOG.warn("Message of type " + aisMessage.getMsgId() + " ignored because it is out of sequence by " + timeDelta + " msecs (mmsi " + mmsi + ")");
@@ -111,6 +114,22 @@ public class TrackingServiceImpl implements TrackingService {
             AisMessage5 aisMessage5 = (AisMessage5) aisMessage;
             String callsign = aisMessage5.getCallsign();
             track.setProperty(Track.CALLSIGN, callsign);
+        }
+    }
+
+    private void updateCourseOverGround(Track track, AisMessage aisMessage) {
+        if (aisMessage instanceof IVesselPositionMessage) {
+            IVesselPositionMessage positionMessage = (IVesselPositionMessage) aisMessage;
+            int cog = positionMessage.getCog();
+            track.setProperty(Track.COURSE_OVER_GROUND, new Float(cog / 10.000000000000));
+        }
+    }
+
+    private void updateSpeedOverGround(Track track, AisMessage aisMessage) {
+        if (aisMessage instanceof IVesselPositionMessage) {
+            IVesselPositionMessage positionMessage = (IVesselPositionMessage) aisMessage;
+            int sog = positionMessage.getSog();
+            track.setProperty(Track.SPEED_OVER_GROUND, new Float(sog / 10.000000000000));
         }
     }
 

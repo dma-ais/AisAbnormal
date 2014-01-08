@@ -39,20 +39,20 @@ import static java.util.Collections.sort;
 public class Behaviour {
 
     public Behaviour() {
-        positions = new LinkedList<>();
+        trackingPoints = new LinkedList<>();
     }
 
-    public SortedSet<Position> getPositions() {
-        sort(positions);
-        return ImmutableSortedSet.copyOf(positions);
+    public SortedSet<TrackingPoint> getTrackingPoints() {
+        sort(trackingPoints);
+        return ImmutableSortedSet.copyOf(trackingPoints);
     }
 
-    public void addPosition(Position position) {
-        positions.add(position);
+    public void addTrackingPoint(TrackingPoint TrackingPoint) {
+        trackingPoints.add(TrackingPoint);
     }
 
-    public void addPositions(Set<Position> positions) {
-        this.positions.addAll(positions);
+    public void addTrackingPoints(Set<TrackingPoint> TrackingPoints) {
+        this.trackingPoints.addAll(TrackingPoints);
     }
 
     public Vessel getVessel() {
@@ -77,6 +77,6 @@ public class Behaviour {
     @NotNull
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @OrderBy("timestamp")
-    private List<Position> positions;
+    private List<TrackingPoint> trackingPoints;
 
 }

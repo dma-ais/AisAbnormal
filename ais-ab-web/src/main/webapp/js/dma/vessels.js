@@ -4,71 +4,55 @@
 
 var vesselModule = {
 
+    historyStyle: {
+        strokeColor: 'red',
+        strokeOpacity: 1,
+        strokeWidth: 2
+    },
+
+    markerStyle: {
+        strokeColor: 'orange'
+    },
+
     init: function () {
     },
 
+    addEvent: function(event) {
+        vesselModule.addBehavior(event.behaviour);
+    },
+
     addBehavior: function(behaviour) {
-        var positions = behaviour.positions;
+        var trackingPoints = behaviour.trackingPoints;
+
+        // Track history
         var points = new Array();
-        $.each(positions, function (i, position) {
-            var point = new OpenLayers.Geometry.Point(position.longitude, position.latitude);
+        $.each(trackingPoints, function (i, trackingPoint) {
+            var point = new OpenLayers.Geometry.Point(trackingPoint.longitude, trackingPoint.latitude);
             point.transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator);
             points.push(point);
         });
+        var trackHistory = new OpenLayers.Geometry.LineString(points);
 
-        var line = new OpenLayers.Geometry.LineString(points);
+        var trackHistoryFeature = new OpenLayers.Feature.Vector(trackHistory, null, vesselModule.historyStyle);
+        mapModule.getVesselLayer().addFeatures([trackHistoryFeature]);
 
-        var style = {
-            strokeColor: 'red',
-            strokeOpacity: 1,
-            strokeWidth: 2
+        // Tracking point markers
+        $.each(trackingPoints, function (i, trackingPoint) {
+            var point = new OpenLayers.Geometry.Point(trackingPoint.longitude, trackingPoint.latitude);
+            point.transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator);
+            var markerGeometry = OpenLayers.Geometry.Polygon.createRegularPolygon(point, 30, 20);
+            var markerFeature = new OpenLayers.Feature.Vector(markerGeometry, null, vesselModule.markerStyle);
+            mapModule.getVesselLayer().addFeatures([markerFeature]);
+        });
 
-        };
-
-        var lineFeature = new OpenLayers.Feature.Vector(line, null, style);
-        mapModule.getVesselLayer().addFeatures([lineFeature]);
-    },
-
-    addVessel: function (vessel) {
-        var cellCoords = new Array();
-
-        point = new OpenLayers.Geometry.Point(cell.west, cell.north);
-        point.transform(mapModule.projectionWGS84, mapModule.map.getProjectionObject());
-        cellCoords.push(point);
-
-        point = new OpenLayers.Geometry.Point(cell.east, cell.north);
-        point.transform(mapModule.projectionWGS84, mapModule.map.getProjectionObject());
-        cellCoords.push(point);
-
-        point = new OpenLayers.Geometry.Point(cell.east, cell.south);
-        point.transform(mapModule.projectionWGS84, mapModule.map.getProjectionObject());
-        cellCoords.push(point);
-
-        point = new OpenLayers.Geometry.Point(cell.west, cell.south);
-        point.transform(mapModule.projectionWGS84, mapModule.map.getProjectionObject());
-        cellCoords.push(point);
-
-        var fillOpacity = 0.05 + (Math.min(cell.totalShipCount["ShipTypeAndSizeData"]/100, 1))*0.9;
-        var strokeOpacity = fillOpacity;
-
-        var cellStyle = {
-            strokeColor: "#aaaaaa",
-            strokeWidth: 2,
-            strokeDashstyle: "solid",
-            strokeOpacity: strokeOpacity,
-            pointRadius: 6,
-            pointerEvents: "visiblePainted", // http://www.w3.org/TR/SVG11/interact.html#PointerEventsProperty
-            title: "Cell " + cell.cellId,
-            fillOpacity: fillOpacity
-        };
-
-        var cellGeometry = new OpenLayers.Geometry.LinearRing(cellCoords);
-        cellFeature = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Polygon([cellGeometry]), cell, cellStyle);
-        cellFeature.fid = cell.cellId;
-
-        var gridLayer = mapModule.getGridLayer();
-        gridLayer.addFeatures([cellFeature]);
+        // Track symbol
+        var trackingPoint = trackingPoints[trackingPoints.length - 1];
+        var trackSymbolFeature = new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Point(trackingPoint.longitude, trackingPoint.latitude).transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator),
+            {description:'This is the value of<br>the description attribute'} ,
+            {externalGraphic: 'img/vessel_red.png', graphicHeight: 10, graphicWidth: 20, graphicXOffset:-5, graphicYOffset:-5, rotation: trackingPoint.courseOverGround - 90}
+        );
+        mapModule.getVesselLayer().addFeatures([trackSymbolFeature]);
     }
-
 
 };

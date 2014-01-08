@@ -133,19 +133,19 @@ var eventModule = {
     computeEventExtent: function(event) {
         var e=-180, n=-90, w=180, s=90;
 
-        var positions = event.behaviour.positions;
-            $.each(positions, function (idx, position) {
-                if (position.longitude > e) {
-                    e = position.longitude;
+        var trackingPoints = event.behaviour.trackingPoints;
+            $.each(trackingPoints, function (idx, trackingPoint) {
+                if (trackingPoint.longitude > e) {
+                    e = trackingPoint.longitude;
                 }
-                if (position.longitude < w) {
-                    w = position.longitude;
+                if (trackingPoint.longitude < w) {
+                    w = trackingPoint.longitude;
                 }
-                if (position.latitude < s) {
-                    s = position.latitude;
+                if (trackingPoint.latitude < s) {
+                    s = trackingPoint.latitude;
                 }
-                if (position.latitude > n) {
-                    n = position.latitude;
+                if (trackingPoint.latitude > n) {
+                    n = trackingPoint.latitude;
                 }
             });
 
@@ -154,7 +154,7 @@ var eventModule = {
 
     visualizeEvent: function(event) {
         var extent = eventModule.computeEventExtent(event);
-        mapModule.zoomTo(extent[0],extent[1],extent[2],extent[3]);
+        mapModule.zoomTo(extent[0]-0.01,extent[1]+0.01,extent[2]+0.01,extent[3]-0.01);
         vesselModule.addBehavior(event.behaviour);
     }
 };

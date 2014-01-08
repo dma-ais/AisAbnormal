@@ -16,6 +16,7 @@
 
 package dk.dma.ais.abnormal.event.db.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -28,38 +29,50 @@ import java.util.Date;
  * A historic position recorded in conjunction with an abnormal event.
  */
 @Entity
-public class Position implements Comparable<Position> {
+public class TrackingPoint implements Comparable<TrackingPoint> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     @NotNull
-    private double latitude;
-
-    @NotNull
-    private double longitude;
-
-    @NotNull
     @Past
     private Date timestamp;
 
-    public Position() {
+    @NotNull
+    private Double latitude;
+
+    @NotNull
+    private Double longitude;
+
+    @Column(precision=4, scale=2)
+    private Float speedOverGround;
+
+    @Column(precision=4, scale=2)
+    private Float courseOverGround;
+
+    @Override
+    public int compareTo(TrackingPoint otherPosition) {
+        return timestamp.compareTo(otherPosition.timestamp);
     }
 
-    public double getLatitude() {
+    public long getId() {
+        return id;
+    }
+
+    public Double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(double latitude) {
+    public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
 
-    public double getLongitude() {
+    public Double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(double longitude) {
+    public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
 
@@ -71,8 +84,19 @@ public class Position implements Comparable<Position> {
         this.timestamp = timestamp;
     }
 
-    @Override
-    public int compareTo(Position otherPosition) {
-        return timestamp.compareTo(otherPosition.timestamp);
+    public Float getSpeedOverGround() {
+        return speedOverGround;
+    }
+
+    public void setSpeedOverGround(Float speedOverGround) {
+        this.speedOverGround = speedOverGround;
+    }
+
+    public Float getCourseOverGround() {
+        return courseOverGround;
+    }
+
+    public void setCourseOverGround(Float courseOverGround) {
+        this.courseOverGround = courseOverGround;
     }
 }
