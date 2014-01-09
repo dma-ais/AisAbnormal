@@ -42,7 +42,7 @@ var tickerModule = {
             s += (event.state == 'ONGOING' ? "Ongoing " : "Past ");
             s += "abnormal presence of " + event.behaviour.vessel.id.name + " ";
             s += "(" + event.behaviour.vessel.id.callsign + ") ";
-            s += " in near ";
+            s += " near ";
             s += "[";
             s += OpenLayers.Util.getFormattedLonLat(bounds.getCenterLonLat().lat, 'lat', 'dms')
             s += ", ";
