@@ -4,16 +4,6 @@
 
 var vesselModule = {
 
-    historyStyle: {
-        strokeColor: 'red',
-        strokeOpacity: 1,
-        strokeWidth: 2
-    },
-
-    markerStyle: {
-        strokeColor: 'orange'
-    },
-
     init: function () {
     },
 
@@ -80,6 +70,7 @@ var vesselModule = {
 
     addBehavior: function(behaviour) {
         var trackingPoints = behaviour.trackingPoints;
+        var vessel = behaviour.vessel;
 
         // Track history
         var points = new Array();
@@ -90,7 +81,13 @@ var vesselModule = {
         });
         var trackHistory = new OpenLayers.Geometry.LineString(points);
 
-        var trackHistoryFeature = new OpenLayers.Feature.Vector(trackHistory, null, vesselModule.historyStyle);
+        var historyStyle = {
+            strokeColor: 'red',
+            strokeOpacity: 1,
+            strokeWidth: 2
+        };
+
+        var trackHistoryFeature = new OpenLayers.Feature.Vector(trackHistory, null, historyStyle);
         mapModule.getVesselLayer().addFeatures([trackHistoryFeature]);
 
         // Tracking point markers
@@ -98,7 +95,15 @@ var vesselModule = {
             var point = new OpenLayers.Geometry.Point(trackingPoint.longitude, trackingPoint.latitude);
             point.transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator);
             var markerGeometry = OpenLayers.Geometry.Polygon.createRegularPolygon(point, 30, 20);
-            var markerFeature = new OpenLayers.Feature.Vector(markerGeometry, null, vesselModule.markerStyle);
+            var markerStyle = {
+                title: eventModule.formatTimestamp(trackingPoint.timestamp) + "\n"
+                    + OpenLayers.Util.getFormattedLonLat(trackingPoint.latitude, 'lat', 'dms') + " "
+                    + OpenLayers.Util.getFormattedLonLat(trackingPoint.longitude, 'lon', 'dms') + "\n"
+                    + "SOG: " + trackingPoint.speedOverGround + " kts "
+                    + "COG: " + trackingPoint.courseOverGround + " deg",
+                strokeColor: 'orange'
+            };
+            var markerFeature = new OpenLayers.Feature.Vector(markerGeometry, null, markerStyle);
             mapModule.getVesselLayer().addFeatures([markerFeature]);
         });
 
@@ -107,12 +112,19 @@ var vesselModule = {
         var trackSymbolFeature = new OpenLayers.Feature.Vector(
             new OpenLayers.Geometry.Point(trackingPoint.longitude, trackingPoint.latitude).transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator),
             {
-                name: behaviour.vessel.id.name,
-                callsign: behaviour.vessel.id.callsign,
-                imo: behaviour.vessel.id.imo,
-                mmsi: behaviour.vessel.id.mmsi
+                name: vessel.id.name,
+                callsign: vessel.id.callsign,
+                imo: vessel.id.imo,
+                mmsi: vessel.id.mmsi
             },
-            {externalGraphic: 'img/vessel_red.png', graphicHeight: 10, graphicWidth: 20, graphicXOffset:-5, graphicYOffset:-5, rotation: trackingPoint.courseOverGround - 90}
+            {
+                title: vessel.id.name + "\n" + vessel.id.callsign + "\nIMO " + vessel.id.imo + "\nMMSI " + vessel.id.mmsi,
+                externalGraphic: 'img/vessel_red.png',
+                graphicHeight: 10,
+                graphicWidth: 20,
+                graphicXOffset:-5,
+                graphicYOffset:-5,
+                rotation: trackingPoint.courseOverGround - 90}
         );
         mapModule.getVesselLayer().addFeatures([trackSymbolFeature]);
     }
