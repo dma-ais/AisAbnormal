@@ -216,6 +216,45 @@ public class H2EventRepository implements EventRepository {
     }
 
     @Override
+    public List<Event> findEventsByFromAndTo(Date from, Date to) {
+        Session session = getSession();
+
+        List events = null;
+        try {
+            StringBuilder hql = new StringBuilder();
+            hql.append("SELECT e FROM Event e WHERE ");
+            hql.append("(e.startTime >= :from AND e.startTime <= :to) OR ");
+            hql.append("(e.endTime >= :from AND e.endTime <= :to)");
+
+            //
+            Query query = session.createQuery(hql.toString());
+            query.setParameter("from", from);
+            query.setParameter("to", to);
+            events = query.list();
+        } finally {
+            session.close();
+        }
+
+        return events;
+    }
+
+    @Override
+    public List<Event> findRecentEvents(int numberOfEvents) {
+        Session session = getSession();
+
+        List events = null;
+        try {
+            Query query = session.createQuery("SELECT e FROM Event e ORDER BY e.startTime DESC");
+            query.setMaxResults(numberOfEvents);
+            events = query.list();
+        } finally {
+            session.close();
+        }
+
+        return events;
+    }
+
+    @Override
     public List<Event> findOngoingEventsByVessel(VesselId vesselId) {
         Session session = getSession();
 

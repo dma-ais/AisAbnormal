@@ -49,6 +49,25 @@ public interface EventRepository {
      */
     List<Event> findEventsByFromAndToAndTypeAndVessel(Date from, Date to, String type, String vessel);
 
+    /**
+     * Get all events (past and ongoing) which are active inside the given time period. All event which have a second
+     * of its lifespan inside the query time span is included - e.g. events starting before 'from' but ending after
+     * 'from', are also included.
+     *
+     * @param from
+     * @param to
+     * @return
+     */
+    List<Event> findEventsByFromAndTo(Date from, Date to);
+
+    /**
+     * Find the most recently raised events.
+     *
+     * @param numberOfEvents
+     * @return
+     */
+    List<Event> findRecentEvents(int numberOfEvents);
+
     List<Event> findOngoingEventsByVessel(VesselId vesselId);
     <T extends Event> T findOngoingEventByVessel(VesselId vesselId, Class<T> eventClass);
 }

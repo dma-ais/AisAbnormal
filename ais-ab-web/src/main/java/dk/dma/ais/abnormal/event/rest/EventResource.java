@@ -57,7 +57,11 @@ public class EventResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Object get(@QueryParam("from") DateParameter from, @QueryParam("to") DateParameter to, @QueryParam("type") String type, @QueryParam("vessel") String vessel) {
-        return eventRepository.findEventsByFromAndToAndTypeAndVessel(from == null ? null : from.value(), to == null ? null : to.value(), type, vessel);
+    public Object get(@QueryParam("from") DateParameter from, @QueryParam("to") DateParameter to, @QueryParam("type") String type, @QueryParam("vessel") String vessel, @QueryParam("numberOfReventEvents") Integer numberOfReventEvents) {
+        if (numberOfReventEvents != null) {
+            return eventRepository.findRecentEvents(numberOfReventEvents);
+        } else {
+            return eventRepository.findEventsByFromAndToAndTypeAndVessel(from == null ? null : from.value(), to == null ? null : to.value(), type, vessel);
+        }
     }
 }

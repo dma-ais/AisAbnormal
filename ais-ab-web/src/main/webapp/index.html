@@ -8,7 +8,9 @@
     <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
 
+    <script type="text/javascript" src="js/jquery.ticker.js"></script>
     <script type="text/javascript" src="js/OpenLayers.js"></script>
+    <script type="text/javascript" src="js/dma/ticker.js"></script>
     <script type="text/javascript" src="js/dma/events.js"></script>
     <script type="text/javascript" src="js/dma/features.js"></script>
     <script type="text/javascript" src="js/dma/vessels.js"></script>
@@ -34,6 +36,11 @@
         <div class="row">
             <div class="col-md-9">
                 <div id="map"></div>
+                <div style="margin-top: 10px;">
+                    <ul class="well well-sm" style="list-style-type: none;" id="ticker">
+                        <li>No events</li>
+                    </ul>
+                </div>
             </div>
             <div class="col-md-3">
                 <div class="tabs">
@@ -47,9 +54,6 @@
                         <div class="useroutput" id="viewport">...</div>
                         <div class="headline">Cursor</div>
                         <div class="useroutput" id="cursorpos">...</div>
-                        <div class="headline">Cells</div>
-                        <div class="useroutput" id="cell-layer-load-status">No cells loaded.</div>
-                        <div class="useroutput" id="cell-layer-display-status">Cell layer hidden.</div>
                         <div class="headline">Controls</div>
                         <button id="cells-force-load">Load and display cells</button>
                     </div>
@@ -62,6 +66,13 @@
                     <div id="tabs-3">
                         <div class="headline">Event</div>
                         <button data-toggle="modal" data-target="#event-search-modal">Search events...</button>
+                    </div>
+                </div>
+                <div class="panel panel-default" style="margin-top: 10px;">
+                    <div class="panel-body">
+                        <div class="headline">Application status</div>
+                        <div class="useroutput" id="cell-layer-load-status">No cells loaded.</div>
+                        <div class="useroutput" id="cell-layer-display-status">Cell layer hidden.</div>
                     </div>
                 </div>
             </div>

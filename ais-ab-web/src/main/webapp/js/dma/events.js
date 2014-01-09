@@ -154,6 +154,16 @@ var eventModule = {
         return eventModule.expandBounds(bounds, 1000);
     },
 
+    visualizeEventId: function(eventId)  {
+        var eventResourceService = "/abnormal/rest/event";
+        var eventResource = eventResourceService + "/" + eventId;
+        $.getJSON(eventResource).done(function (event) {
+            eventModule.visualizeEvent(event);
+        }).fail(function (jqXHR, textStatus) {
+            console.error("Error: " + textStatus);
+        });
+    },
+
     visualizeEvent: function(event) {
         vesselModule.addEvent(event);
     }

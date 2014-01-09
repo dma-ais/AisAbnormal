@@ -16,23 +16,25 @@
 
 package dk.dma.ais.abnormal.event.rest.parameters;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class DateParameter {
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+    private static final String DATE_FORMAT_STRING = "dd/MM/yyyy HH:mm";
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_STRING);
 
     private Date date;
 
     public DateParameter(String dateStr) {
         try {
+            if (!dateStr.contains(":")) {
+                dateStr += " 00:00";
+            }
             this.date = DATE_FORMAT.parse(dateStr);
         } catch (ParseException pe) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            throw new IllegalArgumentException("Illegal format of date parameter: \"" + dateStr + "\". Expected format is: \"" + DATE_FORMAT_STRING + "\".");
         }
     }
 

@@ -13,6 +13,7 @@ var dmaAbnormalApp = {
         eventModule.init();
         featureModule.init();
         vesselModule.init();
+        tickerModule.init();
     }
 
 };
