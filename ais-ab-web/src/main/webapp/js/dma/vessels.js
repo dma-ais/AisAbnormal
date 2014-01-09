@@ -10,9 +10,9 @@ var vesselModule = {
     addEvent: function(event) {
         var extent = eventModule.computeEventExtent(event);
 
-        if (mapModule.getVesselLayer().getFeatureByFid(event.id) == null)  {
+        if (mapModule.getVesselLayer().getFeatureByFid("event-" + event.id) == null)  {
             vesselModule.addEventBox(event, extent);
-            vesselModule.addBehavior(event.behaviour);
+            vesselModule.addBehavior(event);
         } else {
             console.log("Event id " + event.id + " already added to map.");
         }
@@ -45,30 +45,25 @@ var vesselModule = {
         };
         var eventBoxGeometry = new OpenLayers.Geometry.LinearRing(corners);
         var eventBoxFeature = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Polygon([eventBoxGeometry]), null, eventBoxStyle);
-        eventBoxFeature.fid = event.id;
+        eventBoxFeature.fid = "event-" + event.id;
 
         // Label
         var labelPointGeometry = new OpenLayers.Geometry.Point(extent.left, extent.top).transform(mapModule.projectionWGS84, mapModule.map.getProjectionObject());
-        var labelText = "Event #" + event.id + "\nRaised: " + eventModule.formatTimestamp(event.startTime);
-        if (event.endTime) {
-            labelText += "\nLowered: " + eventModule.formatTimestamp(event.endTime);
-        }
-
         var labelStyle = {
-            label: labelText,
-            labelAlign: "lt",
-            fontSize: "8pt",
-            fontColor: "lightgrey",
-            labelXOffset: 10,
-            labelYOffset: -10
+            label: "TEST"
         };
         var labelFeature = new OpenLayers.Feature.Vector(labelPointGeometry, null, labelStyle);
+        labelFeature.fid='eventLabel-'+event.id;
 
         // Add to layer
         mapModule.getVesselLayer().addFeatures([eventBoxFeature, labelFeature]);
+
+        // Add user output (labels, tooltips, etc.)
+        vesselModule.addEventBoxLabel(event);
     },
 
-    addBehavior: function(behaviour) {
+    addBehavior: function(event) {
+        var behaviour = event.behaviour;
         var trackingPoints = behaviour.trackingPoints;
         var vessel = behaviour.vessel;
 
@@ -96,14 +91,10 @@ var vesselModule = {
             point.transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator);
             var markerGeometry = OpenLayers.Geometry.Polygon.createRegularPolygon(point, 30, 20);
             var markerStyle = {
-                title: eventModule.formatTimestamp(trackingPoint.timestamp) + "\n"
-                    + OpenLayers.Util.getFormattedLonLat(trackingPoint.latitude, 'lat', 'dms') + " "
-                    + OpenLayers.Util.getFormattedLonLat(trackingPoint.longitude, 'lon', 'dms') + "\n"
-                    + "SOG: " + trackingPoint.speedOverGround + " kts "
-                    + "COG: " + trackingPoint.courseOverGround + " deg",
                 strokeColor: 'orange'
             };
             var markerFeature = new OpenLayers.Feature.Vector(markerGeometry, null, markerStyle);
+            markerFeature.fid = 'trackingPoint-'+event.id+'-'+trackingPoint.id;
             mapModule.getVesselLayer().addFeatures([markerFeature]);
         });
 
@@ -118,15 +109,75 @@ var vesselModule = {
                 mmsi: vessel.id.mmsi
             },
             {
-                title: vessel.id.name + "\n" + vessel.id.callsign + "\nIMO " + vessel.id.imo + "\nMMSI " + vessel.id.mmsi,
                 externalGraphic: 'img/vessel_red.png',
                 graphicHeight: 10,
                 graphicWidth: 20,
                 graphicXOffset:-5,
                 graphicYOffset:-5,
-                rotation: trackingPoint.courseOverGround - 90}
+                rotation: trackingPoint.courseOverGround - 90
+            }
         );
+        trackSymbolFeature.fid = 'trackSymbol-'+event.id+'-'+vessel.id.mmsi;
         mapModule.getVesselLayer().addFeatures([trackSymbolFeature]);
+
+        // Add user output (labels, tooltips, etc.)
+        vesselModule.addTrackSymbolTooltip(event, behaviour.vessel);
+        $.each(trackingPoints, function (i, trackingPoint) {
+            vesselModule.addTrackingPointTooltip(event, trackingPoint);
+        });
+    },
+
+    addEventBoxLabel: function(event) {
+        var eventBoxLabelFeature = mapModule.getVesselLayer().getFeatureByFid('eventLabel-'+event.id);
+        if (eventBoxLabelFeature != null) {
+            var eventType = event.eventType;
+            if (eventType == "AbnormalShipSizeOrTypeEvent") {
+                eventType = "Abnormal type or ship for this area"
+            }
+            var labelText = "Event " + event.id + ": " + eventType + "\nRaised: " + eventModule.formatTimestamp(event.startTime);
+            if (event.endTime) {
+                labelText += "\nLowered: " + eventModule.formatTimestamp(event.endTime);
+            }
+            eventBoxLabelFeature.style = {
+                label: labelText,
+                labelAlign: "lt",
+                fontSize: "8pt",
+                fontColor: "lightgrey",
+                labelXOffset: 10,
+                labelYOffset: -10
+            };
+        }
+    },
+
+    addTrackingPointTooltip: function(event, trackingPoint) {
+        var trackingPointFeature = mapModule.getVesselLayer().getFeatureByFid('trackingPoint-'+event.id+'-'+trackingPoint.id);
+        if (trackingPointFeature != null) {
+            trackingPointFeature.style.title =
+                eventModule.formatTimestamp(trackingPoint.timestamp) + "\n"
+                + OpenLayers.Util.getFormattedLonLat(trackingPoint.latitude, 'lat', 'dms') + " "
+                + OpenLayers.Util.getFormattedLonLat(trackingPoint.longitude, 'lon', 'dms') + "\n"
+                + "SOG: " + trackingPoint.speedOverGround + " kts "
+                + "COG: " + trackingPoint.courseOverGround + " deg";
+        }
+    },
+
+    addTrackSymbolTooltip: function(event, vessel) {
+        var trackSymbolFeature = mapModule.getVesselLayer().getFeatureByFid('trackSymbol-'+event.id+'-'+vessel.id.mmsi);
+        if (trackSymbolFeature != null) {
+            var tooltip = vessel.id.name
+                + "\n" + vessel.id.callsign
+                + "\nIMO " + vessel.id.imo
+                + "\nMMSI " + vessel.id.mmsi;
+
+            var eventType = event.eventType;
+            if (eventType == "AbnormalShipSizeOrTypeEvent") {
+                tooltip += "\n"
+                        +  "\nShip size: " + event.shipLength
+                        +  "\nShip type: " + event.shipType;
+            }
+
+            trackSymbolFeature.style.title = tooltip;
+        }
     }
 
 };

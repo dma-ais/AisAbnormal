@@ -83,6 +83,10 @@ public abstract class Event {
         return id;
     }
 
+    public String getEventType() {
+        return this.getClass().getSimpleName();
+    }
+
     public State getState() {
         return state;
     }
