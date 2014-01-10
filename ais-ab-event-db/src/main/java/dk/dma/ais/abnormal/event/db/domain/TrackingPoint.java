@@ -51,6 +51,8 @@ public class TrackingPoint implements Comparable<TrackingPoint> {
     @Column(precision=4, scale=2)
     private Float courseOverGround;
 
+    private Boolean positionInterpolated;
+
     @Override
     public int compareTo(TrackingPoint otherPosition) {
         return timestamp.compareTo(otherPosition.timestamp);
@@ -98,5 +100,13 @@ public class TrackingPoint implements Comparable<TrackingPoint> {
 
     public void setCourseOverGround(Float courseOverGround) {
         this.courseOverGround = courseOverGround;
+    }
+
+    public void setPositionInterpolated(Boolean positionInterpolated) {
+        this.positionInterpolated = positionInterpolated;
+    }
+
+    public Boolean getPositionInterpolated() {
+        return positionInterpolated;
     }
 }

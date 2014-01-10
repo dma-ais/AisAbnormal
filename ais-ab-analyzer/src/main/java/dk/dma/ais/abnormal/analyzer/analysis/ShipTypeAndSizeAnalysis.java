@@ -135,6 +135,7 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
         Position position = (Position) track.getProperty(Track.POSITION);
         Float cog = (Float) track.getProperty(Track.COURSE_OVER_GROUND);
         Float sog = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
+        Boolean interpolated = (Boolean) track.getProperty(Track.POSITION_IS_INTERPOLATED);
 
         VesselId vesselId = new VesselId();
         vesselId.setImo(imo);
@@ -148,6 +149,7 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
             ongoingEvent.getBehaviour().addTrackingPoint(
                     TrackingPointBuilder.TrackingPoint()
                             .timestamp(timestamp)
+                            .positionInterpolated(interpolated)
                             .speedOverGround(sog)
                             .courseOverGround(cog)
                             .latitude(position.getLatitude())

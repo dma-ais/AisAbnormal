@@ -54,6 +54,11 @@ public class TrackingPointBuilder {
         return this;
     }
 
+    public TrackingPointBuilder positionInterpolated(Boolean interpolated) {
+        trackingPoint.setPositionInterpolated(interpolated);
+        return this;
+    }
+
     public TrackingPointBuilder speedOverGround(Float speedOverGround) {
         trackingPoint.setSpeedOverGround(speedOverGround);
         return this;
@@ -71,4 +76,5 @@ public class TrackingPointBuilder {
     public TrackingPoint getTrackingPoint() {
         return trackingPoint;
     }
+
 }
