@@ -31,6 +31,7 @@ public final class Track {
     public static final String SHIP_NAME = "vesselName";
     public static final String IMO = "imo";
     public static final String CALLSIGN = "callsign";
+    public static final String POSITION_IS_INTERPOLATED = "posEst";
 
     private final Integer mmsi;
     private final Map<String, Object> properties = new HashMap<>(10);

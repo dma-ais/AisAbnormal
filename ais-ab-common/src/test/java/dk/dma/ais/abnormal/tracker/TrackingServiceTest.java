@@ -18,6 +18,7 @@ package dk.dma.ais.abnormal.tracker;
 
 import com.google.common.eventbus.Subscribe;
 import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
+import dk.dma.ais.abnormal.tracker.events.PositionChangedEvent;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisMessage3;
 import dk.dma.ais.message.AisMessage5;
@@ -30,6 +31,7 @@ import org.junit.Test;
 
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -122,7 +124,7 @@ public class TrackingServiceTest {
             }
         }
 
-        assertEquals(expectedNumberOfCellChangeEvents, testSubscriber.getNumberOfEventsReceived());
+        assertEquals(expectedNumberOfCellChangeEvents, testSubscriber.getNumberOfCellIdChangedEventsReceived());
         assertEquals(Integer.valueOf(1), tracker.getNumberOfTracks());
     }
 
@@ -188,7 +190,7 @@ public class TrackingServiceTest {
             }
         }
 
-        assertEquals(1, testSubscriber.getNumberOfEventsReceived());
+        assertEquals(1, testSubscriber.getNumberOfCellIdChangedEventsReceived());
         assertEquals(Integer.valueOf(1), tracker.getNumberOfTracks());
     }
 
@@ -235,6 +237,99 @@ public class TrackingServiceTest {
         assertEquals(trackTimestamp, secondTimestamp.getTime());
     }
 
+    @Test
+    public void testLinearInterpolation() {
+       assertEquals(1, TrackingServiceImpl.linearInterpolation(1, 1, 3, 3, 1), 1e-16);
+       assertEquals(3, TrackingServiceImpl.linearInterpolation(1, 1, 3, 3, 3), 1e-16);
+
+       assertEquals(2, TrackingServiceImpl.linearInterpolation(1, 1, 3, 3, 2), 1e-16);
+       assertEquals(10, TrackingServiceImpl.linearInterpolation(1, 1, 3, 3, 10), 1e-16);
+
+       assertEquals(2.5, TrackingServiceImpl.linearInterpolation(0, 0, 5, 10, 5), 1e-16);
+       assertEquals(4.5, TrackingServiceImpl.linearInterpolation(0, 0, 5, 10, 9), 1e-16);
+    }
+
+    @Test
+    public void testCalculateInterpolatedPositions() {
+        Date now = new Date(System.currentTimeMillis());
+
+        Position p1 = Position.create(55, 10);
+        long t1 = now.getTime();
+
+        Position p2 = Position.create(60, 15);
+        long t2 = t1 + 50*1000;
+
+        Map<Long,Position> interpolatedPositions = TrackingServiceImpl.calculateInterpolatedPositions(p1, t1, p2, t2);
+
+        assertEquals(5, interpolatedPositions.size());
+        Set<Long> interpolationTimestamps = interpolatedPositions.keySet();
+
+        // Assert timestamps
+        assertEquals((Long) (t1 + (long) TrackingServiceImpl.INTERPOLATION_TIME_STEP_MILLIS), (Long) interpolationTimestamps.toArray()[0]);
+        assertEquals((Long) (t1 + (long) TrackingServiceImpl.INTERPOLATION_TIME_STEP_MILLIS*2), (Long) interpolationTimestamps.toArray()[1]);
+        assertEquals((Long) (t1 + (long) TrackingServiceImpl.INTERPOLATION_TIME_STEP_MILLIS*3), (Long) interpolationTimestamps.toArray()[2]);
+        assertEquals((Long) (t1 + (long) TrackingServiceImpl.INTERPOLATION_TIME_STEP_MILLIS*4), (Long) interpolationTimestamps.toArray()[3]);
+        assertEquals((Long) (t1 + (long) TrackingServiceImpl.INTERPOLATION_TIME_STEP_MILLIS * 5), (Long) interpolationTimestamps.toArray()[4]);
+
+        // Assert positions
+        assertEquals(Position.create(56, 11), interpolatedPositions.get(interpolationTimestamps.toArray()[0]));
+        assertEquals(Position.create(57, 12), interpolatedPositions.get(interpolationTimestamps.toArray()[1]));
+        assertEquals(Position.create(58, 13), interpolatedPositions.get(interpolationTimestamps.toArray()[2]));
+        assertEquals(Position.create(59, 14), interpolatedPositions.get(interpolationTimestamps.toArray()[3]));
+        assertEquals(p2, interpolatedPositions.get(interpolationTimestamps.toArray()[4]));
+    }
+
+    /**
+     *  Test that interpolation is used if more than 10 secs between messages
+     */
+    @Test
+    public void testTrackIsNotInterpolated() {
+        testInterpolation(TrackingServiceImpl.TRACK_INTERPOLATION_REQUIRED_SECS - 1, 2 /* initial + second */ );
+    }
+
+    /**
+     *  Test that interpolation is used if more than 10 secs between messages
+     */
+    @Test
+    public void testTrackIsInterpolated() {
+        testInterpolation(TrackingServiceImpl.TRACK_INTERPOLATION_REQUIRED_SECS + 1, 5 /* initial + second + 3 interpolated */);
+    }
+
+    private void testInterpolation(int secsBetweenMessages, int expectedNumberOfPositionChangeEvents) {
+        // Create object under test
+        final TrackingServiceImpl tracker = new TrackingServiceImpl(grid);
+
+        // Prepare test data
+        Position startingPosition = Position.create((55.33714285714286 + 55.33624454148472) / 2, (11.039401122894573 + 11.040299438552713) / 2);
+        dk.dma.ais.message.AisPosition aisStartingPosition = new AisPosition(startingPosition);
+        AisMessage3 firstPositionMessage = getAisMessage3(aisStartingPosition);
+
+        Position secondPosition = Position.create((55.33714285714286 + 55.35624454148472) / 2, (11.038401122894573 + 10.890299438552713) / 2);
+        dk.dma.ais.message.AisPosition aisSecondPosition = new AisPosition(secondPosition);
+        AisMessage3 secondPositionMessage = getAisMessage3(aisSecondPosition);
+
+        Date firstTimestamp = new Date(System.currentTimeMillis());
+        Date secondTimestamp = new Date(System.currentTimeMillis() + secsBetweenMessages*1000);
+
+        System.out.println("Starting at " + firstTimestamp.getTime() + " in " + startingPosition);
+        System.out.println("Ending at " + secondTimestamp.getTime() + " in " + secondPosition);
+
+        // Wire up test subscriber
+        // (discussion: https://code.google.com/p/guava-libraries/issues/detail?id=875)
+        TestSubscriber testSubscriber = new TestSubscriber();
+        tracker.registerSubscriber(testSubscriber);
+
+        // Execute test
+        tracker.update(firstTimestamp, firstPositionMessage);
+        tracker.update(secondTimestamp, secondPositionMessage);
+
+        // Assert result
+        assertEquals(expectedNumberOfPositionChangeEvents, testSubscriber.getNumberOfCellIdChangedEventsReceived());
+
+        assertEquals(secondPosition.getLatitude(), testSubscriber.getCurrentPosition().getLatitude(), 1e-6);
+        assertEquals(secondPosition.getLongitude(), testSubscriber.getCurrentPosition().getLongitude(), 1e-6);
+    }
+
     private static AisMessage3 cloneAisMessage3(AisMessage3 msgToClone) {
         AisMessage3 message = new AisMessage3();
         message.setCog(msgToClone.getCog());
@@ -263,23 +358,43 @@ public class TrackingServiceTest {
     }
 
     public class TestSubscriber {
+
         private long currentCellId;
-        private int numberOfEventsReceived;
+        private Position currentPosition;
+
+        private int numberOfCellIdChangedEventsReceived;
+        private int numberOfPositionChangedEventsReceived;
 
         @Subscribe
         public void onCellIdChanged(CellIdChangedEvent event) {
-            numberOfEventsReceived++;
+            numberOfCellIdChangedEventsReceived++;
             currentCellId = (long) event.getTrack().getProperty(Track.CELL_ID);
             System.out.println("We are now in cell: " + currentCellId);
+        }
+
+        @Subscribe
+        public void onPositionChanged(PositionChangedEvent event) {
+            numberOfPositionChangedEventsReceived++;
+            currentPosition = (Position) event.getTrack().getProperty(Track.POSITION);
+            System.out.println("We are now in position: " + currentPosition);
         }
 
         public long getCurrentCellId() {
             return currentCellId;
         }
 
-        public int getNumberOfEventsReceived() {
-            return numberOfEventsReceived;
+        public Position getCurrentPosition() {
+            return currentPosition;
         }
+
+        public int getNumberOfCellIdChangedEventsReceived() {
+            return numberOfCellIdChangedEventsReceived;
+        }
+
+        public int getNumberOfPositionChangedEventsReceived() {
+            return numberOfPositionChangedEventsReceived;
+        }
+
     }
 
 }
