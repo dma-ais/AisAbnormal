@@ -20,6 +20,7 @@ import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
+import dk.dma.ais.abnormal.application.statistics.AppStatisticsService;
 import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
 import dk.dma.ais.abnormal.tracker.events.PositionChangedEvent;
 import dk.dma.ais.message.AisMessage;
@@ -50,7 +51,10 @@ public class TrackingServiceImpl implements TrackingService {
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
 
+
     private EventBus eventBus = new EventBus();
+    private final AppStatisticsService statisticsService;
+
     final HashMap<Integer, Track> tracks = new HashMap<>(256);
     final Grid grid;
 
@@ -59,9 +63,10 @@ public class TrackingServiceImpl implements TrackingService {
     static final int INTERPOLATION_TIME_STEP_MILLIS = 10000;
 
     @Inject
-    public TrackingServiceImpl(Grid grid) {
+    public TrackingServiceImpl(Grid grid, AppStatisticsService statisticsService) {
         eventBus.register(this);
         this.grid = grid;
+        this.statisticsService = statisticsService;
     }
 
     @Override
@@ -96,10 +101,14 @@ public class TrackingServiceImpl implements TrackingService {
             if (currentUpdate >= lastUpdate) {
                 if (aisMessage instanceof IPositionMessage) {
                     IPositionMessage positionMessage = (IPositionMessage) aisMessage;
-                    if (!trackStale && isInterpolationRequired(lastPositionUpdate, currentUpdate)) {
-                        interpolatePositions(track, currentUpdate, positionMessage);
-                    } else {
-                        updatePosition(track, currentUpdate, positionMessage);
+                    final boolean aisMessageHasValidPosition = positionMessage.getPos().getGeoLocation() != null;
+                    if (aisMessageHasValidPosition) {
+                        final boolean trackHasPreviousPosition = track.getProperty(Track.POSITION) != null;
+                        if (!trackStale && trackHasPreviousPosition && isInterpolationRequired(lastPositionUpdate, currentUpdate)) {
+                            interpolatePositions(track, currentUpdate, positionMessage);
+                        } else {
+                            updatePosition(track, currentUpdate, positionMessage);
+                        }
                     }
                 }
 
@@ -123,26 +132,17 @@ public class TrackingServiceImpl implements TrackingService {
                     AisMessage5 aisMessage5 = (AisMessage5) aisMessage;
                     updateImo(track, aisMessage5);
                 }
-
-                   /*
-                    updateTimestamp(track, currentUpdate);
-                    updateVesselName(track, aisMessage);
-                    updateImo(track, aisMessage);
-                    updateCallsign(track, aisMessage);
-                    updateShipType(track, aisMessage);
-                    updateVesselLength(track, aisMessage);
-                    updatePosition(track, aisMessage);
-                    updateSpeedOverGround(track, aisMessage);
-                    updateCourseOverGround(track, aisMessage);
-                    updateCellId(track, aisMessage);
-                    */
             } else {
+                statisticsService.incOutOfSequenceMessages();
                 Long timeDelta = lastUpdate - currentUpdate;
-                LOG.warn("Message of type " + aisMessage.getMsgId() + " ignored because it is out of sequence by " + timeDelta + " msecs (mmsi " + mmsi + ")");
+                LOG.debug("Message of type " + aisMessage.getMsgId() + " ignored because it is out of sequence (delayed) by " + timeDelta + " msecs (mmsi " + mmsi + ")");
             }
-        } else {
+        }
+        /*
+        else {
             LOG.debug("Tracker does not support target type " + targetType + " (mmsi " + mmsi + ")");
         }
+        */
     }
 
     private void interpolatePositions(Track track, Long currentUpdate, IPositionMessage positionMessage) {
@@ -151,6 +151,8 @@ public class TrackingServiceImpl implements TrackingService {
 
         Position p2 = positionMessage.getPos().getGeoLocation();
         long t2 = currentUpdate;
+
+        LOG.debug("p1=" + p1 + ", p2=" + p2);
 
         Map<Long, Position> interpolatedPositions = calculateInterpolatedPositions(p1, t1, p2, t2);
 

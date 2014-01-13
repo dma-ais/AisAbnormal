@@ -62,6 +62,7 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
         bind(AbnormalStatBuilderApp.class).in(Singleton.class);
         bind(ProgressIndicator.class).in(Singleton.class);
         bind(AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
+        bind(dk.dma.ais.abnormal.application.statistics.AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
         bind(TrackingService.class).to(TrackingServiceImpl.class).in(Singleton.class);
         bind(ShipTypeAndSizeFeature.class);
     }

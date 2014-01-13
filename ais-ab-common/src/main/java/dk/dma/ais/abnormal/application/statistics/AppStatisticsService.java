@@ -80,6 +80,11 @@ public interface AppStatisticsService {
 
     long getStatMsgCount();
 
+    /**
+     * Increment no. of messages received out of sequence.
+     */
+    void incOutOfSequenceMessages();
+
     void setTrackCount(int trackCount);
 
     /**

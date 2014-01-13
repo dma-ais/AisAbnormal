@@ -17,6 +17,8 @@
 package dk.dma.ais.abnormal.tracker;
 
 import com.google.common.eventbus.Subscribe;
+import dk.dma.ais.abnormal.application.statistics.AppStatisticsService;
+import dk.dma.ais.abnormal.application.statistics.AppStatisticsServiceImpl;
 import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
 import dk.dma.ais.abnormal.tracker.events.PositionChangedEvent;
 import dk.dma.ais.message.AisMessage;
@@ -43,6 +45,7 @@ import static org.junit.Assert.assertTrue;
 public class TrackingServiceTest {
 
     final Grid grid = Grid.createSize(100);
+    final AppStatisticsService statisticsService = new AppStatisticsServiceImpl();
 
     /**
      * Test that grid cell change events are emitted by the tracker when a simulated track is moving
@@ -83,7 +86,7 @@ public class TrackingServiceTest {
         final int expectedNumberOfCellChangeEvents = messageQueue.size() - 1 /* minus the static msg */;
 
         // Create object under test
-        final TrackingService tracker = new TrackingServiceImpl(grid);
+        final TrackingService tracker = new TrackingServiceImpl(grid, statisticsService);
 
         // Wire up test subscriber
         // (discussion: https://code.google.com/p/guava-libraries/issues/detail?id=875)
@@ -167,7 +170,7 @@ public class TrackingServiceTest {
         }
 
         // Create object under test
-        final TrackingService tracker = new TrackingServiceImpl(grid);
+        final TrackingService tracker = new TrackingServiceImpl(grid, statisticsService);
 
         // Wire up test subscriber
         // (discussion: https://code.google.com/p/guava-libraries/issues/detail?id=875)
@@ -201,7 +204,7 @@ public class TrackingServiceTest {
     @Test
     public void testTrackTimestampIsUpdatedOnUpdates() {
         // Create object under test
-        final TrackingServiceImpl tracker = new TrackingServiceImpl(grid);
+        final TrackingServiceImpl tracker = new TrackingServiceImpl(grid, statisticsService);
 
         // Prepare test data
         Position startingPosition = Position.create((55.33714285714286 + 55.33624454148472) / 2, (11.039401122894573 + 11.040299438552713) / 2);
@@ -310,7 +313,7 @@ public class TrackingServiceTest {
     @Test
     public void testCanProcessStaleTracks() {
         // Create object under test
-        final TrackingServiceImpl tracker = new TrackingServiceImpl(grid);
+        final TrackingServiceImpl tracker = new TrackingServiceImpl(grid, statisticsService);
 
         // Prepare test data
         Position startingPosition = Position.create((55.33714285714286 + 55.33624454148472) / 2, (11.039401122894573 + 11.040299438552713) / 2);
@@ -329,7 +332,7 @@ public class TrackingServiceTest {
 
     private void testInterpolation(int secsBetweenMessages, int expectedNumberOfPositionChangeEvents) {
         // Create object under test
-        final TrackingServiceImpl tracker = new TrackingServiceImpl(grid);
+        final TrackingServiceImpl tracker = new TrackingServiceImpl(grid,statisticsService);
 
         // Prepare test data
         Position startingPosition = Position.create((55.33714285714286 + 55.33624454148472) / 2, (11.039401122894573 + 11.040299438552713) / 2);

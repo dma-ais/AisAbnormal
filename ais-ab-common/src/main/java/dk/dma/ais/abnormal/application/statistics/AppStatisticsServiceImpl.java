@@ -41,6 +41,7 @@ public class AppStatisticsServiceImpl implements AppStatisticsService {
     private final AtomicLong unfilteredPacketCount = new AtomicLong(0);
     private final AtomicLong filteredPacketCount = new AtomicLong(0);
     private final AtomicLong messageCount = new AtomicLong(0);
+    private final AtomicLong messagesOutOfSequence = new AtomicLong(0);
     private final AtomicLong posMsgCount = new AtomicLong(0);
     private final AtomicLong statMsgCount = new AtomicLong(0);
     private final AtomicInteger trackCount = new AtomicInteger(0);
@@ -121,6 +122,11 @@ public class AppStatisticsServiceImpl implements AppStatisticsService {
     }
 
     @Override
+    public final void incOutOfSequenceMessages() {
+       messagesOutOfSequence.incrementAndGet();
+    }
+
+    @Override
     public void setTrackCount(int trackCount) {
         this.trackCount.set(trackCount);
     }
@@ -143,6 +149,7 @@ public class AppStatisticsServiceImpl implements AppStatisticsService {
         LOG.info(String.format("%-30s %9d", "Unfiltered packet count", unfilteredPacketCount.get()));
         LOG.info(String.format("%-30s %9d", "Filtered packet count", filteredPacketCount.get()));
         LOG.info(String.format("%-30s %9d", "Message count", messageCount.get()));
+        LOG.info(String.format("%-30s %9d", "Messages out of sequence", messagesOutOfSequence.get()));
         LOG.info(String.format("%-30s %9d", "Pos message count", posMsgCount.get()));
         LOG.info(String.format("%-30s %9d", "Stat message count", statMsgCount.get()));
         LOG.info(String.format("%-30s %9d", "Track count", trackCount.get()));
