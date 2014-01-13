@@ -19,6 +19,7 @@ package dk.dma.ais.abnormal.event.rest;
 import com.google.inject.Inject;
 import com.google.inject.servlet.RequestScoped;
 import dk.dma.ais.abnormal.event.db.EventRepository;
+import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.rest.parameters.DateParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +52,9 @@ public class EventResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{id}")
-    public Object get(@PathParam("id") int id) {
-        return eventRepository.getEvent(id);
+    public Event get(@PathParam("id") int id) {
+        Event event = eventRepository.getEvent(id);
+        return event;
     }
 
     @GET

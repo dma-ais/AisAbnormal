@@ -77,7 +77,7 @@ var eventModule = {
         searchResultHtml += "<td>" + searchResult.state + "</td>";
         searchResultHtml += "<td>" + eventStart + "</td>";
         searchResultHtml += "<td>" + eventEnd + "</td>";
-        searchResultHtml += "<td>" + searchResult.behaviour.vessel.id.name + "</td>";
+        searchResultHtml += "<td>" + searchResult.behaviour.vessel.name + "</td>";
         searchResultHtml += "</tr>";
 
         searchResults.append(searchResultHtml);

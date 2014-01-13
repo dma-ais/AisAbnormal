@@ -115,7 +115,7 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
     private void raiseOrMaintainAbnormalEvent(CellIdChangedEvent trackEvent) {
         Track track = trackEvent.getTrack();
 
-        Date timestamp = new Date((Long) track.getProperty(Track.TIMESTAMP));
+        Date positionTimestamp = new Date((Long) track.getProperty(Track.TIMESTAMP_POSITION_UPDATE));
         Integer mmsi = track.getMmsi();
         Integer imo = (Integer) track.getProperty(Track.IMO);
         String callsign = (String) track.getProperty(Track.CALLSIGN);
@@ -130,7 +130,7 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
         if (ongoingEvent != null) {
             ongoingEvent.getBehaviour().addTrackingPoint(
                     TrackingPointBuilder.TrackingPoint()
-                            .timestamp(timestamp)
+                            .timestamp(positionTimestamp)
                             .positionInterpolated(interpolated)
                             .speedOverGround(sog)
                             .courseOverGround(cog)
@@ -152,7 +152,7 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
                             .shipType(shipTypeBucket)
                             .shipLength(shipLengthBucket)
                             .description("It is abnormal to see this vessel in this area.")
-                            .startTime(timestamp)
+                            .startTime(positionTimestamp)
                             .behaviour()
                                 .vessel()
                                     .mmsi(mmsi)
@@ -160,7 +160,7 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
                                     .callsign(callsign)
                                     .name(name)
                                 .trackingPoint()
-                                    .timestamp(timestamp)
+                                    .timestamp(positionTimestamp)
                                     .positionInterpolated(interpolated)
                                     .speedOverGround(sog)
                                     .courseOverGround(cog)

@@ -60,6 +60,7 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     public void configure() {
         bind(AbnormalAnalyzerApp.class).in(Singleton.class);
         bind(AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
+        bind(dk.dma.ais.abnormal.application.statistics.AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
         bind(PacketHandler.class).to(PacketHandlerImpl.class).in(Singleton.class);
         bind(TrackingService.class).to(TrackingServiceImpl.class).in(Singleton.class);
     }

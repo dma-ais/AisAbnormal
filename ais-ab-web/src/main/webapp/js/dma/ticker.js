@@ -40,8 +40,8 @@ var tickerModule = {
             var bounds = eventModule.computeEventExtent(event);
 
             s += (event.state == 'ONGOING' ? "Ongoing " : "Past ");
-            s += "abnormal presence of " + event.behaviour.vessel.id.name + " ";
-            s += "(" + event.behaviour.vessel.id.callsign + ") ";
+            s += "abnormal presence of " + event.behaviour.vessel.name + " ";
+            s += "(" + event.behaviour.vessel.callsign + ") ";
             s += " near ";
             s += "[";
             s += OpenLayers.Util.getFormattedLonLat(bounds.getCenterLonLat().lat, 'lat', 'dms')

@@ -90,9 +90,10 @@ var vesselModule = {
             var point = new OpenLayers.Geometry.Point(trackingPoint.longitude, trackingPoint.latitude);
             point.transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator);
             var markerGeometry = OpenLayers.Geometry.Polygon.createRegularPolygon(point, 30, 20);
-            var markerStyle = {
-                strokeColor: 'orange'
-            };
+            var markerStyle = { strokeColor: 'orange'};
+            if (trackingPoint.positionInterpolated == true) {
+                markerStyle.strokeColor = 'grey';
+            }
             var markerFeature = new OpenLayers.Feature.Vector(markerGeometry, null, markerStyle);
             markerFeature.fid = 'trackingPoint-'+event.id+'-'+trackingPoint.id;
             mapModule.getVesselLayer().addFeatures([markerFeature]);
@@ -103,10 +104,10 @@ var vesselModule = {
         var trackSymbolFeature = new OpenLayers.Feature.Vector(
             new OpenLayers.Geometry.Point(trackingPoint.longitude, trackingPoint.latitude).transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator),
             {
-                name: vessel.id.name,
-                callsign: vessel.id.callsign,
-                imo: vessel.id.imo,
-                mmsi: vessel.id.mmsi
+                name: vessel.name,
+                callsign: vessel.callsign,
+                imo: vessel.imo,
+                mmsi: vessel.mmsi
             },
             {
                 externalGraphic: 'img/vessel_red.png',
@@ -117,7 +118,7 @@ var vesselModule = {
                 rotation: trackingPoint.courseOverGround - 90
             }
         );
-        trackSymbolFeature.fid = 'trackSymbol-'+event.id+'-'+vessel.id.mmsi;
+        trackSymbolFeature.fid = 'trackSymbol-'+event.id+'-'+vessel.mmsi;
         mapModule.getVesselLayer().addFeatures([trackSymbolFeature]);
 
         // Add user output (labels, tooltips, etc.)
@@ -157,17 +158,19 @@ var vesselModule = {
                 + OpenLayers.Util.getFormattedLonLat(trackingPoint.latitude, 'lat', 'dms') + " "
                 + OpenLayers.Util.getFormattedLonLat(trackingPoint.longitude, 'lon', 'dms') + "\n"
                 + "SOG: " + trackingPoint.speedOverGround + " kts "
-                + "COG: " + trackingPoint.courseOverGround + " deg";
+                + "COG: " + trackingPoint.courseOverGround + " deg\n"
+                + (trackingPoint.positionInterpolated == true ? "Interpolated position":"Reported position");
+
         }
     },
 
     addTrackSymbolTooltip: function(event, vessel) {
-        var trackSymbolFeature = mapModule.getVesselLayer().getFeatureByFid('trackSymbol-'+event.id+'-'+vessel.id.mmsi);
+        var trackSymbolFeature = mapModule.getVesselLayer().getFeatureByFid('trackSymbol-'+event.id+'-'+vessel.mmsi);
         if (trackSymbolFeature != null) {
-            var tooltip = vessel.id.name
-                + "\n" + vessel.id.callsign
-                + "\nIMO " + vessel.id.imo
-                + "\nMMSI " + vessel.id.mmsi;
+            var tooltip = vessel.name
+                + "\n" + vessel.callsign
+                + "\nIMO " + vessel.imo
+                + "\nMMSI " + vessel.mmsi;
 
             var eventType = event.eventType;
             if (eventType == "AbnormalShipSizeOrTypeEvent") {
