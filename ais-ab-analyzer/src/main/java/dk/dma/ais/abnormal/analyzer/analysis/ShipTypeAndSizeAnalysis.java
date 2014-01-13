@@ -23,7 +23,6 @@ import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.AbnormalShipSizeOrTypeEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
-import dk.dma.ais.abnormal.event.db.domain.VesselId;
 import dk.dma.ais.abnormal.event.db.domain.builders.TrackingPointBuilder;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
@@ -103,19 +102,8 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
 
     private void lowerExistingAbnormalEventIfExists(CellIdChangedEvent trackEvent) {
         Track track = trackEvent.getTrack();
-
         Integer mmsi = track.getMmsi();
-        Integer imo = (Integer) track.getProperty(Track.IMO);
-        String callsign = (String) track.getProperty(Track.CALLSIGN);
-        String shipName = (String) track.getProperty(Track.SHIP_NAME);
-
-        VesselId vesselId = new VesselId();
-        vesselId.setImo(imo);
-        vesselId.setMmsi(mmsi);
-        vesselId.setCallsign(callsign);
-        vesselId.setName(shipName);
-
-        Event ongoingEvent = eventRepository.findOngoingEventByVessel(vesselId, AbnormalShipSizeOrTypeEvent.class);
+        Event ongoingEvent = eventRepository.findOngoingEventByVessel(mmsi, AbnormalShipSizeOrTypeEvent.class);
         if (ongoingEvent != null) {
             Date timestamp = new Date((Long) track.getProperty(Track.TIMESTAMP));
             ongoingEvent.setState(Event.State.PAST);
@@ -131,19 +119,13 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
         Integer mmsi = track.getMmsi();
         Integer imo = (Integer) track.getProperty(Track.IMO);
         String callsign = (String) track.getProperty(Track.CALLSIGN);
-        String shipName = (String) track.getProperty(Track.SHIP_NAME);
+        String name = (String) track.getProperty(Track.SHIP_NAME);
         Position position = (Position) track.getProperty(Track.POSITION);
         Float cog = (Float) track.getProperty(Track.COURSE_OVER_GROUND);
         Float sog = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
         Boolean interpolated = (Boolean) track.getProperty(Track.POSITION_IS_INTERPOLATED);
 
-        VesselId vesselId = new VesselId();
-        vesselId.setImo(imo);
-        vesselId.setMmsi(mmsi);
-        vesselId.setCallsign(callsign);
-        vesselId.setName(shipName);
-
-        Event ongoingEvent = eventRepository.findOngoingEventByVessel(vesselId, AbnormalShipSizeOrTypeEvent.class);
+        Event ongoingEvent = eventRepository.findOngoingEventByVessel(mmsi, AbnormalShipSizeOrTypeEvent.class);
 
         if (ongoingEvent != null) {
             ongoingEvent.getBehaviour().addTrackingPoint(
@@ -176,9 +158,10 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
                                     .mmsi(mmsi)
                                     .imo(imo)
                                     .callsign(callsign)
-                                    .name(shipName)
+                                    .name(name)
                                 .trackingPoint()
                                     .timestamp(timestamp)
+                                    .positionInterpolated(interpolated)
                                     .speedOverGround(sog)
                                     .courseOverGround(cog)
                                     .latitude(position.getLatitude())

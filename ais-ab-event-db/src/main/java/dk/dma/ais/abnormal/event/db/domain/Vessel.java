@@ -16,22 +16,65 @@
 
 package dk.dma.ais.abnormal.event.db.domain;
 
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 @Entity
 public class Vessel implements Serializable {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
+
+    @NotNull
+    private int mmsi;
+
+    private String name;
+
+    private Integer imo;
+
+    private String callsign;
+
     public Vessel() {
-        id = new VesselId();
     }
 
-    public VesselId getId() {
+    public long getId() {
         return id;
     }
 
-    @EmbeddedId
-    private VesselId id;
+    public String getName() {
+        return name;
+    }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getMmsi() {
+        return mmsi;
+    }
+
+    public void setMmsi(int mmsi) {
+        this.mmsi = mmsi;
+    }
+
+    public Integer getImo() {
+        return imo;
+    }
+
+    public void setImo(Integer imo) {
+        this.imo = imo;
+    }
+
+    public String getCallsign() {
+        return callsign;
+    }
+
+    public void setCallsign(String callsign) {
+        this.callsign = callsign;
+    }
 }

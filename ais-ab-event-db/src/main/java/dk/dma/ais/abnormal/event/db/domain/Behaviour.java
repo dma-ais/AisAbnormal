@@ -71,7 +71,7 @@ public class Behaviour {
      * The vessel involved in this behaviour.
      */
     @NotNull
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(optional = false, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Vessel vessel;
 
     @NotNull

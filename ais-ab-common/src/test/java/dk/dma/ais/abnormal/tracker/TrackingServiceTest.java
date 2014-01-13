@@ -36,6 +36,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -293,6 +294,37 @@ public class TrackingServiceTest {
     @Test
     public void testTrackIsInterpolated() {
         testInterpolation(TrackingServiceImpl.TRACK_INTERPOLATION_REQUIRED_SECS + 1, 5 /* initial + second + 3 interpolated */);
+    }
+
+    @Test
+    public void testTrackIsStale() {
+        assertFalse(TrackingServiceImpl.isTrackStale(0, TrackingServiceImpl.TRACK_STALE_SECS*1000 - 1));
+        assertFalse(TrackingServiceImpl.isTrackStale(0, TrackingServiceImpl.TRACK_STALE_SECS*1000 + 1));
+
+        long now = new Date(System.currentTimeMillis()).getTime();
+
+        assertFalse(TrackingServiceImpl.isTrackStale(now, now + TrackingServiceImpl.TRACK_STALE_SECS*1000 - 1));
+        assertTrue(TrackingServiceImpl.isTrackStale(now, now + TrackingServiceImpl.TRACK_STALE_SECS*1000 + 1));
+    }
+
+    @Test
+    public void testCanProcessStaleTracks() {
+        // Create object under test
+        final TrackingServiceImpl tracker = new TrackingServiceImpl(grid);
+
+        // Prepare test data
+        Position startingPosition = Position.create((55.33714285714286 + 55.33624454148472) / 2, (11.039401122894573 + 11.040299438552713) / 2);
+        dk.dma.ais.message.AisPosition aisPosition = new AisPosition(startingPosition);
+        AisMessage3 positionMessage = getAisMessage3(aisPosition);
+
+        Date t1 = new Date(System.currentTimeMillis());
+        Date t2 = new Date(t1.getTime() + TrackingServiceImpl.TRACK_STALE_SECS*1000 + 60000);
+
+        // Execute test where track goes stale
+        tracker.update(t1, positionMessage);
+        tracker.update(t2, positionMessage);
+
+        // No exceptions are expected
     }
 
     private void testInterpolation(int secsBetweenMessages, int expectedNumberOfPositionChangeEvents) {

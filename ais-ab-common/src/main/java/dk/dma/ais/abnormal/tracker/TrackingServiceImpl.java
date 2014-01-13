@@ -79,8 +79,14 @@ public class TrackingServiceImpl implements TrackingService {
                 lastUpdate = 0L;
             }
 
+            Long lastPositionUpdate = (Long) track.getProperty(Track.TIMESTAMP_POSITION_UPDATE);
+            if (lastPositionUpdate == null) {
+                lastPositionUpdate = 0L;
+            }
+
             // Rebirth track if stale
-            if (isTrackStale(lastUpdate, currentUpdate)) {
+            final boolean trackStale = isTrackStale(lastUpdate, currentUpdate);
+            if (trackStale) {
                 removeTrack(mmsi);
                 track = getOrCreateTrack(mmsi);
                 lastUpdate = 0L;
@@ -90,10 +96,10 @@ public class TrackingServiceImpl implements TrackingService {
             if (currentUpdate >= lastUpdate) {
                 if (aisMessage instanceof IPositionMessage) {
                     IPositionMessage positionMessage = (IPositionMessage) aisMessage;
-                    if (isInterpolationRequired(lastUpdate, currentUpdate)) {
+                    if (!trackStale && isInterpolationRequired(lastPositionUpdate, currentUpdate)) {
                         interpolatePositions(track, currentUpdate, positionMessage);
                     } else {
-                        updatePosition(track, positionMessage);
+                        updatePosition(track, currentUpdate, positionMessage);
                     }
                 }
 
@@ -141,7 +147,7 @@ public class TrackingServiceImpl implements TrackingService {
 
     private void interpolatePositions(Track track, Long currentUpdate, IPositionMessage positionMessage) {
         Position p1 = (Position) track.getProperty(Track.POSITION);
-        long t1 = (long) track.getProperty(Track.TIMESTAMP);
+        long t1 = (long) track.getProperty(Track.TIMESTAMP_POSITION_UPDATE);
 
         Position p2 = positionMessage.getPos().getGeoLocation();
         long t2 = currentUpdate;
@@ -151,8 +157,10 @@ public class TrackingServiceImpl implements TrackingService {
         Set<Map.Entry<Long, Position>> interpolatedPositionEntries = interpolatedPositions.entrySet();
         Iterator<Map.Entry<Long, Position>> iterator = interpolatedPositionEntries.iterator();
         while (iterator.hasNext()) {
-            Position p = iterator.next().getValue();
-            updatePosition(track, p, ! iterator.hasNext());
+            Map.Entry<Long, Position> positionEntry = iterator.next();
+            long positionTimestamp = positionEntry.getKey();
+            Position p = positionEntry.getValue();
+            updatePosition(track, positionTimestamp, p, ! iterator.hasNext());
         }
 
         LOG.debug("Used " + interpolatedPositionEntries.size() + " interpolation points for track " + track.getMmsi());
@@ -187,7 +195,7 @@ public class TrackingServiceImpl implements TrackingService {
         return Position.create(interpolatedLatitude, interpolatedLongitude);
     }
 
-    private static boolean isTrackStale(long lastUpdate, long currentUpdate) {
+    static boolean isTrackStale(long lastUpdate, long currentUpdate) {
         boolean trackStale = lastUpdate > 0L && currentUpdate - lastUpdate >= TRACK_STALE_SECS * 1000L;
         if (trackStale) {
             LOG.debug("Track is stale (" + currentUpdate + ", " + lastUpdate + ")");
@@ -234,16 +242,17 @@ public class TrackingServiceImpl implements TrackingService {
         track.setProperty(Track.SPEED_OVER_GROUND, new Float(sog / 10.000000000000));
     }
 
-    private void updatePosition(Track track, IPositionMessage aisMessage) {
+    private void updatePosition(Track track, long positionTimestamp, IPositionMessage aisMessage) {
         IPositionMessage positionMessage = (IPositionMessage) aisMessage;
         AisPosition aisPosition = positionMessage.getPos();
         Position position = aisPosition.getGeoLocation();
 
-        updatePosition(track, position, false);
+        updatePosition(track, positionTimestamp, position, false);
     }
 
-    private void updatePosition(Track track, Position position, boolean positionIsInterpolated) {
+    private void updatePosition(Track track, long positionTimestamp, Position position, boolean positionIsInterpolated) {
         track.setProperty(Track.POSITION_IS_INTERPOLATED, positionIsInterpolated);
+        track.setProperty(Track.TIMESTAMP_POSITION_UPDATE, Long.valueOf(positionTimestamp));
 
         performUpdatePosition(track, position);
         performUpdateCellId(track, position);

@@ -22,6 +22,7 @@ import java.util.Map;
 public final class Track {
 
     public static final String TIMESTAMP = "lastUpdate";
+    public static final String TIMESTAMP_POSITION_UPDATE = "lastPosUpdate";
     public static final String POSITION = "position";
     public static final String SPEED_OVER_GROUND = "sog";
     public static final String COURSE_OVER_GROUND = "cog";

@@ -51,6 +51,7 @@ public class TrackingPoint implements Comparable<TrackingPoint> {
     @Column(precision=4, scale=2)
     private Float courseOverGround;
 
+    @NotNull
     private Boolean positionInterpolated;
 
     @Override

@@ -23,7 +23,6 @@ import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.SuddenSpeedChangeEvent;
 import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
 import dk.dma.ais.abnormal.event.db.domain.Vessel;
-import dk.dma.ais.abnormal.event.db.domain.VesselId;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -66,7 +65,6 @@ public class H2EventRepository implements EventRepository {
                     .addAnnotatedClass(AbnormalShipSizeOrTypeEvent.class)
                     .addAnnotatedClass(SuddenSpeedChangeEvent.class)
                     .addAnnotatedClass(Vessel.class)
-                    .addAnnotatedClass(VesselId.class)
                     .addAnnotatedClass(Behaviour.class)
                     .addAnnotatedClass(TrackingPoint.class);
             ServiceRegistryBuilder serviceRegistryBuilder = new ServiceRegistryBuilder();
@@ -149,7 +147,7 @@ public class H2EventRepository implements EventRepository {
 
         List events = null;
         try {
-            //Query query = session.createQuery("SELECT e FROM Event e WHERE e.behaviour.vessel.id.name LIKE :vessel OR e.behaviour.vessel.id.callsign LIKE :vessel OR e.behaviour.vessel.id.imo=:vessel OR e.behaviour.vessel.id.mmsi=:vessel");
+            //Query query = session.createQuery("SELECT e FROM Event e WHERE e.behaviour.vessel.name LIKE :vessel OR e.behaviour.vessel.callsign LIKE :vessel OR e.behaviour.vessel.imo=:vessel OR e.behaviour.vessel.mmsi=:vessel");
             StringBuilder hql = new StringBuilder();
             hql.append("SELECT e FROM Event e WHERE ");
 
@@ -174,12 +172,12 @@ public class H2EventRepository implements EventRepository {
             // vessel
             if (! StringUtils.isBlank(vessel)) {
                 hql.append("(");
-                hql.append("e.behaviour.vessel.id.callsign LIKE :vessel OR ");
-                hql.append("e.behaviour.vessel.id.name LIKE :vessel OR ");
+                hql.append("e.behaviour.vessel.callsign LIKE :vessel OR ");
+                hql.append("e.behaviour.vessel.name LIKE :vessel OR ");
                 try {
                     Long vesselAsLong = Long.valueOf(vessel);
-                    hql.append("e.behaviour.vessel.id.mmsi = :vessel OR ");
-                    hql.append("e.behaviour.vessel.id.imo = :vessel OR ");
+                    hql.append("e.behaviour.vessel.mmsi = :vessel OR ");
+                    hql.append("e.behaviour.vessel.imo = :vessel OR ");
                 } catch (NumberFormatException e) {
                 }
                 hql.replace(hql.length()-3, hql.length(), ")"); // "OR " -> ")"
@@ -255,38 +253,15 @@ public class H2EventRepository implements EventRepository {
     }
 
     @Override
-    public List<Event> findOngoingEventsByVessel(VesselId vesselId) {
-        Session session = getSession();
-
-        List events = null;
-        try {
-            Query query = session.createQuery("SELECT e FROM Event e WHERE e.state=:state AND e.behaviour.vessel.id.name=:name AND e.behaviour.vessel.id.callsign=:callsign AND e.behaviour.vessel.id.imo=:imo AND e.behaviour.vessel.id.mmsi=:mmsi");
-            query.setString("state", "ONGOING");
-            query.setString("name", vesselId.getName());
-            query.setString("callsign", vesselId.getCallsign());
-            query.setInteger("imo", vesselId.getImo());
-            query.setInteger("mmsi", vesselId.getMmsi());
-            events = query.list();
-        } finally {
-            session.close();
-        }
-
-        return events;
-    }
-
-    @Override
-    public <T extends Event> T findOngoingEventByVessel(VesselId vesselId, Class<T> eventClass) {
+    public <T extends Event> T findOngoingEventByVessel(int mmsi, Class<T> eventClass) {
         Session session = getSession();
 
         T event = null;
         try {
-            Query query = session.createQuery("SELECT e FROM Event e WHERE TYPE(e)=:class AND e.state=:state AND e.behaviour.vessel.id.name=:name AND e.behaviour.vessel.id.callsign=:callsign AND e.behaviour.vessel.id.imo=:imo AND e.behaviour.vessel.id.mmsi=:mmsi");
+            Query query = session.createQuery("SELECT e FROM Event e WHERE TYPE(e)=:class AND e.state=:state AND e.behaviour.vessel.mmsi=:mmsi");
             query.setParameter("class", eventClass);
             query.setString("state", "ONGOING");
-            query.setString("name", vesselId.getName());
-            query.setString("callsign", vesselId.getCallsign());
-            query.setInteger("imo", vesselId.getImo());
-            query.setInteger("mmsi", vesselId.getMmsi());
+            query.setInteger("mmsi", mmsi);
             List events = query.list();
 
             if (events.size() > 0) {
