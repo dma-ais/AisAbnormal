@@ -123,6 +123,7 @@ var featureModule = {
         $.each(cell.featureData, function (i, fd) {
             var featureName = fd.featureName;
             var featureType = fd.featureDataType;
+            var totalShipCount = cell.totalShipCount[featureName];
 
             cellData.append('<br/><b>' + featureName + '</b><br/>');
 
@@ -148,9 +149,10 @@ var featureModule = {
                             if (k1) {
                                 var k2 = data[i1][i2];
                                 if (k2) {
-                                    var stats = data[i1][i2].shipCount;
+                                    var pd = 100 * data[i1][i2].shipCount / totalShipCount;
+                                    var stats = (Math.round(pd * 100) / 100).toFixed(2);
                                     if (stats) {
-                                        tableHtml += stats;
+                                        tableHtml += stats + "%";
                                     }
                                 }
                             }
@@ -162,7 +164,7 @@ var featureModule = {
                 tableHtml += "</tbody>";
                 tableHtml += "</table>";
             }
-            tableHtml = "<div>(total ship count is " + cell.totalShipCount[featureName] + ")</div>" + tableHtml;
+            tableHtml = "<div>(total ship count is " + totalShipCount + ")</div>" + tableHtml;
             cellData.append(tableHtml);
         });
 
