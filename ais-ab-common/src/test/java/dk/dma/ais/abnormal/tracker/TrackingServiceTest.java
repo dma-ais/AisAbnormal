@@ -69,7 +69,7 @@ public class TrackingServiceTest {
         messageQueue.add(message5);
 
         // Create series of position reports for passing under the bridge (north-going)
-        AisMessage3 firstPositionMessage = getAisMessage3(aisStartingPosition);
+        AisMessage3 firstPositionMessage = createAisMessage3(aisStartingPosition);
         messageQueue.add(firstPositionMessage);
 
         Position prevGeoLocation = firstPositionMessage.getPos().getGeoLocation();
@@ -154,7 +154,7 @@ public class TrackingServiceTest {
         messageQueue.add(message5);
 
         // Create series of position reports for passing under the bridge (north-going)
-        AisMessage3 firstPositionMessage = getAisMessage3(aisStartingPosition);
+        AisMessage3 firstPositionMessage = createAisMessage3(aisStartingPosition);
         messageQueue.add(firstPositionMessage);
 
         Position prevGeoLocation = firstPositionMessage.getPos().getGeoLocation();
@@ -209,7 +209,7 @@ public class TrackingServiceTest {
         // Prepare test data
         Position startingPosition = Position.create((55.33714285714286 + 55.33624454148472) / 2, (11.039401122894573 + 11.040299438552713) / 2);
         dk.dma.ais.message.AisPosition aisStartingPosition = new AisPosition(startingPosition);
-        AisMessage3 firstPositionMessage = getAisMessage3(aisStartingPosition);
+        AisMessage3 firstPositionMessage = createAisMessage3(aisStartingPosition);
 
         Date firstTimestamp = new Date(System.currentTimeMillis());
 
@@ -284,7 +284,7 @@ public class TrackingServiceTest {
     }
 
     /**
-     *  Test that interpolation is used if more than 10 secs between messages
+     *  Test that interpolation is not used if less than 10 secs between messages
      */
     @Test
     public void testTrackIsNotInterpolated() {
@@ -299,15 +299,58 @@ public class TrackingServiceTest {
         testInterpolation(TrackingServiceImpl.TRACK_INTERPOLATION_REQUIRED_SECS + 1, 5 /* initial + second + 3 interpolated */);
     }
 
+    /**
+     *  Test that interpolation is used between 2 position messages 50 seconds apart - even though there
+     *  is a static message half way between
+     */
+    @Test
+    public void testTrackIsInterpolatedEvenThoughStaticMessageIsBetweenToPositionUpdates() {
+        // Create object under test
+        final TrackingServiceImpl tracker = new TrackingServiceImpl(grid, statisticsService);
+
+        // Wire up test subscriber
+        // (discussion: https://code.google.com/p/guava-libraries/issues/detail?id=875)
+        TestSubscriber testSubscriber = new TestSubscriber();
+        tracker.registerSubscriber(testSubscriber);
+
+        // Scenario
+        AisPosition p1 = new AisPosition(Position.create(55, 10));
+        AisPosition p3 = new AisPosition(Position.create(56, 11));
+
+        long currentTimeMillis = System.currentTimeMillis();
+        Date t1 = new Date(currentTimeMillis);
+        Date t2 = new Date(currentTimeMillis + (TrackingServiceImpl.TRACK_INTERPOLATION_REQUIRED_SECS-1)*1*1000);
+        Date t3 = new Date(currentTimeMillis + (TrackingServiceImpl.TRACK_INTERPOLATION_REQUIRED_SECS-1)*2*1000);
+
+        AisMessage messageSeq1 = createAisMessage3(p1);
+        AisMessage messageSeq2 = createAisMessage5();
+        AisMessage messageSeq3 = createAisMessage3(p3);
+
+        tracker.update(t1, messageSeq1);
+        tracker.update(t2, messageSeq2);
+        tracker.update(t3, messageSeq3);
+
+        // Assert result
+        int expectedNumberOfPositionChangeEvents = 2 /* p1, p3 */+ /* interpolated */(int) ((t3.getTime() - t1.getTime())/ TrackingServiceImpl.INTERPOLATION_TIME_STEP_MILLIS);
+        assertEquals(expectedNumberOfPositionChangeEvents, testSubscriber.getNumberOfCellIdChangedEventsReceived());
+        assertEquals(Position.create(56, 11), testSubscriber.getCurrentPosition());
+    }
+
     @Test
     public void testTrackIsStale() {
-        assertFalse(TrackingServiceImpl.isTrackStale(0, TrackingServiceImpl.TRACK_STALE_SECS*1000 - 1));
-        assertFalse(TrackingServiceImpl.isTrackStale(0, TrackingServiceImpl.TRACK_STALE_SECS*1000 + 1));
+        assertFalse(TrackingServiceImpl.isTrackStale(0, 0, TrackingServiceImpl.TRACK_STALE_SECS*1000 - 1));
+        assertFalse(TrackingServiceImpl.isTrackStale(0, 0, TrackingServiceImpl.TRACK_STALE_SECS*1000 + 1));
 
         long now = new Date(System.currentTimeMillis()).getTime();
 
-        assertFalse(TrackingServiceImpl.isTrackStale(now, now + TrackingServiceImpl.TRACK_STALE_SECS*1000 - 1));
-        assertTrue(TrackingServiceImpl.isTrackStale(now, now + TrackingServiceImpl.TRACK_STALE_SECS*1000 + 1));
+        assertFalse(TrackingServiceImpl.isTrackStale(now, now, now + TrackingServiceImpl.TRACK_STALE_SECS*1000 - 1));
+        assertTrue(TrackingServiceImpl.isTrackStale(now, now, now + TrackingServiceImpl.TRACK_STALE_SECS*1000 + 1));
+
+        assertFalse(TrackingServiceImpl.isTrackStale(1, now, now + TrackingServiceImpl.TRACK_STALE_SECS*1000 - 1));
+        assertTrue(TrackingServiceImpl.isTrackStale(1, now, now + TrackingServiceImpl.TRACK_STALE_SECS*1000 + 1));
+
+        assertFalse(TrackingServiceImpl.isTrackStale(now, 1, now + TrackingServiceImpl.TRACK_STALE_SECS*1000 - 1));
+        assertTrue(TrackingServiceImpl.isTrackStale(now, 1, now + TrackingServiceImpl.TRACK_STALE_SECS*1000 + 1));
     }
 
     @Test
@@ -318,7 +361,7 @@ public class TrackingServiceTest {
         // Prepare test data
         Position startingPosition = Position.create((55.33714285714286 + 55.33624454148472) / 2, (11.039401122894573 + 11.040299438552713) / 2);
         dk.dma.ais.message.AisPosition aisPosition = new AisPosition(startingPosition);
-        AisMessage3 positionMessage = getAisMessage3(aisPosition);
+        AisMessage3 positionMessage = createAisMessage3(aisPosition);
 
         Date t1 = new Date(System.currentTimeMillis());
         Date t2 = new Date(t1.getTime() + TrackingServiceImpl.TRACK_STALE_SECS*1000 + 60000);
@@ -337,11 +380,11 @@ public class TrackingServiceTest {
         // Prepare test data
         Position startingPosition = Position.create((55.33714285714286 + 55.33624454148472) / 2, (11.039401122894573 + 11.040299438552713) / 2);
         dk.dma.ais.message.AisPosition aisStartingPosition = new AisPosition(startingPosition);
-        AisMessage3 firstPositionMessage = getAisMessage3(aisStartingPosition);
+        AisMessage3 firstPositionMessage = createAisMessage3(aisStartingPosition);
 
         Position secondPosition = Position.create((55.33714285714286 + 55.35624454148472) / 2, (11.038401122894573 + 10.890299438552713) / 2);
         dk.dma.ais.message.AisPosition aisSecondPosition = new AisPosition(secondPosition);
-        AisMessage3 secondPositionMessage = getAisMessage3(aisSecondPosition);
+        AisMessage3 secondPositionMessage = createAisMessage3(aisSecondPosition);
 
         Date firstTimestamp = new Date(System.currentTimeMillis());
         Date secondTimestamp = new Date(System.currentTimeMillis() + secsBetweenMessages*1000);
@@ -374,7 +417,7 @@ public class TrackingServiceTest {
         return message;
     }
 
-    private static AisMessage3 getAisMessage3(AisPosition aisStartingPosition) {
+    private static AisMessage3 createAisMessage3(AisPosition aisStartingPosition) {
         AisMessage3 firstPositionMessage = new AisMessage3();
         firstPositionMessage.setPos(aisStartingPosition);
         firstPositionMessage.setCog(1);
