@@ -64,7 +64,8 @@ public class TrackingServiceImpl implements TrackingService {
     static final int TRACK_INTERPOLATION_REQUIRED_SECS = 30;  // 30 secs
     static final int INTERPOLATION_TIME_STEP_MILLIS = 10000;
 
-    private int lastTimeProcessed;
+    Calendar markCalendar = Calendar.getInstance();
+    private int markLastTimeProcessed;
     private int markTrigger;
 
     @Inject
@@ -76,9 +77,7 @@ public class TrackingServiceImpl implements TrackingService {
 
     @Override
     public void update(Date timestamp, AisMessage aisMessage) {
-        if (markTrigger++ % 100000 == 0) {
-            mark(timestamp);
-        }
+        mark(timestamp);
 
         final AisTargetType targetType = aisMessage.getTargetType();
 
@@ -340,13 +339,20 @@ public class TrackingServiceImpl implements TrackingService {
         return tracks.size();
     }
 
+    /**
+     * Occassionally check how far we have come in the data stream, and log a message if there are any
+     * significant news.
+     *
+     * @param timestamp timestamp of current message.
+     */
     private void mark(Date timestamp) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(timestamp);
-        int t = cal.get(Calendar.HOUR) % 6;
-        if (t != lastTimeProcessed) {
-            lastTimeProcessed = t;
-            LOG.info("Now processing stream at time " + timestamp);
+        if (markTrigger++ % 100000 == 0) {
+            markCalendar.setTime(timestamp);
+            int t = markCalendar.get(Calendar.HOUR_OF_DAY);
+            if (t != markLastTimeProcessed) {
+                markLastTimeProcessed = t;
+                LOG.info("Now processing stream at time " + timestamp);
+            }
         }
     }
 
