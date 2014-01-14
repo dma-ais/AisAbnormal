@@ -75,11 +75,17 @@ var featureModule = {
         point.transform(mapModule.projectionWGS84, mapModule.map.getProjectionObject());
         cellCoords.push(point);
 
-        var fillOpacity = 0.05 + (Math.min(cell.totalShipCount["ShipTypeAndSizeData"]/100, 1))*0.9;
+        var strokeColor = "#aaaaaa";
+        var totalShipCount = cell.totalShipCount["ShipTypeAndSizeData"];
+        if (totalShipCount >= 1000) {
+            strokeColor = "#66cc66";
+        }
+        var fillOpacity = 0.05 + (Math.min(totalShipCount/500, 1))*0.9;
+
         var strokeOpacity = fillOpacity;
 
         var cellStyle = {
-            strokeColor: "#aaaaaa",
+            strokeColor: strokeColor,
             strokeWidth: 2,
             strokeDashstyle: "solid",
             strokeOpacity: strokeOpacity,
