@@ -29,6 +29,24 @@ span.glyphicon {
     margin-right: 1ex;
 }
 
+table#featureTable td {
+    text-align: right;
+    vertical-align: baseline;
+}
+
+table#featureTable th {
+    text-align: right;
+}
+
+table#featureTable th:first-child {
+    text-align: left;
+}
+
+table#featureTable td:first-child {
+    text-align: center;
+    font-weight: bold;
+}
+
 /* Event modal */
 .modal.large {
     width: 80%;

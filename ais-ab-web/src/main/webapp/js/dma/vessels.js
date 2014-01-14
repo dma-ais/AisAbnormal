@@ -50,7 +50,6 @@ var vesselModule = {
         // Label
         var labelPointGeometry = new OpenLayers.Geometry.Point(extent.left, extent.top).transform(mapModule.projectionWGS84, mapModule.map.getProjectionObject());
         var labelStyle = {
-            label: "TEST"
         };
         var labelFeature = new OpenLayers.Feature.Vector(labelPointGeometry, null, labelStyle);
         labelFeature.fid='eventLabel-'+event.id;

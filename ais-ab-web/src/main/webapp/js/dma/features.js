@@ -128,10 +128,13 @@ var featureModule = {
             cellData.append('<br/><b>' + featureName + '</b><br/>');
 
             if (featureType == 'FeatureDataTwoKey') {
+                var meaningOfKey1 = fd.meaningOfKey1.replace('ship','');
+                var meaningOfKey2 = fd.meaningOfKey2.replace('ship','');
+
                 var tableHtml = "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"dataTable\" style=\”width: 260px;\” id=\"featureTable\">";
                 tableHtml += "<thead>";
                 tableHtml += "<tr>";
-                tableHtml += "<th>" + fd.meaningOfKey1 + " &#92; " + fd.meaningOfKey2 + "</th>";
+                tableHtml += "<th>" + meaningOfKey1 + " &#92; " + meaningOfKey2 + "</th>";
                 for (var i = 1; i < 10; i++) {
                     tableHtml += "<th>" + i + "</th>";
                 }
