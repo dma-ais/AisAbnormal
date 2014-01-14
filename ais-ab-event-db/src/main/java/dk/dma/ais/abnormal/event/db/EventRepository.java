@@ -40,13 +40,20 @@ public interface EventRepository {
      * Get events (past and ongoing) where active period spans inside from and to parameters, where
      * event type is of given type, and where vessel has given name, callsign or IMO no.
      *
+     * If any of the parameters north, east, south, west are supplied, they must all four be supplied. All returned
+     * events will then be completely or partly inside the area bounded by these four values.
+     *
      * @param from
      * @param to
      * @param type
      * @param vessel
+     * @param north
+     * @param east
+     * @param south
+     * @param west
      * @return
      */
-    List<Event> findEventsByFromAndToAndTypeAndVessel(Date from, Date to, String type, String vessel);
+    List<Event> findEventsByFromAndToAndTypeAndVesselAndArea(Date from, Date to, String type, String vessel, Double north, Double east, Double south, Double west);
 
     /**
      * Get all events (past and ongoing) which are active inside the given time period. All event which have a second
@@ -68,4 +75,5 @@ public interface EventRepository {
     List<Event> findRecentEvents(int numberOfEvents);
 
     <T extends Event> T findOngoingEventByVessel(int mmsi, Class<T> eventClass);
+
 }

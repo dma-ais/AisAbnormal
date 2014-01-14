@@ -9,6 +9,14 @@ var eventModule = {
             $('#event-search-by-id').click(eventModule.findEventById);
             $('#event-search-by-other').click(eventModule.findEventByCriteria);
         });
+
+        $("#events-remove").click(function() {
+            eventModule.removeAllEvents();
+        });
+    },
+
+    removeAllEvents: function() {
+        mapModule.getVesselLayer().removeAllFeatures();
     },
 
     formatTimestamp: function (t) {
@@ -99,6 +107,14 @@ var eventModule = {
             type: $('input#search-event-type').val(),
             vessel: '%' + $('input#search-event-vessel').val().replace("*","%") + '%'
         };
+        if ($('input#search-event-inarea').is(':checked')) {
+            var bounds = mapModule.getCurrentViewportExtent();
+            queryParams['north'] = bounds.top;
+            queryParams['east'] = bounds.right;
+            queryParams['south'] = bounds.bottom;
+            queryParams['west'] = bounds.left;
+        }
+
         var eventRequest = eventResourceService + "?" + $.param(queryParams);
 
         $.getJSON(eventRequest).done(function (events) {

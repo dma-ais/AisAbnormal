@@ -59,11 +59,36 @@ public class EventResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Object get(@QueryParam("from") DateParameter from, @QueryParam("to") DateParameter to, @QueryParam("type") String type, @QueryParam("vessel") String vessel, @QueryParam("numberOfReventEvents") Integer numberOfReventEvents) {
-        if (numberOfReventEvents != null) {
-            return eventRepository.findRecentEvents(numberOfReventEvents);
+    public Object get(
+            @QueryParam("from") DateParameter from,
+            @QueryParam("to") DateParameter to,
+            @QueryParam("type") String type,
+            @QueryParam("vessel") String vessel,
+            @QueryParam("numberOfRecentEvents") Integer numberOfRecentEvents,
+            @QueryParam("north") Double north,
+            @QueryParam("east") Double east,
+            @QueryParam("south") Double south,
+            @QueryParam("west") Double west
+        ) {
+
+        // Check validity of parameters and parameter combinations
+        if (north != null || east != null || south != null || west != null ) {
+            if (! (north != null && east != null && south != null && west != null)) {
+                throw new IllegalArgumentException("Most provide all of north, east, south, west.");
+            }
+        }
+
+        if (numberOfRecentEvents != null) {
+            if (from != null || to != null || type != null || vessel != null || north != null) {
+                throw new IllegalArgumentException("Parameter 'numberOfRecentEvents' cannot be used in combination with other parameters.");
+            }
+        }
+
+        // Figure out which service method to call
+        if (numberOfRecentEvents != null) {
+            return eventRepository.findRecentEvents(numberOfRecentEvents);
         } else {
-            return eventRepository.findEventsByFromAndToAndTypeAndVessel(from == null ? null : from.value(), to == null ? null : to.value(), type, vessel);
+            return eventRepository.findEventsByFromAndToAndTypeAndVesselAndArea(from == null ? null : from.value(), to == null ? null : to.value(), type, vessel, north, east, south, west);
         }
     }
 }

@@ -5,7 +5,7 @@ var tickerModule = {
     },
 
     reloadTickerData: function() {
-        $.get('/abnormal/rest/event?numberOfReventEvents=5', function(events) {
+        $.get('/abnormal/rest/event?numberOfRecentEvents=5', function(events) {
 
             $("#ticker").empty();
 

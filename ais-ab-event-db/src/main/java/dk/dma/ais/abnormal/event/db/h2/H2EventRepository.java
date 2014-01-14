@@ -140,16 +140,21 @@ public class H2EventRepository implements EventRepository {
     }
 
     @Override
-    public List<Event> findEventsByFromAndToAndTypeAndVessel(Date from, Date to, String type, String vessel) {
+    public List<Event> findEventsByFromAndToAndTypeAndVesselAndArea(Date from, Date to, String type, String vessel, Double north, Double east, Double south, Double west) {
         Session session = getSession();
 
-        boolean usesFrom = false, usesTo = false, usesType = false, usesVessel = false;
+        boolean usesFrom = false, usesTo = false, usesType = false, usesVessel = false, usesArea = false;
 
         List events = null;
         try {
-            //Query query = session.createQuery("SELECT e FROM Event e WHERE e.behaviour.vessel.name LIKE :vessel OR e.behaviour.vessel.callsign LIKE :vessel OR e.behaviour.vessel.imo=:vessel OR e.behaviour.vessel.mmsi=:vessel");
             StringBuilder hql = new StringBuilder();
-            hql.append("SELECT e FROM Event e WHERE ");
+
+            if (north != null && east != null && south != null && west != null) {
+                hql.append("SELECT DISTINCT e FROM Event e LEFT JOIN e.behaviour AS b LEFT JOIN b.trackingPoints AS tp WHERE latitude<:north AND latitude>:south AND longitude<:east AND longitude>:west AND ");
+                usesArea = true;
+            } else {
+                hql.append("SELECT e FROM Event e WHERE ");
+            }
 
             // from
             if (from != null) {
@@ -192,6 +197,12 @@ public class H2EventRepository implements EventRepository {
 
             //
             Query query = session.createQuery(hqlAsString);
+            if (usesArea) {
+                query.setParameter("north", north);
+                query.setParameter("east", east);
+                query.setParameter("south", south);
+                query.setParameter("west", west);
+            }
             if (usesFrom) {
                 query.setParameter("from", from);
             }

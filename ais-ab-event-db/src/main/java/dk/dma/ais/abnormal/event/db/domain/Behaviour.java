@@ -63,6 +63,10 @@ public class Behaviour {
         this.vessel = vessel;
     }
 
+    public long getId() {
+        return id;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;

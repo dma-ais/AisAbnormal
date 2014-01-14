@@ -29,6 +29,10 @@ span.glyphicon {
     margin-right: 1ex;
 }
 
+button {
+    margin: 5px;
+}
+
 table#featureTable td {
     text-align: right;
     vertical-align: baseline;
@@ -55,6 +59,10 @@ table#featureTable td:first-child {
 
 .modal-dialog {
     width: 80%;
+}
+
+#event-search-modal .form-group input[type='checkbox'] {
+    width: 30px;
 }
 
 /* Event search result modal */

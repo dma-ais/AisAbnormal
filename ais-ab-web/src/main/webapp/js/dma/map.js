@@ -184,23 +184,24 @@ var mapModule = {
         var lat = OpenLayers.Util.getFormattedLonLat(p.y, 'lat');
         var lon = OpenLayers.Util.getFormattedLonLat(p.x, 'lon');
 
-        $('#cursorpos').html("<p>(" + lat + "," + lon + ")</p>");
+        $('#cursorpos').html("<p>(" + lat + ", " + lon + ")</p>");
     },
 
     userOutputUpdateViewPortInfo: function () {
-        var viewport = this.map.getExtent();
+        var viewport = mapModule.getCurrentViewportExtent();
 
-        var nw = new OpenLayers.Geometry.Point(viewport.left, viewport.top);
-        nw.transform(this.map.getProjectionObject(), this.projectionWGS84);
-        var se = new OpenLayers.Geometry.Point(viewport.right, viewport.bottom);
-        se.transform(this.map.getProjectionObject(), this.projectionWGS84);
+        var north = OpenLayers.Util.getFormattedLonLat(viewport.top, 'lat');
+        var west = OpenLayers.Util.getFormattedLonLat(viewport.left, 'lon');
+        var south = OpenLayers.Util.getFormattedLonLat(viewport.bottom, 'lat');
+        var east = OpenLayers.Util.getFormattedLonLat(viewport.right, 'lon');
 
-        var north = OpenLayers.Util.getFormattedLonLat(nw.y, 'lat');
-        var west = OpenLayers.Util.getFormattedLonLat(nw.x, 'lon');
-        var south = OpenLayers.Util.getFormattedLonLat(se.y, 'lat');
-        var east = OpenLayers.Util.getFormattedLonLat(se.x, 'lon');
+        $('#viewport').html("<p>(" + north + ", " + west + ")<br/>(" + south + ", " + east + ")</p>");
+    },
 
-        $('#viewport').html("<p>(" + north + "," + west + ")<br/>(" + south + "," + east + ")</p>");
+    getCurrentViewportExtent: function() {
+        var viewport = mapModule.map.getExtent();
+        viewport.transform(mapModule.map.getProjectionObject(), mapModule.projectionWGS84);
+        return viewport;
     },
 
     gridLayerFeatureListeners: {
