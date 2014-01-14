@@ -89,12 +89,11 @@ var vesselModule = {
         $.each(trackingPoints, function (i, trackingPoint) {
             var point = new OpenLayers.Geometry.Point(trackingPoint.longitude, trackingPoint.latitude);
             point.transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator);
-            var markerGeometry = OpenLayers.Geometry.Polygon.createRegularPolygon(point, 30, 20);
-            var markerStyle = { strokeColor: 'orange'};
+            var markerStyle = { strokeColor: 'orange', fillOpacity: 0.5, pointRadius: 3 };
             if (trackingPoint.positionInterpolated == true) {
                 markerStyle.strokeColor = 'grey';
             }
-            var markerFeature = new OpenLayers.Feature.Vector(markerGeometry, null, markerStyle);
+            var markerFeature = new OpenLayers.Feature.Vector(point, {type: "circle"}, markerStyle);
             markerFeature.fid = 'trackingPoint-'+event.id+'-'+trackingPoint.id;
             mapModule.getVesselLayer().addFeatures([markerFeature]);
         });
@@ -102,21 +101,22 @@ var vesselModule = {
         // Track symbol
         var trackingPoint = trackingPoints[trackingPoints.length - 1];
         var trackSymbolFeature = new OpenLayers.Feature.Vector(
-            new OpenLayers.Geometry.Point(trackingPoint.longitude, trackingPoint.latitude).transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator),
-            {
-                name: vessel.name,
-                callsign: vessel.callsign,
-                imo: vessel.imo,
-                mmsi: vessel.mmsi
-            },
-            {
-                externalGraphic: 'img/vessel_red.png',
-                graphicHeight: 10,
-                graphicWidth: 20,
-                graphicXOffset:-5,
-                graphicYOffset:-5,
-                rotation: trackingPoint.courseOverGround - 90
-            }
+            new OpenLayers.Geometry.Point(
+                trackingPoint.longitude, trackingPoint.latitude).transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator),
+                {
+                    name: vessel.name,
+                    callsign: vessel.callsign,
+                    imo: vessel.imo,
+                    mmsi: vessel.mmsi
+                },
+                {
+                    externalGraphic: 'img/vessel_red.png',
+                    graphicHeight: 10,
+                    graphicWidth: 20,
+                    graphicXOffset:-5,
+                    graphicYOffset:-5,
+                    rotation: trackingPoint.courseOverGround - 90
+                }
         );
         trackSymbolFeature.fid = 'trackSymbol-'+event.id+'-'+vessel.mmsi;
         mapModule.getVesselLayer().addFeatures([trackSymbolFeature]);
