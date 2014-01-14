@@ -48,7 +48,7 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
     private final AppStatisticsService statisticsService;
     private final EventRepository eventRepository;
 
-    private static final int TOTAL_COUNT_THRESHOLD = 1; // TODO 1000
+    private static final int TOTAL_COUNT_THRESHOLD = 1000;
 
     @Inject
     public ShipTypeAndSizeAnalysis(AppStatisticsService statisticsService, FeatureDataRepository featureDataRepository, TrackingService trackingService, EventRepository eventRepository) {

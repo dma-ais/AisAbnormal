@@ -102,7 +102,7 @@ public class H2EventRepository implements EventRepository {
         connectionUrl.append(";");
         connectionUrl.append("TRACE_LEVEL_FILE=0");
         connectionUrl.append(";");
-        connectionUrl.append("TRACE_LEVEL_SYSTEM_OUT=2");
+        connectionUrl.append("TRACE_LEVEL_SYSTEM_OUT=1");
         LOG.debug("Using connectionUrl=" + connectionUrl);
         return connectionUrl.toString();
     }

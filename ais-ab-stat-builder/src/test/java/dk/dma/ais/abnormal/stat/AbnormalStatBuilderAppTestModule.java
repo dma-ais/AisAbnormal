@@ -59,6 +59,7 @@ public class AbnormalStatBuilderAppTestModule extends AbstractModule {
         bind(StripedExecutorService.class).in(Singleton.class);
         bind(AbnormalStatBuilderApp.class).in(Singleton.class);
         bind(AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
+        bind(dk.dma.ais.abnormal.application.statistics.AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
         bind(TrackingService.class).to(TrackingServiceImpl.class).in(Singleton.class);
         bind(ShipTypeAndSizeFeature.class);
 

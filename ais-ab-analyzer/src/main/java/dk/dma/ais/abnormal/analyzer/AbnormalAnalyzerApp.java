@@ -49,9 +49,14 @@ public class AbnormalAnalyzerApp extends AbstractDaemon {
     @Inject
     private PacketHandler packetHandler;
 
+    @Inject
+    private AppStatisticsService statisticsService;
+
     @Override
     protected void runDaemon(Injector injector) throws Exception {
         LOG.info("Starting AbnormalAnalyzerApp");
+
+        statisticsService.start();
 
         reader.registerPacketHandler(packetHandler);
         reader.start();

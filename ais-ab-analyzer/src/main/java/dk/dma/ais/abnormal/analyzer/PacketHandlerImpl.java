@@ -75,9 +75,7 @@ public class PacketHandlerImpl implements PacketHandler {
             statisticsService.incStatMsgCount();
         }
 
-        Date timestamp = packet.getTimestamp();
-
-        doWork(timestamp, message);
+        doWork(packet.getTimestamp(), message);
     }
 
     private void doWork(Date timestamp, AisMessage message) {
@@ -91,13 +89,6 @@ public class PacketHandlerImpl implements PacketHandler {
         this.analyses = new ImmutableSet.Builder<Analysis>()
                 .add(injector.getInstance(ShipTypeAndSizeAnalysis.class))
                 .build();
-
-        /*
-        Iterator<Analysis> analysisIterator = this.analyses.iterator();
-        while (analysisIterator.hasNext()) {
-            analysisIterator.next().start();
-        }
-        */
     }
 
 }

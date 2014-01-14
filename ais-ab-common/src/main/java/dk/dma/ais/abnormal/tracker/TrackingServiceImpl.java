@@ -36,6 +36,7 @@ import dk.dma.enav.model.geometry.grid.Grid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -62,6 +63,9 @@ public class TrackingServiceImpl implements TrackingService {
     static final int TRACK_INTERPOLATION_REQUIRED_SECS = 30;  // 30 secs
     static final int INTERPOLATION_TIME_STEP_MILLIS = 10000;
 
+    private int lastDayProcessed;
+    private int markTrigger;
+
     @Inject
     public TrackingServiceImpl(Grid grid, AppStatisticsService statisticsService) {
         eventBus.register(this);
@@ -71,6 +75,10 @@ public class TrackingServiceImpl implements TrackingService {
 
     @Override
     public void update(Date timestamp, AisMessage aisMessage) {
+        if (markTrigger++ % 100000 == 0) {
+            mark(timestamp);
+        }
+
         final AisTargetType targetType = aisMessage.getTargetType();
 
         int mmsi = aisMessage.getUserId();
@@ -79,9 +87,9 @@ public class TrackingServiceImpl implements TrackingService {
             Long currentUpdate = timestamp.getTime();
 
             // Manage timestamps
-            Long lastUpdate = (Long) track.getProperty(Track.TIMESTAMP);
-            if (lastUpdate == null) {
-                lastUpdate = 0L;
+            Long lastAnyUpdate = (Long) track.getProperty(Track.TIMESTAMP);
+            if (lastAnyUpdate == null) {
+                lastAnyUpdate = 0L;
             }
 
             Long lastPositionUpdate = (Long) track.getProperty(Track.TIMESTAMP_POSITION_UPDATE);
@@ -90,21 +98,20 @@ public class TrackingServiceImpl implements TrackingService {
             }
 
             // Rebirth track if stale
-            final boolean trackStale = isTrackStale(lastUpdate, currentUpdate);
-            if (trackStale) {
+            if (isTrackStale(lastAnyUpdate, lastPositionUpdate, currentUpdate)) {
                 removeTrack(mmsi);
                 track = getOrCreateTrack(mmsi);
-                lastUpdate = 0L;
+                lastAnyUpdate = 0L;
+                lastPositionUpdate = 0L;
             }
 
             // Perform track updates
-            if (currentUpdate >= lastUpdate) {
+            if (currentUpdate >= lastAnyUpdate) {
                 if (aisMessage instanceof IPositionMessage) {
                     IPositionMessage positionMessage = (IPositionMessage) aisMessage;
                     final boolean aisMessageHasValidPosition = positionMessage.getPos().getGeoLocation() != null;
                     if (aisMessageHasValidPosition) {
-                        final boolean trackHasPreviousPosition = track.getProperty(Track.POSITION) != null;
-                        if (!trackStale && trackHasPreviousPosition && isInterpolationRequired(lastPositionUpdate, currentUpdate)) {
+                        if (isInterpolationRequired(lastPositionUpdate, currentUpdate)) {
                             interpolatePositions(track, currentUpdate, positionMessage);
                         } else {
                             updatePosition(track, currentUpdate, positionMessage);
@@ -134,7 +141,7 @@ public class TrackingServiceImpl implements TrackingService {
                 }
             } else {
                 statisticsService.incOutOfSequenceMessages();
-                Long timeDelta = lastUpdate - currentUpdate;
+                Long timeDelta = lastAnyUpdate - currentUpdate;
                 LOG.debug("Message of type " + aisMessage.getMsgId() + " ignored because it is out of sequence (delayed) by " + timeDelta + " msecs (mmsi " + mmsi + ")");
             }
         }
@@ -197,7 +204,8 @@ public class TrackingServiceImpl implements TrackingService {
         return Position.create(interpolatedLatitude, interpolatedLongitude);
     }
 
-    static boolean isTrackStale(long lastUpdate, long currentUpdate) {
+    static boolean isTrackStale(long lastAnyUpdate, long lastPositionUpdate, long currentUpdate) {
+        long lastUpdate = Math.max(lastAnyUpdate, lastPositionUpdate);
         boolean trackStale = lastUpdate > 0L && currentUpdate - lastUpdate >= TRACK_STALE_SECS * 1000L;
         if (trackStale) {
             LOG.debug("Track is stale (" + currentUpdate + ", " + lastUpdate + ")");
@@ -205,10 +213,10 @@ public class TrackingServiceImpl implements TrackingService {
         return trackStale;
     }
 
-    private static boolean isInterpolationRequired(long lastUpdate, long currentUpdate) {
-        boolean interpolationRequired = lastUpdate > 0L && currentUpdate - lastUpdate >= TRACK_INTERPOLATION_REQUIRED_SECS * 1000L;
+    private static boolean isInterpolationRequired(long lastPositionUpdate, long currentPositionUpdate) {
+        boolean interpolationRequired = lastPositionUpdate > 0L && currentPositionUpdate - lastPositionUpdate >= TRACK_INTERPOLATION_REQUIRED_SECS * 1000L;
         if (interpolationRequired) {
-            LOG.debug("Interpolation is required (" + currentUpdate + ", " + lastUpdate + ")");
+            LOG.debug("Interpolation is required (" + currentPositionUpdate + ", " + lastPositionUpdate + ")");
         }
         return interpolationRequired;
     }
@@ -328,4 +336,15 @@ public class TrackingServiceImpl implements TrackingService {
     public Integer getNumberOfTracks() {
         return tracks.size();
     }
+
+    private void mark(Date timestamp) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(timestamp);
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+        if (day != lastDayProcessed) {
+            lastDayProcessed = day;
+            LOG.info("Now processing stream at time " + timestamp);
+        }
+    }
+
 }
