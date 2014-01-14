@@ -21,6 +21,7 @@ import com.google.inject.Injector;
 import dk.dma.ais.abnormal.analyzer.analysis.Analysis;
 import dk.dma.ais.abnormal.analyzer.analysis.ShipTypeAndSizeAnalysis;
 import dk.dma.ais.abnormal.tracker.TrackingService;
+import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisMessage5;
 import dk.dma.ais.message.IPositionMessage;
@@ -43,19 +44,25 @@ public class PacketHandlerImpl implements PacketHandler {
 
     private AppStatisticsService statisticsService;
     private TrackingService trackingService;
+    private ReplayDownSampleFilter downSampleFilter;
 
     private Set<Analysis> analyses;
 
     @Inject
-    public PacketHandlerImpl(AppStatisticsService statisticsService, TrackingService trackingService) {
+    public PacketHandlerImpl(AppStatisticsService statisticsService, TrackingService trackingService, ReplayDownSampleFilter downSampleFilter) {
         this.statisticsService = statisticsService;
         this.trackingService = trackingService;
+        this.downSampleFilter = downSampleFilter;
         initAnalyses();
     }
 
     public void accept(final AisPacket packet) {
         statisticsService.incUnfilteredPacketCount();
-        // TODO no packet filtering yet
+
+        if (downSampleFilter.rejectedByFilter(packet)) {
+            return;
+        }
+
         statisticsService.incFilteredPacketCount();
         long n = statisticsService.getFilteredPacketCount();
         if (n % 100000L == 0) {
@@ -80,7 +87,7 @@ public class PacketHandlerImpl implements PacketHandler {
 
     private void doWork(Date timestamp, AisMessage message) {
         trackingService.update(timestamp, message);
-        statisticsService.setTrackCount(trackingService.getNumberOfTracks());
+        //statisticsService.setTrackCount(trackingService.getNumberOfTracks());
     }
 
     private void initAnalyses() {

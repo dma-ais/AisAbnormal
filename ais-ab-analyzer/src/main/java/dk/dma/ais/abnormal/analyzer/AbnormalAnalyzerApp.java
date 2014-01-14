@@ -133,7 +133,7 @@ public class AbnormalAnalyzerApp extends AbstractDaemon {
             jCommander.setProgramName("AbnormalAnalyzerApp");
             jCommander.usage();
         } else {
-            Injector injector = Guice.createInjector(new AbnormalAnalyzerAppModule(userArguments.getInputDirectory(), userArguments.getInputFilenamePattern(), userArguments.isRecursive(), userArguments.getFeatureData(), userArguments.getPathToEventDatabase()));
+            Injector injector = Guice.createInjector(new AbnormalAnalyzerAppModule(userArguments.getInputDirectory(), userArguments.getInputFilenamePattern(), userArguments.isRecursive(), userArguments.getFeatureData(), userArguments.getPathToEventDatabase(), userArguments.getDownSampling()));
             AbnormalAnalyzerApp.setInjector(injector);
             AbnormalAnalyzerApp app = injector.getInstance(AbnormalAnalyzerApp.class);
             app.execute(new String[]{} /* no cmd args - we handled them already */ );

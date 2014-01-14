@@ -23,6 +23,7 @@ import com.google.inject.Inject;
 import dk.dma.ais.abnormal.application.statistics.AppStatisticsService;
 import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
 import dk.dma.ais.abnormal.tracker.events.PositionChangedEvent;
+import dk.dma.ais.abnormal.tracker.events.TrackStaleEvent;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisMessage5;
 import dk.dma.ais.message.AisPosition;
@@ -63,7 +64,7 @@ public class TrackingServiceImpl implements TrackingService {
     static final int TRACK_INTERPOLATION_REQUIRED_SECS = 30;  // 30 secs
     static final int INTERPOLATION_TIME_STEP_MILLIS = 10000;
 
-    private int lastDayProcessed;
+    private int lastTimeProcessed;
     private int markTrigger;
 
     @Inject
@@ -87,7 +88,7 @@ public class TrackingServiceImpl implements TrackingService {
             Long currentUpdate = timestamp.getTime();
 
             // Manage timestamps
-            Long lastAnyUpdate = (Long) track.getProperty(Track.TIMESTAMP);
+            Long lastAnyUpdate = (Long) track.getProperty(Track.TIMESTAMP_ANY_UPDATE);
             if (lastAnyUpdate == null) {
                 lastAnyUpdate = 0L;
             }
@@ -222,7 +223,7 @@ public class TrackingServiceImpl implements TrackingService {
     }
 
     private void updateTimestamp(Track track, Long timestampMillis) {
-        track.setProperty(Track.TIMESTAMP, timestampMillis);
+        track.setProperty(Track.TIMESTAMP_ANY_UPDATE, timestampMillis);
     }
 
     private void updateVesselName(Track track, AisStaticCommon aisMessage) {
@@ -262,6 +263,7 @@ public class TrackingServiceImpl implements TrackingService {
 
     private void updatePosition(Track track, long positionTimestamp, Position position, boolean positionIsInterpolated) {
         track.setProperty(Track.POSITION_IS_INTERPOLATED, positionIsInterpolated);
+        track.setProperty(Track.TIMESTAMP_ANY_UPDATE, Long.valueOf(positionTimestamp));
         track.setProperty(Track.TIMESTAMP_POSITION_UPDATE, Long.valueOf(positionTimestamp));
 
         performUpdatePosition(track, position);
@@ -309,6 +311,7 @@ public class TrackingServiceImpl implements TrackingService {
     }
 
     private void removeTrack(int mmsi) {
+        eventBus.post(new TrackStaleEvent(tracks.get(mmsi)));
         tracks.remove(mmsi);
     }
 
@@ -340,9 +343,9 @@ public class TrackingServiceImpl implements TrackingService {
     private void mark(Date timestamp) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(timestamp);
-        int day = cal.get(Calendar.DAY_OF_MONTH);
-        if (day != lastDayProcessed) {
-            lastDayProcessed = day;
+        int t = cal.get(Calendar.HOUR) % 6;
+        if (t != lastTimeProcessed) {
+            lastTimeProcessed = t;
             LOG.info("Now processing stream at time " + timestamp);
         }
     }

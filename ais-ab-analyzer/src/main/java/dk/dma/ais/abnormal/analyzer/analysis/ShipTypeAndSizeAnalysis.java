@@ -30,6 +30,7 @@ import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
+import dk.dma.ais.abnormal.tracker.events.TrackStaleEvent;
 import dk.dma.ais.abnormal.util.Categorizer;
 import dk.dma.enav.model.geometry.Position;
 import org.slf4j.Logger;
@@ -92,29 +93,32 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
         short shipLengthBucket = Categorizer.mapShipLengthToCategory(shipLength);
 
         if (isAbnormalCellForShipTypeAndSize(cellId, shipTypeBucket, shipLengthBucket)) {
-            raiseOrMaintainAbnormalEvent(trackEvent);
+            raiseOrMaintainAbnormalEvent(track);
         } else {
-            lowerExistingAbnormalEventIfExists(trackEvent);
+            lowerExistingAbnormalEventIfExists(track);
         }
 
         statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events processed");
     }
 
-    private void lowerExistingAbnormalEventIfExists(CellIdChangedEvent trackEvent) {
-        Track track = trackEvent.getTrack();
+    @AllowConcurrentEvents
+    @Subscribe
+    public void onTrackStale(TrackStaleEvent trackEvent) {
+        lowerExistingAbnormalEventIfExists(trackEvent.getTrack());
+    }
+
+    private void lowerExistingAbnormalEventIfExists(Track track) {
         Integer mmsi = track.getMmsi();
         Event ongoingEvent = eventRepository.findOngoingEventByVessel(mmsi, AbnormalShipSizeOrTypeEvent.class);
         if (ongoingEvent != null) {
-            Date timestamp = new Date((Long) track.getProperty(Track.TIMESTAMP));
+            Date timestamp = new Date((Long) track.getProperty(Track.TIMESTAMP_ANY_UPDATE));
             ongoingEvent.setState(Event.State.PAST);
             ongoingEvent.setEndTime(timestamp);
             eventRepository.save(ongoingEvent);
         }
     }
 
-    private void raiseOrMaintainAbnormalEvent(CellIdChangedEvent trackEvent) {
-        Track track = trackEvent.getTrack();
-
+    private void raiseOrMaintainAbnormalEvent(Track track) {
         Date positionTimestamp = new Date((Long) track.getProperty(Track.TIMESTAMP_POSITION_UPDATE));
         Integer mmsi = track.getMmsi();
         Integer imo = (Integer) track.getProperty(Track.IMO);
@@ -170,7 +174,6 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
 
             eventRepository.save(event);
         }
-
     }
 
     /**

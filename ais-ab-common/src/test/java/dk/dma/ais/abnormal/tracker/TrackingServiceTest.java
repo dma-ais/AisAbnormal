@@ -199,7 +199,7 @@ public class TrackingServiceTest {
     }
 
     /**
-     *  Test that Track.setProperty(Track.TIMESTAMP, ...) is called on every update
+     *  Test that Track.setProperty(Track.TIMESTAMP_ANY_UPDATE, ...) is called on every update
      */
     @Test
     public void testTrackTimestampIsUpdatedOnUpdates() {
@@ -222,7 +222,7 @@ public class TrackingServiceTest {
         assertEquals(1, keys.size());
         Integer key = keys.iterator().next();
         assertNotNull(key);
-        Object trackTimestamp = tracker.tracks.get(key).getProperty(Track.TIMESTAMP);
+        Object trackTimestamp = tracker.tracks.get(key).getProperty(Track.TIMESTAMP_ANY_UPDATE);
         assertTrue(trackTimestamp instanceof Long);
         assertEquals(trackTimestamp, firstTimestamp.getTime());
 
@@ -236,7 +236,7 @@ public class TrackingServiceTest {
         assertEquals(1, keys.size());
         key = keys.iterator().next();
         assertNotNull(key);
-        trackTimestamp = tracker.tracks.get(key).getProperty(Track.TIMESTAMP);
+        trackTimestamp = tracker.tracks.get(key).getProperty(Track.TIMESTAMP_ANY_UPDATE);
         assertTrue(trackTimestamp instanceof Long);
         assertEquals(trackTimestamp, secondTimestamp.getTime());
     }
@@ -448,6 +448,7 @@ public class TrackingServiceTest {
             numberOfCellIdChangedEventsReceived++;
             currentCellId = (long) event.getTrack().getProperty(Track.CELL_ID);
             System.out.println("We are now in cell: " + currentCellId);
+            assertTrackTimestamps(event.getTrack());
         }
 
         @Subscribe
@@ -455,6 +456,22 @@ public class TrackingServiceTest {
             numberOfPositionChangedEventsReceived++;
             currentPosition = (Position) event.getTrack().getProperty(Track.POSITION);
             System.out.println("We are now in position: " + currentPosition);
+            assertTrackTimestamps(event.getTrack());
+        }
+
+        private void assertTrackTimestamps(Track track) {
+            // TIMESTAMP_ANY_UPDATE is never allowed to fall behind TIMESTAMP_POSITION_UPDATE
+            Long anyUpdate = getTimestampFromTrack(track, Track.TIMESTAMP_ANY_UPDATE);
+            Long posUpdate = getTimestampFromTrack(track, Track.TIMESTAMP_POSITION_UPDATE);
+            assertTrue(anyUpdate >= posUpdate);
+        }
+
+        private long getTimestampFromTrack(Track track, String timestampType) {
+            Long timestamp = (Long) track.getProperty(timestampType);
+            if (timestamp == null) {
+                timestamp = 0L;
+            }
+            return timestamp;
         }
 
         public long getCurrentCellId() {

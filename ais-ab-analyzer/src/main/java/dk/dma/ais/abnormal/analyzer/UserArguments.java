@@ -39,6 +39,9 @@ public class UserArguments {
     @Parameter(names = "-eventData", description = "Name of file to hold event data.", required = true)
     private String pathToEventDatabase;
 
+    @Parameter(names = "-downsampling", description = "Downsampling period (in secs).")
+    private Integer downSampling = 10;
+
     public void setHelp(boolean help) {
         this.help = help;
     }
@@ -65,5 +68,13 @@ public class UserArguments {
 
     public String getPathToEventDatabase() {
         return pathToEventDatabase;
+    }
+
+    public int getDownSampling() {
+        return downSampling;
+    }
+
+    public void setDownSampling(int downSampling) {
+        this.downSampling = downSampling;
     }
 }

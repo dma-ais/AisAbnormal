@@ -27,6 +27,7 @@ import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeData;
 import dk.dma.ais.abnormal.stat.db.mapdb.FeatureDataRepositoryMapDB;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.TrackingServiceImpl;
+import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
 import dk.dma.enav.model.geometry.grid.Grid;
@@ -47,13 +48,15 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     private final boolean inputRecursive;
     private final String featureData;
     private final String pathToEventDatabase;
+    private final int downSampling;
 
-    public AbnormalAnalyzerAppModule(String inputDirectory, String inputFilenamePattern, boolean inputRecursive, String featureData, String pathToEventDatabase) {
+    public AbnormalAnalyzerAppModule(String inputDirectory, String inputFilenamePattern, boolean inputRecursive, String featureData, String pathToEventDatabase, int downSampling) {
         this.inputDirectory = inputDirectory;
         this.inputFilenamePattern = inputFilenamePattern;
         this.inputRecursive = inputRecursive;
         this.featureData = featureData;
         this.pathToEventDatabase = pathToEventDatabase;
+        this.downSampling = downSampling;
     }
 
     @Override
@@ -63,6 +66,18 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
         bind(dk.dma.ais.abnormal.application.statistics.AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
         bind(PacketHandler.class).to(PacketHandlerImpl.class).in(Singleton.class);
         bind(TrackingService.class).to(TrackingServiceImpl.class).in(Singleton.class);
+    }
+
+    @Provides
+    ReplayDownSampleFilter provideReplayDownSampleFilter() {
+        ReplayDownSampleFilter filter = null;
+        try {
+            filter = new ReplayDownSampleFilter(downSampling);
+            LOG.info("Created ReplayDownSampleFilter with down sampling period of " + downSampling + " secs.");
+        } catch (Exception e) {
+            LOG.error("Failed to create ReplayDownSampleFilter object", e);
+        }
+        return filter;
     }
 
     @Provides
