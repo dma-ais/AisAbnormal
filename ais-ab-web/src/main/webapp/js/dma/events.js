@@ -87,7 +87,7 @@ var eventModule = {
 
         var tableHtml  = "<table class='table'>"
         tableHtml += "<thead><tr>";
-        tableHtml += "<td>Action</td><td>Id</td><td>State</td><td>Start</td><td>End</td><td>Vessel</td>";
+        tableHtml += "<td>Action</td><td>Id</td><td>Type</td><td>Start</td><td>End</td><td>Vessel</td>";
         tableHtml += "</tr></thead><tbody></tbody>";
         tableHtml += "</table>";
 
@@ -100,11 +100,12 @@ var eventModule = {
 
         var eventStart = eventModule.formatTimestamp(event.startTime);
         var eventEnd = eventModule.formatTimestamp(event.endTime);
+        var eventType = event.eventType.replace('Event','');
 
         var searchResultHtml  = "<tr>";
         searchResultHtml += "<td><span id='result-" + event.id + "' class='glyphicon glyphicon-film'></span></td>";
         searchResultHtml += "<td>" + event.id + "</td>";
-        searchResultHtml += "<td>" + event.state + "</td>";
+        searchResultHtml += "<td>" + eventType + "</td>";
         searchResultHtml += "<td>" + eventStart + "</td>";
         searchResultHtml += "<td>" + eventEnd + "</td>";
         searchResultHtml += "<td>" + event.behaviour.vessel.name + "</td>";
