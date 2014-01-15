@@ -65,7 +65,10 @@ table#featureTable td:first-child {
     width: 30px;
 }
 
-/* Event search result modal */
+#event-search-modal .search-show-all {
+    text-align: right;
+}
+
 #event-search-modal .search-results .search-data {
     max-height: 256px;
     overflow: scroll;

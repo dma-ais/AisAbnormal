@@ -3,11 +3,20 @@
  */
 
 var eventModule = {
+
+    searchResults: new Array(),
+
     init: function () {
         $('#event-search-modal-wrapper').load("event-search-modal.html", function () {
             $('.tabs#event-search-tabs').tabs();
             $('#event-search-by-id').click(eventModule.findEventById);
             $('#event-search-by-other').click(eventModule.findEventByCriteria);
+
+            $("#event-search-modal .search-results .search-show-all").hide();
+            $("#event-search-modal .search-results .search-show-all").click(function() {
+                eventModule.visualizeAllSearchResults();
+                $('#event-search-modal').modal('hide');
+            });
         });
 
         $("#events-remove").click(function() {
@@ -52,53 +61,68 @@ var eventModule = {
         return curr_date + "-" + curr_month + "-" + curr_year + " " + curr_hour + ":" + curr_min + ":" + curr_sec;
     },
 
-    setSearchStatus: function(statusText) {
+    setSearchStarted: function(statusText) {
         $("#event-search-modal .search-results .search-status").empty();
         $("#event-search-modal .search-results .search-status").append(statusText);
+        $("#event-search-modal .search-results .search-show-all").hide();
+    },
+
+    setSearchCompleted: function(statusText) {
+        $("#event-search-modal .search-results .search-status").empty();
+        $("#event-search-modal .search-results .search-status").append(statusText);
+
+        if ($('#event-search-modal .search-results .search-data tbody tr').length < 100) {
+            $("#event-search-modal .search-results .search-show-all").show();
+        } else {
+            $("#event-search-modal .search-results .search-show-all").hide();
+        }
     },
 
     clearSearchResults: function () {
-        eventModule.setSearchStatus("");
+        $("#event-search-modal .search-results .search-status").empty();
+        $("#event-search-modal .search-results .search-show-all").hide();
 
         var searchResults = $('#event-search-modal .search-results .search-data');
-
         searchResults.empty();
 
-        var tableHtml  = "<table class='table search-results'>"
+        var tableHtml  = "<table class='table'>"
         tableHtml += "<thead><tr>";
         tableHtml += "<td>Action</td><td>Id</td><td>State</td><td>Start</td><td>End</td><td>Vessel</td>";
         tableHtml += "</tr></thead><tbody></tbody>";
         tableHtml += "</table>";
 
         searchResults.append(tableHtml);
+
+        eventModule.searchResults = new Array();
     },
 
-    addSearchResult: function(searchResult) {
-        var searchResults = $('#event-search-modal table.search-results tbody');
+    addSearchResult: function(event) {
 
-        var eventStart = eventModule.formatTimestamp(searchResult.startTime);
-        var eventEnd = eventModule.formatTimestamp(searchResult.endTime);
+        var eventStart = eventModule.formatTimestamp(event.startTime);
+        var eventEnd = eventModule.formatTimestamp(event.endTime);
 
         var searchResultHtml  = "<tr>";
-        searchResultHtml += "<td><span id='result-" + searchResult.id + "' class='glyphicon glyphicon-film'></span></td>";
-        searchResultHtml += "<td>" + searchResult.id + "</td>";
-        searchResultHtml += "<td>" + searchResult.state + "</td>";
+        searchResultHtml += "<td><span id='result-" + event.id + "' class='glyphicon glyphicon-film'></span></td>";
+        searchResultHtml += "<td>" + event.id + "</td>";
+        searchResultHtml += "<td>" + event.state + "</td>";
         searchResultHtml += "<td>" + eventStart + "</td>";
         searchResultHtml += "<td>" + eventEnd + "</td>";
-        searchResultHtml += "<td>" + searchResult.behaviour.vessel.name + "</td>";
+        searchResultHtml += "<td>" + event.behaviour.vessel.name + "</td>";
         searchResultHtml += "</tr>";
 
-        searchResults.append(searchResultHtml);
+        $('#event-search-modal .search-results .search-data tbody').append(searchResultHtml);
 
-        $("#event-search-modal .search-results #result-" + searchResult.id).on("click", function() {
-            eventModule.visualizeEvent(searchResult);
+        $("#event-search-modal .search-results #result-" + event.id).on("click", function() {
+            eventModule.visualizeEvent(event);
             $('#event-search-modal').modal('hide');
         });
+
+        eventModule.searchResults.push(event);
     },
 
     findEventByCriteria: function () {
         eventModule.clearSearchResults();
-        eventModule.setSearchStatus("Searching...");
+        eventModule.setSearchStarted("Searching...");
 
         var eventResourceService = "/abnormal/rest/event";
         var queryParams = {
@@ -118,18 +142,18 @@ var eventModule = {
         var eventRequest = eventResourceService + "?" + $.param(queryParams);
 
         $.getJSON(eventRequest).done(function (events) {
-            eventModule.setSearchStatus("Found " + events.length + " matching events.");
             $.each(events, function (idx, event) {
                 eventModule.addSearchResult(event);
             });
+            eventModule.setSearchCompleted("Found " + events.length + " matching events.");
         }).fail(function (jqXHR, textStatus) {
-            eventModule.setSearchStatus("Search error: " + textStatus);
+            eventModule.setSearchCompleted("Search error: " + textStatus);
         });
     },
 
     findEventById: function () {
         eventModule.clearSearchResults();
-        eventModule.setSearchStatus("Searching...");
+        eventModule.setSearchStarted("Searching...");
 
         var eventId = $('input#search-event-id').val();
         if (eventId) {
@@ -137,10 +161,10 @@ var eventModule = {
             var eventResourceService = "/abnormal/rest/event";
             var eventResource = eventResourceService + "/" + eventId;
             $.getJSON(eventResource).done(function (event) {
-                eventModule.setSearchStatus("Found " + (event ? "":"no ") + "matching event.");
+                eventModule.setSearchCompleted("Found " + (event ? "":"no ") + "matching event.");
                 eventModule.addSearchResult(event);
             }).fail(function (jqXHR, textStatus) {
-                eventModule.setSearchStatus("Search error: " + textStatus);
+                eventModule.setSearchCompleted("Search error: " + textStatus);
             });
         }
     },
@@ -168,6 +192,12 @@ var eventModule = {
         });
 
         return eventModule.expandBounds(bounds, 1000);
+    },
+
+    visualizeAllSearchResults: function() {
+        $.each(eventModule.searchResults, function(i, event) {
+            eventModule.visualizeEvent(event);
+        });
     },
 
     visualizeEventId: function(eventId)  {
