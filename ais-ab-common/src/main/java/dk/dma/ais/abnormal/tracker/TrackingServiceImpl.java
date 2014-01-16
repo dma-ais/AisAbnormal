@@ -169,7 +169,7 @@ public class TrackingServiceImpl implements TrackingService {
             Map.Entry<Long, Position> positionEntry = iterator.next();
             long positionTimestamp = positionEntry.getKey();
             Position p = positionEntry.getValue();
-            updatePosition(track, positionTimestamp, p, ! iterator.hasNext());
+            updatePosition(track, positionTimestamp, p, iterator.hasNext());
         }
 
         LOG.debug("Used " + interpolatedPositionEntries.size() + " interpolation points for track " + track.getMmsi());
