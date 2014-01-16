@@ -17,6 +17,7 @@
 package dk.dma.ais.abnormal.analyzer.analysis;
 
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
+import dk.dma.ais.abnormal.tracker.TrackingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,9 +25,17 @@ public abstract class StatisticalAnalysis implements Analysis {
 
     private static final Logger LOG = LoggerFactory.getLogger(StatisticalAnalysis.class);
     private final FeatureDataRepository featureDataRepository;
+    private final TrackingService trackingService;
 
-    protected StatisticalAnalysis(FeatureDataRepository featureDataRepository) {
+    protected StatisticalAnalysis(FeatureDataRepository featureDataRepository, TrackingService trackingService) {
         this.featureDataRepository = featureDataRepository;
+        this.trackingService = trackingService;
+    }
+
+    @Override
+    public void start() {
+        LOG.info(this.getClass().getSimpleName() + " starts to listen for tracking events.");
+        trackingService.registerSubscriber(this);
     }
 
     protected final FeatureDataRepository getFeatureDataRepository() {

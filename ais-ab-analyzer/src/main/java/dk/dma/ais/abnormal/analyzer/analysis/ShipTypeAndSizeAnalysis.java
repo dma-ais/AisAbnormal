@@ -53,12 +53,10 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
 
     @Inject
     public ShipTypeAndSizeAnalysis(AppStatisticsService statisticsService, FeatureDataRepository featureDataRepository, TrackingService trackingService, EventRepository eventRepository) {
-        super(featureDataRepository);
+        super(featureDataRepository, trackingService);
 
         this.statisticsService = statisticsService;
         this.eventRepository = eventRepository;
-
-        trackingService.registerSubscriber(this);
     }
 
     @AllowConcurrentEvents
@@ -217,5 +215,4 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
 
         return isAbnormalCellForShipTypeAndSize;
     }
-
 }

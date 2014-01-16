@@ -96,6 +96,10 @@ public class PacketHandlerImpl implements PacketHandler {
         this.analyses = new ImmutableSet.Builder<Analysis>()
                 .add(injector.getInstance(ShipTypeAndSizeAnalysis.class))
                 .build();
+
+        for (Analysis analysis : analyses) {
+            analysis.start();
+        }
     }
 
 }

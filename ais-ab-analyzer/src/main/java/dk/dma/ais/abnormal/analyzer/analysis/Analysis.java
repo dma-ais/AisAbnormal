@@ -17,4 +17,8 @@
 package dk.dma.ais.abnormal.analyzer.analysis;
 
 public interface Analysis {
+    /**
+     * Start to listen for tracking events
+     */
+    void start();
 }

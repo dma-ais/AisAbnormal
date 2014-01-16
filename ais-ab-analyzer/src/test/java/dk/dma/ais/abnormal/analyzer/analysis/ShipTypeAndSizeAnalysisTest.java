@@ -18,10 +18,14 @@ package dk.dma.ais.abnormal.analyzer.analysis;
 
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.event.db.EventRepository;
+import dk.dma.ais.abnormal.event.db.domain.AbnormalShipSizeOrTypeEvent;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeData;
+import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
+import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
+import dk.dma.enav.model.geometry.Position;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
@@ -81,6 +85,7 @@ public class ShipTypeAndSizeAnalysisTest {
 
         // Create object under test
         final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository);
+        analysis.start();
 
         // Perform test
         boolean isAbnormalEvent = analysis.isAbnormalCellForShipTypeAndSize(testCellId, (short) 1, (short) 1);
@@ -109,6 +114,7 @@ public class ShipTypeAndSizeAnalysisTest {
 
         // Create object under test
         final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository);
+        analysis.start();
 
         // Perform test
         boolean isAbnormalEvent = analysis.isAbnormalCellForShipTypeAndSize(testCellId, (short) 3, (short) 2);
@@ -137,6 +143,7 @@ public class ShipTypeAndSizeAnalysisTest {
 
         // Create object under test
         final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository);
+        analysis.start();
 
         // Perform test
         boolean isAbnormalEvent = analysis.isAbnormalCellForShipTypeAndSize(testCellId, (short) 3, (short) 4);
@@ -146,4 +153,122 @@ public class ShipTypeAndSizeAnalysisTest {
         assertEquals(analysis, analysisCaptor.getCapturedObject());
         assertFalse(isAbnormalEvent);
     }
+
+    /**
+     * No analysis will take place until all of cellId, shipType and shipLength are contained
+     * in the tracking event.
+     */
+    @Test
+    public void testNoAnalysisDoneForInsufficientData() {
+        // Create test data
+        Track track = new Track(123456);
+        CellIdChangedEvent event = new CellIdChangedEvent(track, null);
+
+        // Create object under test
+        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository);
+
+        // Perform test - none of the required data are there
+        context.checking(new Expectations() {{
+            ignoring(statisticsService).incAnalysisStatistics(with(ShipTypeAndSizeAnalysis.class.getSimpleName()), with(any(String.class)));
+            oneOf(trackingService).registerSubscriber(analysis);
+        }});
+        analysis.start();
+        analysis.onCellIdChanged(event);
+        context.assertIsSatisfied();
+
+        // Repeat test - with cellId added
+        context.checking(new Expectations() {{
+            ignoring(statisticsService).incAnalysisStatistics(with(ShipTypeAndSizeAnalysis.class.getSimpleName()), with(any(String.class)));
+        }});
+        event.getTrack().setProperty(Track.CELL_ID, 123L);
+        analysis.onCellIdChanged(event);
+        context.assertIsSatisfied();
+
+        // Repeat test - with ship type added
+        context.checking(new Expectations() {{
+            ignoring(statisticsService).incAnalysisStatistics(with(ShipTypeAndSizeAnalysis.class.getSimpleName()), with(any(String.class)));
+        }});
+        event.getTrack().setProperty(Track.SHIP_TYPE, 3);
+        analysis.onCellIdChanged(event);
+        context.assertIsSatisfied();
+
+        // Repeat test - with ship length added
+        context.checking(new Expectations() {{
+            ignoring(statisticsService).incAnalysisStatistics(with(ShipTypeAndSizeAnalysis.class.getSimpleName()), with(any(String.class)));
+            oneOf(featureDataRepository).getFeatureData("ShipTypeAndSizeFeature", 123L);
+            oneOf(eventRepository).findOngoingEventByVessel(with(123456), with(AbnormalShipSizeOrTypeEvent.class));
+        }});
+        event.getTrack().setProperty(Track.VESSEL_LENGTH, 4);
+        analysis.onCellIdChanged(event);
+        context.assertIsSatisfied();
+    }
+
+    /**
+     * Abnormal event raised.
+     */
+    @Test
+    public void testEventIsRaisedForAbnormalBehaviour() {
+        // Create test data
+        Track track = new Track(123456);
+        track.setProperty(Track.CELL_ID, 123L);
+        track.setProperty(Track.SHIP_TYPE, 40);
+        track.setProperty(Track.VESSEL_LENGTH, 15);
+
+        // These are needed to create an event object in the database:
+        track.setProperty(Track.TIMESTAMP_POSITION_UPDATE, 1370589743L);
+        track.setProperty(Track.POSITION_IS_INTERPOLATED, false);
+        track.setProperty(Track.POSITION, Position.create(56, 12));
+
+        CellIdChangedEvent event = new CellIdChangedEvent(track, null);
+
+        // Create object under test
+        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository);
+
+        // Perform test - none of the required data are there
+        context.checking(new Expectations() {{
+            ignoring(statisticsService).incAnalysisStatistics(with(ShipTypeAndSizeAnalysis.class.getSimpleName()), with(any(String.class)));
+            oneOf(trackingService).registerSubscriber(analysis);
+            oneOf(featureDataRepository).getFeatureData("ShipTypeAndSizeFeature", 123L); will(returnValue(featureData));
+            oneOf(eventRepository).findOngoingEventByVessel(with(123456), with(AbnormalShipSizeOrTypeEvent.class)); will(returnValue(null));
+            oneOf(eventRepository).save(with(any(AbnormalShipSizeOrTypeEvent.class)));
+        }});
+        analysis.start();
+        analysis.onCellIdChanged(event);
+        context.assertIsSatisfied();
+    }
+
+    /**
+     * No event is raised for normal behaviour.
+     */
+    @Test
+    public void testNoEventIsRaisedForNormalBehaviour() {
+        // Create test data
+        Track track = new Track(123456);
+        track.setProperty(Track.CELL_ID, 123L);
+        track.setProperty(Track.SHIP_TYPE, 40);
+        track.setProperty(Track.VESSEL_LENGTH, 150);
+
+        // These are needed to create an event object in the database:
+        track.setProperty(Track.TIMESTAMP_POSITION_UPDATE, 1370589743L);
+        track.setProperty(Track.POSITION_IS_INTERPOLATED, false);
+        track.setProperty(Track.POSITION, Position.create(56, 12));
+
+        CellIdChangedEvent event = new CellIdChangedEvent(track, null);
+
+        // Create object under test
+        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository);
+
+        // Perform test - none of the required data are there
+        context.checking(new Expectations() {{
+            ignoring(statisticsService).incAnalysisStatistics(with(ShipTypeAndSizeAnalysis.class.getSimpleName()), with(any(String.class)));
+            oneOf(trackingService).registerSubscriber(analysis);
+            oneOf(featureDataRepository).getFeatureData("ShipTypeAndSizeFeature", 123L); will(returnValue(featureData));
+            oneOf(eventRepository).findOngoingEventByVessel(with(123456), with(AbnormalShipSizeOrTypeEvent.class)); will(returnValue(null));
+            never(eventRepository).save(with(any(AbnormalShipSizeOrTypeEvent.class)));
+        }});
+        analysis.start();
+        analysis.onCellIdChanged(event);
+        context.assertIsSatisfied();
+    }
+
 }
