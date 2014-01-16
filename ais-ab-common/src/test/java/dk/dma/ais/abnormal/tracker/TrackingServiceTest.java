@@ -21,14 +21,22 @@ import dk.dma.ais.abnormal.application.statistics.AppStatisticsService;
 import dk.dma.ais.abnormal.application.statistics.AppStatisticsServiceImpl;
 import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
 import dk.dma.ais.abnormal.tracker.events.PositionChangedEvent;
+import dk.dma.ais.binary.SixbitException;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisMessage3;
 import dk.dma.ais.message.AisMessage5;
+import dk.dma.ais.message.AisMessageException;
 import dk.dma.ais.message.AisPosition;
+import dk.dma.ais.message.AisPositionMessage;
 import dk.dma.ais.message.IPositionMessage;
+import dk.dma.ais.sentence.SentenceException;
+import dk.dma.ais.sentence.Vdm;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.grid.Cell;
 import dk.dma.enav.model.geometry.grid.Grid;
+import net.maritimecloud.util.SpeedUnit;
+import net.maritimecloud.util.geometry.PositionReader;
+import net.maritimecloud.util.geometry.PositionReaderSimulator;
 import org.junit.Test;
 
 import java.util.Date;
@@ -130,6 +138,318 @@ public class TrackingServiceTest {
 
         assertEquals(expectedNumberOfCellChangeEvents, testSubscriber.getNumberOfCellIdChangedEventsReceived());
         assertEquals(Integer.valueOf(1), tracker.getNumberOfTracks());
+    }
+
+    /**
+     * Test that events are emitted by the tracker at the correct times, when a
+     * when track movement is simulated by PositionReaderSimulator.
+     *
+     * The test scenario includes that no AIS message of type 5 (with static content
+     * is received as the first message). Only position reports are received for the
+     * track.
+     *
+     * Assumes grid size 200m.
+     * Track starts in cell id 6169552395L (55 19.161N, 011 02.457E)
+     */
+    @Test
+    public void testEventsFiredForKnownSimulatedPatternWhenOnlyPositionReportsAreReceivedForTheTrack() throws SentenceException, AisMessageException, SixbitException {
+        // Setup test data
+        final int speedKnots = 20;
+
+        PositionReaderSimulator simulator = new PositionReaderSimulator();
+        simulator.setSpeedFixed(speedKnots, SpeedUnit.KNOTS);
+        simulator.setTimeSourceFixedSlice(5000); /* Interpolation never kicks in */
+
+        net.maritimecloud.util.geometry.Position southOfGreatBeltBridge = net.maritimecloud.util.geometry.Position.create(55.31889216347121, 11.04098609182333); // Cell 6169552395
+        net.maritimecloud.util.geometry.Position northOfGreatBeltBridge = net.maritimecloud.util.geometry.Position.create(55.37667465016155, 11.03926947805367); // Cell ?
+        PositionReader reader = simulator.forRoute(southOfGreatBeltBridge, northOfGreatBeltBridge);
+
+        Date timestamp = new Date(1389793207684L);
+
+        // Create or mock dependencies
+        final Grid grid = Grid.createSize(200);
+
+        // Create object under test
+        final TrackingService tracker = new TrackingServiceImpl(grid, statisticsService);
+
+        // Wire up test subscriber
+        // (discussion: https://code.google.com/p/guava-libraries/issues/detail?id=875)
+        TestSubscriber testSubscriber = new TestSubscriber();
+        tracker.registerSubscriber(testSubscriber);
+
+        // Prepare position message
+        Vdm vdm = new Vdm();
+        vdm.parse("!BSVDM,1,1,,A,339L2D0OhC0fW:lO5Sa:>8=J00s1,0*7E");
+
+        AisPositionMessage aisMessage3 = new AisMessage3(vdm);
+        aisMessage3.setCog(0);
+        aisMessage3.setSog(speedKnots);
+
+        // Run test scenario and assert results
+        long[] expectedCellIds = {
+                6169552395L,
+                6169752770L,
+                6169752770L,
+                6169953145L,
+                6169953145L,
+                6170153520L,
+                6170153520L,
+                6170353895L,
+                6170353895L,
+                6170554270L,
+                6170554270L,
+                6170754645L,
+                6170754645L,
+                6170955020L,
+                6170955020L,
+                6171155395L,
+                6171155395L,
+                6171355770L,
+                6171355770L,
+                6171556145L,
+                6171556145L,
+                6171756520L,
+                6171756520L,
+                6171956895L,
+                6171956895L,
+                6172157269L /* under the bridge */,
+                6172157269L /* under the bridge */,
+                6172357644L,
+                6172357644L,
+                6172558019L,
+                6172758394L,
+                6172758394L,
+                6172958769L,
+                6172958769L,
+                6173159144L,
+                6173159144L,
+                6173359519L,
+                6173359519L,
+                6173559894L,
+                6173559894L,
+                6173760269L,
+                6173760269L,
+                6173960644L,
+                6173960644L,
+                6174161019L,
+                6174161019L,
+                6174361394L,
+                6174361394L,
+                6174561769L,
+                6174561769L,
+                6174762144L,
+                6174762144L,
+                6174962519L,
+                6174962519L,
+                6175162894L,
+                6175162894L,
+                6175363269L,
+                6175363269L,
+                6175563644L,
+                6175563644L,
+                6175764019L,
+                6175964394L,
+                6175964394L
+        };
+
+        boolean[] expectedCellIdChangedEventFired = {
+                true  /* Cell 6169552395 */, true, false, true, false, true, false, true, false, true,
+                false /* Cell 6170554270 */, true, false, true, false, true, false, true, false, true,
+                false /* Cell 6171556145 */, true, false, true, false, true, false, true, true, false,
+                true  /* Cell 6172758394 */, false, true, false, true, false, true, false, true, false,
+                true  /* Cell 6173760269 */, false, true, false, true, false, true, false, true, false,
+                true  /* Cell 6174762144 */, false, true, false, true, false, true, false, true, false,
+                true  /* Cell 6175764019 */, true, false
+        };
+
+        assertEquals(expectedCellIds.length, expectedCellIdChangedEventFired.length);
+
+        int i = 0;
+        dk.dma.enav.model.geometry.Position position;
+
+        do {
+            System.out.println("i: " + i);
+
+            position = dk.dma.enav.model.geometry.Position.create(reader.getCurrentPosition().getLatitude(), reader.getCurrentPosition().getLongitude());
+            AisPosition aisPosition = new AisPosition(position);
+            aisMessage3.setPos(aisPosition);
+
+            testSubscriber.resetFiredStatus();
+
+            tracker.update(timestamp, aisMessage3);
+            System.out.println("---");
+
+            assertTrue(testSubscriber.isPositionChangedEventFired());
+            assertEquals(expectedCellIdChangedEventFired[i], testSubscriber.isCellIdChangedEventFired());
+
+            i++;
+        } while (position.getLatitude() < 55.3766);
+
+    }
+
+    /**
+     * Test that events are emitted by the tracker at the correct times, when a
+     * when track movement is simulated by PositionReaderSimulator.
+     *
+     * The test scenario includes that an AIS message of type 5 (with static content)
+     * is received as the first message.
+     *
+     * Assumes grid size 200m.
+     * Track starts in cell id 6169552395L (55 19.161N, 011 02.457E)
+     */
+    @Test
+    public void testEventsFiredForKnownSimulatedPatternWhenStaticMessageIsReceivedFirst() throws SentenceException, AisMessageException, SixbitException {
+
+        // Setup test data
+        final int speedKnots = 20;
+
+        PositionReaderSimulator simulator = new PositionReaderSimulator();
+        simulator.setSpeedFixed(speedKnots, SpeedUnit.KNOTS);
+        simulator.setTimeSourceFixedSlice(5000); /* Interpolation never kicks in */
+
+        net.maritimecloud.util.geometry.Position southOfGreatBeltBridge = net.maritimecloud.util.geometry.Position.create(55.31889216347121, 11.04098609182333); // Cell 6169552395
+        net.maritimecloud.util.geometry.Position northOfGreatBeltBridge = net.maritimecloud.util.geometry.Position.create(55.37667465016155, 11.03926947805367); // Cell ?
+        PositionReader reader = simulator.forRoute(southOfGreatBeltBridge, northOfGreatBeltBridge);
+
+        Date timestamp = new Date(1389793207684L);
+
+        // Create or mock dependencies
+        final Grid grid = Grid.createSize(200);
+
+        // Create object under test
+        final TrackingService tracker = new TrackingServiceImpl(grid, statisticsService);
+
+        // Wire up test subscriber
+        // (discussion: https://code.google.com/p/guava-libraries/issues/detail?id=875)
+        TestSubscriber testSubscriber = new TestSubscriber();
+        tracker.registerSubscriber(testSubscriber);
+
+        // Init tracker with static ship info
+        AisMessage5 aisMessage5 = new AisMessage5();
+        aisMessage5.setRepeat(0);
+        aisMessage5.setUserId(211223120);
+        aisMessage5.setImo(1234567);
+        aisMessage5.setDest("HORSENS");
+        aisMessage5.setDraught(60);
+        aisMessage5.setDte(0);
+        aisMessage5.setPosType(1);
+        aisMessage5.setCallsign("OY1234");
+        aisMessage5.setName("NO NAME");
+        aisMessage5.setEta(31012013);
+        aisMessage5.setDimBow(18);
+        aisMessage5.setDimPort(3);
+        aisMessage5.setDimStarboard(3);
+        aisMessage5.setDimStern(12);
+        aisMessage5.setShipType(5);
+        tracker.update(timestamp, aisMessage5);
+
+        // Prepare position message
+        Vdm vdm = new Vdm();
+        vdm.parse("!BSVDM,1,1,,A,339L2D0OhC0fW:lO5Sa:>8=J00s1,0*7E");
+
+        AisPositionMessage aisMessage3 = new AisMessage3(vdm);
+        aisMessage3.setCog(0);
+        aisMessage3.setSog(speedKnots);
+
+        // Run test scenario and assert results
+        long[] expectedCellIds = {
+                6169552395L,
+                6169752770L,
+                6169752770L,
+                6169953145L,
+                6169953145L,
+                6170153520L,
+                6170153520L,
+                6170353895L,
+                6170353895L,
+                6170554270L,
+                6170554270L,
+                6170754645L,
+                6170754645L,
+                6170955020L,
+                6170955020L,
+                6171155395L,
+                6171155395L,
+                6171355770L,
+                6171355770L,
+                6171556145L,
+                6171556145L,
+                6171756520L,
+                6171756520L,
+                6171956895L,
+                6171956895L,
+                6172157269L /* under the bridge */,
+                6172157269L /* under the bridge */,
+                6172357644L,
+                6172357644L,
+                6172558019L,
+                6172758394L,
+                6172758394L,
+                6172958769L,
+                6172958769L,
+                6173159144L,
+                6173159144L,
+                6173359519L,
+                6173359519L,
+                6173559894L,
+                6173559894L,
+                6173760269L,
+                6173760269L,
+                6173960644L,
+                6173960644L,
+                6174161019L,
+                6174161019L,
+                6174361394L,
+                6174361394L,
+                6174561769L,
+                6174561769L,
+                6174762144L,
+                6174762144L,
+                6174962519L,
+                6174962519L,
+                6175162894L,
+                6175162894L,
+                6175363269L,
+                6175363269L,
+                6175563644L,
+                6175563644L,
+                6175764019L,
+                6175964394L,
+                6175964394L
+        };
+
+        boolean[] expectedCellIdChangedEventFired = {
+                true  /* Cell 6169552395 */, true, false, true, false, true, false, true, false, true,
+                false /* Cell 6170554270 */, true, false, true, false, true, false, true, false, true,
+                false /* Cell 6171556145 */, true, false, true, false, true, false, true, true, false,
+                true  /* Cell 6172758394 */, false, true, false, true, false, true, false, true, false,
+                true  /* Cell 6173760269 */, false, true, false, true, false, true, false, true, false,
+                true  /* Cell 6174762144 */, false, true, false, true, false, true, false, true, false,
+                true  /* Cell 6175764019 */, true, false
+        };
+
+        assertEquals(expectedCellIds.length, expectedCellIdChangedEventFired.length);
+
+        int i = 0;
+        dk.dma.enav.model.geometry.Position position;
+
+        do {
+            System.out.println("i: " + i);
+
+            position = dk.dma.enav.model.geometry.Position.create(reader.getCurrentPosition().getLatitude(), reader.getCurrentPosition().getLongitude());
+            AisPosition aisPosition = new AisPosition(position);
+            aisMessage3.setPos(aisPosition);
+
+            testSubscriber.resetFiredStatus();
+
+            tracker.update(timestamp, aisMessage3);
+            System.out.println("---");
+
+            assertTrue(testSubscriber.isPositionChangedEventFired());
+            assertEquals(expectedCellIdChangedEventFired[i], testSubscriber.isCellIdChangedEventFired());
+
+            i++;
+        } while (position.getLatitude() < 55.3766);
     }
 
     /**
@@ -443,8 +763,19 @@ public class TrackingServiceTest {
         private int numberOfCellIdChangedEventsReceived;
         private int numberOfPositionChangedEventsReceived;
 
+        private boolean cellIdChangedEventFired;
+        private boolean positionChangedEventFired;
+
+        public void resetFiredStatus() {
+            cellIdChangedEventFired = false;
+            positionChangedEventFired = false;
+        }
+
         @Subscribe
         public void onCellIdChanged(CellIdChangedEvent event) {
+            System.out.println("CellIdChangedEvent");
+            cellIdChangedEventFired = true;
+
             numberOfCellIdChangedEventsReceived++;
             currentCellId = (long) event.getTrack().getProperty(Track.CELL_ID);
             System.out.println("We are now in cell: " + currentCellId);
@@ -453,6 +784,9 @@ public class TrackingServiceTest {
 
         @Subscribe
         public void onPositionChanged(PositionChangedEvent event) {
+            System.out.println("PositionChangedEvent");
+            positionChangedEventFired = true;
+
             numberOfPositionChangedEventsReceived++;
             currentPosition = (Position) event.getTrack().getProperty(Track.POSITION);
             System.out.println("We are now in position: " + currentPosition);
@@ -490,6 +824,13 @@ public class TrackingServiceTest {
             return numberOfPositionChangedEventsReceived;
         }
 
+        public boolean isCellIdChangedEventFired() {
+            return cellIdChangedEventFired;
+        }
+
+        public boolean isPositionChangedEventFired() {
+            return positionChangedEventFired;
+        }
     }
 
 }
