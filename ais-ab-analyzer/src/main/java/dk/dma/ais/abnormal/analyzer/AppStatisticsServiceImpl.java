@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -40,6 +41,26 @@ public class AppStatisticsServiceImpl extends dk.dma.ais.abnormal.application.st
     }
 
     @Override
+    public void dumpStatistics() {
+        super.dumpStatistics();
+
+        LOG.info("==== Abnormal analyzer statistics ====");
+        Set<String> featureNames = this.allAnalysisStatistics.keySet();
+        for (String featureName : featureNames) {
+            LOG.info(String.format("%-30s %s", "Feature name", featureName));
+
+            HashMap<String, Long> featureStatistics = this.allAnalysisStatistics.get(featureName);
+            Set<String> statisticsNames = featureStatistics.keySet();
+            for (String statisticsName : statisticsNames) {
+                Long statistics = featureStatistics.get(statisticsName);
+                LOG.info(String.format("     %-25s %9d", statisticsName, statistics));
+            }
+
+        }
+        LOG.info("==== Abnormal analyzer statistics ====");
+    }
+
+    @Override
     public void incAnalysisStatistics(String analysisName, String statisticsName) {
         HashMap<String, Long> analysisStatistics = (HashMap<String, Long>) this.allAnalysisStatistics.get(analysisName);
         if (analysisStatistics == null) {
@@ -53,5 +74,15 @@ public class AppStatisticsServiceImpl extends dk.dma.ais.abnormal.application.st
         }
         statistic++;
         analysisStatistics.put(statisticsName, statistic);
+    }
+
+    @Override
+    public void setAnalysisStatistics(String analysisName, String statisticsName, long value) {
+        HashMap<String, Long> analysisStatistics = (HashMap<String, Long>) this.allAnalysisStatistics.get(analysisName);
+        if (analysisStatistics == null) {
+            analysisStatistics = new HashMap<>();
+            this.allAnalysisStatistics.put(analysisName, analysisStatistics);
+        }
+        analysisStatistics.put(statisticsName, Long.valueOf(value));
     }
 }
