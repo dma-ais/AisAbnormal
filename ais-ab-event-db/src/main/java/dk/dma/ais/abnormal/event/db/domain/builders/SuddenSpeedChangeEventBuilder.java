@@ -14,15 +14,28 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package dk.dma.ais.abnormal.event.db.domain;
+package dk.dma.ais.abnormal.event.db.domain.builders;
 
-import javax.persistence.Entity;
+import dk.dma.ais.abnormal.event.db.domain.SuddenSpeedChangeEvent;
 
 /**
- * An event
+ * This builder follows the expression builder pattern
+ * http://martinfowler.com/bliki/ExpressionBuilder.html
  */
-@Entity
-public class SuddenSpeedChangeEvent extends Event {
-    public SuddenSpeedChangeEvent() {
+public class SuddenSpeedChangeEventBuilder extends EventBuilder {
+
+    SuddenSpeedChangeEvent event;
+
+    public SuddenSpeedChangeEventBuilder() {
+        event = new SuddenSpeedChangeEvent();
     }
+
+    public static SuddenSpeedChangeEventBuilder SuddenSpeedChangeEvent() {
+        return new SuddenSpeedChangeEventBuilder();
+    }
+
+    public SuddenSpeedChangeEvent getEvent() {
+        return event;
+    }
+
 }

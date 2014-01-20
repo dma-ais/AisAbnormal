@@ -20,6 +20,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import dk.dma.ais.abnormal.analyzer.analysis.Analysis;
 import dk.dma.ais.abnormal.analyzer.analysis.ShipTypeAndSizeAnalysis;
+import dk.dma.ais.abnormal.analyzer.analysis.SuddenSpeedChangeAnalysis;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.message.AisMessage;
@@ -95,6 +96,7 @@ public class PacketHandlerImpl implements PacketHandler {
 
         this.analyses = new ImmutableSet.Builder<Analysis>()
                 .add(injector.getInstance(ShipTypeAndSizeAnalysis.class))
+                .add(injector.getInstance(SuddenSpeedChangeAnalysis.class))
                 .build();
 
         for (Analysis analysis : analyses) {

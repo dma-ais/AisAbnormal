@@ -29,6 +29,11 @@ public abstract class EventBuilder {
         return this;
     }
 
+    public EventBuilder endTime(Date endTime){
+        getEvent().setEndTime(endTime);
+        return this;
+    }
+
     public EventBuilder state(Event.State state) {
         getEvent().setState(state);
         return this;
