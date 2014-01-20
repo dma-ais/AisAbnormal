@@ -23,6 +23,7 @@ import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.builders.SuddenSpeedChangeEventBuilder;
+import dk.dma.ais.abnormal.event.db.domain.builders.TrackingPointBuilder;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.PositionChangedEvent;
@@ -45,7 +46,7 @@ public class SuddenSpeedChangeAnalysis implements Analysis {
     private final AppStatisticsService statisticsService;
     private final EventRepository eventRepository;
 
-    private final Map<Integer,TimestampSogPair> tracks;
+    private final Map<Integer,TrackingPointData> tracks;
     private final String analysisName;
     private int counter;
 
@@ -92,19 +93,18 @@ public class SuddenSpeedChangeAnalysis implements Analysis {
 
     private void performAnalysis(Track track, float sog) {
         final int mmsi = track.getMmsi();
-        TimestampSogPair timestampSogPair = tracks.get(mmsi);
+        TrackingPointData trackingPointData = tracks.get(mmsi);
 
         if (sog >= 8.0) {
             final long timestamp = (long) track.getProperty(Track.TIMESTAMP_POSITION_UPDATE);
-            if (timestampSogPair == null) {
-                timestampSogPair = new TimestampSogPair(timestamp, sog);
-                tracks.put(mmsi, timestampSogPair);
+            if (trackingPointData == null) {
+                trackingPointData = new TrackingPointData(timestamp, sog, (Float) track.getProperty(Track.COURSE_OVER_GROUND), (Boolean) track.getProperty(Track.POSITION_IS_INTERPOLATED), (Position) track.getProperty(Track.POSITION));
+                tracks.put(mmsi, trackingPointData);
             }
         } else if (sog <= 1.0) {
             final long timestamp = (long) track.getProperty(Track.TIMESTAMP_POSITION_UPDATE);
-            if (timestampSogPair != null) {
-                long prevTimestamp = timestampSogPair.getTimestamp();
-                float prevSog = timestampSogPair.getSog();
+            if (trackingPointData != null) {
+                long prevTimestamp = trackingPointData.getTimestamp();
 
                 int deltaSecs = (int) ((timestamp - prevTimestamp) / 1000);
                 if (deltaSecs <= 15 ) {
@@ -113,14 +113,14 @@ public class SuddenSpeedChangeAnalysis implements Analysis {
                 tracks.remove(mmsi);
             }
         } else {
-            if (timestampSogPair != null) {
+            if (trackingPointData != null) {
                 tracks.remove(mmsi);
             }
         }
     }
 
     private void raiseAndLowerSuddenSpeedChangeEvent(Track track) {
-        Date currTimestamp = new Date((Long) track.getProperty(Track.TIMESTAMP_POSITION_UPDATE));
+        Date timestamp = new Date((Long) track.getProperty(Track.TIMESTAMP_POSITION_UPDATE));
         Integer mmsi = track.getMmsi();
         Integer imo = (Integer) track.getProperty(Track.IMO);
         String callsign = (String) track.getProperty(Track.CALLSIGN);
@@ -130,9 +130,14 @@ public class SuddenSpeedChangeAnalysis implements Analysis {
         Float sog = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
         Boolean interpolated = (Boolean) track.getProperty(Track.POSITION_IS_INTERPOLATED);
 
-        Date prevTimestamp = new Date(tracks.get(mmsi).getTimestamp());
-        float prevSog = tracks.get(mmsi).getSog();
-        float deltaSecs = (float) ((currTimestamp.getTime() - prevTimestamp.getTime()) / 1000.0);
+        TrackingPointData prevTrackingPoint = tracks.get(mmsi);
+        Date prevTimestamp = new Date(prevTrackingPoint.getTimestamp());
+        float prevSog = prevTrackingPoint.getSog();
+        Float prevCog = prevTrackingPoint.getCog();
+        Position prevPosition = prevTrackingPoint.getPosition();
+        Boolean prevInterpolated = prevTrackingPoint.getPositionInterpolated();
+
+        float deltaSecs = (float) ((timestamp.getTime() - prevTimestamp.getTime()) / 1000.0);
 
         String desc = String.format("Went from %.1f kts to %.1f kts in %.1f secs", prevSog, sog, deltaSecs);
         LOG.info("Detected sudden speed change for mmsi " + mmsi + ": "+ desc + "." );
@@ -142,7 +147,7 @@ public class SuddenSpeedChangeAnalysis implements Analysis {
                     .description(desc)
                     .state(Event.State.PAST)
                     .startTime(prevTimestamp)
-                    .endTime(currTimestamp)
+                    .endTime(timestamp)
                     .behaviour()
                         .vessel()
                         .mmsi(mmsi)
@@ -150,26 +155,44 @@ public class SuddenSpeedChangeAnalysis implements Analysis {
                         .callsign(callsign)
                         .name(name)
                     .trackingPoint()
-                        .timestamp(currTimestamp)
+                        .timestamp(prevTimestamp)
+                        .positionInterpolated(prevInterpolated)
+                        .speedOverGround(prevSog)
+                        .courseOverGround(prevCog)
+                        .latitude(prevPosition.getLatitude())
+                        .longitude(prevPosition.getLongitude())
+                    .getEvent();
+
+        event.getBehaviour().addTrackingPoint(
+                TrackingPointBuilder.TrackingPoint()
+                        .timestamp(timestamp)
                         .positionInterpolated(interpolated)
                         .speedOverGround(sog)
                         .courseOverGround(cog)
                         .latitude(position.getLatitude())
                         .longitude(position.getLongitude())
-                .getEvent();
+                .getTrackingPoint()
+        );
 
         statisticsService.incAnalysisStatistics(analysisName, "Total speed change evts");
 
         eventRepository.save(event);
     }
 
-    private final class TimestampSogPair {
-        private final long timestamp;
-        private final float sog;
+    private final class TrackingPointData {
 
-        private TimestampSogPair(long timestamp, float sog) {
+        private final long timestamp; // Null not allowed
+        private final float sog;      // Null not allowed
+        private final Float cog;
+        private final Boolean positionInterpolated;
+        private final Position position;
+
+        private TrackingPointData(Long timestamp, Float sog, Float cog, Boolean positionInterpolated, Position position) {
             this.timestamp = timestamp;
             this.sog = sog;
+            this.cog = cog;
+            this.positionInterpolated = positionInterpolated;
+            this.position = position;
         }
 
         public long getTimestamp() {
@@ -178,6 +201,18 @@ public class SuddenSpeedChangeAnalysis implements Analysis {
 
         public float getSog() {
             return sog;
+        }
+
+        public Float getCog() {
+            return cog;
+        }
+
+        public Boolean getPositionInterpolated() {
+            return positionInterpolated;
+        }
+
+        public Position getPosition() {
+            return position;
         }
     }
 
