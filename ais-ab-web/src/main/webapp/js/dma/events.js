@@ -5,12 +5,25 @@
 var eventModule = {
 
     searchResults: new Array(),
+    eventResourceService: "/abnormal/rest/event",
 
     init: function () {
         $('#event-search-modal-wrapper').load("event-search-modal.html", function () {
             $('.tabs#event-search-tabs').tabs();
             $('#event-search-by-id').click(eventModule.findEventById);
             $('#event-search-by-other').click(eventModule.findEventByCriteria);
+
+            $('#search-event-type').empty();
+            $('#search-event-type').append('<option value="any">Any</option>');
+            var eventTypeRequest = eventModule.eventResourceService + "/type"
+            $.getJSON(eventTypeRequest).done(function (eventTypes) {
+                $.each(eventTypes, function (idx, eventType) {
+                 var desc = eventModule.camelCaseToSentenceCase(eventType);
+                 $('#search-event-type').append('<option value="' + eventType + '">' + desc + '</option>');
+                });
+            }).fail(function (jqXHR, textStatus) {
+                console.error("Failed to load event types: " + textStatus);
+            });
 
             $("#event-search-modal .search-results .search-show-all").hide();
             $("#event-search-modal .search-results .search-show-all").click(function() {
@@ -22,6 +35,10 @@ var eventModule = {
         $("#events-remove").click(function() {
             eventModule.removeAllEvents();
         });
+    },
+
+    camelCaseToSentenceCase: function(camelCase) {
+        return camelCase.replace('Event','').replace(/([A-Z])/g, ' $1').substr(1).replace(/ \w\S*/g, function(txt){return txt.substr(0).toLowerCase();});
     },
 
     removeAllEvents: function() {
@@ -97,7 +114,6 @@ var eventModule = {
     },
 
     addSearchResult: function(event) {
-
         var eventStart = eventModule.formatTimestamp(event.startTime);
         var eventEnd = eventModule.formatTimestamp(event.endTime);
         var eventType = event.eventType.replace('Event','');
@@ -105,7 +121,7 @@ var eventModule = {
         var searchResultHtml  = "<tr>";
         searchResultHtml += "<td><span id='result-" + event.id + "' class='glyphicon glyphicon-film'></span></td>";
         searchResultHtml += "<td>" + event.id + "</td>";
-        searchResultHtml += "<td>" + eventType + "</td>";
+        searchResultHtml += "<td>" + eventModule.camelCaseToSentenceCase(eventType); + "</td>";
         searchResultHtml += "<td>" + eventStart + "</td>";
         searchResultHtml += "<td>" + eventEnd + "</td>";
         searchResultHtml += "<td>" + event.behaviour.vessel.name + "</td>";
@@ -125,13 +141,14 @@ var eventModule = {
         eventModule.clearSearchResults();
         eventModule.setSearchStarted("Searching...");
 
-        var eventResourceService = "/abnormal/rest/event";
         var queryParams = {
-            from: $('input#search-event-from').val(),
-            to: $('input#search-event-to').val(),
-            type: $('input#search-event-type').val(),
-            vessel: '%' + $('input#search-event-vessel').val().replace("*","%") + '%'
+            from: $('#search-event-from').val(),
+            to: $('#search-event-to').val(),
+            vessel: '%' + $('#search-event-vessel').val().replace("*","%") + '%'
         };
+        if ($('#search-event-type').val().toLowerCase() != 'any') {
+            queryParams['type'] = $('#search-event-type').val();
+        }
         if ($('input#search-event-inarea').is(':checked')) {
             var bounds = mapModule.getCurrentViewportExtent();
             queryParams['north'] = bounds.top;
@@ -140,7 +157,7 @@ var eventModule = {
             queryParams['west'] = bounds.left;
         }
 
-        var eventRequest = eventResourceService + "?" + $.param(queryParams);
+        var eventRequest = eventModule.eventResourceService + "?" + $.param(queryParams);
 
         $.getJSON(eventRequest).done(function (events) {
             $.each(events, function (idx, event) {

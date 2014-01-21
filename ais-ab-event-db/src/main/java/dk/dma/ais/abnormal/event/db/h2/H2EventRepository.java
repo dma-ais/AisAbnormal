@@ -116,6 +116,21 @@ public class H2EventRepository implements EventRepository {
     }
 
     @Override
+    public List<String> getEventTypes() {
+        Session session = getSession();
+
+        List events = null;
+        try {
+            Query query = session.createQuery("SELECT DISTINCT e.class AS c FROM Event e ORDER BY c");
+            events = query.list();
+        } finally {
+            session.close();
+        }
+
+        return events;
+    }
+
+    @Override
     public void save(Event event) {
         Session session = getSession();
         try {
@@ -210,7 +225,13 @@ public class H2EventRepository implements EventRepository {
                 query.setParameter("to", to);
             }
             if (usesType) {
-                query.setParameter("type", "NIY");
+                String className = "dk.dma.ais.abnormal.event.db.domain." + type;
+                try {
+                    Class clazz = Class.forName(className);
+                    query.setParameter("classes", clazz);
+                } catch (ClassNotFoundException e) {
+                    throw new IllegalArgumentException("Class " + className + " not found.");
+                }
             }
             if (usesVessel) {
                 query.setParameter("vessel", vessel);
@@ -221,7 +242,6 @@ public class H2EventRepository implements EventRepository {
         }
 
         return events;
-
     }
 
     @Override

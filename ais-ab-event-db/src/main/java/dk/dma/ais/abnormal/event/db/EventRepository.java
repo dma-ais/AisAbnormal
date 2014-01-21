@@ -26,6 +26,16 @@ import java.util.List;
  * Some people would call this a DAO.
  */
 public interface EventRepository {
+    /**
+     * Get the list of distinct event types that exist in the repository.
+     * @return list of distinct event types
+     */
+    List<String> getEventTypes();
+
+    /**
+     * Create or update event in persistent storage
+     * @param event
+     */
     void save(Event event);
 
     /**

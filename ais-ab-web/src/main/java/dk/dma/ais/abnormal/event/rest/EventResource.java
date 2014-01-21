@@ -30,6 +30,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import java.util.List;
 
 @RequestScoped
 @Path("/event")
@@ -53,8 +54,14 @@ public class EventResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{id}")
     public Event get(@PathParam("id") int id) {
-        Event event = eventRepository.getEvent(id);
-        return event;
+        return eventRepository.getEvent(id);
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/type")
+    public List<String> get() {
+        return eventRepository.getEventTypes();
     }
 
     @GET
