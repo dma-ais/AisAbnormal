@@ -130,10 +130,7 @@ var vesselModule = {
     addEventBoxLabel: function(event) {
         var eventBoxLabelFeature = mapModule.getVesselLayer().getFeatureByFid('eventLabel-'+event.id);
         if (eventBoxLabelFeature != null) {
-            var eventType = event.eventType;
-            if (eventType == "AbnormalShipSizeOrTypeEvent") {
-                eventType = "Abnormal type or ship for this area"
-            }
+            var eventType = eventModule.camelCaseToSentenceCase(event.eventType);
             var labelText = "Event " + event.id + ": " + eventType + "\nRaised: " + eventModule.formatTimestamp(event.startTime);
             if (event.endTime) {
                 labelText += "\nLowered: " + eventModule.formatTimestamp(event.endTime);
