@@ -24,10 +24,28 @@ import dk.dma.commons.app.AbstractDaemon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+
 public class AbnormalWebApp extends AbstractDaemon {
 
-    /** The logger */
+    /**
+     * The logger
+     */
     static final Logger LOG = LoggerFactory.getLogger(AbnormalWebApp.class);
+
+    {
+        Arrays.asList(
+                "java.version",
+                "java.specification.version",
+                "java.vm.version",
+                "java.home",
+                "java.vendor",
+                "os.arch",
+                "os.name",
+                "os.version",
+                "user.name"
+        ).forEach(s -> LOG.info(s + ": " + System.getProperty(s)));
+    }
 
     @Inject
     private WebServer webServer;
