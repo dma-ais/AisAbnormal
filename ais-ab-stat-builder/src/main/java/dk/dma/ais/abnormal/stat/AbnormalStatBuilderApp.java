@@ -20,6 +20,7 @@ import com.beust.jcommander.ParameterException;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import dk.dma.ais.abnormal.application.ApplicationSupport;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.DatasetMetaData;
 import dk.dma.ais.concurrency.stripedexecutor.StripedExecutorService;
@@ -40,6 +41,11 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
     /** The logger */
     //@Log
     private static Logger LOG = LoggerFactory.getLogger(AbnormalStatBuilderApp.class);
+    {
+        ApplicationSupport.logJavaSystemProperties(LOG);
+        LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
+    }
+
 
     // TODO find a way to share injector stored in AbstractDmaApplication
     private static Injector injector;

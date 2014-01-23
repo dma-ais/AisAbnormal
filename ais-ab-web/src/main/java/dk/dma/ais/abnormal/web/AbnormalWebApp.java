@@ -20,11 +20,10 @@ import com.beust.jcommander.ParameterException;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import dk.dma.ais.abnormal.application.ApplicationSupport;
 import dk.dma.commons.app.AbstractDaemon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
 
 public class AbnormalWebApp extends AbstractDaemon {
 
@@ -32,19 +31,9 @@ public class AbnormalWebApp extends AbstractDaemon {
      * The logger
      */
     static final Logger LOG = LoggerFactory.getLogger(AbnormalWebApp.class);
-
     {
-        Arrays.asList(
-                "java.version",
-                "java.specification.version",
-                "java.vm.version",
-                "java.home",
-                "java.vendor",
-                "os.arch",
-                "os.name",
-                "os.version",
-                "user.name"
-        ).forEach(s -> LOG.info(s + ": " + System.getProperty(s)));
+        ApplicationSupport.logJavaSystemProperties(LOG);
+        LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
 
     @Inject
