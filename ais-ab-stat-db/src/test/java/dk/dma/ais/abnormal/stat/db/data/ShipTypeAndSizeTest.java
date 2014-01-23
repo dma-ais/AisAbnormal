@@ -30,42 +30,42 @@ public class ShipTypeAndSizeTest {
     public void canStoreAndRetrieveSingleStatistic() {
         ShipTypeAndSizeData featureData = new ShipTypeAndSizeData();
 
-        featureData.setStatistic(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT, 42);
+        featureData.setValue(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT, 42);
 
-        assertEquals((Integer) 42, featureData.getStatistic(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertNull(featureData.getStatistic(2, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertNull(featureData.getStatistic(3, 2, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals((Integer) 42, featureData.getValue(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertNull(featureData.getValue(2, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertNull(featureData.getValue(3, 2, ShipTypeAndSizeData.STAT_SHIP_COUNT));
     }
 
     @Test
     public void canIncrementInitializedStatistic() {
         ShipTypeAndSizeData featureData = new ShipTypeAndSizeData();
 
-        featureData.setStatistic(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT, 42);
-        featureData.incrementStatistic(3, 1,ShipTypeAndSizeData.STAT_SHIP_COUNT);
+        featureData.setValue(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT, 42);
+        featureData.incrementValue(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT);
 
-        assertEquals((Integer) 43, featureData.getStatistic(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals((Integer) 43, featureData.getValue(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
     }
 
     @Test
     public void canIncrementUninitializedStatistic() {
         ShipTypeAndSizeData featureData = new ShipTypeAndSizeData();
-        featureData.incrementStatistic(3, 1,ShipTypeAndSizeData.STAT_SHIP_COUNT);
-        assertEquals((Integer) 1, featureData.getStatistic(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        featureData.incrementValue(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT);
+        assertEquals((Integer) 1, featureData.getValue(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
 
         featureData = new ShipTypeAndSizeData();
-        featureData.incrementStatistic(3, 1,ShipTypeAndSizeData.STAT_SHIP_COUNT);
-        featureData.incrementStatistic(3, 1,ShipTypeAndSizeData.STAT_SHIP_COUNT);
-        assertEquals((Integer) 2, featureData.getStatistic(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        featureData.incrementValue(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT);
+        featureData.incrementValue(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT);
+        assertEquals((Integer) 2, featureData.getValue(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
     }
 
     @Test
     public void canSumFor() {
         ShipTypeAndSizeData featureData = new ShipTypeAndSizeData();
-        featureData.setStatistic(1, 3, ShipTypeAndSizeData.STAT_SHIP_COUNT, 17);
-        featureData.setStatistic(2, 3, ShipTypeAndSizeData.STAT_SHIP_COUNT, 42);
-        featureData.setStatistic(3, 5, ShipTypeAndSizeData.STAT_SHIP_COUNT, 22);
-        featureData.setStatistic(4, 7, ShipTypeAndSizeData.STAT_SHIP_COUNT, 431);
+        featureData.setValue(1, 3, ShipTypeAndSizeData.STAT_SHIP_COUNT, 17);
+        featureData.setValue(2, 3, ShipTypeAndSizeData.STAT_SHIP_COUNT, 42);
+        featureData.setValue(3, 5, ShipTypeAndSizeData.STAT_SHIP_COUNT, 22);
+        featureData.setValue(4, 7, ShipTypeAndSizeData.STAT_SHIP_COUNT, 431);
 
         assertEquals(17+42+22+431, featureData.getSumFor(ShipTypeAndSizeData.STAT_SHIP_COUNT));
     }
@@ -74,7 +74,7 @@ public class ShipTypeAndSizeTest {
     public void getData() {
         ShipTypeAndSizeData featureData = new ShipTypeAndSizeData();
 
-        featureData.setStatistic(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT, 42);
+        featureData.setValue(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT, 42);
 
         TreeMap<Integer,TreeMap<Integer,HashMap<String,Integer>>> data = featureData.getData();
 

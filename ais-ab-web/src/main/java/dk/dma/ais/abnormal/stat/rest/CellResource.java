@@ -19,7 +19,6 @@ import com.google.inject.Inject;
 import com.google.inject.servlet.RequestScoped;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
-import dk.dma.ais.abnormal.stat.db.data.FeatureDataTwoKey;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeData;
 import dk.dma.enav.model.geometry.Area;
 import dk.dma.enav.model.geometry.BoundingBox;
@@ -157,13 +156,13 @@ public class CellResource {
 
         for (double lon = 12.0; lon < 12.50; lon += 0.05) {
             for (double lat = 56.0; lat < 56.50; lat += 0.05) {
-                FeatureDataTwoKey feature1Data = new ShipTypeAndSizeData(); // TODO FeatureData2Key(this.getClass().getCanonicalName(), "shipType", "shipSize");
-                feature1Data.setStatistic((short) 1, (short) 1, "stat1", (Integer) 7);
+                ShipTypeAndSizeData feature1Data = new ShipTypeAndSizeData();
+                feature1Data.setValue((short) 1, (short) 1, "stat1", (Integer) 7);
 
-                FeatureDataTwoKey feature2Data = new ShipTypeAndSizeData(); // TODO new FeatureData2Key(Integer.class.getCanonicalName(), "prime", "square");
-                feature2Data.setStatistic((short) 1, (short) 1, "statA", (Integer) 9);
-                feature2Data.setStatistic((short) 1, (short) 2, "statA", (Integer) 8);
-                feature2Data.setStatistic((short) 2, (short) 1, "statA", (Integer) 7);
+                ShipTypeAndSizeData feature2Data = new ShipTypeAndSizeData();
+                feature2Data.setValue((short) 1, (short) 1, "statA", (Integer) 9);
+                feature2Data.setValue((short) 1, (short) 2, "statA", (Integer) 8);
+                feature2Data.setValue((short) 2, (short) 1, "statA", (Integer) 7);
 
                 Position nw = Position.create(lat+0.02, lon-0.02);
                 Position se = Position.create(lat-0.02, lon+0.02);

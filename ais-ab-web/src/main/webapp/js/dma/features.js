@@ -127,7 +127,7 @@ var featureModule = {
 
             cellData.append('<br/><b>' + featureName + '</b><br/>');
 
-            if (featureType == 'FeatureDataTwoKey') {
+            if (featureType == 'ThreeKeyMap') {
                 var meaningOfKey1 = fd.meaningOfKey1.replace('ship','');
                 var meaningOfKey2 = fd.meaningOfKey2.replace('ship','');
 

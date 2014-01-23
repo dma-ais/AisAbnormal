@@ -26,6 +26,7 @@ import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
 import dk.dma.enav.model.geometry.Position;
+import org.hamcrest.Matcher;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
@@ -60,20 +61,20 @@ public class ShipTypeAndSizeAnalysisTest {
 
         // Mock shipCount table
         featureData = new ShipTypeAndSizeData();
-        featureData.setStatistic((short) 3, (short) 1, "shipCount", 17);
-        featureData.setStatistic((short) 3, (short) 2, "shipCount", 2);
-        featureData.setStatistic((short) 3, (short) 3, "shipCount", 87);
-        featureData.setStatistic((short) 3, (short) 4, "shipCount", 618);
-        featureData.setStatistic((short) 4, (short) 3, "shipCount", 842);
-        featureData.setStatistic((short) 4, (short) 4, "shipCount", 954);
-        featureData.setStatistic((short) 5, (short) 3, "shipCount", 154);
-        featureData.setStatistic((short) 6, (short) 4, "shipCount", 34);
+        featureData.setValue((short) 3, (short) 1, "shipCount", 17);
+        featureData.setValue((short) 3, (short) 2, "shipCount", 2);
+        featureData.setValue((short) 3, (short) 3, "shipCount", 87);
+        featureData.setValue((short) 3, (short) 4, "shipCount", 618);
+        featureData.setValue((short) 4, (short) 3, "shipCount", 842);
+        featureData.setValue((short) 4, (short) 4, "shipCount", 954);
+        featureData.setValue((short) 5, (short) 3, "shipCount", 154);
+        featureData.setValue((short) 6, (short) 4, "shipCount", 34);
     }
 
     @Test
     public void abnormalWhereNoShipCountStatistics() {
         // Assert that pre-conditions are as expected
-        assertNull(featureData.getStatistic((short) 1, (short) 1, "shipCount"));
+        assertNull(featureData.getValue((short) 1, (short) 1, "shipCount"));
 
         // Setup expectations
         final ArgumentCaptor<Analysis> analysisCaptor = ArgumentCaptor.forClass(Analysis.class);
@@ -100,7 +101,7 @@ public class ShipTypeAndSizeAnalysisTest {
     public void abnormalWhereLowShipCountStatistics() {
         // Assert that pre-conditions are as expected
         Integer totalCount = featureData.getSumFor("shipCount");
-        Integer count = (Integer) featureData.getStatistic((short) 3, (short) 2, "shipCount");
+        Integer count = featureData.getValue((short) 3, (short) 2, "shipCount");
         float pd = (float) count / (float) totalCount;
         assertTrue(pd < 0.001);
 
@@ -129,7 +130,7 @@ public class ShipTypeAndSizeAnalysisTest {
     public void normalWhereHighShipCountStatistics() {
         // Assert that pre-conditions are as expected
         Integer totalCount = featureData.getSumFor("shipCount");
-        Integer count = (Integer) featureData.getStatistic((short) 3, (short) 4, "shipCount");
+        Integer count = featureData.getValue((short) 3, (short) 4, "shipCount");
         float pd = (float) count / (float) totalCount;
         assertTrue(pd > 0.001);
 
@@ -230,7 +231,7 @@ public class ShipTypeAndSizeAnalysisTest {
             oneOf(trackingService).registerSubscriber(analysis);
             oneOf(featureDataRepository).getFeatureData("ShipTypeAndSizeFeature", 123L); will(returnValue(featureData));
             oneOf(eventRepository).findOngoingEventByVessel(with(123456), with(AbnormalShipSizeOrTypeEvent.class)); will(returnValue(null));
-            oneOf(eventRepository).save(with(any(AbnormalShipSizeOrTypeEvent.class)));
+            oneOf(eventRepository).save(with((Matcher<AbnormalShipSizeOrTypeEvent>) any(AbnormalShipSizeOrTypeEvent.class)));
         }});
         analysis.start();
         analysis.onCellIdChanged(event);
@@ -264,7 +265,7 @@ public class ShipTypeAndSizeAnalysisTest {
             oneOf(trackingService).registerSubscriber(analysis);
             oneOf(featureDataRepository).getFeatureData("ShipTypeAndSizeFeature", 123L); will(returnValue(featureData));
             oneOf(eventRepository).findOngoingEventByVessel(with(123456), with(AbnormalShipSizeOrTypeEvent.class)); will(returnValue(null));
-            never(eventRepository).save(with(any(AbnormalShipSizeOrTypeEvent.class)));
+            never(eventRepository).save(with((Matcher<AbnormalShipSizeOrTypeEvent>) any(AbnormalShipSizeOrTypeEvent.class)));
         }});
         analysis.start();
         analysis.onCellIdChanged(event);

@@ -23,43 +23,53 @@ import java.util.HashMap;
 import java.util.TreeMap;
 
 /**
- * Instances of ShipTypeAndSizeData hold feature statistics for one grid cell.
+ *
+ * This is a memory-consumption optimised implementation of ThreeKeyMap intended to store
+ * AIS feature statistics of type ShipTypeAndSizeData for one grid cell.
+ *
  */
-public class ShipTypeAndSizeData implements FeatureDataTwoKey {
+public class ShipTypeAndSizeData implements FeatureData, ThreeKeyMap {
 
     private TShortIntHashMap data = new TShortIntHashMap(1);
 
     private static final int MAX_KEY_1 = 9;
     private static final int MAX_KEY_2 = 9;
 
-    private static final String FEATURE_CLASS_NAME = ShipTypeAndSizeData.class.getSimpleName();
-
     private static final String MEANING_OF_KEY_1 = "shipType";
     private static final String MEANING_OF_KEY_2 = "shipSize";
+    private static final String MEANING_OF_KEY_3 = "statName";
 
     public static final String STAT_SHIP_COUNT = "shipCount";
 
     public ShipTypeAndSizeData() {
     }
 
+    @Override
     @SuppressWarnings("unused")
     public String getMeaningOfKey1() {
         return MEANING_OF_KEY_1;
     }
 
+    @Override
     @SuppressWarnings("unused")
     public String getMeaningOfKey2() {
         return MEANING_OF_KEY_2;
     }
 
     @Override
+    @SuppressWarnings("unused")
+    public String getMeaningOfKey3() {
+        return MEANING_OF_KEY_3;
+    }
+
+    @Override
     public String getFeatureName() {
-        return FEATURE_CLASS_NAME;
+        return ShipTypeAndSizeData.class.getSimpleName();
     }
 
     @Override
     public String getFeatureDataType() {
-        return FeatureDataTwoKey.class.getSimpleName();
+        return ThreeKeyMap.class.getSimpleName();
     }
 
     @Override
@@ -83,7 +93,7 @@ public class ShipTypeAndSizeData implements FeatureDataTwoKey {
                 level1.put(shipSizeBucket, statistics);
             }
             String statisticsName = STAT_SHIP_COUNT;
-            Integer statisticsValue = getStatistic(shipTypeBucket, shipSizeBucket, statisticsName);
+            Integer statisticsValue = getValue(shipTypeBucket, shipSizeBucket, statisticsName);
             if (statisticsValue != null) {
                 statistics.put(statisticsName, statisticsValue);
             }
@@ -93,8 +103,8 @@ public class ShipTypeAndSizeData implements FeatureDataTwoKey {
     }
 
     @Override
-    public void incrementStatistic(int shipTypeBucket, int shipSizeBucket, String statisticName) {
-        short key = computeMapKey(shipTypeBucket, shipSizeBucket, statisticName);
+    public void incrementValue(int shipTypeBucket, int shipSizeBucket, String key3) {
+        short key = computeMapKey(shipTypeBucket, shipSizeBucket, key3);
         if (data.get(key) != data.getNoEntryValue()) {
             data.increment(key);
         } else {
@@ -104,15 +114,15 @@ public class ShipTypeAndSizeData implements FeatureDataTwoKey {
     }
 
     @Override
-    public void setStatistic(int shipTypeBucket, int shipSizeBucket, String statisticName, int statisticValue) {
-        short key = computeMapKey(shipTypeBucket, shipSizeBucket, statisticName);
-        data.put(key, statisticValue);
+    public void setValue(int shipTypeBucket, int shipSizeBucket, String key3, int value) {
+        short key = computeMapKey(shipTypeBucket, shipSizeBucket, key3);
+        data.put(key, value);
         data.compact();
     }
 
     @Override
-    public Integer getStatistic(int shipTypeBucket, int shipSizeBucket, String statisticName) {
-        short key = computeMapKey(shipTypeBucket, shipSizeBucket, statisticName);
+    public Integer getValue(int shipTypeBucket, int shipSizeBucket, String key3) {
+        short key = computeMapKey(shipTypeBucket, shipSizeBucket, key3);
 
         Integer statisticsValue = data.get(key);
         statisticsValue = statisticsValue == data.getNoEntryValue() ? null : statisticsValue;
@@ -121,12 +131,12 @@ public class ShipTypeAndSizeData implements FeatureDataTwoKey {
     }
 
     @Override
-    public int getSumFor(String statisticName) {
+    public int getSumFor(String key3) {
         Integer sum = 0;
 
         for (short key1=0; key1<MAX_KEY_1; key1++) {
             for (short key2=0; key2<MAX_KEY_2; key2++) {
-                short key = computeMapKey(key1, key2, statisticName);
+                short key = computeMapKey(key1, key2, key3);
                 sum += data.get(key);
             }
         }

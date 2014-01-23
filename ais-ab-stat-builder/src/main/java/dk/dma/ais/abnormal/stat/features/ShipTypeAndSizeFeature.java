@@ -104,7 +104,7 @@ public class ShipTypeAndSizeFeature implements Feature {
         }
         ShipTypeAndSizeData featureData = (ShipTypeAndSizeData) featureDataTmp;
 
-        featureData.incrementStatistic(shipTypeBucket, shipSizeBucket, ShipTypeAndSizeData.STAT_SHIP_COUNT);
+        featureData.incrementValue(shipTypeBucket, shipSizeBucket, ShipTypeAndSizeData.STAT_SHIP_COUNT);
 
         LOG.debug("Storing feature data for cellId " + cellId + ", featureName " + FEATURE_NAME);
         featureDataRepository.putFeatureData(FEATURE_NAME, cellId, featureData);

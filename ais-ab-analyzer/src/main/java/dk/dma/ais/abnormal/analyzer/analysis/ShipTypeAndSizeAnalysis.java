@@ -191,7 +191,7 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
         if (shipSizeAndTypeData instanceof ShipTypeAndSizeData) {
             Integer totalCount  = ((ShipTypeAndSizeData) shipSizeAndTypeData).getSumFor("shipCount");
             if (totalCount > TOTAL_COUNT_THRESHOLD) {
-                Integer shipCount = ((ShipTypeAndSizeData) shipSizeAndTypeData).getStatistic(shipTypeBucket, shipSizeBucket, ShipTypeAndSizeData.STAT_SHIP_COUNT);
+                Integer shipCount = ((ShipTypeAndSizeData) shipSizeAndTypeData).getValue(shipTypeBucket, shipSizeBucket, ShipTypeAndSizeData.STAT_SHIP_COUNT);
                 if (shipCount == null) {
                     shipCount = 0;
                 }

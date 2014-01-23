@@ -76,10 +76,10 @@ public class FeatureDataRepositoryMapDBTest {
         featureDataRepository.openForWrite(false);
 
         ShipTypeAndSizeData featureData = (ShipTypeAndSizeData) featureDataRepository.getFeatureData(TEST_FEATURE_NAME, testCellId);
-        assertEquals((Integer) (1 % 100), featureData.getStatistic(1, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertEquals((Integer) ((7 * 7) % 100), featureData.getStatistic( 7,  7, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertEquals((Integer) ((9*8)%100), featureData.getStatistic( 9,  8, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertEquals((Integer) ((key1 * key2) % 100), featureData.getStatistic(key1, key2, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals((Integer) (1 % 100), featureData.getValue(1, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals((Integer) ((7 * 7) % 100), featureData.getValue(7, 7, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals((Integer) ((9*8)%100), featureData.getValue(9, 8, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals((Integer) ((key1 * key2) % 100), featureData.getValue(key1, key2, ShipTypeAndSizeData.STAT_SHIP_COUNT));
 
         featureDataRepository.close();
     }
@@ -93,9 +93,9 @@ public class FeatureDataRepositoryMapDBTest {
         featureDataRepository.openForWrite(false);
 
         ShipTypeAndSizeData featureData = (ShipTypeAndSizeData) featureDataRepository.getFeatureData(TEST_FEATURE_NAME, testCellId);
-        assertEquals((Integer)  (  1  % 100), featureData.getStatistic( 1,  1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertEquals((Integer) ((7*7) % 100), featureData.getStatistic( 7,  7, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertEquals((Integer) ((key1 * key2) % 100), featureData.getStatistic(key1, key2, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals((Integer)  (  1  % 100), featureData.getValue(1, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals((Integer) ((7*7) % 100), featureData.getValue(7, 7, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals((Integer) ((key1 * key2) % 100), featureData.getValue(key1, key2, ShipTypeAndSizeData.STAT_SHIP_COUNT));
 
         featureDataRepository.close();
     }
@@ -109,7 +109,7 @@ public class FeatureDataRepositoryMapDBTest {
 
         ShipTypeAndSizeData featureData = (ShipTypeAndSizeData) featureDataRepository.getFeatureData(TEST_FEATURE_NAME, testCellId);
         try {
-            featureData.getStatistic(N1 + 1,  4, ShipTypeAndSizeData.STAT_SHIP_COUNT);
+            featureData.getValue(N1 + 1, 4, ShipTypeAndSizeData.STAT_SHIP_COUNT);
         } finally {
             featureDataRepository.close();
         }
@@ -124,7 +124,7 @@ public class FeatureDataRepositoryMapDBTest {
 
         ShipTypeAndSizeData featureData = (ShipTypeAndSizeData) featureDataRepository.getFeatureData(TEST_FEATURE_NAME, testCellId);
         try {
-            featureData.getStatistic( 7, N2 + 1, ShipTypeAndSizeData.STAT_SHIP_COUNT);
+            featureData.getValue(7, N2 + 1, ShipTypeAndSizeData.STAT_SHIP_COUNT);
         } finally {
             featureDataRepository.close();
         }
@@ -140,7 +140,7 @@ public class FeatureDataRepositoryMapDBTest {
 
         ShipTypeAndSizeData featureData = (ShipTypeAndSizeData) featureDataRepository.getFeatureData(TEST_FEATURE_NAME, testCellId);
         try {
-            featureData.getStatistic(key1, key2, "wrongt");
+            featureData.getValue(key1, key2, "wrongt");
         } finally {
             featureDataRepository.close();
         }
@@ -155,9 +155,9 @@ public class FeatureDataRepositoryMapDBTest {
         FeatureDataRepository featureDataRepository1 = new FeatureDataRepositoryMapDB(dbFileName);
         featureDataRepository1.openForWrite(false);
         ShipTypeAndSizeData featureData1 = (ShipTypeAndSizeData) featureDataRepository1.getFeatureData(TEST_FEATURE_NAME, testCellId);
-        assertEquals((Integer) ((key1 * key2) % 100), featureData1.getStatistic(key1, key2, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals((Integer) ((key1 * key2) % 100), featureData1.getValue(key1, key2, ShipTypeAndSizeData.STAT_SHIP_COUNT));
         LOG.info("Updating FeatureData");
-        featureData1.setStatistic(key1, key2, ShipTypeAndSizeData.STAT_SHIP_COUNT, 2157);
+        featureData1.setValue(key1, key2, ShipTypeAndSizeData.STAT_SHIP_COUNT, 2157);
         featureDataRepository1.putFeatureData(TEST_FEATURE_NAME, testCellId, featureData1);
         LOG.info("Closing repository");
         featureDataRepository1.close();
@@ -169,7 +169,7 @@ public class FeatureDataRepositoryMapDBTest {
         LOG.info("Reading FeatureData");
         ShipTypeAndSizeData featureData2 = (ShipTypeAndSizeData) featureDataRepository2.getFeatureData(TEST_FEATURE_NAME, testCellId);
         LOG.info("Checking that value is updated");
-        assertEquals((Integer) 2157, featureData2.getStatistic(key1, key2, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals((Integer) 2157, featureData2.getValue(key1, key2, ShipTypeAndSizeData.STAT_SHIP_COUNT));
         LOG.info("Done. Closing repository.");
         featureDataRepository2.close();
     }
@@ -270,10 +270,10 @@ public class FeatureDataRepositoryMapDBTest {
         final int key1 = N1 - 1, key2 = N2 - 2;
 
         ShipTypeAndSizeData featureData = (ShipTypeAndSizeData) featureDataRepository1.getFeatureData(TEST_FEATURE_NAME, testCellId);
-        assertEquals((Integer)(   1 %100), featureData.getStatistic( 1,  1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertEquals((Integer)((7*7)%100), featureData.getStatistic( 7,  7, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertEquals((Integer)((9*8)%100), featureData.getStatistic( 9,  8, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertEquals((Integer)((key1 * key2) % 100), featureData.getStatistic(key1, key2, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals((Integer)(   1 %100), featureData.getValue(1, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals((Integer)((7*7)%100), featureData.getValue(7, 7, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals((Integer)((9*8)%100), featureData.getValue(9, 8, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals((Integer)((key1 * key2) % 100), featureData.getValue(key1, key2, ShipTypeAndSizeData.STAT_SHIP_COUNT));
     }
 
     @Test
@@ -350,7 +350,7 @@ public class FeatureDataRepositoryMapDBTest {
 
             for (int key1 = 0; key1 < N1; key1++) {
                 for (int key2 = 0; key2 < N2; key2++) {
-                    featureData.setStatistic(key1, key2, ShipTypeAndSizeData.STAT_SHIP_COUNT, (key1*key2) % 100);
+                    featureData.setValue(key1, key2, ShipTypeAndSizeData.STAT_SHIP_COUNT, (key1 * key2) % 100);
                 }
             }
 

@@ -108,7 +108,7 @@ public class ShipTypeAndSizeFeatureTest {
         final ShipTypeAndSizeFeature feature = new ShipTypeAndSizeFeature(statisticsService, trackingService, featureDataRepository);
 
         final ShipTypeAndSizeData existingFeatureData = new ShipTypeAndSizeData();
-        existingFeatureData.setStatistic(3, 3, ShipTypeAndSizeData.STAT_SHIP_COUNT, 1);
+        existingFeatureData.setValue(3, 3, ShipTypeAndSizeData.STAT_SHIP_COUNT, 1);
 
         final ArgumentCaptor<FeatureData> featureData1 = ArgumentCaptor.forClass(FeatureData.class);
         final ArgumentCaptor<FeatureData> featureData2 = ArgumentCaptor.forClass(FeatureData.class);
