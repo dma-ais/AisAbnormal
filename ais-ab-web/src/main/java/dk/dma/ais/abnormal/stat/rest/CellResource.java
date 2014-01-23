@@ -101,7 +101,7 @@ public class CellResource {
         LOG.debug("Looking for cells touching area bounded by " + north + " north, " + east + " east, " + south + " south, and " + west + " west.");
         Position northWest = Position.create(north, west);
         Position southEast = Position.create(south, east);
-        Area area = BoundingBox.create(northWest, southEast, CoordinateSystem.GEODETIC);
+        Area area = BoundingBox.create(northWest, southEast, CoordinateSystem.CARTESIAN);
 
         Set<CellWrapper> cells = loadCellsInArea(grid, area);
         //Set<CellWrapper> cells = loadDummyCells(grid, area);
@@ -167,7 +167,7 @@ public class CellResource {
 
                 Position nw = Position.create(lat+0.02, lon-0.02);
                 Position se = Position.create(lat-0.02, lon+0.02);
-                BoundingBox boundingBoxOfCell = BoundingBox.create(nw, se, CoordinateSystem.GEODETIC);
+                BoundingBox boundingBoxOfCell = BoundingBox.create(nw, se, CoordinateSystem.CARTESIAN);
 
                 Cell cell = grid.getCell(lat, lon);
                 CellWrapper cellWrapper = new CellWrapper(cell, boundingBoxOfCell, feature1Data, feature2Data);
