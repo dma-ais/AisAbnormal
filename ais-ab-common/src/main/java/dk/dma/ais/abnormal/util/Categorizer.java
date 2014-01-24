@@ -18,49 +18,57 @@ package dk.dma.ais.abnormal.util;
 
 public final class Categorizer {
 
-    // TODO changing the rules in this categorizer invalidates the featureData files. Retraining needed.
+    public static final int NUM_SHIP_TYPE_CATEGORIES = 8;
+    public static final int NUM_SHIP_SIZE_CATEGORIES = 6;
+    public static final int NUM_COURSE_OVER_GROUND_CATEGORIES = 12;
 
     public static short mapShipTypeToCategory(int shipType) {
-        short bucket = 8;
+        short category = 8;
 
         if (shipType > 79 && shipType < 90) {
-            bucket = 1;
+            category = 1;
         } else if (shipType > 69 && shipType < 80) {
-            bucket = 2;
+            category = 2;
         } else if ((shipType > 39 && shipType < 50) || (shipType > 59 && shipType < 70)) {
-            bucket = 3;
+            category = 3;
         } else if ((shipType > 30 && shipType < 36) || (shipType > 49 && shipType < 56)) {
-            bucket = 4;
+            category = 4;
         } else if (shipType == 30) {
-            bucket = 5;
+            category = 5;
         } else if (shipType == 36 || shipType == 37) {    // TODO Class B
-            bucket = 6;
+            category = 6;
         } else if ((shipType > 0 && shipType < 30) || (shipType > 89 && shipType < 100)) {
-            bucket = 7;
+            category = 7;
         } else if (shipType == 0) {
-            bucket = 8;
+            category = 8;
         }
 
-        return bucket;
+        return category;
     }
 
     public static short mapShipLengthToCategory(int shipLength) {
-        short bucket;
+        short category;
 
         if (shipLength >= 0 && shipLength < 1) {
-            bucket = 1;
+            category = 1;
         } else if (shipLength >= 1 && shipLength < 50) {
-            bucket = 2;
+            category = 2;
         } else if (shipLength >= 50 && shipLength < 100) {
-            bucket = 3;
+            category = 3;
         } else if (shipLength >= 100 && shipLength < 200) {
-            bucket = 4;
+            category = 4;
         } else if (shipLength >= 200 && shipLength < 999) {
-            bucket = 5;
+            category = 5;
         } else {
-            bucket = 6;
+            category = 6;
         }
 
-        return bucket;
+        return category;
     }
+
+    public static short mapCourseOverGroundToCategory(float cog) {
+        cog = cog % (float) 360.0;
+        return (short) ((cog / 30) + 1);
+    }
+
 }

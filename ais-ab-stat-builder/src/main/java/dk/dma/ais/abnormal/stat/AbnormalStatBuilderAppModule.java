@@ -22,6 +22,7 @@ import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.mapdb.FeatureDataRepositoryMapDB;
+import dk.dma.ais.abnormal.stat.features.CourseOverGroundFeature;
 import dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.TrackingServiceImpl;
@@ -65,6 +66,7 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
         bind(dk.dma.ais.abnormal.application.statistics.AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
         bind(TrackingService.class).to(TrackingServiceImpl.class).in(Singleton.class);
         bind(ShipTypeAndSizeFeature.class);
+        bind(CourseOverGroundFeature.class);
     }
 
     @Provides

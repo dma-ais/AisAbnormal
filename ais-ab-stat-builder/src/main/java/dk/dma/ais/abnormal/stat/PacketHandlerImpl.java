@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
+import dk.dma.ais.abnormal.stat.features.CourseOverGroundFeature;
 import dk.dma.ais.abnormal.stat.features.Feature;
 import dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature;
 import dk.dma.ais.abnormal.tracker.TrackingService;
@@ -149,6 +150,7 @@ public class PacketHandlerImpl implements PacketHandler {
 
         this.features = new ImmutableSet.Builder<Feature>()
             .add(injector.getInstance(ShipTypeAndSizeFeature.class))
+            .add(injector.getInstance(CourseOverGroundFeature.class))
             .build();
 
         Iterator<Feature> featureIterator = this.features.iterator();

@@ -64,7 +64,7 @@ public class ShipTypeAndSizeData implements FeatureData, ThreeKeyMap {
 
     @Override
     public String getFeatureName() {
-        return ShipTypeAndSizeData.class.getSimpleName();
+        return this.getClass().getSimpleName();
     }
 
     @Override
@@ -103,8 +103,8 @@ public class ShipTypeAndSizeData implements FeatureData, ThreeKeyMap {
     }
 
     @Override
-    public void incrementValue(int shipTypeBucket, int shipSizeBucket, String key3) {
-        short key = computeMapKey(shipTypeBucket, shipSizeBucket, key3);
+    public void incrementValue(int shipTypeBucket, int shipSizeBucket, String statisticName) {
+        short key = computeMapKey(shipTypeBucket, shipSizeBucket, statisticName);
         if (data.get(key) != data.getNoEntryValue()) {
             data.increment(key);
         } else {
@@ -114,15 +114,15 @@ public class ShipTypeAndSizeData implements FeatureData, ThreeKeyMap {
     }
 
     @Override
-    public void setValue(int shipTypeBucket, int shipSizeBucket, String key3, int value) {
-        short key = computeMapKey(shipTypeBucket, shipSizeBucket, key3);
+    public void setValue(int shipTypeBucket, int shipSizeBucket, String statisticName, int value) {
+        short key = computeMapKey(shipTypeBucket, shipSizeBucket, statisticName);
         data.put(key, value);
         data.compact();
     }
 
     @Override
-    public Integer getValue(int shipTypeBucket, int shipSizeBucket, String key3) {
-        short key = computeMapKey(shipTypeBucket, shipSizeBucket, key3);
+    public Integer getValue(int shipTypeBucket, int shipSizeBucket, String statisticName) {
+        short key = computeMapKey(shipTypeBucket, shipSizeBucket, statisticName);
 
         Integer statisticsValue = data.get(key);
         statisticsValue = statisticsValue == data.getNoEntryValue() ? null : statisticsValue;
@@ -131,12 +131,12 @@ public class ShipTypeAndSizeData implements FeatureData, ThreeKeyMap {
     }
 
     @Override
-    public int getSumFor(String key3) {
+    public int getSumFor(String statisticName) {
         Integer sum = 0;
 
-        for (short key1=0; key1<MAX_KEY_1; key1++) {
-            for (short key2=0; key2<MAX_KEY_2; key2++) {
-                short key = computeMapKey(key1, key2, key3);
+        for (short shipTypeBucket=0; shipTypeBucket<MAX_KEY_1; shipTypeBucket++) {
+            for (short shipSizeBucket=0; shipSizeBucket<MAX_KEY_2; shipSizeBucket++) {
+                short key = computeMapKey(shipTypeBucket, shipSizeBucket, statisticName);
                 sum += data.get(key);
             }
         }
@@ -144,15 +144,15 @@ public class ShipTypeAndSizeData implements FeatureData, ThreeKeyMap {
         return sum;
     }
 
-    static short computeMapKey(int key1, int key2, String statisticName) {
+    static short computeMapKey(int key1, int key2, String key3) {
         if (key1 > MAX_KEY_1) {
             throw new IllegalArgumentException("key1 must be 0-" + MAX_KEY_1 + ".");
         }
         if (key2 > MAX_KEY_2) {
             throw new IllegalArgumentException("key2 must be 0-" + MAX_KEY_2 + ".");
         }
-        if (! STAT_SHIP_COUNT.equals(statisticName)) {
-            throw new IllegalArgumentException("Statistic name '" + statisticName + "' is not supported.");
+        if (! STAT_SHIP_COUNT.equals(key3)) {
+            throw new IllegalArgumentException("key3 '" + key3 + "' is not supported.");
         }
         return (short) (key1*(MAX_KEY_1+1) + key2);
     }
