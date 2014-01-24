@@ -23,7 +23,6 @@ import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
-import dk.dma.ais.abnormal.util.Categorizer;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
@@ -57,10 +56,10 @@ public class CourseOverGroundFeatureTest {
         // Setup test data
         track = new Track(1234567);
         track.setProperty(Track.CELL_ID, 5674365784L);
-        track.setProperty(Track.SHIP_TYPE, 40);
-        track.setProperty(Track.VESSEL_LENGTH, 75);
+        track.setProperty(Track.SHIP_TYPE, 40);     /* bucket 3 */
+        track.setProperty(Track.VESSEL_LENGTH, 75); /* bucket 3 */
         track.setProperty(Track.SPEED_OVER_GROUND, Float.valueOf((float) 15.0));
-        track.setProperty(Track.COURSE_OVER_GROUND, Float.valueOf((float) 127.6));
+        track.setProperty(Track.COURSE_OVER_GROUND, Float.valueOf((float) 127.6)); /* bucket 5 */
         event = new CellIdChangedEvent(track, null);
 
         feature = new CourseOverGroundFeature(statisticsService, trackingService, featureDataRepository);
@@ -91,11 +90,11 @@ public class CourseOverGroundFeatureTest {
 
         assertEquals(1, data.size()); // Assert one statistic recorded
         int shipTypeBucket = data.firstKey();
-        assertEquals(3, shipTypeBucket);
+        assertEquals(3 - 1 /* -1 because idx counts from zero */, shipTypeBucket);
         int shipSizeBucket = data.get(shipTypeBucket).firstKey();
-        assertEquals(3, shipSizeBucket);
+        assertEquals(3 - 1 /* -1 because idx counts from zero */, shipSizeBucket);
         int cogBucket = data.get(shipTypeBucket).get(shipSizeBucket).firstKey();
-        assertEquals(5, cogBucket);
+        assertEquals(5 - 1 /* -1 because idx counts from zero */, cogBucket);
 
         int numberOfStats = data.get(shipTypeBucket).get(shipSizeBucket).get(cogBucket).size();
         assertEquals(1, numberOfStats);
@@ -114,8 +113,8 @@ public class CourseOverGroundFeatureTest {
 
     @Test
     public void testExistingShipCountIsUpdated() {
-        final CourseOverGroundData existingFeatureData = new CourseOverGroundData(Categorizer.NUM_SHIP_TYPE_CATEGORIES, Categorizer.NUM_SHIP_SIZE_CATEGORIES, Categorizer.NUM_COURSE_OVER_GROUND_CATEGORIES, 1);
-        existingFeatureData.setValue(3, 3, 5, CourseOverGroundData.STAT_SHIP_COUNT, 1);
+        final CourseOverGroundData existingFeatureData = CourseOverGroundData.create();
+        existingFeatureData.setValue(3 - 1 /* -1 because idx counts from zero */, 3 - 1 /* -1 because idx counts from zero */, 5 - 1 /* -1 because idx counts from zero */, CourseOverGroundData.STAT_SHIP_COUNT, 1);
 
         final ArgumentCaptor<FeatureData> featureData1 = ArgumentCaptor.forClass(FeatureData.class);
         final ArgumentCaptor<FeatureData> featureData2 = ArgumentCaptor.forClass(FeatureData.class);
@@ -148,11 +147,11 @@ public class CourseOverGroundFeatureTest {
         TreeMap<Integer, TreeMap<Integer, TreeMap<Integer, HashMap<String, Integer>>>> data = capturedFeatureData.getData();
         assertEquals(1, data.size()); // Assert one statistic recorded
         int shipTypeBucket = data.firstKey();
-        assertEquals(3, shipTypeBucket);
+        assertEquals(3 - 1 /* -1 because idx counts from zero */, shipTypeBucket);
         int shipSizeBucket = data.get(shipTypeBucket).firstKey();
-        assertEquals(3, shipSizeBucket);
+        assertEquals(3 - 1 /* -1 because idx counts from zero */, shipSizeBucket);
         int cogBucket = data.get(shipTypeBucket).get(shipSizeBucket).firstKey();
-        assertEquals(5, cogBucket);
+        assertEquals(5 - 1 /* -1 because idx counts from zero */, cogBucket);
         int numberOfStatsForShipTypeAndShipSize = data.get(shipTypeBucket).get(shipSizeBucket).size();
         assertEquals(1, numberOfStatsForShipTypeAndShipSize);
         String statName = data.get(shipTypeBucket).get(shipSizeBucket).get(cogBucket).keySet().iterator().next();

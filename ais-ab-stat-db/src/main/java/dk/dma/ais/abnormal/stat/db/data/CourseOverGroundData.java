@@ -16,6 +16,7 @@
 
 package dk.dma.ais.abnormal.stat.db.data;
 
+import dk.dma.ais.abnormal.util.Categorizer;
 import gnu.trove.iterator.TShortIterator;
 import gnu.trove.map.hash.TShortIntHashMap;
 
@@ -67,7 +68,11 @@ public class CourseOverGroundData implements FeatureData, FourKeyMap {
         return MEANING_OF_KEY_4;
     }
 
-    public CourseOverGroundData(int maxKey1, int maxKey2, int maxKey3, int maxNumKey4) {
+    public static CourseOverGroundData create() {
+        return new CourseOverGroundData(Categorizer.NUM_SHIP_TYPE_CATEGORIES - 1, Categorizer.NUM_SHIP_SIZE_CATEGORIES - 1, Categorizer.NUM_COURSE_OVER_GROUND_CATEGORIES - 1, 1);
+    }
+
+    protected CourseOverGroundData(int maxKey1, int maxKey2, int maxKey3, int maxNumKey4) {
         if (maxKey1 <= 0) {
             throw new IllegalArgumentException("maxKey1 <= 0 not supported.");
         }

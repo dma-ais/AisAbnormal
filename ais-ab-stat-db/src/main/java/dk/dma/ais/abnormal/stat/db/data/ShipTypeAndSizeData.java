@@ -16,6 +16,7 @@
 
 package dk.dma.ais.abnormal.stat.db.data;
 
+import dk.dma.ais.abnormal.util.Categorizer;
 import gnu.trove.iterator.TShortIterator;
 import gnu.trove.map.hash.TShortIntHashMap;
 
@@ -32,8 +33,8 @@ public class ShipTypeAndSizeData implements FeatureData, ThreeKeyMap {
 
     private TShortIntHashMap data = new TShortIntHashMap(1);
 
-    private static final int MAX_KEY_1 = 9;
-    private static final int MAX_KEY_2 = 9;
+    final byte MAX_KEY_1;
+    final byte MAX_KEY_2;
 
     private static final String MEANING_OF_KEY_1 = "shipType";
     private static final String MEANING_OF_KEY_2 = "shipSize";
@@ -41,7 +42,23 @@ public class ShipTypeAndSizeData implements FeatureData, ThreeKeyMap {
 
     public static final String STAT_SHIP_COUNT = "shipCount";
 
-    public ShipTypeAndSizeData() {
+    public static ShipTypeAndSizeData create() {
+        return new ShipTypeAndSizeData(Categorizer.NUM_SHIP_TYPE_CATEGORIES - 1, Categorizer.NUM_SHIP_SIZE_CATEGORIES - 1, 1);
+    }
+
+    protected ShipTypeAndSizeData(int maxKey1, int maxKey2, int maxNumKey3) {
+        if (maxKey1 <= 0) {
+            throw new IllegalArgumentException("maxKey1 <= 0 not supported.");
+        }
+        if (maxKey2 <= 0) {
+            throw new IllegalArgumentException("maxKey2 <= 0 not supported.");
+        }
+        if (maxNumKey3 != 1) {
+            throw new IllegalArgumentException("maxNumKey3 != 1 not supported.");
+        }
+
+        this.MAX_KEY_1 = (byte) maxKey1;
+        this.MAX_KEY_2 = (byte) maxKey2;
     }
 
     @Override
@@ -134,8 +151,8 @@ public class ShipTypeAndSizeData implements FeatureData, ThreeKeyMap {
     public int getSumFor(String statisticName) {
         Integer sum = 0;
 
-        for (short shipTypeBucket=0; shipTypeBucket<MAX_KEY_1; shipTypeBucket++) {
-            for (short shipSizeBucket=0; shipSizeBucket<MAX_KEY_2; shipSizeBucket++) {
+        for (short shipTypeBucket=0; shipTypeBucket<=MAX_KEY_1; shipTypeBucket++) {
+            for (short shipSizeBucket=0; shipSizeBucket<=MAX_KEY_2; shipSizeBucket++) {
                 short key = computeMapKey(shipTypeBucket, shipSizeBucket, statisticName);
                 sum += data.get(key);
             }
@@ -144,7 +161,7 @@ public class ShipTypeAndSizeData implements FeatureData, ThreeKeyMap {
         return sum;
     }
 
-    static short computeMapKey(int key1, int key2, String key3) {
+    short computeMapKey(int key1, int key2, String key3) {
         if (key1 > MAX_KEY_1) {
             throw new IllegalArgumentException("key1 must be 0-" + MAX_KEY_1 + ".");
         }
@@ -152,21 +169,23 @@ public class ShipTypeAndSizeData implements FeatureData, ThreeKeyMap {
             throw new IllegalArgumentException("key2 must be 0-" + MAX_KEY_2 + ".");
         }
         if (! STAT_SHIP_COUNT.equals(key3)) {
-            throw new IllegalArgumentException("key3 '" + key3 + "' is not supported.");
+            throw new IllegalArgumentException("key4 '" + key3 + "' is not supported.");
         }
-        return (short) (key1*(MAX_KEY_1+1) + key2);
+
+        final int d1 = MAX_KEY_2 + 1;
+        return (short) (key2 + key1*d1);
     }
 
-    static int extractStatisticId(short key) {
+    int extractStatisticId(short key) {
         return 0;
     }
 
-    static int extractKey1(short key) {
-        return (key-extractKey2(key))/(MAX_KEY_1+1);
+    int extractKey1(short key) {
+        return (key / (MAX_KEY_2+1));
     }
 
-    static int extractKey2(short key) {
-        return key % (MAX_KEY_1+1);
+    int extractKey2(short key) {
+        return key % (MAX_KEY_2+1);
     }
 
 

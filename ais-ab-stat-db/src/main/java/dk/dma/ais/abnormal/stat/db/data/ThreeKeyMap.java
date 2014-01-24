@@ -43,18 +43,18 @@ public interface ThreeKeyMap {
      * Increment the value pointed to by (key1, key2, key3) by one. If the value has not previously
      * been set, then set it to 1.
      *
-     * @param key1
-     * @param key2
-     * @param key3
+     * @param key1 The value of key1. The lowest legal value is 0.
+     * @param key2 The value of key2. The lowest legal value is 0.
+     * @param key3 The value of key3.
      */
     void incrementValue(int key1, int key2, String key3);
 
     /**
      * Set the value pointed to by (key1, key2, key3) to the given value.
      *
-     * @param key1
-     * @param key2
-     * @param key3
+     * @param key1 The value of key1. The lowest legal value is 0.
+     * @param key2 The value of key2. The lowest legal value is 0.
+     * @param key3 The value of key3.
      * @param value
      */
     void setValue(int key1, int key2, String key3, int value);
@@ -62,9 +62,9 @@ public interface ThreeKeyMap {
     /**
      * Get the value pointed to by (key1, key2, key3).
      *
-     * @param key1
-     * @param key2
-     * @param key3
+     * @param key1 The value of key1. The lowest legal value is 0.
+     * @param key2 The value of key2. The lowest legal value is 0.
+     * @param key3 The value of key3.
      */
     Integer getValue(int key1, int key2, String key3);
 
@@ -72,7 +72,7 @@ public interface ThreeKeyMap {
      * Iterate over all combinations of (key1, key2) and sum the values for the given key3.
      * Return the summed value.
      *
-     * @param key3
+     * @param key3 The value of key3.
      * @return
      */
     int getSumFor(String key3);

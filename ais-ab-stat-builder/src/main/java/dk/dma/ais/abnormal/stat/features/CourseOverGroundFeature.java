@@ -124,12 +124,12 @@ public class CourseOverGroundFeature implements Feature {
         FeatureData featureDataTmp = featureDataRepository.getFeatureData(FEATURE_NAME, cellId);
         if (!(featureDataTmp instanceof CourseOverGroundData)) {
             LOG.debug("No suitable feature data for cell id " + cellId + " found in repo. Creating new.");
-            featureDataTmp = new CourseOverGroundData(Categorizer.NUM_SHIP_TYPE_CATEGORIES, Categorizer.NUM_SHIP_SIZE_CATEGORIES, Categorizer.NUM_COURSE_OVER_GROUND_CATEGORIES, 1);
+            featureDataTmp = CourseOverGroundData.create();
         }
         CourseOverGroundData featureData = (CourseOverGroundData) featureDataTmp;
 
         // Increment ship count
-        featureData.incrementValue(shipTypeBucket, shipSizeBucket, cogBucket, ShipTypeAndSizeData.STAT_SHIP_COUNT);
+        featureData.incrementValue(shipTypeBucket - 1, shipSizeBucket - 1, cogBucket - 1, ShipTypeAndSizeData.STAT_SHIP_COUNT);
 
         LOG.debug("Storing feature data for cellId " + cellId + ", featureName " + FEATURE_NAME);
         featureDataRepository.putFeatureData(FEATURE_NAME, cellId, featureData);

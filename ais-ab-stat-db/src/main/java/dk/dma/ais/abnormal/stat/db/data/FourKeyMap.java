@@ -49,20 +49,20 @@ public interface FourKeyMap {
      * Increment the value pointed to by (key1, key2, key3) by one. If the value has not previously
      * been set, then set it to 1.
      *
-     * @param key1
-     * @param key2
-     * @param key3
-     * @param key4
+     * @param key1 The value of key1. The lowest legal value is 0.
+     * @param key2 The value of key2. The lowest legal value is 0.
+     * @param key3 The value of key3. The lowest legal value is 0.
+     * @param key4 The value of key4.
      */
     void incrementValue(int key1, int key2, int key3, String key4);
 
     /**
      * Set the value pointed to by (key1, key2, key3) to the given value.
      *
-     * @param key1
-     * @param key2
-     * @param key3
-     * @param key4
+     * @param key1 The value of key1. The lowest legal value is 0.
+     * @param key2 The value of key2. The lowest legal value is 0.
+     * @param key3 The value of key3. The lowest legal value is 0.
+     * @param key4 The value of key4.
      * @param value
      */
     void setValue(int key1, int key2, int key3, String key4, int value);
@@ -70,10 +70,10 @@ public interface FourKeyMap {
     /**
      * Get the value pointed to by (key1, key2, key3).
      *
-     * @param key1
-     * @param key2
-     * @param key3
-     * @param key4
+     * @param key1 The value of key1. The lowest legal value is 0.
+     * @param key2 The value of key2. The lowest legal value is 0.
+     * @param key3 The value of key3. The lowest legal value is 0.
+     * @param key4 The value of key4.
      * @return
      */
     Integer getValue(int key1, int key2, int key3, String key4);

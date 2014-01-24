@@ -20,6 +20,7 @@ import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.DatasetMetaData;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeData;
+import dk.dma.ais.abnormal.util.Categorizer;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -43,8 +44,8 @@ public class FeatureDataRepositoryMapDBTest {
     static final long NUM_CELLS = (long) 1e3;
 
     static final long ONE_PCT_OF_CELLS = NUM_CELLS / 100;
-    static final int N1 = 10;
-    static final int N2 = 10;
+    static final int N1 = Categorizer.NUM_SHIP_TYPE_CATEGORIES - 1;
+    static final int N2 = Categorizer.NUM_SHIP_SIZE_CATEGORIES - 1;
     static final long N_PROD = NUM_CELLS * N1 * N2;
 
     static final String TEST_FEATURE_NAME = "testFeature";
@@ -77,8 +78,8 @@ public class FeatureDataRepositoryMapDBTest {
 
         ShipTypeAndSizeData featureData = (ShipTypeAndSizeData) featureDataRepository.getFeatureData(TEST_FEATURE_NAME, testCellId);
         assertEquals((Integer) (1 % 100), featureData.getValue(1, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertEquals((Integer) ((7 * 7) % 100), featureData.getValue(7, 7, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertEquals((Integer) ((9*8)%100), featureData.getValue(9, 8, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals((Integer) ((7*4) % 100), featureData.getValue(7, 4, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals((Integer) ((6*5)%100), featureData.getValue(6, 5, ShipTypeAndSizeData.STAT_SHIP_COUNT));
         assertEquals((Integer) ((key1 * key2) % 100), featureData.getValue(key1, key2, ShipTypeAndSizeData.STAT_SHIP_COUNT));
 
         featureDataRepository.close();
@@ -94,7 +95,7 @@ public class FeatureDataRepositoryMapDBTest {
 
         ShipTypeAndSizeData featureData = (ShipTypeAndSizeData) featureDataRepository.getFeatureData(TEST_FEATURE_NAME, testCellId);
         assertEquals((Integer)  (  1  % 100), featureData.getValue(1, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertEquals((Integer) ((7*7) % 100), featureData.getValue(7, 7, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals((Integer) ((4*2) % 100), featureData.getValue(4, 2, ShipTypeAndSizeData.STAT_SHIP_COUNT));
         assertEquals((Integer) ((key1 * key2) % 100), featureData.getValue(key1, key2, ShipTypeAndSizeData.STAT_SHIP_COUNT));
 
         featureDataRepository.close();
@@ -271,8 +272,8 @@ public class FeatureDataRepositoryMapDBTest {
 
         ShipTypeAndSizeData featureData = (ShipTypeAndSizeData) featureDataRepository1.getFeatureData(TEST_FEATURE_NAME, testCellId);
         assertEquals((Integer)(   1 %100), featureData.getValue(1, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertEquals((Integer)((7*7)%100), featureData.getValue(7, 7, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertEquals((Integer)((9*8)%100), featureData.getValue(9, 8, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals((Integer)((7*4)%100), featureData.getValue(7, 4, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals((Integer)((6*5)%100), featureData.getValue(6, 5, ShipTypeAndSizeData.STAT_SHIP_COUNT));
         assertEquals((Integer)((key1 * key2) % 100), featureData.getValue(key1, key2, ShipTypeAndSizeData.STAT_SHIP_COUNT));
     }
 
@@ -346,10 +347,10 @@ public class FeatureDataRepositoryMapDBTest {
     private static void writeTestDataToRepository(FeatureDataRepository featureDataRepository) {
         LOG.info("Generating " + N_PROD + " test data... ");
         for (long cellId = 0; cellId < NUM_CELLS; cellId++) {
-            ShipTypeAndSizeData featureData = new ShipTypeAndSizeData();
+            ShipTypeAndSizeData featureData = ShipTypeAndSizeData.create();
 
-            for (int key1 = 0; key1 < N1; key1++) {
-                for (int key2 = 0; key2 < N2; key2++) {
+            for (int key1 = 0; key1 <= N1; key1++) {
+                for (int key2 = 0; key2 <= N2; key2++) {
                     featureData.setValue(key1, key2, ShipTypeAndSizeData.STAT_SHIP_COUNT, (key1 * key2) % 100);
                 }
             }

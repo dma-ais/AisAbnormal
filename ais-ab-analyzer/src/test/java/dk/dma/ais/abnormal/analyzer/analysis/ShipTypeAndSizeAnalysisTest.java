@@ -60,7 +60,7 @@ public class ShipTypeAndSizeAnalysisTest {
         eventRepository = context.mock(EventRepository.class);
 
         // Mock shipCount table
-        featureData = new ShipTypeAndSizeData();
+        featureData = ShipTypeAndSizeData.create();
         featureData.setValue((short) 3, (short) 1, "shipCount", 17);
         featureData.setValue((short) 3, (short) 2, "shipCount", 2);
         featureData.setValue((short) 3, (short) 3, "shipCount", 87);

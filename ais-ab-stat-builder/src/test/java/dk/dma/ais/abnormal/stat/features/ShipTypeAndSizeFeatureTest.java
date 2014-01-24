@@ -77,9 +77,9 @@ public class ShipTypeAndSizeFeatureTest {
         TreeMap<Integer, TreeMap<Integer, HashMap<String,Integer>>> data = capturedFeatureData.getData();
         assertEquals(1, data.size()); // Assert one statistic recorded
         int shipType = data.firstKey();
-        assertEquals(3, shipType);
+        assertEquals(3 - 1 /* -1 because idx counts from zero */, shipType);
         int shipSize = data.get(shipType).firstKey();
-        assertEquals(3, shipSize);
+        assertEquals(3 - 1 /* -1 because idx counts from zero */, shipSize);
         int numberOfStatsForShipTypeAndShipSize = data.get(shipType).get(shipSize).size();
         assertEquals(1, numberOfStatsForShipTypeAndShipSize);
         String statName = data.get(shipType).get(shipSize).keySet().iterator().next();
@@ -107,8 +107,8 @@ public class ShipTypeAndSizeFeatureTest {
         // Setup expectations
         final ShipTypeAndSizeFeature feature = new ShipTypeAndSizeFeature(statisticsService, trackingService, featureDataRepository);
 
-        final ShipTypeAndSizeData existingFeatureData = new ShipTypeAndSizeData();
-        existingFeatureData.setValue(3, 3, ShipTypeAndSizeData.STAT_SHIP_COUNT, 1);
+        final ShipTypeAndSizeData existingFeatureData = ShipTypeAndSizeData.create();
+        existingFeatureData.setValue(3 - 1 /* -1 because idx counts from zero */, 3 - 1 /* -1 because idx counts from zero */, ShipTypeAndSizeData.STAT_SHIP_COUNT, 1);
 
         final ArgumentCaptor<FeatureData> featureData1 = ArgumentCaptor.forClass(FeatureData.class);
         final ArgumentCaptor<FeatureData> featureData2 = ArgumentCaptor.forClass(FeatureData.class);
@@ -139,9 +139,9 @@ public class ShipTypeAndSizeFeatureTest {
         TreeMap<Integer, TreeMap<Integer, HashMap<String,Integer>>> data = capturedFeatureData.getData();
         assertEquals(1, data.size()); // Assert one statistic recorded
         int shipType = data.firstKey();
-        assertEquals(3, shipType);
+        assertEquals(3 - 1 /* -1 because idx counts from zero */, shipType);
         int shipSize = data.get(shipType).firstKey();
-        assertEquals(3, shipSize);
+        assertEquals(3 - 1 /* -1 because idx counts from zero */, shipSize);
         int numberOfStatsForShipTypeAndShipSize = data.get(shipType).get(shipSize).size();
         assertEquals(1, numberOfStatsForShipTypeAndShipSize);
         String statName = data.get(shipType).get(shipSize).keySet().iterator().next();

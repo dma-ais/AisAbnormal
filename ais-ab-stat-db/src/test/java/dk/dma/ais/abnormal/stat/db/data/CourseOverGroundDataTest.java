@@ -16,6 +16,7 @@
 
 package dk.dma.ais.abnormal.stat.db.data;
 
+import dk.dma.ais.abnormal.util.Categorizer;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -32,9 +33,9 @@ public class CourseOverGroundDataTest {
 
     @Before
     public void initTest() {
-        final int MAX_KEY_1 = 8;  /* 1-9 -> 0..8 */
-        final int MAX_KEY_2 = 5;  /* 1-6 -> 0..5 */
-        final int MAX_KEY_3 = 11; /* 1-12 -> 0..11 */
+        final int MAX_KEY_1 = Categorizer.NUM_SHIP_TYPE_CATEGORIES - 1;  /* 1-8 -> 0..7 */
+        final int MAX_KEY_2 = Categorizer.NUM_SHIP_SIZE_CATEGORIES - 1;  /* 1-6 -> 0..5 */
+        final int MAX_KEY_3 = Categorizer.NUM_COURSE_OVER_GROUND_CATEGORIES - 1;  /* 1-12 -> 0..11 */
         final int MAX_NUM_KEY_4 = 1;
 
         featureData = new CourseOverGroundData(MAX_KEY_1, MAX_KEY_2, MAX_KEY_3, MAX_NUM_KEY_4);
