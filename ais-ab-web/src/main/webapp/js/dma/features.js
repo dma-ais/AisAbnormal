@@ -47,12 +47,23 @@ var featureModule = {
         // add totalcounts to cell
         cell.totalShipCount = [];
         $.each(cell.featureData, function (fdidx, fd) {
-            cell.totalShipCount[fd.featureName] = 0;
-            $.each(fd.data, function(key1, value1) {
-                $.each(value1, function(key2, statistic) {
-                    cell.totalShipCount[fd['featureName']] += parseInt(statistic.shipCount);
+            if (fd.featureDataType == 'ThreeKeyMap') {
+                cell.totalShipCount[fd.featureName] = 0;
+                $.each(fd.data, function(key1, value1) {
+                    $.each(value1, function(key2, statistic) {
+                        cell.totalShipCount[fd['featureName']] += parseInt(statistic.shipCount);
+                    })
                 })
-            })
+            } else if (fd.featureDataType == 'FourKeyMap') {
+                cell.totalShipCount[fd.featureName] = 0;
+                $.each(fd.data, function(key1, value1) {
+                    $.each(value1, function(key2, value2) {
+                        $.each(value2, function(key3, statistic) {
+                            cell.totalShipCount[fd['featureName']] += parseInt(statistic.shipCount);
+                        })
+                    })
+                })
+            }
         });
     },
 
@@ -109,6 +120,138 @@ var featureModule = {
         cellData.append("<h5>No cell selected.</h5>");
     },
 
+    userOutputCreateThreeKeyMap: function (parentNode, fd, totalShipCount) {
+        var meaningOfKey1 = fd.meaningOfKey1.replace('ship','');
+        var meaningOfKey2 = fd.meaningOfKey2.replace('ship','');
+
+        var tableHtml = "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"dataTable\" style=\”width: 260px;\” id=\"feature-table\">";
+        tableHtml += "<thead>";
+        tableHtml += "<tr>";
+        tableHtml += "<th>" + meaningOfKey1 + " &#92; " + meaningOfKey2 + "</th>";
+        for (var i = 1; i < 10; i++) {
+            tableHtml += "<th>" + i + "</th>";
+        }
+        tableHtml += "</tr>";
+        tableHtml += "</thead>";
+        tableHtml += "<tbody>";
+        for (var i1 = 1; i1 < 10; i1++) {
+            tableHtml += "<tr>";
+            tableHtml += "<td>" + i1 + "</td>";
+            for (var i2 = 1; i2 < 10; i2++) {
+                tableHtml += "<td>";
+                var data = fd.data;
+                if (data) {
+                    var k1 = data[i1];
+                    if (k1) {
+                        var k2 = data[i1][i2];
+                        if (k2) {
+                            var pd = 100 * data[i1][i2].shipCount / totalShipCount;
+                            var stats = (Math.round(pd * 100) / 100).toFixed(2);
+                            if (stats) {
+                                tableHtml += stats + "%";
+                            }
+                        }
+                    }
+                }
+                tableHtml += "</td>";
+            }
+            tableHtml += "</tr>";
+        }
+        tableHtml += "</tbody>";
+        tableHtml += "</table>";
+
+        parentNode.append(tableHtml);
+        parentNode.append("<div>Total ship count is " + totalShipCount + ".</div>");
+
+        parentNode.find('#feature-table').dataTable({
+            "bFilter": false,
+            "bInfo": false,
+            "bPaginate": false,
+            "bLengthChange": false,
+            "bSort": false,
+            "bAutoWidth": false
+        });
+    },
+
+    userOutputCreateFourKeyMap: function (parentNode, fd, totalShipCount) {
+        var meaningOfKey1 = fd.meaningOfKey1.replace('ship','');
+        var meaningOfKey2 = fd.meaningOfKey2.replace('ship','');
+        var meaningOfKey3 = fd.meaningOfKey3;
+
+        var tableHtml = "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"dataTable\" style=\”width: 260px;\” id=\"feature-table\">";
+        tableHtml += "<thead>";
+        tableHtml += "<tr>";
+        tableHtml += "<th>" + meaningOfKey1 + "</th>"
+        tableHtml += "<th>" + meaningOfKey2 + "</th>"
+        tableHtml += "<th>" + meaningOfKey3 + "</th>"
+        tableHtml += "<th>" + "shipCount" + "</th>"
+        tableHtml += "<th>" + "pd" + "</th>"
+        tableHtml += "</tr>";
+        tableHtml += "</thead>";
+        tableHtml += "<tbody>";
+
+        $.each(fd.data, function(key1, value1) {
+            $.each(value1, function(key2, value2) {
+                $.each(value2, function(key3, statistic) {
+                    if (statistic) {
+                        var pd = 100 * statistic.shipCount / totalShipCount;
+                        var stats = (Math.round(pd * 100) / 100).toFixed(2);
+                        if (stats) {
+                            tableHtml +=
+                                "<tr>" +
+                                    "<td>" + key1 + "</td>" +
+                                    "<td>" + key2 + "</td>" +
+                                    "<td>" + key3 + "</td>" +
+                                    "<td>" + statistic.shipCount + "</td>" +
+                                    "<td>" + stats + "%</td>" +
+                                    "</tr>";
+                        }
+                    }
+                })
+            })
+        })
+
+        tableHtml += "</tbody>";
+        tableHtml += "</table>";
+
+        parentNode.append(tableHtml);
+        parentNode.append("<div>Total ship count is " + totalShipCount + ".</div>");
+
+        parentNode.find('#feature-table').dataTable({
+            "bFilter": false,
+            "bInfo": false,
+            "bPaginate": false,
+            "bLengthChange": false,
+            "bSort": false,
+            "bAutoWidth": false
+        });
+    },
+
+    userOutputCreateCellDataTabs: function (cellDataDomNode, cell) {
+        cellDataDomNode.append('<div class="tabs" id="cell-data-tabs"><ul></ul></div>');
+
+        $.each(cell.featureData, function (i, fd) {
+            var featureName = fd.featureName;
+            var featureType = fd.featureDataType;
+            var totalShipCount = cell.totalShipCount[featureName];
+
+            $("#cell-data-tabs ul").append('<li><a href="#cell-data-tab-' + i + '">' + featureName + '</a></li>');
+            $("#cell-data-tabs").append('<div id="cell-data-tab-' + i + '"></div>');
+
+            var tabRoot = $("#cell-data-tabs #cell-data-tab-" + i);
+
+            if (featureType == 'ThreeKeyMap') {
+                featureModule.userOutputCreateThreeKeyMap(tabRoot, fd, totalShipCount);
+            } else if (featureType == 'FourKeyMap') {
+                featureModule.userOutputCreateFourKeyMap(tabRoot, fd, totalShipCount);
+            } else {
+                tabRoot.append("Cannot display cell data of type " + featureType + ".");
+            }
+        });
+
+        $('.tabs#cell-data-tabs').tabs();
+    },
+
     userOutputShowCellData: function (cell) {
         var north = OpenLayers.Util.getFormattedLonLat(cell.north, 'lat');
         var east = OpenLayers.Util.getFormattedLonLat(cell.east, 'lon');
@@ -120,66 +263,7 @@ var featureModule = {
         cellData.empty();
         cellData.append("<h5>Cell id " + cell.cellId + " (" + north + "," + west + ") - (" + south + "," + east + ")</h5>");
 
-        $.each(cell.featureData, function (i, fd) {
-            var featureName = fd.featureName;
-            var featureType = fd.featureDataType;
-            var totalShipCount = cell.totalShipCount[featureName];
-
-            cellData.append('<br/><b>' + featureName + '</b><br/>');
-
-            if (featureType == 'ThreeKeyMap') {
-                var meaningOfKey1 = fd.meaningOfKey1.replace('ship','');
-                var meaningOfKey2 = fd.meaningOfKey2.replace('ship','');
-
-                var tableHtml = "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"dataTable\" style=\”width: 260px;\” id=\"featureTable\">";
-                tableHtml += "<thead>";
-                tableHtml += "<tr>";
-                tableHtml += "<th>" + meaningOfKey1 + " &#92; " + meaningOfKey2 + "</th>";
-                for (var i = 1; i < 10; i++) {
-                    tableHtml += "<th>" + i + "</th>";
-                }
-                tableHtml += "</tr>";
-                tableHtml += "</thead>";
-                tableHtml += "<tbody>";
-                for (var i1 = 1; i1 < 10; i1++) {
-                    tableHtml += "<tr>";
-                    tableHtml += "<td>" + i1 + "</td>";
-                    for (var i2 = 1; i2 < 10; i2++) {
-                        tableHtml += "<td>";
-                        var data = fd.data;
-                        if (data) {
-                            var k1 = data[i1];
-                            if (k1) {
-                                var k2 = data[i1][i2];
-                                if (k2) {
-                                    var pd = 100 * data[i1][i2].shipCount / totalShipCount;
-                                    var stats = (Math.round(pd * 100) / 100).toFixed(2);
-                                    if (stats) {
-                                        tableHtml += stats + "%";
-                                    }
-                                }
-                            }
-                        }
-                        tableHtml += "</td>";
-                    }
-                    tableHtml += "</tr>";
-                }
-                tableHtml += "</tbody>";
-                tableHtml += "</table>";
-            }
-            tableHtml = "<div>(total ship count is " + totalShipCount + ")</div>" + tableHtml;
-            cellData.append(tableHtml);
-        });
-
-        $('#featureTable').dataTable({
-            "bFilter": false,
-            "bInfo": false,
-            "bPaginate": false,
-            "bLengthChange": false,
-            "bSort": false,
-            "bAutoWidth": false
-        });
-
+        featureModule.userOutputCreateCellDataTabs(cellData, cell);
     },
 
     userOutputMetadata: function () {

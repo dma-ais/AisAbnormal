@@ -12,8 +12,9 @@ div.useroutput {
     font-size: smaller;
 }
 
-div#featureTable_wrapper {
+div.dataTables_wrapper{
     width: 600px;
+    display: table;
 }
 
 div#map {
