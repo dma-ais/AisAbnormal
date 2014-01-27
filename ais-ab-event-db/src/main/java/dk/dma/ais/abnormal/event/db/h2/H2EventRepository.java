@@ -17,6 +17,7 @@
 package dk.dma.ais.abnormal.event.db.h2;
 
 import dk.dma.ais.abnormal.event.db.EventRepository;
+import dk.dma.ais.abnormal.event.db.domain.AbnormalCourseOverGroundEvent;
 import dk.dma.ais.abnormal.event.db.domain.AbnormalShipSizeOrTypeEvent;
 import dk.dma.ais.abnormal.event.db.domain.Behaviour;
 import dk.dma.ais.abnormal.event.db.domain.Event;
@@ -62,6 +63,7 @@ public class H2EventRepository implements EventRepository {
                     //.setProperty("hibernate.show_sql", "true")
                     .setProperty("hibernate.hbm2ddl.auto", "update")
                     .setProperty("hibernate.order_updates", "true")
+                    .addAnnotatedClass(AbnormalCourseOverGroundEvent.class)
                     .addAnnotatedClass(AbnormalShipSizeOrTypeEvent.class)
                     .addAnnotatedClass(SuddenSpeedChangeEvent.class)
                     .addAnnotatedClass(Vessel.class)
