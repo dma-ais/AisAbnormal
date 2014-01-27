@@ -27,10 +27,10 @@ import java.util.TreeMap;
 /**
  *
  * This is a memory-consumption optimised implementation of ThreeKeyMap intended to store
- * AIS feature statistics of type ShipTypeAndSizeData for one grid cell.
+ * AIS feature statistics of type ShipTypeAndSizeFeatureData for one grid cell.
  *
  */
-public class ShipTypeAndSizeData implements FeatureData, ThreeKeyMap {
+public class ShipTypeAndSizeFeatureData implements FeatureData, ThreeKeyMap {
 
     private TShortIntHashMap data = new TShortIntHashMap(1);
 
@@ -43,11 +43,11 @@ public class ShipTypeAndSizeData implements FeatureData, ThreeKeyMap {
 
     public static final String STAT_SHIP_COUNT = "shipCount";
 
-    public static ShipTypeAndSizeData create() {
-        return new ShipTypeAndSizeData(Categorizer.NUM_SHIP_TYPE_CATEGORIES - 1, Categorizer.NUM_SHIP_SIZE_CATEGORIES - 1, 1);
+    public static ShipTypeAndSizeFeatureData create() {
+        return new ShipTypeAndSizeFeatureData(Categorizer.NUM_SHIP_TYPE_CATEGORIES - 1, Categorizer.NUM_SHIP_SIZE_CATEGORIES - 1, 1);
     }
 
-    protected ShipTypeAndSizeData(int maxKey1, int maxKey2, int maxNumKey3) {
+    protected ShipTypeAndSizeFeatureData(int maxKey1, int maxKey2, int maxNumKey3) {
         if (maxKey1 <= 0) {
             throw new IllegalArgumentException("maxKey1 <= 0 not supported.");
         }

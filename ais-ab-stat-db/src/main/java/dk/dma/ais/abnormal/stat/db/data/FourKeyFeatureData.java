@@ -17,7 +17,6 @@
 package dk.dma.ais.abnormal.stat.db.data;
 
 import com.google.common.primitives.Ints;
-import dk.dma.ais.abnormal.util.Categorizer;
 import gnu.trove.iterator.TShortIterator;
 import gnu.trove.map.hash.TShortIntHashMap;
 
@@ -27,10 +26,10 @@ import java.util.TreeMap;
 /**
  *
  * This is a memory-consumption optimised implementation of FourKeyMap intended to store
- * AIS feature statistics of type CourseOverGroundData for one grid cell.
+ * AIS feature statistics for one grid cell.
  *
  */
-public class CourseOverGroundData implements FeatureData, FourKeyMap {
+public abstract class FourKeyFeatureData implements FeatureData, FourKeyMap {
 
     private final TShortIntHashMap data;
 
@@ -38,42 +37,7 @@ public class CourseOverGroundData implements FeatureData, FourKeyMap {
     final byte MAX_KEY_2;
     final byte MAX_KEY_3;
 
-    private static final String MEANING_OF_KEY_1 = "shipType";
-    private static final String MEANING_OF_KEY_2 = "shipSize";
-    private static final String MEANING_OF_KEY_3 = "cogInterval";
-    private static final String MEANING_OF_KEY_4 = "statName";
-
-    public static final String STAT_SHIP_COUNT = "shipCount";
-
-    @Override
-    @SuppressWarnings("unused")
-    public String getMeaningOfKey1() {
-        return MEANING_OF_KEY_1;
-    }
-
-    @Override
-    @SuppressWarnings("unused")
-    public String getMeaningOfKey2() {
-        return MEANING_OF_KEY_2;
-    }
-
-    @Override
-    @SuppressWarnings("unused")
-    public String getMeaningOfKey3() {
-        return MEANING_OF_KEY_3;
-    }
-
-    @Override
-    @SuppressWarnings("unused")
-    public String getMeaningOfKey4() {
-        return MEANING_OF_KEY_4;
-    }
-
-    public static CourseOverGroundData create() {
-        return new CourseOverGroundData(Categorizer.NUM_SHIP_TYPE_CATEGORIES - 1, Categorizer.NUM_SHIP_SIZE_CATEGORIES - 1, Categorizer.NUM_COURSE_OVER_GROUND_CATEGORIES - 1, 1);
-    }
-
-    protected CourseOverGroundData(int maxKey1, int maxKey2, int maxKey3, int maxNumKey4) {
+    protected FourKeyFeatureData(int maxKey1, int maxKey2, int maxKey3, int maxNumKey4) {
         if (maxKey1 <= 0) {
             throw new IllegalArgumentException("maxKey1 <= 0 not supported.");
         }
@@ -142,36 +106,38 @@ public class CourseOverGroundData implements FeatureData, FourKeyMap {
         TShortIterator keys = data.keySet().iterator();
         while(keys.hasNext()) {
             short key = keys.next();
-            int shipTypeBucket = extractKey1(key);
-            int shipSizeBucket = extractKey2(key);
-            int cogBucket      = extractKey3(key);
+            int key1 = extractKey1(key);
+            int key2 = extractKey2(key);
+            int key3 = extractKey3(key);
 
-            TreeMap<Integer, TreeMap<Integer, HashMap<String, Integer>>> level1 = root.get(shipTypeBucket);
+            TreeMap<Integer, TreeMap<Integer, HashMap<String, Integer>>> level1 = root.get(key1);
             if (level1 == null) {
                 level1 = new TreeMap<>();
-                root.put(shipTypeBucket, level1);
+                root.put(key1, level1);
             }
 
-            TreeMap<Integer, HashMap<String, Integer>> level2 = level1.get(shipSizeBucket);
+            TreeMap<Integer, HashMap<String, Integer>> level2 = level1.get(key2);
             if (level2 == null) {
                 level2 = new TreeMap<>();
-                level1.put(shipSizeBucket, level2);
+                level1.put(key2, level2);
             }
 
-            HashMap<String, Integer> level3 = level2.get(cogBucket);
+            HashMap<String, Integer> level3 = level2.get(key3);
             if (level3 == null) {
                 level3 = new HashMap<>();
-                level2.put(cogBucket, level3);
+                level2.put(key3, level3);
             }
 
-            Integer value = getValue(shipTypeBucket, shipSizeBucket, cogBucket, STAT_SHIP_COUNT);
+            Integer value = getValue(key1, key2, key3, getNameOfOnlySupportedValueOfKey4());
             if (value != null) {
-                level3.put(STAT_SHIP_COUNT, value);
+                level3.put(getNameOfOnlySupportedValueOfKey4(), value);
             }
         }
 
         return root;
     }
+
+    protected abstract String getNameOfOnlySupportedValueOfKey4();
 
     short computeMapKey(int key1, int key2, int key3, String key4) {
         if (key1 > MAX_KEY_1) {
@@ -183,7 +149,7 @@ public class CourseOverGroundData implements FeatureData, FourKeyMap {
         if (key3 > MAX_KEY_3) {
             throw new IllegalArgumentException("key3 must be 0-" + MAX_KEY_3 + ".");
         }
-        if (! STAT_SHIP_COUNT.equals(key4)) {
+        if (! getNameOfOnlySupportedValueOfKey4().equals(key4)) {
             throw new IllegalArgumentException("key4 '" + key4 + "' is not supported.");
         }
 

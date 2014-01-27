@@ -19,7 +19,7 @@ import com.google.inject.Inject;
 import com.google.inject.servlet.RequestScoped;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
-import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeData;
+import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeFeatureData;
 import dk.dma.enav.model.geometry.Area;
 import dk.dma.enav.model.geometry.BoundingBox;
 import dk.dma.enav.model.geometry.CoordinateSystem;
@@ -156,10 +156,10 @@ public class CellResource {
 
         for (double lon = 12.0; lon < 12.50; lon += 0.05) {
             for (double lat = 56.0; lat < 56.50; lat += 0.05) {
-                ShipTypeAndSizeData feature1Data = ShipTypeAndSizeData.create();
+                ShipTypeAndSizeFeatureData feature1Data = ShipTypeAndSizeFeatureData.create();
                 feature1Data.setValue((short) 1, (short) 1, "stat1", (Integer) 7);
 
-                ShipTypeAndSizeData feature2Data = ShipTypeAndSizeData.create();
+                ShipTypeAndSizeFeatureData feature2Data = ShipTypeAndSizeFeatureData.create();
                 feature2Data.setValue((short) 1, (short) 1, "statA", (Integer) 9);
                 feature2Data.setValue((short) 1, (short) 2, "statA", (Integer) 8);
                 feature2Data.setValue((short) 2, (short) 1, "statA", (Integer) 7);

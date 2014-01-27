@@ -22,6 +22,7 @@ import com.google.inject.assistedinject.Assisted;
 import dk.dma.ais.abnormal.stat.features.CourseOverGroundFeature;
 import dk.dma.ais.abnormal.stat.features.Feature;
 import dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature;
+import dk.dma.ais.abnormal.stat.features.SpeedOverGroundFeature;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.concurrency.stripedexecutor.StripedExecutorService;
 import dk.dma.ais.filter.ReplayDownSampleFilter;
@@ -151,6 +152,7 @@ public class PacketHandlerImpl implements PacketHandler {
         this.features = new ImmutableSet.Builder<Feature>()
             .add(injector.getInstance(ShipTypeAndSizeFeature.class))
             .add(injector.getInstance(CourseOverGroundFeature.class))
+            .add(injector.getInstance(SpeedOverGroundFeature.class))
             .build();
 
         Iterator<Feature> featureIterator = this.features.iterator();

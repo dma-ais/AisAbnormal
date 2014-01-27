@@ -87,7 +87,7 @@ var featureModule = {
         cellCoords.push(point);
 
         var strokeColor = "#aaaaaa";
-        var totalShipCount = cell.totalShipCount["ShipTypeAndSizeData"];
+        var totalShipCount = cell.totalShipCount["ShipTypeAndSizeFeatureData"];
         if (totalShipCount >= 1000) {
             strokeColor = "#66cc66";
         }
@@ -235,7 +235,7 @@ var featureModule = {
             var featureType = fd.featureDataType;
             var totalShipCount = cell.totalShipCount[featureName];
 
-            $("#cell-data-tabs ul").append('<li><a href="#cell-data-tab-' + i + '">' + featureName + '</a></li>');
+            $("#cell-data-tabs ul").append('<li><a href="#cell-data-tab-' + i + '">' + featureName.replace('FeatureData','') + '</a></li>');
             $("#cell-data-tabs").append('<div id="cell-data-tab-' + i + '"></div>');
 
             var tabRoot = $("#cell-data-tabs #cell-data-tab-" + i);

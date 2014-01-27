@@ -26,10 +26,10 @@ import java.util.TreeMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class ShipTypeAndSizeDataTest {
+public class ShipTypeAndSizeFeatureDataTest {
 
 
-    ShipTypeAndSizeData featureData;
+    ShipTypeAndSizeFeatureData featureData;
 
     @Before
     public void initTest() {
@@ -37,54 +37,54 @@ public class ShipTypeAndSizeDataTest {
         final int MAX_KEY_2 = Categorizer.NUM_SHIP_SIZE_CATEGORIES - 1;  /* 1-6 -> 0..5 */
         final int MAX_NUM_KEY_3 = 1;
 
-        featureData = ShipTypeAndSizeData.create();
+        featureData = ShipTypeAndSizeFeatureData.create();
     }
 
     @Test
     public void canStoreAndRetrieveSingleStatistic() {
-        featureData.setValue(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT, 42);
+        featureData.setValue(3, 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT, 42);
 
-        assertEquals((Integer) 42, featureData.getValue(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertNull(featureData.getValue(2, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertNull(featureData.getValue(3, 2, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals((Integer) 42, featureData.getValue(3, 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
+        assertNull(featureData.getValue(2, 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
+        assertNull(featureData.getValue(3, 2, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
     }
 
     @Test
     public void canIncrementInitializedStatistic() {
-        featureData.setValue(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT, 42);
-        featureData.incrementValue(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT);
+        featureData.setValue(3, 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT, 42);
+        featureData.incrementValue(3, 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT);
 
-        assertEquals((Integer) 43, featureData.getValue(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals((Integer) 43, featureData.getValue(3, 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
     }
 
     @Test
     public void canIncrementUninitializedStatistic() {
-        featureData.incrementValue(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT);
-        assertEquals((Integer) 1, featureData.getValue(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        featureData.incrementValue(3, 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT);
+        assertEquals((Integer) 1, featureData.getValue(3, 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
 
-        featureData = ShipTypeAndSizeData.create();
-        featureData.incrementValue(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT);
-        featureData.incrementValue(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT);
-        assertEquals((Integer) 2, featureData.getValue(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        featureData = ShipTypeAndSizeFeatureData.create();
+        featureData.incrementValue(3, 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT);
+        featureData.incrementValue(3, 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT);
+        assertEquals((Integer) 2, featureData.getValue(3, 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
     }
 
     @Test
     public void canSumFor() {
-        featureData.setValue(1, 3, ShipTypeAndSizeData.STAT_SHIP_COUNT, 17);
-        featureData.setValue(2, 3, ShipTypeAndSizeData.STAT_SHIP_COUNT, 42);
-        featureData.setValue(3, 5, ShipTypeAndSizeData.STAT_SHIP_COUNT, 22);
-        featureData.setValue(4, 0, ShipTypeAndSizeData.STAT_SHIP_COUNT, 431);
+        featureData.setValue(1, 3, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT, 17);
+        featureData.setValue(2, 3, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT, 42);
+        featureData.setValue(3, 5, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT, 22);
+        featureData.setValue(4, 0, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT, 431);
 
-        assertEquals(17+42+22+431, featureData.getSumFor(ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals(17+42+22+431, featureData.getSumFor(ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
     }
 
     @Test
     public void getData() {
-        featureData.setValue(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT, 42);
+        featureData.setValue(3, 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT, 42);
 
         TreeMap<Integer,TreeMap<Integer,HashMap<String,Integer>>> data = featureData.getData();
 
-        assertEquals(42, (int) data.get(3).get(1).get(ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals(42, (int) data.get(3).get(1).get(ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
         assertNull(data.get(3).get(2));
         assertNull(data.get(2));
         assertEquals(1, data.keySet().size());
@@ -93,15 +93,15 @@ public class ShipTypeAndSizeDataTest {
 
     @Test
     public void computeKey() {
-        assertEquals(0, featureData.computeMapKey(0, 0, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertEquals(5, featureData.computeMapKey(0, 5, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertEquals(6, featureData.computeMapKey(1, 0, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertEquals(7, featureData.computeMapKey(1, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertEquals(12, featureData.computeMapKey(2, 0, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertEquals(17, featureData.computeMapKey(2, 5, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertEquals(18, featureData.computeMapKey(3, 0, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertEquals(19, featureData.computeMapKey(3, 1, ShipTypeAndSizeData.STAT_SHIP_COUNT));
-        assertEquals(35, featureData.computeMapKey(5, 5, ShipTypeAndSizeData.STAT_SHIP_COUNT));
+        assertEquals(0, featureData.computeMapKey(0, 0, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
+        assertEquals(5, featureData.computeMapKey(0, 5, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
+        assertEquals(6, featureData.computeMapKey(1, 0, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
+        assertEquals(7, featureData.computeMapKey(1, 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
+        assertEquals(12, featureData.computeMapKey(2, 0, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
+        assertEquals(17, featureData.computeMapKey(2, 5, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
+        assertEquals(18, featureData.computeMapKey(3, 0, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
+        assertEquals(19, featureData.computeMapKey(3, 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
+        assertEquals(35, featureData.computeMapKey(5, 5, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
     }
 
     @Test

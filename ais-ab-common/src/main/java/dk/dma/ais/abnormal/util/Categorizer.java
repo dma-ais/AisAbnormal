@@ -71,4 +71,27 @@ public final class Categorizer {
         return (short) ((cog / 30) + 1);
     }
 
+    public static short mapSpeedOverGroundToCategory(float sog) {
+        short category;
+
+        if (sog >= 0 && sog < 1) {
+            category = 1;
+        } else if (sog >= 1 && sog < 5) {
+            category = 2;
+        } else if (sog >= 5 && sog < 10) {
+            category = 3;
+        } else if (sog >= 10 && sog < 15) {
+            category = 4;
+        } else if (sog >= 15 && sog < 20) {
+            category = 5;
+        } else if (sog >= 20 && sog < 30) {
+            category = 6;
+        } else if (sog >= 30 && sog < 50) {
+            category = 7;
+        } else {
+            category = 8;
+        }
+
+        return category;
+    }
 }

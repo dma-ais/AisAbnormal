@@ -23,7 +23,7 @@ import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.h2.H2EventRepository;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.DatasetMetaData;
-import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeData;
+import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeFeatureData;
 import dk.dma.ais.abnormal.stat.db.mapdb.FeatureDataRepositoryMapDB;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.TrackingServiceImpl;
@@ -157,7 +157,7 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
         }
 
         // Check ShipTypeAndSizeFeature
-        ShipTypeAndSizeData shipSizeAndTypeFeature = (ShipTypeAndSizeData) featureDataRepository.getFeatureDataForRandomCell("ShipTypeAndSizeFeature");
+        ShipTypeAndSizeFeatureData shipSizeAndTypeFeature = (ShipTypeAndSizeFeatureData) featureDataRepository.getFeatureDataForRandomCell("ShipTypeAndSizeFeature");
 
         return valid;
     }

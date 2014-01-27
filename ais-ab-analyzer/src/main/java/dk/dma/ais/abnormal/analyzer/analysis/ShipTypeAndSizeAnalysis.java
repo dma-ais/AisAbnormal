@@ -26,7 +26,7 @@ import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.builders.TrackingPointBuilder;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
-import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeData;
+import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeFeatureData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
@@ -188,10 +188,10 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
 
         FeatureData shipSizeAndTypeData = getFeatureDataRepository().getFeatureData("ShipTypeAndSizeFeature", cellId);
 
-        if (shipSizeAndTypeData instanceof ShipTypeAndSizeData) {
-            Integer totalCount  = ((ShipTypeAndSizeData) shipSizeAndTypeData).getSumFor("shipCount");
+        if (shipSizeAndTypeData instanceof ShipTypeAndSizeFeatureData) {
+            Integer totalCount  = ((ShipTypeAndSizeFeatureData) shipSizeAndTypeData).getSumFor("shipCount");
             if (totalCount > TOTAL_COUNT_THRESHOLD) {
-                Integer shipCount = ((ShipTypeAndSizeData) shipSizeAndTypeData).getValue(shipTypeBucket, shipSizeBucket, ShipTypeAndSizeData.STAT_SHIP_COUNT);
+                Integer shipCount = ((ShipTypeAndSizeFeatureData) shipSizeAndTypeData).getValue(shipTypeBucket, shipSizeBucket, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT);
                 if (shipCount == null) {
                     shipCount = 0;
                 }

@@ -19,7 +19,7 @@ package dk.dma.ais.abnormal.stat.db.data;
 import dk.dma.ais.abnormal.util.Categorizer;
 import org.junit.Before;
 
-public class CourseOverGroundDataTest extends FourKeyFeatureDataTest<CourseOverGroundFeatureData> {
+public class SpeedOverGroundDataTest extends FourKeyFeatureDataTest<SpeedOverGroundFeatureData> {
 
     @Before
     public void initTest() {
@@ -28,7 +28,7 @@ public class CourseOverGroundDataTest extends FourKeyFeatureDataTest<CourseOverG
         final int MAX_KEY_3 = Categorizer.NUM_COURSE_OVER_GROUND_CATEGORIES - 1;  /* 1-12 -> 0..11 */
         final int MAX_NUM_KEY_4 = 1;
 
-        featureData = new CourseOverGroundFeatureData(MAX_KEY_1, MAX_KEY_2, MAX_KEY_3, MAX_NUM_KEY_4);
+        featureData = new SpeedOverGroundFeatureData(MAX_KEY_1, MAX_KEY_2, MAX_KEY_3, MAX_NUM_KEY_4);
     }
 
 }

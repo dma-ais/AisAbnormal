@@ -18,8 +18,8 @@ package dk.dma.ais.abnormal.stat.features;
 
 import dk.dma.ais.abnormal.stat.AppStatisticsService;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
-import dk.dma.ais.abnormal.stat.db.data.CourseOverGroundFeatureData;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
+import dk.dma.ais.abnormal.stat.db.data.SpeedOverGroundFeatureData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
@@ -34,7 +34,7 @@ import java.util.TreeMap;
 
 import static org.junit.Assert.assertEquals;
 
-public class CourseOverGroundFeatureTest {
+public class SpeedOverGroundFeatureTest {
     final JUnit4Mockery context = new JUnit4Mockery();
 
     TrackingService trackingService;
@@ -44,7 +44,7 @@ public class CourseOverGroundFeatureTest {
     Track track;
     CellIdChangedEvent event;
 
-    CourseOverGroundFeature feature;
+    SpeedOverGroundFeature feature;
 
     @Before
     public void beforeTest() {
@@ -58,11 +58,10 @@ public class CourseOverGroundFeatureTest {
         track.setProperty(Track.CELL_ID, 5674365784L);
         track.setProperty(Track.SHIP_TYPE, 40);     /* bucket 3 */
         track.setProperty(Track.VESSEL_LENGTH, 75); /* bucket 3 */
-        track.setProperty(Track.SPEED_OVER_GROUND, Float.valueOf((float) 15.0));
-        track.setProperty(Track.COURSE_OVER_GROUND, Float.valueOf((float) 127.6)); /* bucket 5 */
+        track.setProperty(Track.SPEED_OVER_GROUND, Float.valueOf((float) 15.0)); /* bucket 5 */
         event = new CellIdChangedEvent(track, null);
 
-        feature = new CourseOverGroundFeature(statisticsService, trackingService, featureDataRepository);
+        feature = new SpeedOverGroundFeature(statisticsService, trackingService, featureDataRepository);
     }
 
     @Test
@@ -71,10 +70,10 @@ public class CourseOverGroundFeatureTest {
         final ArgumentCaptor<FeatureData> featureData = ArgumentCaptor.forClass(FeatureData.class);
         context.checking(new Expectations() {{
             oneOf(trackingService).registerSubscriber(feature);
-            ignoring(statisticsService).incFeatureStatistics(with(CourseOverGroundFeature.FEATURE_NAME), with(any(String.class)));
+            ignoring(statisticsService).incFeatureStatistics(with(SpeedOverGroundFeature.FEATURE_NAME), with(any(String.class)));
 
-            oneOf(featureDataRepository).getFeatureData(with(CourseOverGroundFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)));
-            oneOf(featureDataRepository).putFeatureData(with(CourseOverGroundFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)), with(featureData.getMatcher()));
+            oneOf(featureDataRepository).getFeatureData(with(SpeedOverGroundFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)));
+            oneOf(featureDataRepository).putFeatureData(with(SpeedOverGroundFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)), with(featureData.getMatcher()));
         }});
 
         // Execute
@@ -82,7 +81,7 @@ public class CourseOverGroundFeatureTest {
         feature.onCellIdChanged(event);
 
         // Main assertations
-        CourseOverGroundFeatureData capturedFeatureData = (CourseOverGroundFeatureData) featureData.getCapturedObject();
+        SpeedOverGroundFeatureData capturedFeatureData = (SpeedOverGroundFeatureData) featureData.getCapturedObject();
 
         context.assertIsSatisfied();
 
@@ -93,42 +92,42 @@ public class CourseOverGroundFeatureTest {
         assertEquals(3 - 1 /* -1 because idx counts from zero */, shipTypeBucket);
         int shipSizeBucket = data.get(shipTypeBucket).firstKey();
         assertEquals(3 - 1 /* -1 because idx counts from zero */, shipSizeBucket);
-        int cogBucket = data.get(shipTypeBucket).get(shipSizeBucket).firstKey();
-        assertEquals(5 - 1 /* -1 because idx counts from zero */, cogBucket);
+        int sogBucket = data.get(shipTypeBucket).get(shipSizeBucket).firstKey();
+        assertEquals(5 - 1 /* -1 because idx counts from zero */, sogBucket);
 
-        int numberOfStats = data.get(shipTypeBucket).get(shipSizeBucket).get(cogBucket).size();
+        int numberOfStats = data.get(shipTypeBucket).get(shipSizeBucket).get(sogBucket).size();
         assertEquals(1, numberOfStats);
-        String statName = data.get(shipTypeBucket).get(shipSizeBucket).get(cogBucket).keySet().iterator().next();
-        Object statValue = data.get(shipTypeBucket).get(shipSizeBucket).get(cogBucket).get(statName);
+        String statName = data.get(shipTypeBucket).get(shipSizeBucket).get(sogBucket).keySet().iterator().next();
+        Object statValue = data.get(shipTypeBucket).get(shipSizeBucket).get(sogBucket).get(statName);
         assertEquals(Integer.class, statValue.getClass());
         assertEquals(1, statValue);
 
         // Other assertations now we're here
-        assertEquals(CourseOverGroundFeatureData.class, featureData.getCapturedObject().getClass());
+        assertEquals(SpeedOverGroundFeatureData.class, featureData.getCapturedObject().getClass());
         assertEquals("shipType", capturedFeatureData.getMeaningOfKey1());
         assertEquals("shipSize", capturedFeatureData.getMeaningOfKey2());
         assertEquals(TreeMap.class, featureData.getCapturedObject().getData().getClass());
-        assertEquals(CourseOverGroundFeatureData.STAT_SHIP_COUNT, statName);
+        assertEquals(SpeedOverGroundFeatureData.STAT_SHIP_COUNT, statName);
     }
 
     @Test
     public void testExistingShipCountIsUpdated() {
-        final CourseOverGroundFeatureData existingFeatureData = CourseOverGroundFeatureData.create();
-        existingFeatureData.setValue(3 - 1 /* -1 because idx counts from zero */, 3 - 1 /* -1 because idx counts from zero */, 5 - 1 /* -1 because idx counts from zero */, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        final SpeedOverGroundFeatureData existingFeatureData = SpeedOverGroundFeatureData.create();
+        existingFeatureData.setValue(3 - 1 /* -1 because idx counts from zero */, 3 - 1 /* -1 because idx counts from zero */, 5 - 1 /* -1 because idx counts from zero */, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
 
         final ArgumentCaptor<FeatureData> featureData1 = ArgumentCaptor.forClass(FeatureData.class);
         final ArgumentCaptor<FeatureData> featureData2 = ArgumentCaptor.forClass(FeatureData.class);
         context.checking(new Expectations() {{
             oneOf(trackingService).registerSubscriber(feature);
-            ignoring(statisticsService).incFeatureStatistics(with(CourseOverGroundFeature.FEATURE_NAME), with(any(String.class)));
+            ignoring(statisticsService).incFeatureStatistics(with(SpeedOverGroundFeature.FEATURE_NAME), with(any(String.class)));
 
-            oneOf(featureDataRepository).getFeatureData(with(CourseOverGroundFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)));
+            oneOf(featureDataRepository).getFeatureData(with(SpeedOverGroundFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)));
             will(returnValue(null));
-            oneOf(featureDataRepository).putFeatureData(with(CourseOverGroundFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)), with(featureData1.getMatcher()));
+            oneOf(featureDataRepository).putFeatureData(with(SpeedOverGroundFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)), with(featureData1.getMatcher()));
 
-            oneOf(featureDataRepository).getFeatureData(with(CourseOverGroundFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)));
+            oneOf(featureDataRepository).getFeatureData(with(SpeedOverGroundFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)));
             will(returnValue(existingFeatureData));
-            oneOf(featureDataRepository).putFeatureData(with(CourseOverGroundFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)), with(featureData2.getMatcher()));
+            oneOf(featureDataRepository).putFeatureData(with(SpeedOverGroundFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)), with(featureData2.getMatcher()));
         }});
 
         // Execute
@@ -138,9 +137,9 @@ public class CourseOverGroundFeatureTest {
 
         // Assert expectations and captured values
         context.assertIsSatisfied();
-        // TODO assertEquals(CourseOverGroundFeature.FEATURE_NAME, featureData2.getCapturedObject().getFeatureName());
-        assertEquals(CourseOverGroundFeatureData.class, featureData2.getCapturedObject().getClass());
-        CourseOverGroundFeatureData capturedFeatureData = (CourseOverGroundFeatureData) featureData2.getCapturedObject();
+        // TODO assertEquals(SpeedOverGroundFeature.FEATURE_NAME, featureData2.getCapturedObject().getFeatureName());
+        assertEquals(SpeedOverGroundFeatureData.class, featureData2.getCapturedObject().getClass());
+        SpeedOverGroundFeatureData capturedFeatureData = (SpeedOverGroundFeatureData) featureData2.getCapturedObject();
         assertEquals("shipType", capturedFeatureData.getMeaningOfKey1());
         assertEquals("shipSize", capturedFeatureData.getMeaningOfKey2());
         assertEquals(TreeMap.class, featureData2.getCapturedObject().getData().getClass());
@@ -150,13 +149,13 @@ public class CourseOverGroundFeatureTest {
         assertEquals(3 - 1 /* -1 because idx counts from zero */, shipTypeBucket);
         int shipSizeBucket = data.get(shipTypeBucket).firstKey();
         assertEquals(3 - 1 /* -1 because idx counts from zero */, shipSizeBucket);
-        int cogBucket = data.get(shipTypeBucket).get(shipSizeBucket).firstKey();
-        assertEquals(5 - 1 /* -1 because idx counts from zero */, cogBucket);
+        int sogBucket = data.get(shipTypeBucket).get(shipSizeBucket).firstKey();
+        assertEquals(5 - 1 /* -1 because idx counts from zero */, sogBucket);
         int numberOfStatsForShipTypeAndShipSize = data.get(shipTypeBucket).get(shipSizeBucket).size();
         assertEquals(1, numberOfStatsForShipTypeAndShipSize);
-        String statName = data.get(shipTypeBucket).get(shipSizeBucket).get(cogBucket).keySet().iterator().next();
-        assertEquals(CourseOverGroundFeatureData.STAT_SHIP_COUNT, statName);
-        Object statValue = data.get(shipTypeBucket).get(shipSizeBucket).get(cogBucket).get(statName);
+        String statName = data.get(shipTypeBucket).get(shipSizeBucket).get(sogBucket).keySet().iterator().next();
+        assertEquals(SpeedOverGroundFeatureData.STAT_SHIP_COUNT, statName);
+        Object statValue = data.get(shipTypeBucket).get(shipSizeBucket).get(sogBucket).get(statName);
         assertEquals(2, statValue);
     }
 }

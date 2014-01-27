@@ -20,7 +20,7 @@ import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.AbnormalShipSizeOrTypeEvent;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
-import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeData;
+import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeFeatureData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
@@ -47,7 +47,7 @@ public class ShipTypeAndSizeAnalysisTest {
     private AppStatisticsService statisticsService;
     private FeatureDataRepository featureDataRepository;
     private EventRepository eventRepository;
-    private ShipTypeAndSizeData featureData;
+    private ShipTypeAndSizeFeatureData featureData;
 
     @Before
     public void prepareTest() {
@@ -60,7 +60,7 @@ public class ShipTypeAndSizeAnalysisTest {
         eventRepository = context.mock(EventRepository.class);
 
         // Mock shipCount table
-        featureData = ShipTypeAndSizeData.create();
+        featureData = ShipTypeAndSizeFeatureData.create();
         featureData.setValue((short) 3, (short) 1, "shipCount", 17);
         featureData.setValue((short) 3, (short) 2, "shipCount", 2);
         featureData.setValue((short) 3, (short) 3, "shipCount", 87);

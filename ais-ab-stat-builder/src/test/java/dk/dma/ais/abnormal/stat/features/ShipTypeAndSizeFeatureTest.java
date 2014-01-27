@@ -19,7 +19,7 @@ package dk.dma.ais.abnormal.stat.features;
 import dk.dma.ais.abnormal.stat.AppStatisticsService;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
-import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeData;
+import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeFeatureData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
@@ -69,8 +69,8 @@ public class ShipTypeAndSizeFeatureTest {
         // Assert expectations and captured values
         context.assertIsSatisfied();
         // TODO assertEquals(ShipTypeAndSizeFeature.FEATURE_NAME, featureData.getCapturedObject().getFeatureName());
-        assertEquals(ShipTypeAndSizeData.class, featureData.getCapturedObject().getClass());
-        ShipTypeAndSizeData capturedFeatureData = (ShipTypeAndSizeData) featureData.getCapturedObject();
+        assertEquals(ShipTypeAndSizeFeatureData.class, featureData.getCapturedObject().getClass());
+        ShipTypeAndSizeFeatureData capturedFeatureData = (ShipTypeAndSizeFeatureData) featureData.getCapturedObject();
         assertEquals("shipType", capturedFeatureData.getMeaningOfKey1());
         assertEquals("shipSize", capturedFeatureData.getMeaningOfKey2());
         assertEquals(TreeMap.class, featureData.getCapturedObject().getData().getClass());
@@ -83,7 +83,7 @@ public class ShipTypeAndSizeFeatureTest {
         int numberOfStatsForShipTypeAndShipSize = data.get(shipType).get(shipSize).size();
         assertEquals(1, numberOfStatsForShipTypeAndShipSize);
         String statName = data.get(shipType).get(shipSize).keySet().iterator().next();
-        assertEquals(ShipTypeAndSizeData.STAT_SHIP_COUNT, statName);
+        assertEquals(ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT, statName);
         Object statValue = data.get(shipType).get(shipSize).get(statName);
         assertEquals(Integer.class, statValue.getClass());
         assertEquals(1, statValue);
@@ -107,8 +107,8 @@ public class ShipTypeAndSizeFeatureTest {
         // Setup expectations
         final ShipTypeAndSizeFeature feature = new ShipTypeAndSizeFeature(statisticsService, trackingService, featureDataRepository);
 
-        final ShipTypeAndSizeData existingFeatureData = ShipTypeAndSizeData.create();
-        existingFeatureData.setValue(3 - 1 /* -1 because idx counts from zero */, 3 - 1 /* -1 because idx counts from zero */, ShipTypeAndSizeData.STAT_SHIP_COUNT, 1);
+        final ShipTypeAndSizeFeatureData existingFeatureData = ShipTypeAndSizeFeatureData.create();
+        existingFeatureData.setValue(3 - 1 /* -1 because idx counts from zero */, 3 - 1 /* -1 because idx counts from zero */, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT, 1);
 
         final ArgumentCaptor<FeatureData> featureData1 = ArgumentCaptor.forClass(FeatureData.class);
         final ArgumentCaptor<FeatureData> featureData2 = ArgumentCaptor.forClass(FeatureData.class);
@@ -131,8 +131,8 @@ public class ShipTypeAndSizeFeatureTest {
         // Assert expectations and captured values
         context.assertIsSatisfied();
         // TODO assertEquals(ShipTypeAndSizeFeature.FEATURE_NAME, featureData2.getCapturedObject().getFeatureName());
-        assertEquals(ShipTypeAndSizeData.class, featureData2.getCapturedObject().getClass());
-        ShipTypeAndSizeData capturedFeatureData = (ShipTypeAndSizeData) featureData2.getCapturedObject();
+        assertEquals(ShipTypeAndSizeFeatureData.class, featureData2.getCapturedObject().getClass());
+        ShipTypeAndSizeFeatureData capturedFeatureData = (ShipTypeAndSizeFeatureData) featureData2.getCapturedObject();
         assertEquals("shipType", capturedFeatureData.getMeaningOfKey1());
         assertEquals("shipSize", capturedFeatureData.getMeaningOfKey2());
         assertEquals(TreeMap.class, featureData2.getCapturedObject().getData().getClass());
@@ -145,7 +145,7 @@ public class ShipTypeAndSizeFeatureTest {
         int numberOfStatsForShipTypeAndShipSize = data.get(shipType).get(shipSize).size();
         assertEquals(1, numberOfStatsForShipTypeAndShipSize);
         String statName = data.get(shipType).get(shipSize).keySet().iterator().next();
-        assertEquals(ShipTypeAndSizeData.STAT_SHIP_COUNT, statName);
+        assertEquals(ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT, statName);
         Object statValue = data.get(shipType).get(shipSize).get(statName);
         assertEquals(2, statValue);
     }

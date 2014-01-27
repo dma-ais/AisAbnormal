@@ -25,9 +25,9 @@ import dk.dma.ais.abnormal.event.db.domain.AbnormalCourseOverGroundEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.builders.TrackingPointBuilder;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
-import dk.dma.ais.abnormal.stat.db.data.CourseOverGroundData;
+import dk.dma.ais.abnormal.stat.db.data.CourseOverGroundFeatureData;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
-import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeData;
+import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeFeatureData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
@@ -195,10 +195,10 @@ public class CourseOverGroundAnalysis extends StatisticalAnalysis {
 
         FeatureData courseOverGroundFeatureData = getFeatureDataRepository().getFeatureData("ShipTypeAndSizeFeature", cellId);
 
-        if (courseOverGroundFeatureData instanceof CourseOverGroundData) {
-            Integer totalCount  = ((CourseOverGroundData) courseOverGroundFeatureData).getSumFor("shipCount");
+        if (courseOverGroundFeatureData instanceof CourseOverGroundFeatureData) {
+            Integer totalCount  = ((CourseOverGroundFeatureData) courseOverGroundFeatureData).getSumFor("shipCount");
             if (totalCount > TOTAL_COUNT_THRESHOLD) {
-                Integer shipCount = ((CourseOverGroundData) courseOverGroundFeatureData).getValue(shipTypeBucket, shipSizeBucket, courseOverGroundBucket, ShipTypeAndSizeData.STAT_SHIP_COUNT);
+                Integer shipCount = ((CourseOverGroundFeatureData) courseOverGroundFeatureData).getValue(shipTypeBucket, shipSizeBucket, courseOverGroundBucket, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT);
                 if (shipCount == null) {
                     shipCount = 0;
                 }

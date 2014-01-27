@@ -21,9 +21,9 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import dk.dma.ais.abnormal.stat.AppStatisticsService;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
-import dk.dma.ais.abnormal.stat.db.data.CourseOverGroundFeatureData;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeFeatureData;
+import dk.dma.ais.abnormal.stat.db.data.SpeedOverGroundFeatureData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
@@ -33,12 +33,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class CourseOverGroundFeature implements Feature {
+public class SpeedOverGroundFeature implements Feature {
 
     /**
      * The logger
      */
-    private static final transient Logger LOG = LoggerFactory.getLogger(CourseOverGroundFeature.class);
+    private static final transient Logger LOG = LoggerFactory.getLogger(SpeedOverGroundFeature.class);
 
     private final transient AppStatisticsService appStatisticsService;
     private final transient FeatureDataRepository featureDataRepository;
@@ -46,10 +46,10 @@ public class CourseOverGroundFeature implements Feature {
 
     private final transient AtomicBoolean started = new AtomicBoolean(false);
 
-    static final String FEATURE_NAME = CourseOverGroundFeature.class.getSimpleName();
+    static final String FEATURE_NAME = SpeedOverGroundFeature.class.getSimpleName();
 
     @Inject
-    public CourseOverGroundFeature(AppStatisticsService appStatisticsService, TrackingService trackingService, FeatureDataRepository featureDataRepository) {
+    public SpeedOverGroundFeature(AppStatisticsService appStatisticsService, TrackingService trackingService, FeatureDataRepository featureDataRepository) {
         this.appStatisticsService = appStatisticsService;
         this.trackingService = trackingService;
         this.featureDataRepository = featureDataRepository;
@@ -76,25 +76,24 @@ public class CourseOverGroundFeature implements Feature {
         Track track = event.getTrack();
         Float sog = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
 
-        if (sog != null && sog >= 2.0) {
+        if (sog != null) {
             Long cellId = (Long) track.getProperty(Track.CELL_ID);
             Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
             Integer shipLength = (Integer) track.getProperty(Track.VESSEL_LENGTH);
-            Float cog = (Float) track.getProperty(Track.COURSE_OVER_GROUND);
 
-            if (isInputValid(cellId, shipType, shipLength, cog)) {
+            if (isInputValid(cellId, shipType, shipLength, sog)) {
                 short shipTypeBucket = Categorizer.mapShipTypeToCategory(shipType);
                 short shipSizeBucket = Categorizer.mapShipLengthToCategory(shipLength);
-                short cogBucket = Categorizer.mapCourseOverGroundToCategory(cog);
+                short sogBucket = Categorizer.mapSpeedOverGroundToCategory(sog);
 
-                incrementFeatureStatistics(cellId, shipTypeBucket, shipSizeBucket, cogBucket);
+                incrementFeatureStatistics(cellId, shipTypeBucket, shipSizeBucket, sogBucket);
 
                 appStatisticsService.incFeatureStatistics(this.getClass().getSimpleName(), "Events processed ok");
             }
         }
     }
 
-    private boolean isInputValid(Long cellId, Integer shipType, Integer shipLength, Float cog) {
+    private boolean isInputValid(Long cellId, Integer shipType, Integer shipLength, Float sog) {
         boolean valid = true;
 
         if (cellId == null) {
@@ -112,24 +111,24 @@ public class CourseOverGroundFeature implements Feature {
             valid = false;
         }
 
-        if (cog == null) {
-            appStatisticsService.incFeatureStatistics(FEATURE_NAME, "Unknown course over ground");
+        if (sog == null) {
+            appStatisticsService.incFeatureStatistics(FEATURE_NAME, "Unknown speed over ground");
             valid = false;
         }
 
         return valid;
     }
 
-    private void incrementFeatureStatistics(long cellId, int shipTypeBucket, int shipSizeBucket, int cogBucket) {
+    private void incrementFeatureStatistics(long cellId, int shipTypeBucket, int shipSizeBucket, int sogBucket) {
         FeatureData featureDataTmp = featureDataRepository.getFeatureData(FEATURE_NAME, cellId);
-        if (!(featureDataTmp instanceof CourseOverGroundFeatureData)) {
+        if (!(featureDataTmp instanceof SpeedOverGroundFeatureData)) {
             LOG.debug("No suitable feature data for cell id " + cellId + " found in repo. Creating new.");
-            featureDataTmp = CourseOverGroundFeatureData.create();
+            featureDataTmp = SpeedOverGroundFeatureData.create();
         }
-        CourseOverGroundFeatureData featureData = (CourseOverGroundFeatureData) featureDataTmp;
+        SpeedOverGroundFeatureData featureData = (SpeedOverGroundFeatureData) featureDataTmp;
 
         // Increment ship count
-        featureData.incrementValue(shipTypeBucket - 1, shipSizeBucket - 1, cogBucket - 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT);
+        featureData.incrementValue(shipTypeBucket - 1, shipSizeBucket - 1, sogBucket - 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT);
 
         LOG.debug("Storing feature data for cellId " + cellId + ", featureName " + FEATURE_NAME);
         featureDataRepository.putFeatureData(FEATURE_NAME, cellId, featureData);

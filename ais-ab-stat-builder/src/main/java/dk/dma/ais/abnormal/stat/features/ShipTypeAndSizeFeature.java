@@ -22,7 +22,7 @@ import com.google.inject.Inject;
 import dk.dma.ais.abnormal.stat.AppStatisticsService;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
-import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeData;
+import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeFeatureData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
@@ -98,13 +98,13 @@ public class ShipTypeAndSizeFeature implements Feature {
         short shipSizeBucket = Categorizer.mapShipLengthToCategory(shipLength);
 
         FeatureData featureDataTmp = featureDataRepository.getFeatureData(FEATURE_NAME, cellId);
-        if (! (featureDataTmp instanceof ShipTypeAndSizeData)) {
+        if (! (featureDataTmp instanceof ShipTypeAndSizeFeatureData)) {
             LOG.debug("No suitable feature data for cell id " + cellId + " found in repo. Creating new.");
-            featureDataTmp = ShipTypeAndSizeData.create();
+            featureDataTmp = ShipTypeAndSizeFeatureData.create();
         }
-        ShipTypeAndSizeData featureData = (ShipTypeAndSizeData) featureDataTmp;
+        ShipTypeAndSizeFeatureData featureData = (ShipTypeAndSizeFeatureData) featureDataTmp;
 
-        featureData.incrementValue(shipTypeBucket - 1, shipSizeBucket - 1, ShipTypeAndSizeData.STAT_SHIP_COUNT);
+        featureData.incrementValue(shipTypeBucket - 1, shipSizeBucket - 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT);
 
         LOG.debug("Storing feature data for cellId " + cellId + ", featureName " + FEATURE_NAME);
         featureDataRepository.putFeatureData(FEATURE_NAME, cellId, featureData);
