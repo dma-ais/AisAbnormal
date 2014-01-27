@@ -18,7 +18,6 @@ package dk.dma.ais.abnormal.stat.db.data;
 
 import dk.dma.ais.abnormal.util.Categorizer;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -72,14 +71,13 @@ public class CourseOverGroundDataTest {
     }
 
     @Test
-    @Ignore
     public void canSumFor() {
         featureData.setValue(1, 3, 4, CourseOverGroundData.STAT_SHIP_COUNT, 17);
         featureData.setValue(2, 3, 7, CourseOverGroundData.STAT_SHIP_COUNT, 42);
         featureData.setValue(3, 5, 1, CourseOverGroundData.STAT_SHIP_COUNT, 22);
-        featureData.setValue(4, 7, 0, CourseOverGroundData.STAT_SHIP_COUNT, 431);
+        featureData.setValue(4, 4, 0, CourseOverGroundData.STAT_SHIP_COUNT, 431);
 
-        // assertEquals(17+42+22+431, featureData.getSumFor(CourseOverGroundData.STAT_SHIP_COUNT));
+        assertEquals(17+42+22+431, featureData.getSumFor(CourseOverGroundData.STAT_SHIP_COUNT));
     }
 
     @Test

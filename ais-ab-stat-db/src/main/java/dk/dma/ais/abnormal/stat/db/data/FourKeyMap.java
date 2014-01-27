@@ -78,4 +78,12 @@ public interface FourKeyMap {
      */
     Integer getValue(int key1, int key2, int key3, String key4);
 
+    /**
+     * Iterate over all combinations of (key1, key2, key3) and sum the values for the given fixed key4.
+     * Return the summed value.
+     *
+     * @param key4 The value of key4.
+     * @return the summed value.
+     */
+    int getSumFor(String key4);
 }

@@ -16,6 +16,7 @@
 
 package dk.dma.ais.abnormal.stat.db.data;
 
+import com.google.common.primitives.Ints;
 import dk.dma.ais.abnormal.util.Categorizer;
 import gnu.trove.iterator.TShortIterator;
 import gnu.trove.map.hash.TShortIntHashMap;
@@ -117,6 +118,11 @@ public class CourseOverGroundData implements FeatureData, FourKeyMap {
         Integer statisticsValue = data.get(key);
         statisticsValue = statisticsValue == data.getNoEntryValue() ? null : statisticsValue;
         return statisticsValue;
+    }
+
+    @Override
+    public int getSumFor(String key4) {
+        return Ints.asList(data.values()).stream().mapToInt(value -> value).sum();
     }
 
     @Override

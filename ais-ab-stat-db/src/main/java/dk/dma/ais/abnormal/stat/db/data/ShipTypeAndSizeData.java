@@ -16,6 +16,7 @@
 
 package dk.dma.ais.abnormal.stat.db.data;
 
+import com.google.common.primitives.Ints;
 import dk.dma.ais.abnormal.util.Categorizer;
 import gnu.trove.iterator.TShortIterator;
 import gnu.trove.map.hash.TShortIntHashMap;
@@ -149,16 +150,7 @@ public class ShipTypeAndSizeData implements FeatureData, ThreeKeyMap {
 
     @Override
     public int getSumFor(String statisticName) {
-        Integer sum = 0;
-
-        for (short shipTypeBucket=0; shipTypeBucket<=MAX_KEY_1; shipTypeBucket++) {
-            for (short shipSizeBucket=0; shipSizeBucket<=MAX_KEY_2; shipSizeBucket++) {
-                short key = computeMapKey(shipTypeBucket, shipSizeBucket, statisticName);
-                sum += data.get(key);
-            }
-        }
-
-        return sum;
+        return Ints.asList(data.values()).stream().mapToInt(value -> value).sum();
     }
 
     short computeMapKey(int key1, int key2, String key3) {
