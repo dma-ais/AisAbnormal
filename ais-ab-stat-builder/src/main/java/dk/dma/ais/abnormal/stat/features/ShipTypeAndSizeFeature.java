@@ -72,6 +72,11 @@ public class ShipTypeAndSizeFeature implements Feature {
 
         Track track = event.getTrack();
 
+        Double sog = (Double) track.getProperty(Track.SPEED_OVER_GROUND);
+        if (sog != null && sog < 2.0) {
+            return; // If track has a sog and it is < 2 - don't run this feature
+        }
+
         Long cellId = (Long) track.getProperty(Track.CELL_ID);
         Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
         Integer shipLength = (Integer) track.getProperty(Track.VESSEL_LENGTH);

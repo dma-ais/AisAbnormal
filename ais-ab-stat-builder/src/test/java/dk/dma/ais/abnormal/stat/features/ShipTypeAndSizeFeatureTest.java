@@ -26,40 +26,55 @@ import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.TreeMap;
 
+import static dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature.FEATURE_NAME;
 import static org.junit.Assert.assertEquals;
 
 public class ShipTypeAndSizeFeatureTest {
     final JUnit4Mockery context = new JUnit4Mockery();
 
-    @Test
-    public void testNewShipCountIsCreated() {
+    TrackingService trackingService;
+    AppStatisticsService statisticsService;
+    FeatureDataRepository featureDataRepository;
+
+    Track track;
+
+    ShipTypeAndSizeFeature feature;
+
+    @Before
+    public void setup() {
         // Mock dependencies
-        final TrackingService trackingService = context.mock(TrackingService.class);
-        final AppStatisticsService statisticsService = context.mock(AppStatisticsService.class);
-        final FeatureDataRepository featureDataRepository = context.mock(FeatureDataRepository.class);
+        trackingService = context.mock(TrackingService.class);
+        statisticsService = context.mock(AppStatisticsService.class);
+        featureDataRepository = context.mock(FeatureDataRepository.class);
 
         // Setup test data
-        final Track track = new Track(1234567);
+        track = new Track(1234567);
         track.setProperty(Track.CELL_ID, 5674365784L);
         track.setProperty(Track.SHIP_TYPE, 40);
         track.setProperty(Track.VESSEL_LENGTH, 75);
+
+        feature = new ShipTypeAndSizeFeature(statisticsService, trackingService, featureDataRepository);
+    }
+
+    @Test
+    public void testNewShipCountIsCreated() {
         Long oldCellId = null;
         CellIdChangedEvent event = new CellIdChangedEvent(track, oldCellId);
 
         // Setup expectations
-        final ShipTypeAndSizeFeature feature = new ShipTypeAndSizeFeature(statisticsService, trackingService, featureDataRepository);
         final ArgumentCaptor<FeatureData> featureData = ArgumentCaptor.forClass(FeatureData.class);
         context.checking(new Expectations() {{
             oneOf(trackingService).registerSubscriber(feature);
-            ignoring(statisticsService).incFeatureStatistics(with(ShipTypeAndSizeFeature.FEATURE_NAME), with(any(String.class)));
+            ignoring(statisticsService).incFeatureStatistics(with(FEATURE_NAME), with(any(String.class)));
 
-            oneOf(featureDataRepository).getFeatureData(with(ShipTypeAndSizeFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)));
-            oneOf(featureDataRepository).putFeatureData(with(ShipTypeAndSizeFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)), with(featureData.getMatcher()));
+            oneOf(featureDataRepository).getFeatureData(with(FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)));
+            oneOf(featureDataRepository).putFeatureData(with(FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)), with(featureData.getMatcher()));
         }});
 
         // Execute
@@ -91,22 +106,10 @@ public class ShipTypeAndSizeFeatureTest {
 
     @Test
     public void testExistingShipCountIsUpdated() {
-        // Mock dependencies
-        final TrackingService trackingService = context.mock(TrackingService.class);
-        final AppStatisticsService statisticsService = context.mock(AppStatisticsService.class);
-        final FeatureDataRepository featureDataRepository = context.mock(FeatureDataRepository.class);
-
-        // Setup test data
-        final Track track = new Track(1234567);
-        track.setProperty(Track.CELL_ID, 5674365784L);
-        track.setProperty(Track.SHIP_TYPE, 40);
-        track.setProperty(Track.VESSEL_LENGTH, 75);
         Long oldCellId = null;
         CellIdChangedEvent event = new CellIdChangedEvent(track, oldCellId);
 
         // Setup expectations
-        final ShipTypeAndSizeFeature feature = new ShipTypeAndSizeFeature(statisticsService, trackingService, featureDataRepository);
-
         final ShipTypeAndSizeFeatureData existingFeatureData = ShipTypeAndSizeFeatureData.create();
         existingFeatureData.setValue(3 - 1 /* -1 because idx counts from zero */, 3 - 1 /* -1 because idx counts from zero */, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT, 1);
 
@@ -114,13 +117,13 @@ public class ShipTypeAndSizeFeatureTest {
         final ArgumentCaptor<FeatureData> featureData2 = ArgumentCaptor.forClass(FeatureData.class);
         context.checking(new Expectations() {{
             oneOf(trackingService).registerSubscriber(feature);
-            ignoring(statisticsService).incFeatureStatistics(with(ShipTypeAndSizeFeature.FEATURE_NAME), with(any(String.class)));
+            ignoring(statisticsService).incFeatureStatistics(with(FEATURE_NAME), with(any(String.class)));
 
-            oneOf(featureDataRepository).getFeatureData(with(ShipTypeAndSizeFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID))); will(returnValue(null));
-            oneOf(featureDataRepository).putFeatureData(with(ShipTypeAndSizeFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)), with(featureData1.getMatcher()));
+            oneOf(featureDataRepository).getFeatureData(with(FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID))); will(returnValue(null));
+            oneOf(featureDataRepository).putFeatureData(with(FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)), with(featureData1.getMatcher()));
 
-            oneOf(featureDataRepository).getFeatureData(with(ShipTypeAndSizeFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID))); will(returnValue(existingFeatureData));
-            oneOf(featureDataRepository).putFeatureData(with(ShipTypeAndSizeFeature.FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)), with(featureData2.getMatcher()));
+            oneOf(featureDataRepository).getFeatureData(with(FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID))); will(returnValue(existingFeatureData));
+            oneOf(featureDataRepository).putFeatureData(with(FEATURE_NAME), (Long) with(track.getProperty(Track.CELL_ID)), with(featureData2.getMatcher()));
         }});
 
         // Execute
@@ -149,4 +152,68 @@ public class ShipTypeAndSizeFeatureTest {
         Object statValue = data.get(shipType).get(shipSize).get(statName);
         assertEquals(2, statValue);
     }
+
+    @Test
+    public void testDoNotCountTracksWithSogLessThanTwo() {
+        track.setProperty(Track.SPEED_OVER_GROUND, 1.99);
+
+        Long oldCellId = null;
+        CellIdChangedEvent event = new CellIdChangedEvent(track, oldCellId);
+
+        context.checking(new Expectations() {{
+            oneOf(trackingService).registerSubscriber(feature);
+            ignoring(statisticsService).incFeatureStatistics(with(FEATURE_NAME), with(any(String.class)));
+            never(featureDataRepository).getFeatureData(with(FEATURE_NAME), with(any(Long.class)));
+            never(featureDataRepository).putFeatureData(with(FEATURE_NAME), (Long) with(any(Long.class)), with(any(FeatureData.class)));
+        }});
+
+        feature.start();
+        feature.onCellIdChanged(event);
+
+        // Assert expectations and captured values
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCountTracksWithSogOverTwo() {
+        track.setProperty(Track.SPEED_OVER_GROUND, 2.01);
+
+        Long oldCellId = null;
+        CellIdChangedEvent event = new CellIdChangedEvent(track, oldCellId);
+
+        context.checking(new Expectations() {{
+            oneOf(trackingService).registerSubscriber(feature);
+            ignoring(statisticsService).incFeatureStatistics(with(FEATURE_NAME), with(any(String.class)));
+            oneOf(featureDataRepository).getFeatureData(with(FEATURE_NAME), with(any(Long.class)));
+            oneOf(featureDataRepository).putFeatureData(with(FEATURE_NAME), (Long) with(any(Long.class)), with(any(FeatureData.class)));
+        }});
+
+        feature.start();
+        feature.onCellIdChanged(event);
+
+        // Assert expectations and captured values
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCountTracksWithNoSog() {
+        track.setProperty(Track.SPEED_OVER_GROUND, null);
+
+        Long oldCellId = null;
+        CellIdChangedEvent event = new CellIdChangedEvent(track, oldCellId);
+
+        context.checking(new Expectations() {{
+            oneOf(trackingService).registerSubscriber(feature);
+            ignoring(statisticsService).incFeatureStatistics(with(FEATURE_NAME), with(any(String.class)));
+            oneOf(featureDataRepository).getFeatureData(with(FEATURE_NAME), with(any(Long.class)));
+            oneOf(featureDataRepository).putFeatureData(with(FEATURE_NAME), (Long) with(any(Long.class)), with(any(FeatureData.class)));
+        }});
+
+        feature.start();
+        feature.onCellIdChanged(event);
+
+        // Assert expectations and captured values
+        context.assertIsSatisfied();
+    }
+
 }
