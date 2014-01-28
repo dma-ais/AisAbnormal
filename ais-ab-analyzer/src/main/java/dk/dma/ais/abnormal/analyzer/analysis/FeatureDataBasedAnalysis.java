@@ -16,26 +16,21 @@
 
 package dk.dma.ais.abnormal.analyzer.analysis;
 
+import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.tracker.TrackingService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public abstract class StatisticalAnalysis implements Analysis {
+/**
+ * This class provides basic and common functionality to Analysis-es which are based
+ * on comparison of current track behaviour with feature data based on history behaviours.
+ */
+public abstract class FeatureDataBasedAnalysis extends Analysis {
 
-    private static final Logger LOG = LoggerFactory.getLogger(StatisticalAnalysis.class);
     private final FeatureDataRepository featureDataRepository;
-    private final TrackingService trackingService;
 
-    protected StatisticalAnalysis(FeatureDataRepository featureDataRepository, TrackingService trackingService) {
+    protected FeatureDataBasedAnalysis(EventRepository eventRepository, FeatureDataRepository featureDataRepository, TrackingService trackingService) {
+        super(eventRepository, trackingService);
         this.featureDataRepository = featureDataRepository;
-        this.trackingService = trackingService;
-    }
-
-    @Override
-    public void start() {
-        LOG.info(this.getClass().getSimpleName() + " starts to listen for tracking events.");
-        trackingService.registerSubscriber(this);
     }
 
     protected final FeatureDataRepository getFeatureDataRepository() {

@@ -22,6 +22,7 @@ import com.google.inject.Inject;
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.Event;
+import dk.dma.ais.abnormal.event.db.domain.SuddenSpeedChangeEvent;
 import dk.dma.ais.abnormal.event.db.domain.builders.SuddenSpeedChangeEventBuilder;
 import dk.dma.ais.abnormal.event.db.domain.builders.TrackingPointBuilder;
 import dk.dma.ais.abnormal.tracker.Track;
@@ -36,15 +37,19 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SuddenSpeedChangeAnalysis implements Analysis {
+/**
+ * This analysis manages events where the a sudden decreasing speed change occurs.
+ * A sudden decreasing speed change is defined as a a speed change going from more
+ * than 8 knots to less than 1 knot in less than 15 seconds. This analysis is not
+ * based on previous observations (feature data).
+ */
+public class SuddenSpeedChangeAnalysis extends Analysis {
     private static final Logger LOG = LoggerFactory.getLogger(SuddenSpeedChangeAnalysis.class);
     {
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
 
-    private final TrackingService trackingService;
     private final AppStatisticsService statisticsService;
-    private final EventRepository eventRepository;
 
     private final Map<Integer,TrackingPointData> tracks;
     private final String analysisName;
@@ -52,17 +57,10 @@ public class SuddenSpeedChangeAnalysis implements Analysis {
 
     @Inject
     public SuddenSpeedChangeAnalysis(AppStatisticsService statisticsService, TrackingService trackingService, EventRepository eventRepository) {
+        super(eventRepository, trackingService);
         this.statisticsService = statisticsService;
-        this.trackingService = trackingService;
-        this.eventRepository = eventRepository;
         this.tracks = new HashMap<>();
         analysisName = this.getClass().getSimpleName();
-    }
-
-    @Override
-    public void start() {
-        LOG.info(analysisName + " starts to listen for tracking events.");
-        trackingService.registerSubscriber(this);
     }
 
     @AllowConcurrentEvents
@@ -119,7 +117,8 @@ public class SuddenSpeedChangeAnalysis implements Analysis {
         }
     }
 
-    private void raiseAndLowerSuddenSpeedChangeEvent(Track track) {
+    @Override
+    protected Event buildEvent(Track track) {
         Date timestamp = new Date((Long) track.getProperty(Track.TIMESTAMP_POSITION_UPDATE));
         Integer mmsi = track.getMmsi();
         Integer imo = (Integer) track.getProperty(Track.IMO);
@@ -143,13 +142,13 @@ public class SuddenSpeedChangeAnalysis implements Analysis {
         LOG.info("Detected sudden speed change for mmsi " + mmsi + ": "+ desc + "." );
 
         Event event =
-                SuddenSpeedChangeEventBuilder.SuddenSpeedChangeEvent()
-                    .description(desc)
-                    .state(Event.State.PAST)
-                    .startTime(prevTimestamp)
-                    .endTime(timestamp)
-                    .behaviour()
-                        .vessel()
+            SuddenSpeedChangeEventBuilder.SuddenSpeedChangeEvent()
+                .description(desc)
+                .state(Event.State.PAST)
+                .startTime(prevTimestamp)
+                .endTime(timestamp)
+                .behaviour()
+                    .vessel()
                         .mmsi(mmsi)
                         .imo(imo)
                         .callsign(callsign)
@@ -161,22 +160,25 @@ public class SuddenSpeedChangeAnalysis implements Analysis {
                         .courseOverGround(prevCog)
                         .latitude(prevPosition.getLatitude())
                         .longitude(prevPosition.getLongitude())
-                    .getEvent();
+            .getEvent();
 
         event.getBehaviour().addTrackingPoint(
-                TrackingPointBuilder.TrackingPoint()
-                        .timestamp(timestamp)
-                        .positionInterpolated(interpolated)
-                        .speedOverGround(sog)
-                        .courseOverGround(cog)
-                        .latitude(position.getLatitude())
-                        .longitude(position.getLongitude())
-                .getTrackingPoint()
-        );
+            TrackingPointBuilder.TrackingPoint()
+                .timestamp(timestamp)
+                .positionInterpolated(interpolated)
+                .speedOverGround(sog)
+                .courseOverGround(cog)
+                .latitude(position.getLatitude())
+                .longitude(position.getLongitude())
+            .getTrackingPoint());
 
+        return event;
+    }
+
+    private void raiseAndLowerSuddenSpeedChangeEvent(Track track) {
         statisticsService.incAnalysisStatistics(analysisName, "Total speed change evts");
-
-        eventRepository.save(event);
+        raiseOrMaintainAbnormalEvent(SuddenSpeedChangeEvent.class, track);
+        lowerExistingAbnormalEventIfExists(SuddenSpeedChangeEvent.class, track);
     }
 
     private final class TrackingPointData {

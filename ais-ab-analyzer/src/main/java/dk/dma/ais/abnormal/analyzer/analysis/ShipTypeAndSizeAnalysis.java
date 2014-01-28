@@ -23,7 +23,6 @@ import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.AbnormalShipSizeOrTypeEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
-import dk.dma.ais.abnormal.event.db.domain.builders.TrackingPointBuilder;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeFeatureData;
@@ -40,23 +39,26 @@ import java.util.Date;
 
 import static dk.dma.ais.abnormal.event.db.domain.builders.AbnormalShipSizeOrTypeEventBuilder.AbnormalShipSizeOrTypeEvent;
 
-public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
+/**
+ * This analysis manages events where the presence of a vessel of the given type
+ * and size is "abnormal" for the current position (grid cell) relative to previous
+ * observations for vessels in the same grid cell. Statistics for previous observations
+ * are stored in the FeatureDataRepository.
+ */
+public class ShipTypeAndSizeAnalysis extends FeatureDataBasedAnalysis {
     private static final Logger LOG = LoggerFactory.getLogger(ShipTypeAndSizeAnalysis.class);
     {
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
 
     private final AppStatisticsService statisticsService;
-    private final EventRepository eventRepository;
 
     private static final int TOTAL_COUNT_THRESHOLD = 1000;
 
     @Inject
     public ShipTypeAndSizeAnalysis(AppStatisticsService statisticsService, FeatureDataRepository featureDataRepository, TrackingService trackingService, EventRepository eventRepository) {
-        super(featureDataRepository, trackingService);
-
+        super(eventRepository, featureDataRepository, trackingService);
         this.statisticsService = statisticsService;
-        this.eventRepository = eventRepository;
     }
 
     @AllowConcurrentEvents
@@ -91,9 +93,9 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
         short shipLengthBucket = Categorizer.mapShipLengthToCategory(shipLength);
 
         if (isAbnormalCellForShipTypeAndSize(cellId, shipTypeBucket, shipLengthBucket)) {
-            raiseOrMaintainAbnormalEvent(track);
+            raiseOrMaintainAbnormalEvent(AbnormalShipSizeOrTypeEvent.class, track);
         } else {
-            lowerExistingAbnormalEventIfExists(track);
+            lowerExistingAbnormalEventIfExists(AbnormalShipSizeOrTypeEvent.class, track);
         }
 
         statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events processed");
@@ -102,76 +104,7 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
     @AllowConcurrentEvents
     @Subscribe
     public void onTrackStale(TrackStaleEvent trackEvent) {
-        lowerExistingAbnormalEventIfExists(trackEvent.getTrack());
-    }
-
-    private void lowerExistingAbnormalEventIfExists(Track track) {
-        Integer mmsi = track.getMmsi();
-        Event ongoingEvent = eventRepository.findOngoingEventByVessel(mmsi, AbnormalShipSizeOrTypeEvent.class);
-        if (ongoingEvent != null) {
-            Date timestamp = new Date((Long) track.getProperty(Track.TIMESTAMP_ANY_UPDATE));
-            ongoingEvent.setState(Event.State.PAST);
-            ongoingEvent.setEndTime(timestamp);
-            eventRepository.save(ongoingEvent);
-        }
-    }
-
-    private void raiseOrMaintainAbnormalEvent(Track track) {
-        Date positionTimestamp = new Date((Long) track.getProperty(Track.TIMESTAMP_POSITION_UPDATE));
-        Integer mmsi = track.getMmsi();
-        Integer imo = (Integer) track.getProperty(Track.IMO);
-        String callsign = (String) track.getProperty(Track.CALLSIGN);
-        String name = (String) track.getProperty(Track.SHIP_NAME);
-        Position position = (Position) track.getProperty(Track.POSITION);
-        Float cog = (Float) track.getProperty(Track.COURSE_OVER_GROUND);
-        Float sog = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
-        Boolean interpolated = (Boolean) track.getProperty(Track.POSITION_IS_INTERPOLATED);
-
-        Event ongoingEvent = eventRepository.findOngoingEventByVessel(mmsi, AbnormalShipSizeOrTypeEvent.class);
-
-        if (ongoingEvent != null) {
-            ongoingEvent.getBehaviour().addTrackingPoint(
-                    TrackingPointBuilder.TrackingPoint()
-                            .timestamp(positionTimestamp)
-                            .positionInterpolated(interpolated)
-                            .speedOverGround(sog)
-                            .courseOverGround(cog)
-                            .latitude(position.getLatitude())
-                            .longitude(position.getLongitude())
-                    .getTrackingPoint()
-            );
-
-            eventRepository.save(ongoingEvent);
-        } else {
-            Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
-            Integer shipLength = (Integer) track.getProperty(Track.VESSEL_LENGTH);
-
-            short shipTypeBucket = Categorizer.mapShipTypeToCategory(shipType);
-            short shipLengthBucket = Categorizer.mapShipLengthToCategory(shipLength);
-
-            Event event =
-                    AbnormalShipSizeOrTypeEvent()
-                            .shipType(shipTypeBucket)
-                            .shipLength(shipLengthBucket)
-                            .description("It is abnormal to see this vessel in this area.")
-                            .startTime(positionTimestamp)
-                            .behaviour()
-                                .vessel()
-                                    .mmsi(mmsi)
-                                    .imo(imo)
-                                    .callsign(callsign)
-                                    .name(name)
-                                .trackingPoint()
-                                    .timestamp(positionTimestamp)
-                                    .positionInterpolated(interpolated)
-                                    .speedOverGround(sog)
-                                    .courseOverGround(cog)
-                                    .latitude(position.getLatitude())
-                                    .longitude(position.getLongitude())
-                            .getEvent();
-
-            eventRepository.save(event);
-        }
+        lowerExistingAbnormalEventIfExists(AbnormalShipSizeOrTypeEvent.class, trackEvent.getTrack());
     }
 
     /**
@@ -214,5 +147,46 @@ public class ShipTypeAndSizeAnalysis extends StatisticalAnalysis {
         statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Analyses performed");
 
         return isAbnormalCellForShipTypeAndSize;
+    }
+
+    @Override
+    protected Event buildEvent(Track track) {
+        Integer mmsi = track.getMmsi();
+        Integer imo = (Integer) track.getProperty(Track.IMO);
+        String callsign = (String) track.getProperty(Track.CALLSIGN);
+        String name = (String) track.getProperty(Track.SHIP_NAME);
+        Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
+        Integer shipLength = (Integer) track.getProperty(Track.VESSEL_LENGTH);
+        Date positionTimestamp = new Date((Long) track.getProperty(Track.TIMESTAMP_POSITION_UPDATE));
+        Position position = (Position) track.getProperty(Track.POSITION);
+        Float cog = (Float) track.getProperty(Track.COURSE_OVER_GROUND);
+        Float sog = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
+        Boolean interpolated = (Boolean) track.getProperty(Track.POSITION_IS_INTERPOLATED);
+
+        short shipTypeBucket = Categorizer.mapShipTypeToCategory(shipType);
+        short shipLengthBucket = Categorizer.mapShipLengthToCategory(shipLength);
+
+        Event event =
+                AbnormalShipSizeOrTypeEvent()
+                    .shipType(shipTypeBucket)
+                    .shipLength(shipLengthBucket)
+                    .description("It is abnormal to see this vessel in this area.")
+                    .startTime(positionTimestamp)
+                    .behaviour()
+                        .vessel()
+                            .mmsi(mmsi)
+                            .imo(imo)
+                            .callsign(callsign)
+                            .name(name)
+                        .trackingPoint()
+                            .timestamp(positionTimestamp)
+                            .positionInterpolated(interpolated)
+                            .speedOverGround(sog)
+                            .courseOverGround(cog)
+                            .latitude(position.getLatitude())
+                            .longitude(position.getLongitude())
+                .getEvent();
+
+        return event;
     }
 }

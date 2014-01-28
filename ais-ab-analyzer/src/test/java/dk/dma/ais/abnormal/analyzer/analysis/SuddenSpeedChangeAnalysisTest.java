@@ -18,6 +18,7 @@ package dk.dma.ais.abnormal.analyzer.analysis;
 
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.event.db.EventRepository;
+import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.SuddenSpeedChangeEvent;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
@@ -74,6 +75,7 @@ public class SuddenSpeedChangeAnalysisTest {
             ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
             ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
             oneOf(trackingService).registerSubscriber(analysis);
+            exactly(2).of(eventRepository).findOngoingEventByVessel(123456, SuddenSpeedChangeEvent.class);
             oneOf(eventRepository).save(with(eventCaptor.getMatcher()));
         }});
         analysis.start();
@@ -108,7 +110,7 @@ public class SuddenSpeedChangeAnalysisTest {
             ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
             ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
             oneOf(trackingService).registerSubscriber(analysis);
-            never(eventRepository).save(with(any(SuddenSpeedChangeEvent.class)));
+            never(eventRepository).save(with(any(Event.class)));
         }});
         analysis.start();
 
@@ -135,7 +137,7 @@ public class SuddenSpeedChangeAnalysisTest {
             ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
             ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
             oneOf(trackingService).registerSubscriber(analysis);
-            never(eventRepository).save(with(any(SuddenSpeedChangeEvent.class)));
+            never(eventRepository).save(with(any(Event.class)));
         }});
         analysis.start();
 
@@ -165,7 +167,7 @@ public class SuddenSpeedChangeAnalysisTest {
             ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
             ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
             oneOf(trackingService).registerSubscriber(analysis);
-            never(eventRepository).save(with(any(SuddenSpeedChangeEvent.class)));
+            never(eventRepository).save(with(any(Event.class)));
         }});
         analysis.start();
         analysis.onSpeedOverGroundUpdated(event);
@@ -182,7 +184,7 @@ public class SuddenSpeedChangeAnalysisTest {
             ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
             ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
             oneOf(trackingService).registerSubscriber(analysis);
-            never(eventRepository).save(with(any(SuddenSpeedChangeEvent.class)));
+            never(eventRepository).save(with(any(Event.class)));
         }});
         analysis.start();
 
@@ -212,7 +214,7 @@ public class SuddenSpeedChangeAnalysisTest {
             ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
             ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
             oneOf(trackingService).registerSubscriber(analysis);
-            never(eventRepository).save(with(any(SuddenSpeedChangeEvent.class)));
+            never(eventRepository).save(with(any(Event.class)));
         }});
         analysis.start();
 
