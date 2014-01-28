@@ -155,7 +155,7 @@ public class ShipTypeAndSizeFeatureTest {
 
     @Test
     public void testDoNotCountTracksWithSogLessThanTwo() {
-        track.setProperty(Track.SPEED_OVER_GROUND, 1.99);
+        track.setProperty(Track.SPEED_OVER_GROUND, Float.valueOf(1.99f));
 
         Long oldCellId = null;
         CellIdChangedEvent event = new CellIdChangedEvent(track, oldCellId);
@@ -176,7 +176,7 @@ public class ShipTypeAndSizeFeatureTest {
 
     @Test
     public void testCountTracksWithSogOverTwo() {
-        track.setProperty(Track.SPEED_OVER_GROUND, 2.01);
+        track.setProperty(Track.SPEED_OVER_GROUND, Float.valueOf(2.01f));
 
         Long oldCellId = null;
         CellIdChangedEvent event = new CellIdChangedEvent(track, oldCellId);
