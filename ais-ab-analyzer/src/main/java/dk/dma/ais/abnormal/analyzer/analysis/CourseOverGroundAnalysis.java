@@ -66,6 +66,12 @@ public class CourseOverGroundAnalysis extends FeatureDataBasedAnalysis {
         statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events received");
 
         Track track = trackEvent.getTrack();
+
+        Float sog = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
+        if (sog == null || sog < 2.0) {
+            return;
+        }
+
         Long cellId = (Long) track.getProperty(Track.CELL_ID);
         Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
         Integer shipLength = (Integer) track.getProperty(Track.VESSEL_LENGTH);
@@ -169,8 +175,9 @@ public class CourseOverGroundAnalysis extends FeatureDataBasedAnalysis {
         short shipTypeBucket = Categorizer.mapShipTypeToCategory(shipType);
         short shipLengthBucket = Categorizer.mapShipLengthToCategory(shipLength);
         short courseOverGroundBucket = Categorizer.mapCourseOverGroundToCategory(cog);
+        short speedOverGroundBucket = Categorizer.mapSpeedOverGroundToCategory(sog);
 
-        String desc = String.format("cog:%.0f(%d) type:%d(%d) size:%d(%d)", cog, courseOverGroundBucket+1, shipType, shipTypeBucket+1, shipLength, shipLengthBucket+1);
+        String desc = String.format("cog:%.0f(%d) sog:%.1f(%d) type:%d(%d) size:%d(%d)", cog, courseOverGroundBucket+1, sog, speedOverGroundBucket, shipType, shipTypeBucket+1, shipLength, shipLengthBucket+1);
         LOG.info(positionTimestamp + ": Detected CourseOverGroundEvent for mmsi " + mmsi + ": "+ desc + "." );
 
         Event event =
