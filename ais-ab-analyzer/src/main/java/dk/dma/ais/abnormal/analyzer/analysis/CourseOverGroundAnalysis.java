@@ -26,7 +26,6 @@ import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.CourseOverGroundFeatureData;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
-import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeFeatureData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
@@ -38,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
-import static dk.dma.ais.abnormal.event.db.domain.builders.AbnormalCourseOverGroundEventBuilder.AbnormalCourseOverGroundEvent;
+import static dk.dma.ais.abnormal.event.db.domain.builders.CourseOverGroundEventBuilder.CourseOverGroundEvent;
 
 /**
  * This analysis manages events where a vessel has an "abnormal" course over ground
@@ -118,22 +117,22 @@ public class CourseOverGroundAnalysis extends FeatureDataBasedAnalysis {
      * @param cellId
      * @param shipTypeBucket
      * @param shipSizeBucket
-     * @return true if the presence of size/type in this cell is abnormal. False otherwise.
+     * @return true if the presence of size/type with this cog in this cell is abnormal. False otherwise.
      */
     boolean isAbnormalCourseOverGround(Long cellId, int shipTypeBucket, int shipSizeBucket, int courseOverGroundBucket) {
         float pd = 1.0f;
 
-        FeatureData courseOverGroundFeatureData = getFeatureDataRepository().getFeatureData("ShipTypeAndSizeFeature", cellId);
+        FeatureData courseOverGroundFeatureData = getFeatureDataRepository().getFeatureData("CourseOverGroundFeature", cellId);
 
         if (courseOverGroundFeatureData instanceof CourseOverGroundFeatureData) {
-            Integer totalCount  = ((CourseOverGroundFeatureData) courseOverGroundFeatureData).getSumFor("shipCount");
+            Integer totalCount  = ((CourseOverGroundFeatureData) courseOverGroundFeatureData).getSumFor(CourseOverGroundFeatureData.STAT_SHIP_COUNT);
             if (totalCount > TOTAL_COUNT_THRESHOLD) {
-                Integer shipCount = ((CourseOverGroundFeatureData) courseOverGroundFeatureData).getValue(shipTypeBucket, shipSizeBucket, courseOverGroundBucket, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT);
+                Integer shipCount = ((CourseOverGroundFeatureData) courseOverGroundFeatureData).getValue(shipTypeBucket, shipSizeBucket, courseOverGroundBucket, CourseOverGroundFeatureData.STAT_SHIP_COUNT);
                 if (shipCount == null) {
                     shipCount = 0;
                 }
                 pd = (float) shipCount / (float) totalCount;
-                LOG.debug("cellId=" + cellId + ", shipType=" + shipTypeBucket + ", shipSize=" + shipSizeBucket + "cog=" + courseOverGroundBucket + ", shipCount=" + shipCount + ", totalCount=" + totalCount + ", pd=" + pd);
+                LOG.debug("cellId=" + cellId + ", shipType=" + shipTypeBucket + ", shipSize=" + shipSizeBucket + ", cog=" + courseOverGroundBucket + ", shipCount=" + shipCount + ", totalCount=" + totalCount + ", pd=" + pd);
             } else {
                 LOG.debug("totalCount of " + totalCount + " is not enough statistical data for cell " + cellId);
             }
@@ -171,12 +170,15 @@ public class CourseOverGroundAnalysis extends FeatureDataBasedAnalysis {
         short shipLengthBucket = Categorizer.mapShipLengthToCategory(shipLength);
         short courseOverGroundBucket = Categorizer.mapCourseOverGroundToCategory(cog);
 
+        String desc = String.format("cog:%.0f(%d) type:%d(%d) size:%d(%d)", cog, courseOverGroundBucket+1, shipType, shipTypeBucket+1, shipLength, shipLengthBucket+1);
+        LOG.info(positionTimestamp + ": Detected CourseOverGroundEvent for mmsi " + mmsi + ": "+ desc + "." );
+
         Event event =
-                AbnormalCourseOverGroundEvent()
+                CourseOverGroundEvent()
                         .shipType(shipTypeBucket)
                         .shipLength(shipLengthBucket)
                         .courseOverGround(courseOverGroundBucket)
-                        .description("Ship type: " + shipType + ", ship length: " + shipLength + ", cog: " + cog)
+                        .description(desc)
                         .startTime(positionTimestamp)
                         .behaviour()
                             .vessel()

@@ -141,13 +141,13 @@ public abstract class FourKeyFeatureData implements FeatureData, FourKeyMap {
 
     short computeMapKey(int key1, int key2, int key3, String key4) {
         if (key1 > MAX_KEY_1) {
-            throw new IllegalArgumentException("key1 must be 0-" + MAX_KEY_1 + ".");
+            throw new IllegalArgumentException("key1 must be 0-" + MAX_KEY_1 + " - not " + key1 + ".");
         }
         if (key2 > MAX_KEY_2) {
-            throw new IllegalArgumentException("key2 must be 0-" + MAX_KEY_2 + ".");
+            throw new IllegalArgumentException("key2 must be 0-" + MAX_KEY_2 + " - not " + key2 + ".");
         }
         if (key3 > MAX_KEY_3) {
-            throw new IllegalArgumentException("key3 must be 0-" + MAX_KEY_3 + ".");
+            throw new IllegalArgumentException("key3 must be 0-" + MAX_KEY_3 + " - not " + key3 + ".");
         }
         if (! getNameOfOnlySupportedValueOfKey4().equals(key4)) {
             throw new IllegalArgumentException("key4 '" + key4 + "' is not supported.");

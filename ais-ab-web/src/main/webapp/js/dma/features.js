@@ -128,35 +128,32 @@ var featureModule = {
         tableHtml += "<thead>";
         tableHtml += "<tr>";
         tableHtml += "<th>" + meaningOfKey1 + " &#92; " + meaningOfKey2 + "</th>";
-        for (var i = 1; i < 10; i++) {
-            tableHtml += "<th>" + i + "</th>";
+        for (var i = 0; i < 10; i++) {
+            tableHtml += "<th>" + parseInt(i+1) + "</th>";
         }
         tableHtml += "</tr>";
         tableHtml += "</thead>";
         tableHtml += "<tbody>";
-        for (var i1 = 1; i1 < 10; i1++) {
+        $.each(fd.data, function(key1, value1) {
             tableHtml += "<tr>";
-            tableHtml += "<td>" + i1 + "</td>";
-            for (var i2 = 1; i2 < 10; i2++) {
+            var i = parseInt(key1) + 1;
+            tableHtml += "<td>" + i + "</td>";
+            for (var key2 = 0; key2 < 10; key2++) {
                 tableHtml += "<td>";
-                var data = fd.data;
-                if (data) {
-                    var k1 = data[i1];
-                    if (k1) {
-                        var k2 = data[i1][i2];
-                        if (k2) {
-                            var pd = 100 * data[i1][i2].shipCount / totalShipCount;
-                            var stats = (Math.round(pd * 100) / 100).toFixed(2);
-                            if (stats) {
-                                tableHtml += stats + "%";
-                            }
+                if (value1) {
+                    var value2 = value1[key2];
+                    if (value2) {
+                        var pd = 100 * value2.shipCount / totalShipCount;
+                        var stats = (Math.round(pd * 100) / 100).toFixed(2);
+                        if (stats) {
+                            tableHtml += stats + "%";
                         }
                     }
                 }
                 tableHtml += "</td>";
             }
             tableHtml += "</tr>";
-        }
+        });
         tableHtml += "</tbody>";
         tableHtml += "</table>";
 
@@ -199,9 +196,9 @@ var featureModule = {
                         if (stats) {
                             tableHtml +=
                                 "<tr>" +
-                                    "<td>" + key1 + "</td>" +
-                                    "<td>" + key2 + "</td>" +
-                                    "<td>" + key3 + "</td>" +
+                                    "<td>" + (parseInt(key1)+parseInt(1)) + "</td>" +
+                                    "<td>" + (parseInt(key2)+parseInt(1)) + "</td>" +
+                                    "<td>" + (parseInt(key3)+parseInt(1)) + "</td>" +
                                     "<td>" + statistic.shipCount + "</td>" +
                                     "<td>" + stats + "%</td>" +
                                     "</tr>";

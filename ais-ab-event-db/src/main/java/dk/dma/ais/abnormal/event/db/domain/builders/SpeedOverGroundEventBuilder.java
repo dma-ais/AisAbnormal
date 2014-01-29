@@ -16,35 +16,40 @@
 
 package dk.dma.ais.abnormal.event.db.domain.builders;
 
-import dk.dma.ais.abnormal.event.db.domain.ShipSizeOrTypeEvent;
+import dk.dma.ais.abnormal.event.db.domain.SpeedOverGroundEvent;
 
 /**
  * This builder follows the expression builder pattern
  * http://martinfowler.com/bliki/ExpressionBuilder.html
  */
-public class AbnormalShipSizeOrTypeEventBuilder extends EventBuilder {
+public class SpeedOverGroundEventBuilder extends EventBuilder {
 
-    ShipSizeOrTypeEvent event;
+    SpeedOverGroundEvent event;
 
-    public AbnormalShipSizeOrTypeEventBuilder() {
-        event = new ShipSizeOrTypeEvent();
+    public SpeedOverGroundEventBuilder() {
+        event = new SpeedOverGroundEvent();
     }
 
-    public static AbnormalShipSizeOrTypeEventBuilder AbnormalShipSizeOrTypeEvent() {
-        return new AbnormalShipSizeOrTypeEventBuilder();
+    public static SpeedOverGroundEventBuilder SpeedOverGroundEvent() {
+        return new SpeedOverGroundEventBuilder();
     }
 
-    public AbnormalShipSizeOrTypeEventBuilder shipLength(int shipLength) {
+    public SpeedOverGroundEventBuilder shipLength(int shipLength) {
         event.setShipLength(shipLength);
         return this;
     }
 
-    public AbnormalShipSizeOrTypeEventBuilder shipType(int shipType) {
+    public SpeedOverGroundEventBuilder shipType(int shipType) {
         event.setShipType(shipType);
         return this;
     }
 
-    public ShipSizeOrTypeEvent getEvent() {
+    public SpeedOverGroundEventBuilder speedOverGround(int sog) {
+        event.setSpeedOverGround(sog);
+        return this;
+    }
+
+    public SpeedOverGroundEvent getEvent() {
         return event;
     }
 

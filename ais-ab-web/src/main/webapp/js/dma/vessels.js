@@ -131,7 +131,9 @@ var vesselModule = {
         var eventBoxLabelFeature = mapModule.getVesselLayer().getFeatureByFid('eventLabel-'+event.id);
         if (eventBoxLabelFeature != null) {
             var eventType = eventModule.camelCaseToSentenceCase(event.eventType);
-            var labelText = "Event " + event.id + ": " + eventType + "\nRaised: " + eventModule.formatTimestamp(event.startTime);
+            var labelText = "Event " + event.id + ": " + eventType;
+            labelText += "\n" + event.description;
+            labelText += "\nRaised: " + eventModule.formatTimestamp(event.startTime);
             if (event.endTime) {
                 labelText += "\nLowered: " + eventModule.formatTimestamp(event.endTime);
             }
@@ -170,9 +172,11 @@ var vesselModule = {
 
             var eventType = event.eventType;
             if (eventType == "ShipSizeOrTypeEvent") {
+                var shipSizeBucket = parseInt(event.shipLength) + 1;
+                var shipTypeBucket = parseInt(event.shipType) + 1;
                 tooltip += "\n"
-                        +  "\nShip size: " + event.shipLength
-                        +  "\nShip type: " + event.shipType;
+                        +  "\nShip type: " + shipTypeBucket
+                        +  "\nShip size: " + shipSizeBucket;
             }
 
             trackSymbolFeature.style.title = tooltip;

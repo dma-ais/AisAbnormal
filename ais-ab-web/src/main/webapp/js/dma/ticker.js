@@ -33,25 +33,19 @@ var tickerModule = {
     },
 
     eventToString: function(event) {
-        var s = "";
-        s += eventModule.formatTimestamp(event.startTime) + " ";
+        var bounds = eventModule.computeEventExtent(event);
 
-        if (event.eventType == "ShipSizeOrTypeEvent") {
-            var bounds = eventModule.computeEventExtent(event);
-
-            s += (event.state == 'ONGOING' ? "Ongoing " : "Past ");
-            s += "abnormal presence of " + event.behaviour.vessel.name + " ";
-            s += "(" + event.behaviour.vessel.callsign + ") ";
-            s += " near ";
-            s += "[";
-            s += OpenLayers.Util.getFormattedLonLat(bounds.getCenterLonLat().lat, 'lat', 'dms')
-            s += ", ";
-            s += OpenLayers.Util.getFormattedLonLat(bounds.getCenterLonLat().lon, 'lon', 'dms')
-            s += "] ";
-        } else {
-            s += "?";
-        }
-
+        var s = eventModule.formatTimestamp(event.startTime) + ": "
+                + (event.state == 'ONGOING' ? "Ongoing " : "Past ")
+                + eventModule.camelCaseToSentenceCase(event.eventType).toLowerCase() + " event involving "
+                + event.behaviour.vessel.name + " "
+                + "(" + event.behaviour.vessel.callsign + ") "
+                + " near "
+                + "["
+                + OpenLayers.Util.getFormattedLonLat(bounds.getCenterLonLat().lat, 'lat', 'dms')
+                + ", "
+                + OpenLayers.Util.getFormattedLonLat(bounds.getCenterLonLat().lon, 'lon', 'dms')
+                + "] ";
 
         return s;
     }

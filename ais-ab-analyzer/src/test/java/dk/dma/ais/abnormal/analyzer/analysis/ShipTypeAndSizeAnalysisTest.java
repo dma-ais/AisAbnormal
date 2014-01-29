@@ -61,14 +61,14 @@ public class ShipTypeAndSizeAnalysisTest {
 
         // Mock shipCount table
         featureData = ShipTypeAndSizeFeatureData.create();
-        featureData.setValue((short) 3, (short) 1, "shipCount", 17);
-        featureData.setValue((short) 3, (short) 2, "shipCount", 2);
-        featureData.setValue((short) 3, (short) 3, "shipCount", 87);
-        featureData.setValue((short) 3, (short) 4, "shipCount", 618);
-        featureData.setValue((short) 4, (short) 3, "shipCount", 842);
-        featureData.setValue((short) 4, (short) 4, "shipCount", 954);
-        featureData.setValue((short) 5, (short) 3, "shipCount", 154);
-        featureData.setValue((short) 6, (short) 4, "shipCount", 34);
+        featureData.setValue((short) 2, (short) 0, "shipCount", 17);
+        featureData.setValue((short) 2, (short) 1, "shipCount", 2);
+        featureData.setValue((short) 2, (short) 2, "shipCount", 87);
+        featureData.setValue((short) 2, (short) 3, "shipCount", 618);
+        featureData.setValue((short) 3, (short) 2, "shipCount", 842);
+        featureData.setValue((short) 3, (short) 3, "shipCount", 954);
+        featureData.setValue((short) 4, (short) 2, "shipCount", 154);
+        featureData.setValue((short) 5, (short) 3, "shipCount", 34);
     }
 
     @Test
@@ -101,7 +101,7 @@ public class ShipTypeAndSizeAnalysisTest {
     public void abnormalWhereLowShipCountStatistics() {
         // Assert that pre-conditions are as expected
         Integer totalCount = featureData.getSumFor("shipCount");
-        Integer count = featureData.getValue((short) 3, (short) 2, "shipCount");
+        Integer count = featureData.getValue((short) 2, (short) 1, "shipCount");
         float pd = (float) count / (float) totalCount;
         assertTrue(pd < 0.001);
 
@@ -118,7 +118,7 @@ public class ShipTypeAndSizeAnalysisTest {
         analysis.start();
 
         // Perform test
-        boolean isAbnormalEvent = analysis.isAbnormalCellForShipTypeAndSize(testCellId, (short) 3, (short) 2);
+        boolean isAbnormalEvent = analysis.isAbnormalCellForShipTypeAndSize(testCellId, (short) 2, (short) 1);
 
         // Assert results
         context.assertIsSatisfied();
@@ -130,7 +130,7 @@ public class ShipTypeAndSizeAnalysisTest {
     public void normalWhereHighShipCountStatistics() {
         // Assert that pre-conditions are as expected
         Integer totalCount = featureData.getSumFor("shipCount");
-        Integer count = featureData.getValue((short) 3, (short) 4, "shipCount");
+        Integer count = featureData.getValue((short) 2, (short) 3, "shipCount");
         float pd = (float) count / (float) totalCount;
         assertTrue(pd > 0.001);
 
@@ -147,7 +147,7 @@ public class ShipTypeAndSizeAnalysisTest {
         analysis.start();
 
         // Perform test
-        boolean isAbnormalEvent = analysis.isAbnormalCellForShipTypeAndSize(testCellId, (short) 3, (short) 4);
+        boolean isAbnormalEvent = analysis.isAbnormalCellForShipTypeAndSize(testCellId, (short) 2, (short) 3);
 
         // Assert results
         context.assertIsSatisfied();

@@ -22,10 +22,10 @@ import com.google.inject.Inject;
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.Event;
-import dk.dma.ais.abnormal.event.db.domain.ShipSizeOrTypeEvent;
+import dk.dma.ais.abnormal.event.db.domain.SpeedOverGroundEvent;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
-import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeFeatureData;
+import dk.dma.ais.abnormal.stat.db.data.SpeedOverGroundFeatureData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
@@ -37,16 +37,15 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
-import static dk.dma.ais.abnormal.event.db.domain.builders.ShipSizeOrTypeEventBuilder.ShipSizeOrTypeEvent;
+import static dk.dma.ais.abnormal.event.db.domain.builders.SpeedOverGroundEventBuilder.SpeedOverGroundEvent;
 
 /**
- * This analysis manages events where the presence of a vessel of the given type
- * and size is "abnormal" for the current position (grid cell) relative to previous
- * observations for vessels in the same grid cell. Statistics for previous observations
- * are stored in the FeatureDataRepository.
+ * This analysis manages events where a vessel has an "abnormal" speed over ground
+ * relative to the previous observations for vessels in the same grid cell. Statistics
+ * for previous observations are stored in the FeatureDataRepository.
  */
-public class ShipTypeAndSizeAnalysis extends FeatureDataBasedAnalysis {
-    private static final Logger LOG = LoggerFactory.getLogger(ShipTypeAndSizeAnalysis.class);
+public class SpeedOverGroundAnalysis extends FeatureDataBasedAnalysis {
+    private static final Logger LOG = LoggerFactory.getLogger(SpeedOverGroundAnalysis.class);
     {
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
@@ -56,7 +55,7 @@ public class ShipTypeAndSizeAnalysis extends FeatureDataBasedAnalysis {
     private static final int TOTAL_COUNT_THRESHOLD = 1000;
 
     @Inject
-    public ShipTypeAndSizeAnalysis(AppStatisticsService statisticsService, FeatureDataRepository featureDataRepository, TrackingService trackingService, EventRepository eventRepository) {
+    public SpeedOverGroundAnalysis(AppStatisticsService statisticsService, FeatureDataRepository featureDataRepository, TrackingService trackingService, EventRepository eventRepository) {
         super(eventRepository, featureDataRepository, trackingService);
         this.statisticsService = statisticsService;
     }
@@ -70,32 +69,36 @@ public class ShipTypeAndSizeAnalysis extends FeatureDataBasedAnalysis {
         Long cellId = (Long) track.getProperty(Track.CELL_ID);
         Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
         Integer shipLength = (Integer) track.getProperty(Track.VESSEL_LENGTH);
+        Float speedOverGround = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
 
         if (cellId == null) {
-            // LOG.warn("cellId is unexpectedly null (mmsi " + mmsi + ")");
             statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Unknown mmsi");
             return;
         }
 
         if (shipType == null) {
-            // LOG.debug("shipType is null - probably no static data received yet (mmsi " + mmsi + ")");
             statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Unknown ship type");
             return;
         }
 
         if (shipLength == null) {
-            // LOG.debug("shipLength is null - probably no static data received yet (mmsi " + mmsi + ")");
             statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Unknown ship length");
+            return;
+        }
+
+        if (speedOverGround == null) {
+            statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Unknown course over ground");
             return;
         }
 
         short shipTypeBucket = Categorizer.mapShipTypeToCategory(shipType);
         short shipLengthBucket = Categorizer.mapShipLengthToCategory(shipLength);
+        short speedOverGroundBucket = Categorizer.mapSpeedOverGroundToCategory(speedOverGround);
 
-        if (isAbnormalCellForShipTypeAndSize(cellId, shipTypeBucket, shipLengthBucket)) {
-            raiseOrMaintainAbnormalEvent(ShipSizeOrTypeEvent.class, track);
+        if (isAbnormalSpeedOverGround(cellId, shipTypeBucket, shipLengthBucket, speedOverGroundBucket)) {
+            raiseOrMaintainAbnormalEvent(SpeedOverGroundEvent.class, track);
         } else {
-            lowerExistingAbnormalEventIfExists(ShipSizeOrTypeEvent.class, track);
+            lowerExistingAbnormalEventIfExists(SpeedOverGroundEvent.class, track);
         }
 
         statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events processed");
@@ -104,7 +107,7 @@ public class ShipTypeAndSizeAnalysis extends FeatureDataBasedAnalysis {
     @AllowConcurrentEvents
     @Subscribe
     public void onTrackStale(TrackStaleEvent trackEvent) {
-        lowerExistingAbnormalEventIfExists(ShipSizeOrTypeEvent.class, trackEvent.getTrack());
+        lowerExistingAbnormalEventIfExists(SpeedOverGroundEvent.class, trackEvent.getTrack());
     }
 
     /**
@@ -114,22 +117,22 @@ public class ShipTypeAndSizeAnalysis extends FeatureDataBasedAnalysis {
      * @param cellId
      * @param shipTypeBucket
      * @param shipSizeBucket
-     * @return true if the presence of size/type in this cell is abnormal. False otherwise.
+     * @return true if the presence of size/type with this sog in this cell is abnormal. False otherwise.
      */
-    boolean isAbnormalCellForShipTypeAndSize(Long cellId, int shipTypeBucket, int shipSizeBucket) {
+    boolean isAbnormalSpeedOverGround(Long cellId, int shipTypeBucket, int shipSizeBucket, int speedOverGroundBucket) {
         float pd = 1.0f;
 
-        FeatureData shipSizeAndTypeData = getFeatureDataRepository().getFeatureData("ShipTypeAndSizeFeature", cellId);
+        FeatureData speedOverGroundFeatureData = getFeatureDataRepository().getFeatureData("ShipTypeAndSizeFeature", cellId);
 
-        if (shipSizeAndTypeData instanceof ShipTypeAndSizeFeatureData) {
-            Integer totalCount  = ((ShipTypeAndSizeFeatureData) shipSizeAndTypeData).getSumFor("shipCount");
+        if (speedOverGroundFeatureData instanceof SpeedOverGroundFeatureData) {
+            Integer totalCount  = ((SpeedOverGroundFeatureData) speedOverGroundFeatureData).getSumFor(SpeedOverGroundFeatureData.STAT_SHIP_COUNT);
             if (totalCount > TOTAL_COUNT_THRESHOLD) {
-                Integer shipCount = ((ShipTypeAndSizeFeatureData) shipSizeAndTypeData).getValue(shipTypeBucket, shipSizeBucket, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT);
+                Integer shipCount = ((SpeedOverGroundFeatureData) speedOverGroundFeatureData).getValue(shipTypeBucket, shipSizeBucket, speedOverGroundBucket, SpeedOverGroundFeatureData.STAT_SHIP_COUNT);
                 if (shipCount == null) {
                     shipCount = 0;
                 }
                 pd = (float) shipCount / (float) totalCount;
-                LOG.debug("cellId=" + cellId + ", shipType=" + shipTypeBucket + ", shipSize=" + shipSizeBucket + ", shipCount=" + shipCount + ", totalCount=" + totalCount + ", pd=" + pd);
+                LOG.debug("cellId=" + cellId + ", shipType=" + shipTypeBucket + ", shipSize=" + shipSizeBucket + "cog=" + speedOverGroundBucket + ", shipCount=" + shipCount + ", totalCount=" + totalCount + ", pd=" + pd);
             } else {
                 LOG.debug("totalCount of " + totalCount + " is not enough statistical data for cell " + cellId);
             }
@@ -137,8 +140,8 @@ public class ShipTypeAndSizeAnalysis extends FeatureDataBasedAnalysis {
 
         LOG.debug("pd = " + pd);
 
-        boolean isAbnormalCellForShipTypeAndSize = pd < 0.001;
-        if (isAbnormalCellForShipTypeAndSize) {
+        boolean isAbnormalSpeedOverGround = pd < 0.001;
+        if (isAbnormalSpeedOverGround) {
             LOG.debug("Abnormal event detected.");
         } else {
             LOG.debug("Normal or inconclusive event detected.");
@@ -146,7 +149,7 @@ public class ShipTypeAndSizeAnalysis extends FeatureDataBasedAnalysis {
 
         statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Analyses performed");
 
-        return isAbnormalCellForShipTypeAndSize;
+        return isAbnormalSpeedOverGround;
     }
 
     @Override
@@ -165,29 +168,31 @@ public class ShipTypeAndSizeAnalysis extends FeatureDataBasedAnalysis {
 
         short shipTypeBucket = Categorizer.mapShipTypeToCategory(shipType);
         short shipLengthBucket = Categorizer.mapShipLengthToCategory(shipLength);
+        short speedOverGroundBucket = Categorizer.mapSpeedOverGroundToCategory(sog);
 
-        String desc = String.format("type:%d(%d) size:%d(%d)", shipType, shipTypeBucket+1, shipLength, shipLengthBucket+1);
-        LOG.info(positionTimestamp + ": Detected ShipSizeOrTypeEvent for mmsi " + mmsi + ": "+ desc + ".");
+        String desc = String.format("sog:%.0f(%d) type:%d(%d) size:%d(%d)", sog, speedOverGroundBucket+1, shipType, shipTypeBucket+1, shipLength, shipLengthBucket+1);
+        LOG.info(positionTimestamp + ": Detected SpeedOverGroundEvent for mmsi " + mmsi + ": "+ desc + "." );
 
         Event event =
-                ShipSizeOrTypeEvent()
-                    .shipType(shipTypeBucket)
-                    .shipLength(shipLengthBucket)
-                    .description(desc)
-                    .startTime(positionTimestamp)
-                    .behaviour()
-                        .vessel()
-                            .mmsi(mmsi)
-                            .imo(imo)
-                            .callsign(callsign)
-                            .name(name)
-                        .trackingPoint()
-                            .timestamp(positionTimestamp)
-                            .positionInterpolated(interpolated)
-                            .speedOverGround(sog)
-                            .courseOverGround(cog)
-                            .latitude(position.getLatitude())
-                            .longitude(position.getLongitude())
+                SpeedOverGroundEvent()
+                        .shipType(shipTypeBucket)
+                        .shipLength(shipLengthBucket)
+                        .speedOverGround(speedOverGroundBucket)
+                        .description(desc)
+                        .startTime(positionTimestamp)
+                        .behaviour()
+                            .vessel()
+                                .mmsi(mmsi)
+                                .imo(imo)
+                                .callsign(callsign)
+                                .name(name)
+                            .trackingPoint()
+                                .timestamp(positionTimestamp)
+                                .positionInterpolated(interpolated)
+                                .speedOverGround(sog)
+                                .courseOverGround(cog)
+                                .latitude(position.getLatitude())
+                                .longitude(position.getLongitude())
                 .getEvent();
 
         return event;

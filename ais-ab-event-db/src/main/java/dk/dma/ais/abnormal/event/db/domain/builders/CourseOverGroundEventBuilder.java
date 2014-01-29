@@ -22,29 +22,29 @@ import dk.dma.ais.abnormal.event.db.domain.CourseOverGroundEvent;
  * This builder follows the expression builder pattern
  * http://martinfowler.com/bliki/ExpressionBuilder.html
  */
-public class AbnormalCourseOverGroundEventBuilder extends EventBuilder {
+public class CourseOverGroundEventBuilder extends EventBuilder {
 
     CourseOverGroundEvent event;
 
-    public AbnormalCourseOverGroundEventBuilder() {
+    public CourseOverGroundEventBuilder() {
         event = new CourseOverGroundEvent();
     }
 
-    public static AbnormalCourseOverGroundEventBuilder AbnormalCourseOverGroundEvent() {
-        return new AbnormalCourseOverGroundEventBuilder();
+    public static CourseOverGroundEventBuilder CourseOverGroundEvent() {
+        return new CourseOverGroundEventBuilder();
     }
 
-    public AbnormalCourseOverGroundEventBuilder shipLength(int shipLength) {
+    public CourseOverGroundEventBuilder shipLength(int shipLength) {
         event.setShipLength(shipLength);
         return this;
     }
 
-    public AbnormalCourseOverGroundEventBuilder shipType(int shipType) {
+    public CourseOverGroundEventBuilder shipType(int shipType) {
         event.setShipType(shipType);
         return this;
     }
 
-    public AbnormalCourseOverGroundEventBuilder courseOverGround(int cog) {
+    public CourseOverGroundEventBuilder courseOverGround(int cog) {
         event.setCourseOverGround(cog);
         return this;
     }

@@ -129,7 +129,7 @@ public class CourseOverGroundFeature implements Feature {
         CourseOverGroundFeatureData featureData = (CourseOverGroundFeatureData) featureDataTmp;
 
         // Increment ship count
-        featureData.incrementValue(shipTypeBucket - 1, shipSizeBucket - 1, cogBucket - 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT);
+        featureData.incrementValue(shipTypeBucket, shipSizeBucket, cogBucket, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT);
 
         LOG.debug("Storing feature data for cellId " + cellId + ", featureName " + FEATURE_NAME);
         featureDataRepository.putFeatureData(FEATURE_NAME, cellId, featureData);

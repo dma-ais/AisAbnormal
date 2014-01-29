@@ -71,7 +71,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
             return;
         }
         final float sog = sogAsFloat;
-        if (sog >= 102.3 /* invalid sog */ ) {
+        if (sog >= 102.3 /* ~1024 invalid sog */ ) {
             return;
         }
 
@@ -138,8 +138,8 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
 
         float deltaSecs = (float) ((timestamp.getTime() - prevTimestamp.getTime()) / 1000.0);
 
-        String desc = String.format("Went from %.1f kts to %.1f kts in %.1f secs", prevSog, sog, deltaSecs);
-        LOG.info("Detected sudden speed change for mmsi " + mmsi + ": "+ desc + "." );
+        String desc = String.format("From %.1f kts to %.1f kts in %.1f secs", prevSog, sog, deltaSecs);
+        LOG.info(timestamp + ": Detected SuddenSpeedChangeEvent for mmsi " + mmsi + ": "+ desc + "." );
 
         Event event =
             SuddenSpeedChangeEventBuilder.SuddenSpeedChangeEvent()

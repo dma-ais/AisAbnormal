@@ -16,6 +16,15 @@
 
 package dk.dma.ais.abnormal.util;
 
+/**
+ * The Categorizer maps vessel properties into "categories"
+ * (or "buckets") for use by those Analyses which require
+ * categorized/bucketted feature data.
+ *
+ * Numbering of categories starts from 0 (as this is consistent
+ * with indexing used by e.g. ThreeKeyMap and FourKeyMap.
+ *
+ */
 public final class Categorizer {
 
     public static final int NUM_SHIP_TYPE_CATEGORIES = 8;
@@ -43,7 +52,7 @@ public final class Categorizer {
             category = 8;
         }
 
-        return category;
+        return (short) (category - 1);
     }
 
     public static short mapShipLengthToCategory(int shipLength) {
@@ -63,12 +72,12 @@ public final class Categorizer {
             category = 6;
         }
 
-        return category;
+        return (short) (category - 1);
     }
 
     public static short mapCourseOverGroundToCategory(float cog) {
         cog = cog % (float) 360.0;
-        return (short) ((cog / 30) + 1);
+        return (short) (cog / 30);
     }
 
     public static short mapSpeedOverGroundToCategory(float sog) {
@@ -92,6 +101,6 @@ public final class Categorizer {
             category = 8;
         }
 
-        return category;
+        return (short) (category - 1);
     }
 }
