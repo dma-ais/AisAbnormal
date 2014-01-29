@@ -16,11 +16,13 @@
 
 package dk.dma.ais.abnormal.event.db.h2;
 
+import com.google.inject.Inject;
 import dk.dma.ais.abnormal.event.db.EventRepository;
-import dk.dma.ais.abnormal.event.db.domain.AbnormalCourseOverGroundEvent;
-import dk.dma.ais.abnormal.event.db.domain.AbnormalShipSizeOrTypeEvent;
 import dk.dma.ais.abnormal.event.db.domain.Behaviour;
+import dk.dma.ais.abnormal.event.db.domain.CourseOverGroundEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
+import dk.dma.ais.abnormal.event.db.domain.ShipSizeOrTypeEvent;
+import dk.dma.ais.abnormal.event.db.domain.SpeedOverGroundEvent;
 import dk.dma.ais.abnormal.event.db.domain.SuddenSpeedChangeEvent;
 import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
 import dk.dma.ais.abnormal.event.db.domain.Vessel;
@@ -38,6 +40,10 @@ import java.io.File;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * H2EventRepository is an implementation of the EventRepository interface which
+ * manages persistent Event objects in an H2 database (accessed via Hibernate).
+ */
 @SuppressWarnings("JpaQlInspection")
 public class H2EventRepository implements EventRepository {
 
@@ -49,46 +55,41 @@ public class H2EventRepository implements EventRepository {
     private final SessionFactory sessionFactory;
     private final boolean readonly;
 
-    public H2EventRepository(File dbFilename, boolean readonly) {
+    public static SessionFactory newSessionFactory(File dbFilename) {
+        LOG.debug("Loading Hibernate configuration.");
+
+        Configuration configuration = new Configuration()
+                .setProperty("hibernate.connection.driver_class", "org.h2.Driver")
+                .setProperty("hibernate.connection.url", buildConnectionUrl(dbFilename))
+                .setProperty("hibernate.connection.username", "sa")
+                .setProperty("hibernate.connection.password", "")
+                .setProperty("hibernate.default_schema", "PUBLIC")
+                .setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect")
+                        //.setProperty("hibernate.show_sql", "true")
+                .setProperty("hibernate.hbm2ddl.auto", "update")
+                .setProperty("hibernate.order_updates", "true")
+                .addAnnotatedClass(CourseOverGroundEvent.class)
+                .addAnnotatedClass(SpeedOverGroundEvent.class)
+                .addAnnotatedClass(ShipSizeOrTypeEvent.class)
+                .addAnnotatedClass(SuddenSpeedChangeEvent.class)
+                .addAnnotatedClass(Vessel.class)
+                .addAnnotatedClass(Behaviour.class)
+                .addAnnotatedClass(TrackingPoint.class);
+        ServiceRegistryBuilder serviceRegistryBuilder = new ServiceRegistryBuilder();
+        serviceRegistryBuilder.applySettings(configuration.getProperties());
+        ServiceRegistry serviceRegistry = serviceRegistryBuilder.buildServiceRegistry();
+
+        LOG.info("Starting Hibernate.");
+        SessionFactory sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+        LOG.info("Hibernate started.");
+
+        return sessionFactory;
+    }
+
+    @Inject
+    public H2EventRepository(SessionFactory sessionFactory, boolean readonly) {
         this.readonly = readonly;
-        try{
-            LOG.debug("Loading Hibernate configuration.");
-            Configuration configuration = new Configuration()
-                    .setProperty("hibernate.connection.driver_class", "org.h2.Driver")
-                    .setProperty("hibernate.connection.url", buildConnectionUrl(dbFilename))
-                    .setProperty("hibernate.connection.username", "sa")
-                    .setProperty("hibernate.connection.password", "")
-                    .setProperty("hibernate.default_schema", "PUBLIC")
-                    .setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect")
-                    //.setProperty("hibernate.show_sql", "true")
-                    .setProperty("hibernate.hbm2ddl.auto", "update")
-                    .setProperty("hibernate.order_updates", "true")
-                    .addAnnotatedClass(AbnormalCourseOverGroundEvent.class)
-                    .addAnnotatedClass(AbnormalShipSizeOrTypeEvent.class)
-                    .addAnnotatedClass(SuddenSpeedChangeEvent.class)
-                    .addAnnotatedClass(Vessel.class)
-                    .addAnnotatedClass(Behaviour.class)
-                    .addAnnotatedClass(TrackingPoint.class);
-            ServiceRegistryBuilder serviceRegistryBuilder = new ServiceRegistryBuilder();
-            serviceRegistryBuilder.applySettings(configuration.getProperties());
-            ServiceRegistry serviceRegistry = serviceRegistryBuilder.buildServiceRegistry();
-            LOG.info("Starting Hibernate.");
-            sessionFactory = configuration.buildSessionFactory(serviceRegistry);
-            LOG.info("Hibernate started.");
-
-            Session session = getSession();
-            try {
-                List<Number> list = session.createQuery("SELECT count(*) FROM Event").list();
-                Number number = list.get(0);
-                LOG.info("Connected to an event database containing " + number + " events.");
-            } finally {
-                session.close();
-            }
-
-        }catch (Throwable ex) {
-            System.err.println("Failed to create sessionFactory object." + ex);
-            throw new ExceptionInInitializerError(ex);
-        }
+        this.sessionFactory = sessionFactory;
     }
 
     @Override

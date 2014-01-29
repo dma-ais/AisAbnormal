@@ -16,7 +16,7 @@
 
 package dk.dma.ais.abnormal.event.db.domain.builders;
 
-import dk.dma.ais.abnormal.event.db.domain.AbnormalShipSizeOrTypeEvent;
+import dk.dma.ais.abnormal.event.db.domain.ShipSizeOrTypeEvent;
 
 /**
  * This builder follows the expression builder pattern
@@ -24,10 +24,10 @@ import dk.dma.ais.abnormal.event.db.domain.AbnormalShipSizeOrTypeEvent;
  */
 public class AbnormalShipSizeOrTypeEventBuilder extends EventBuilder {
 
-    AbnormalShipSizeOrTypeEvent event;
+    ShipSizeOrTypeEvent event;
 
     public AbnormalShipSizeOrTypeEventBuilder() {
-        event = new AbnormalShipSizeOrTypeEvent();
+        event = new ShipSizeOrTypeEvent();
     }
 
     public static AbnormalShipSizeOrTypeEventBuilder AbnormalShipSizeOrTypeEvent() {
@@ -44,7 +44,7 @@ public class AbnormalShipSizeOrTypeEventBuilder extends EventBuilder {
         return this;
     }
 
-    public AbnormalShipSizeOrTypeEvent getEvent() {
+    public ShipSizeOrTypeEvent getEvent() {
         return event;
     }
 

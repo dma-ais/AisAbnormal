@@ -24,7 +24,7 @@ import javax.persistence.Entity;
  * An event
  */
 @Entity
-public class AbnormalShipSizeOrTypeEvent extends Event {
+public class ShipSizeOrTypeEvent extends Event {
 
     private int shipType;
     private int shipLength;
@@ -53,6 +53,6 @@ public class AbnormalShipSizeOrTypeEvent extends Event {
                 .toString();
     }
 
-    public AbnormalShipSizeOrTypeEvent() {
+    public ShipSizeOrTypeEvent() {
     }
 }

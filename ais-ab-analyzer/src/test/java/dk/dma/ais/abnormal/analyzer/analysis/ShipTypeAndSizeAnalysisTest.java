@@ -18,7 +18,7 @@ package dk.dma.ais.abnormal.analyzer.analysis;
 
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.event.db.EventRepository;
-import dk.dma.ais.abnormal.event.db.domain.AbnormalShipSizeOrTypeEvent;
+import dk.dma.ais.abnormal.event.db.domain.ShipSizeOrTypeEvent;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeFeatureData;
 import dk.dma.ais.abnormal.tracker.Track;
@@ -197,7 +197,7 @@ public class ShipTypeAndSizeAnalysisTest {
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with(ShipTypeAndSizeAnalysis.class.getSimpleName()), with(any(String.class)));
             oneOf(featureDataRepository).getFeatureData("ShipTypeAndSizeFeature", 123L);
-            oneOf(eventRepository).findOngoingEventByVessel(with(123456), with(AbnormalShipSizeOrTypeEvent.class));
+            oneOf(eventRepository).findOngoingEventByVessel(with(123456), with(ShipSizeOrTypeEvent.class));
         }});
         event.getTrack().setProperty(Track.VESSEL_LENGTH, 4);
         analysis.onCellIdChanged(event);
@@ -230,8 +230,8 @@ public class ShipTypeAndSizeAnalysisTest {
             ignoring(statisticsService).incAnalysisStatistics(with(ShipTypeAndSizeAnalysis.class.getSimpleName()), with(any(String.class)));
             oneOf(trackingService).registerSubscriber(analysis);
             oneOf(featureDataRepository).getFeatureData("ShipTypeAndSizeFeature", 123L); will(returnValue(featureData));
-            oneOf(eventRepository).findOngoingEventByVessel(with(123456), with(AbnormalShipSizeOrTypeEvent.class)); will(returnValue(null));
-            oneOf(eventRepository).save(with((Matcher<AbnormalShipSizeOrTypeEvent>) any(AbnormalShipSizeOrTypeEvent.class)));
+            oneOf(eventRepository).findOngoingEventByVessel(with(123456), with(ShipSizeOrTypeEvent.class)); will(returnValue(null));
+            oneOf(eventRepository).save(with((Matcher<ShipSizeOrTypeEvent>) any(ShipSizeOrTypeEvent.class)));
         }});
         analysis.start();
         analysis.onCellIdChanged(event);
@@ -264,8 +264,8 @@ public class ShipTypeAndSizeAnalysisTest {
             ignoring(statisticsService).incAnalysisStatistics(with(ShipTypeAndSizeAnalysis.class.getSimpleName()), with(any(String.class)));
             oneOf(trackingService).registerSubscriber(analysis);
             oneOf(featureDataRepository).getFeatureData("ShipTypeAndSizeFeature", 123L); will(returnValue(featureData));
-            oneOf(eventRepository).findOngoingEventByVessel(with(123456), with(AbnormalShipSizeOrTypeEvent.class)); will(returnValue(null));
-            never(eventRepository).save(with((Matcher<AbnormalShipSizeOrTypeEvent>) any(AbnormalShipSizeOrTypeEvent.class)));
+            oneOf(eventRepository).findOngoingEventByVessel(with(123456), with(ShipSizeOrTypeEvent.class)); will(returnValue(null));
+            never(eventRepository).save(with((Matcher<ShipSizeOrTypeEvent>) any(ShipSizeOrTypeEvent.class)));
         }});
         analysis.start();
         analysis.onCellIdChanged(event);

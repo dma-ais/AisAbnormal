@@ -16,37 +16,71 @@
 
 package dk.dma.ais.abnormal.event.db.h2;
 
-import dk.dma.ais.abnormal.event.db.domain.AbnormalShipSizeOrTypeEvent;
-import dk.dma.ais.abnormal.event.db.domain.SuddenSpeedChangeEvent;
+import dk.dma.ais.abnormal.event.db.domain.Event;
+import dk.dma.ais.abnormal.event.db.domain.ShipSizeOrTypeEvent;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.jmock.Expectations;
+import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.File;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
 public class H2EventRepositoryTest {
+
+    private JUnit4Mockery context;
+    private SessionFactory sessionFactory;
+    private Session session;
 
     private H2EventRepository h2EventRepository;
 
     @Before
     public void init() {
-        String workingDir = System.getProperty("user.dir");
-        File dbFile = new File(workingDir + "/src/test/db/repository");
-        System.out.println(dbFile.getAbsolutePath());
-        h2EventRepository = new H2EventRepository(dbFile, true);
+        context = new JUnit4Mockery();
+
+        sessionFactory = context.mock(SessionFactory.class);
+        session = context.mock(Session.class);
     }
 
+    @Test
+    public void callsSessionSetDefaultReadOnlyWithTrue() {
+        context.checking(new Expectations() {{
+            oneOf(sessionFactory).openSession(); will(returnValue(session));
+            oneOf(session).setDefaultReadOnly(true);
+            oneOf(session).get(Event.class, 1L); will(returnValue(null));
+            oneOf(session).close();
+        }});
 
-    @Test @Ignore
+        h2EventRepository = new H2EventRepository(sessionFactory, true);
+        h2EventRepository.getEvent(1);
+    }
+
+    @Test
+    public void callsSessionSetDefaultReadOnlyWithFalse() {
+        context.checking(new Expectations() {{
+            oneOf(sessionFactory).openSession(); will(returnValue(session));
+            oneOf(session).setDefaultReadOnly(false);
+            oneOf(session).get(Event.class, 1L); will(returnValue(null));
+            oneOf(session).close();
+        }});
+
+        h2EventRepository = new H2EventRepository(sessionFactory, false);
+        h2EventRepository.getEvent(1);
+    }
+
+    @Test
     public void testFindOngoingEventByVessel() {
-        AbnormalShipSizeOrTypeEvent event1 = h2EventRepository.findOngoingEventByVessel(219886000, AbnormalShipSizeOrTypeEvent.class);
-        assertNotNull(event1);
+        ShipSizeOrTypeEvent event = new ShipSizeOrTypeEvent();
 
-        SuddenSpeedChangeEvent event2 = h2EventRepository.findOngoingEventByVessel(219886000, SuddenSpeedChangeEvent.class);
-        assertNull(event2);
+        context.checking(new Expectations() {{
+            oneOf(sessionFactory).openSession(); will(returnValue(session));
+            oneOf(session).getTransaction();
+            oneOf(session).beginTransaction();
+            oneOf(session).createQuery(with(any(String.class)));
+            oneOf(session).close();
+        }});
+
+        h2EventRepository = new H2EventRepository(sessionFactory, false);
+        h2EventRepository.findOngoingEventByVessel(219886000, ShipSizeOrTypeEvent.class);
     }
 
 }

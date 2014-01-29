@@ -36,7 +36,7 @@ var tickerModule = {
         var s = "";
         s += eventModule.formatTimestamp(event.startTime) + " ";
 
-        if (event.eventType == "AbnormalShipSizeOrTypeEvent") {
+        if (event.eventType == "ShipSizeOrTypeEvent") {
             var bounds = eventModule.computeEventExtent(event);
 
             s += (event.state == 'ONGOING' ? "Ongoing " : "Past ");

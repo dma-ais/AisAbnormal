@@ -27,6 +27,7 @@ import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.h2.H2EventRepository;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.mapdb.FeatureDataRepositoryMapDB;
+import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,8 +84,8 @@ public final class RestModule extends ServletModule {
     @Provides
     @Singleton
     EventRepository provideEventRepository() {
-        return new H2EventRepository(new File(pathToEventDatabase), false);
+        SessionFactory sessionFactory = H2EventRepository.newSessionFactory(new File(pathToEventDatabase));
+        return new H2EventRepository(sessionFactory, true);
     }
 
 }
-

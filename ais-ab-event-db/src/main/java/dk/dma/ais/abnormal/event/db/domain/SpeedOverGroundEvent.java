@@ -24,11 +24,11 @@ import javax.persistence.Entity;
  * An event
  */
 @Entity
-public class AbnormalCourseOverGroundEvent extends Event {
+public class SpeedOverGroundEvent extends Event {
 
     private int shipType;
     private int shipLength;
-    private int courseOverGround;
+    private int speedOverGround;
 
     public int getShipType() {
         return shipType;
@@ -46,12 +46,12 @@ public class AbnormalCourseOverGroundEvent extends Event {
         this.shipLength = shipLength;
     }
 
-    public int getCourseOverGround() {
-        return courseOverGround;
+    public int getSpeedOverGround() {
+        return speedOverGround;
     }
 
-    public void setCourseOverGround(int courseOverGround) {
-        this.courseOverGround = courseOverGround;
+    public void setSpeedOverGround(int speedOverGround) {
+        this.speedOverGround = speedOverGround;
     }
 
     @Override
@@ -59,10 +59,10 @@ public class AbnormalCourseOverGroundEvent extends Event {
         return Objects.toStringHelper(this)
                 .add("shipType", shipType)
                 .add("shipLength", shipLength)
-                .add("courseOverGround", courseOverGround)
+                .add("speedOverGround", speedOverGround)
                 .toString();
     }
 
-    public AbnormalCourseOverGroundEvent() {
+    public SpeedOverGroundEvent() {
     }
 }

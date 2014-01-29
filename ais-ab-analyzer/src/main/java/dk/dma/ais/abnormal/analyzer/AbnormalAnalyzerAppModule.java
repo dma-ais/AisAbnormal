@@ -31,6 +31,7 @@ import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
 import dk.dma.enav.model.geometry.grid.Grid;
+import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,9 +84,8 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     @Provides
     @Singleton
     EventRepository provideEventRepository() {
-        EventRepository eventRepository = null;
-        eventRepository = new H2EventRepository(new File(pathToEventDatabase), false);
-        return eventRepository;
+        SessionFactory sessionFactory = H2EventRepository.newSessionFactory(new File(pathToEventDatabase));
+        return new H2EventRepository(sessionFactory, false);
     }
 
     @Provides

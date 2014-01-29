@@ -16,7 +16,7 @@
 
 package dk.dma.ais.abnormal.event.db.domain.builders;
 
-import dk.dma.ais.abnormal.event.db.domain.AbnormalCourseOverGroundEvent;
+import dk.dma.ais.abnormal.event.db.domain.CourseOverGroundEvent;
 
 /**
  * This builder follows the expression builder pattern
@@ -24,10 +24,10 @@ import dk.dma.ais.abnormal.event.db.domain.AbnormalCourseOverGroundEvent;
  */
 public class AbnormalCourseOverGroundEventBuilder extends EventBuilder {
 
-    AbnormalCourseOverGroundEvent event;
+    CourseOverGroundEvent event;
 
     public AbnormalCourseOverGroundEventBuilder() {
-        event = new AbnormalCourseOverGroundEvent();
+        event = new CourseOverGroundEvent();
     }
 
     public static AbnormalCourseOverGroundEventBuilder AbnormalCourseOverGroundEvent() {
@@ -49,7 +49,7 @@ public class AbnormalCourseOverGroundEventBuilder extends EventBuilder {
         return this;
     }
 
-    public AbnormalCourseOverGroundEvent getEvent() {
+    public CourseOverGroundEvent getEvent() {
         return event;
     }
 

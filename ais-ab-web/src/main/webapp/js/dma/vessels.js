@@ -169,7 +169,7 @@ var vesselModule = {
                 + "\nMMSI " + vessel.mmsi;
 
             var eventType = event.eventType;
-            if (eventType == "AbnormalShipSizeOrTypeEvent") {
+            if (eventType == "ShipSizeOrTypeEvent") {
                 tooltip += "\n"
                         +  "\nShip size: " + event.shipLength
                         +  "\nShip type: " + event.shipType;
