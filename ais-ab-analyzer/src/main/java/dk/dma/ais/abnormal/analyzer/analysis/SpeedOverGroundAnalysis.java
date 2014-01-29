@@ -122,7 +122,7 @@ public class SpeedOverGroundAnalysis extends FeatureDataBasedAnalysis {
     boolean isAbnormalSpeedOverGround(Long cellId, int shipTypeBucket, int shipSizeBucket, int speedOverGroundBucket) {
         float pd = 1.0f;
 
-        FeatureData speedOverGroundFeatureData = getFeatureDataRepository().getFeatureData("ShipTypeAndSizeFeature", cellId);
+        FeatureData speedOverGroundFeatureData = getFeatureDataRepository().getFeatureData("SpeedOverGroundFeature", cellId);
 
         if (speedOverGroundFeatureData instanceof SpeedOverGroundFeatureData) {
             Integer totalCount  = ((SpeedOverGroundFeatureData) speedOverGroundFeatureData).getSumFor(SpeedOverGroundFeatureData.STAT_SHIP_COUNT);
@@ -132,7 +132,7 @@ public class SpeedOverGroundAnalysis extends FeatureDataBasedAnalysis {
                     shipCount = 0;
                 }
                 pd = (float) shipCount / (float) totalCount;
-                LOG.debug("cellId=" + cellId + ", shipType=" + shipTypeBucket + ", shipSize=" + shipSizeBucket + "cog=" + speedOverGroundBucket + ", shipCount=" + shipCount + ", totalCount=" + totalCount + ", pd=" + pd);
+                LOG.debug("cellId=" + cellId + ", shipType=" + shipTypeBucket + ", shipSize=" + shipSizeBucket + ", sog=" + speedOverGroundBucket + ", shipCount=" + shipCount + ", totalCount=" + totalCount + ", pd=" + pd);
             } else {
                 LOG.debug("totalCount of " + totalCount + " is not enough statistical data for cell " + cellId);
             }
