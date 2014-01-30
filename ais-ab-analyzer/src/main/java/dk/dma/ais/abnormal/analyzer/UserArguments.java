@@ -17,6 +17,7 @@
 package dk.dma.ais.abnormal.analyzer;
 
 import com.beust.jcommander.Parameter;
+import com.google.common.base.Strings;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class UserArguments {
@@ -36,11 +37,39 @@ public class UserArguments {
     @Parameter(names = "-featureData", description = "Name of file containing feature data statistics.", required = true)
     private String featureData;
 
-    @Parameter(names = "-eventData", description = "Name of file to hold event data.", required = true)
-    private String pathToEventDatabase;
+    // -- Repository type choice
+
+    @Parameter(names = "-eventDataRepositoryType", description = "Type of repository used to hold event data ('h2', 'pgsql').", required = true)
+    private String eventDataRepositoryType;
+
+    // -- Postgres specific args
+
+    @Parameter(names = "-eventDataDbHost", description = "Name of the event database RDBMS host.", required = false)
+    private String eventDataDbHost;
+
+    @Parameter(names = "-eventDataDbPort", description = "Remote port of the event database RDBMS host.", required = false)
+    private Integer eventDataDbPort;
+
+    @Parameter(names = "-eventDataDbUsername", description = "Username to connect to the event database RDBMS host.", required = false)
+    private String eventDataDbUsername;
+
+    @Parameter(names = "-eventDataDbPassword", description = "Password to connect to the event database RDBMS host.", required = false)
+    private String eventDataDbPassword;
+
+    @Parameter(names = "-eventDataDbName", description = "Database name to use for the event database with the RDBMS host.", required = false)
+    private String eventDataDbName;
+
+    // -- H2 specific args
+
+    @Parameter(names = "-eventDataDbFile", description = "Name of file to hold event data.", required = false)
+    private String eventDataDbFile;
+
+    // -- AIS stream args
 
     @Parameter(names = "-downsampling", description = "Downsampling period (in secs).")
     private Integer downSampling = 10;
+
+    // --
 
     public void setHelp(boolean help) {
         this.help = help;
@@ -66,15 +95,49 @@ public class UserArguments {
         return featureData;
     }
 
-    public String getPathToEventDatabase() {
-        return pathToEventDatabase;
+    public String getEventDataRepositoryType() {
+        return eventDataRepositoryType;
     }
 
-    public int getDownSampling() {
+    public String getEventDataDbHost() {
+        return eventDataDbHost;
+    }
+
+    public Integer getEventDataDbPort() {
+        return eventDataDbPort;
+    }
+
+    public String getEventDataDbUsername() {
+        return eventDataDbUsername;
+    }
+
+    public String getEventDataDbPassword() {
+        return eventDataDbPassword;
+    }
+
+    public String getEventDataDbName() {
+        return eventDataDbName;
+    }
+
+    public String getEventDataDbFile() {
+        return eventDataDbFile;
+    }
+
+    public Integer getDownSampling() {
         return downSampling;
     }
 
-    public void setDownSampling(int downSampling) {
-        this.downSampling = downSampling;
+    public boolean paramsValidForH2() {
+        return "h2".equalsIgnoreCase(eventDataRepositoryType) &&
+                !Strings.isNullOrEmpty(eventDataDbFile);
+    }
+
+    public boolean paramsValidForPgsql() {
+        return "pgsql".equalsIgnoreCase(eventDataRepositoryType) &&
+                !Strings.isNullOrEmpty(eventDataDbHost) &&
+                !(eventDataDbPort == null) &&
+                !Strings.isNullOrEmpty(eventDataDbUsername) &&
+                !Strings.isNullOrEmpty(eventDataDbPassword) &&
+                !Strings.isNullOrEmpty(eventDataDbName);
     }
 }

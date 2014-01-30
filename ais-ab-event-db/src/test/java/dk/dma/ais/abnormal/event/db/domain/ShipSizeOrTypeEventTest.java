@@ -1,7 +1,7 @@
 package dk.dma.ais.abnormal.event.db.domain;
 
 import dk.dma.ais.abnormal.event.db.EventRepository;
-import dk.dma.ais.abnormal.event.db.h2.H2EventRepository;
+import dk.dma.ais.abnormal.event.db.jpa.JpaEventRepository;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.jmock.Expectations;
@@ -25,7 +25,7 @@ public class ShipSizeOrTypeEventTest {
 
     @Test
     public void canSaveShipSizeOrTypeEvent() {
-        EventRepository eventRepository = new H2EventRepository(sessionFactory, false);
+        EventRepository eventRepository = new JpaEventRepository(sessionFactory, false);
         ShipSizeOrTypeEvent event = new ShipSizeOrTypeEvent();
 
         context.checking(new Expectations() {{

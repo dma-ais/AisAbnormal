@@ -33,8 +33,11 @@ import java.lang.Thread.UncaughtExceptionHandler;
  */
 public class AbnormalAnalyzerApp extends AbstractDaemon {
 
-    /** The logger */
+    /**
+     * The logger
+     */
     static final Logger LOG = LoggerFactory.getLogger(AbnormalAnalyzerApp.class);
+
     {
         ApplicationSupport.logJavaSystemProperties(LOG);
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
@@ -92,7 +95,7 @@ public class AbnormalAnalyzerApp extends AbstractDaemon {
         statisticsService.stop();
         */
     }
-    
+
     @Override
     public void execute(String[] args) throws Exception {
         super.execute(args);
@@ -131,15 +134,34 @@ public class AbnormalAnalyzerApp extends AbstractDaemon {
             userArguments.setHelp(true);
         }
 
-        if (userArguments.isHelp()) {
+        if (userArguments.isHelp() || (!userArguments.paramsValidForH2() && !userArguments.paramsValidForPgsql())) {
             jCommander = new JCommander(userArguments, "-help");
             jCommander.setProgramName("AbnormalAnalyzerApp");
             jCommander.usage();
         } else {
-            Injector injector = Guice.createInjector(new AbnormalAnalyzerAppModule(userArguments.getInputDirectory(), userArguments.getInputFilenamePattern(), userArguments.isRecursive(), userArguments.getFeatureData(), userArguments.getPathToEventDatabase(), userArguments.getDownSampling()));
+            Injector injector = Guice.createInjector(
+                    new AbnormalAnalyzerAppModule(
+                            userArguments.getInputDirectory(),
+                            userArguments.getInputFilenamePattern(),
+                            userArguments.isRecursive(),
+                            userArguments.getFeatureData(),
+                            userArguments.getEventDataDbFile(),
+                            userArguments.getDownSampling(),
+                            userArguments.getEventDataRepositoryType(),
+                            userArguments.getEventDataDbHost(),
+                            userArguments.getEventDataDbPort(),
+                            userArguments.getEventDataDbName(),
+                            userArguments.getEventDataDbUsername(),
+                            userArguments.getEventDataDbPassword()
+                    )
+            );
             AbnormalAnalyzerApp.setInjector(injector);
-            AbnormalAnalyzerApp app = injector.getInstance(AbnormalAnalyzerApp.class);
-            app.execute(new String[]{} /* no cmd args - we handled them already */ );
+            try {
+                AbnormalAnalyzerApp app = injector.getInstance(AbnormalAnalyzerApp.class);
+                app.execute(new String[]{} /* no cmd args - we handled them already */);
+            } catch (Exception e) {
+                LOG.error(e.getMessage());
+            }
         }
     }
 }

@@ -44,12 +44,34 @@ public class WebServer {
 
     private final String repositoryName;
     private final String pathToEventDatabase;
+    private final String eventRepositoryType;
+    private final String eventDataDbHost;
+    private final Integer eventDataDbPort;
+    private final String eventDataDbName;
+    private final String eventDataDbUsername;
+    private final String eventDataDbPassword;
 
-    public WebServer(int port, String repositoryName, String pathToEventDatabase) {
+    public WebServer(
+            int port,
+            String repositoryName,
+            String pathToEventDatabase,
+            String eventRepositoryType,
+            String eventDataDbHost,
+            Integer eventDataDbPort,
+            String eventDataDbName,
+            String eventDataDbUsername,
+            String eventDataDbPassword
+        ) {
         server = new Server(port);
         this.context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         this.repositoryName = repositoryName;
         this.pathToEventDatabase = pathToEventDatabase;
+        this.eventRepositoryType = eventRepositoryType;
+        this.eventDataDbHost = eventDataDbHost;
+        this.eventDataDbPort = eventDataDbPort;
+        this.eventDataDbName = eventDataDbName;
+        this.eventDataDbUsername = eventDataDbUsername;
+        this.eventDataDbPassword = eventDataDbPassword;
     }
 
     /**
@@ -93,7 +115,16 @@ public class WebServer {
         context.addEventListener(new GuiceServletContextListener() {
             @Override
             protected Injector getInjector() {
-                return Guice.createInjector(new RestModule(repositoryName, pathToEventDatabase));
+                return Guice.createInjector(new RestModule(
+                        repositoryName,
+                        pathToEventDatabase,
+                        eventRepositoryType,
+                        eventDataDbHost,
+                        eventDataDbPort,
+                        eventDataDbName,
+                        eventDataDbUsername,
+                        eventDataDbPassword
+                ));
             }
         });
         context.addFilter(com.google.inject.servlet.GuiceFilter.class, "/rest/*", EnumSet.allOf(DispatcherType.class));

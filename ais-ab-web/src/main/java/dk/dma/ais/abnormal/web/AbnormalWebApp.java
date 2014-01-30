@@ -72,7 +72,17 @@ public class AbnormalWebApp extends AbstractDaemon {
             jCommander.setProgramName("ais-ab-web");
             jCommander.usage();
         } else {
-            WebAppModule module = new WebAppModule(userArguments.getPort(), userArguments.getPathToFeatureData(), userArguments.getPathToEventDatabase());
+            WebAppModule module = new WebAppModule(
+                    userArguments.getPort(),
+                    userArguments.getPathToFeatureData(),
+                    userArguments.getEventDataDbFile(),
+                    userArguments.getEventDataRepositoryType(),
+                    userArguments.getEventDataDbHost(),
+                    userArguments.getEventDataDbPort(),
+                    userArguments.getEventDataDbName(),
+                    userArguments.getEventDataDbUsername(),
+                    userArguments.getEventDataDbPassword()
+                    );
             injector = Guice.createInjector(module);
             AbnormalWebApp app = injector.getInstance(AbnormalWebApp.class);
             app.execute(new String[]{} /* no cmd args - we handled them already */ );

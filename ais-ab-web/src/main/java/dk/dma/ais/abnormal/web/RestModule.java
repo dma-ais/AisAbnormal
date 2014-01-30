@@ -24,7 +24,8 @@ import com.sun.jersey.api.core.PackagesResourceConfig;
 import com.sun.jersey.api.core.ResourceConfig;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 import dk.dma.ais.abnormal.event.db.EventRepository;
-import dk.dma.ais.abnormal.event.db.h2.H2EventRepository;
+import dk.dma.ais.abnormal.event.db.jpa.JpaEventRepository;
+import dk.dma.ais.abnormal.event.db.jpa.JpaSessionFactoryFactory;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.mapdb.FeatureDataRepositoryMapDB;
 import org.hibernate.SessionFactory;
@@ -40,10 +41,22 @@ public final class RestModule extends ServletModule {
 
     private final String repositoryFilename;
     private final String pathToEventDatabase;
+    private final String eventRepositoryType;
+    private final String eventDataDbHost;
+    private final Integer eventDataDbPort;
+    private final String eventDataDbName;
+    private final String eventDataDbUsername;
+    private final String eventDataDbPassword;
 
-    public RestModule(String repositoryFilename, String pathToEventDatabase) {
+    public RestModule(String repositoryFilename, String pathToEventDatabase, String eventRepositoryType, String eventDataDbHost, Integer eventDataDbPort, String eventDataDbName, String eventDataDbUsername, String eventDataDbPassword) {
         this.repositoryFilename = repositoryFilename;
         this.pathToEventDatabase = pathToEventDatabase;
+        this.eventRepositoryType = eventRepositoryType;
+        this.eventDataDbHost = eventDataDbHost;
+        this.eventDataDbPort = eventDataDbPort;
+        this.eventDataDbName = eventDataDbName;
+        this.eventDataDbUsername = eventDataDbUsername;
+        this.eventDataDbPassword = eventDataDbPassword;
     }
 
     @Override
@@ -84,8 +97,17 @@ public final class RestModule extends ServletModule {
     @Provides
     @Singleton
     EventRepository provideEventRepository() {
-        SessionFactory sessionFactory = H2EventRepository.newSessionFactory(new File(pathToEventDatabase));
-        return new H2EventRepository(sessionFactory, true);
+        SessionFactory sessionFactory;
+
+        if ("h2".equalsIgnoreCase(eventRepositoryType)) {
+            sessionFactory = JpaSessionFactoryFactory.newH2SessionFactory(new File(pathToEventDatabase));
+        } else if ("pgsql".equalsIgnoreCase(eventRepositoryType)) {
+            sessionFactory = JpaSessionFactoryFactory.newPostgresSessionFactory(eventDataDbHost, eventDataDbPort, eventDataDbName, eventDataDbUsername, eventDataDbPassword);
+        } else {
+            throw new IllegalArgumentException("eventRepositoryType: " + eventRepositoryType);
+        }
+
+        return new JpaEventRepository(sessionFactory, true);
     }
 
 }

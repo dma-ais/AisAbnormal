@@ -32,11 +32,23 @@ public final class WebAppModule extends AbstractModule {
     private final int    port;
     private final String repositoryName;
     private final String pathToEventDatabase;
+    private final String eventRepositoryType;
+    private final String eventDataDbHost;
+    private final Integer eventDataDbPort;
+    private final String eventDataDbName;
+    private final String eventDataDbUsername;
+    private final String eventDataDbPassword;
 
-    public WebAppModule(int port, String repositoryName, String pathToEventDatabase) {
+    public WebAppModule(int port, String repositoryName, String pathToEventDatabase, String eventRepositoryType, String eventDataDbHost, Integer eventDataDbPort, String eventDataDbName, String eventDataDbUsername, String eventDataDbPassword) {
         this.port = port;
         this.repositoryName = repositoryName;
         this.pathToEventDatabase = pathToEventDatabase;
+        this.eventRepositoryType = eventRepositoryType;
+        this.eventDataDbHost = eventDataDbHost;
+        this.eventDataDbPort = eventDataDbPort;
+        this.eventDataDbName = eventDataDbName;
+        this.eventDataDbUsername = eventDataDbUsername;
+        this.eventDataDbPassword = eventDataDbPassword;
     }
 
     @Override
@@ -48,7 +60,16 @@ public final class WebAppModule extends AbstractModule {
     WebServer provideWebServer() {
         WebServer webServer = null;
         try {
-            webServer = new WebServer(port, repositoryName, pathToEventDatabase);
+            webServer = new WebServer(
+                    port,
+                    repositoryName,
+                    pathToEventDatabase,
+                    eventRepositoryType,
+                    eventDataDbHost,
+                    eventDataDbPort,
+                    eventDataDbName,
+                    eventDataDbUsername,
+                    eventDataDbPassword);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

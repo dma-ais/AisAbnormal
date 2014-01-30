@@ -14,7 +14,7 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package dk.dma.ais.abnormal.event.db.h2;
+package dk.dma.ais.abnormal.event.db.jpa;
 
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.ShipSizeOrTypeEvent;
@@ -25,13 +25,13 @@ import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
 import org.junit.Test;
 
-public class H2EventRepositoryTest {
+public class JpaEventRepositoryTest {
 
     private JUnit4Mockery context;
     private SessionFactory sessionFactory;
     private Session session;
 
-    private H2EventRepository h2EventRepository;
+    private JpaEventRepository eventRepository;
 
     @Before
     public void init() {
@@ -50,8 +50,8 @@ public class H2EventRepositoryTest {
             oneOf(session).close();
         }});
 
-        h2EventRepository = new H2EventRepository(sessionFactory, true);
-        h2EventRepository.getEvent(1);
+        eventRepository = new JpaEventRepository(sessionFactory, true);
+        eventRepository.getEvent(1);
     }
 
     @Test
@@ -63,8 +63,8 @@ public class H2EventRepositoryTest {
             oneOf(session).close();
         }});
 
-        h2EventRepository = new H2EventRepository(sessionFactory, false);
-        h2EventRepository.getEvent(1);
+        eventRepository = new JpaEventRepository(sessionFactory, false);
+        eventRepository.getEvent(1);
     }
 
     @Test
@@ -79,8 +79,8 @@ public class H2EventRepositoryTest {
             oneOf(session).close();
         }});
 
-        h2EventRepository = new H2EventRepository(sessionFactory, false);
-        h2EventRepository.findOngoingEventByVessel(219886000, ShipSizeOrTypeEvent.class);
+        eventRepository = new JpaEventRepository(sessionFactory, false);
+        eventRepository.findOngoingEventByVessel(219886000, ShipSizeOrTypeEvent.class);
     }
 
 }

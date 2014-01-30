@@ -20,7 +20,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import dk.dma.ais.abnormal.event.db.EventRepository;
-import dk.dma.ais.abnormal.event.db.h2.H2EventRepository;
+import dk.dma.ais.abnormal.event.db.jpa.JpaEventRepository;
+import dk.dma.ais.abnormal.event.db.jpa.JpaSessionFactoryFactory;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.DatasetMetaData;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeFeatureData;
@@ -46,18 +47,30 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
 
     private final String inputDirectory;
     private final String inputFilenamePattern;
-    private final boolean inputRecursive;
+    private final Boolean inputRecursive;
     private final String featureData;
     private final String pathToEventDatabase;
-    private final int downSampling;
+    private final Integer downSampling;
+    private final String eventRepositoryType;
+    private final String eventDataDbHost;
+    private final Integer eventDataDbPort;
+    private final String eventDataDbName;
+    private final String eventDataDbUsername;
+    private final String eventDataDbPassword;
 
-    public AbnormalAnalyzerAppModule(String inputDirectory, String inputFilenamePattern, boolean inputRecursive, String featureData, String pathToEventDatabase, int downSampling) {
+    public AbnormalAnalyzerAppModule(String inputDirectory, String inputFilenamePattern, Boolean inputRecursive, String featureData, String eventDataDbFile, Integer downSampling, String eventRepositoryType, String eventDataDbHost, Integer eventDataDbPort, String eventDataDbName, String eventDataDbUsername, String eventDataDbPassword) {
         this.inputDirectory = inputDirectory;
         this.inputFilenamePattern = inputFilenamePattern;
         this.inputRecursive = inputRecursive;
         this.featureData = featureData;
-        this.pathToEventDatabase = pathToEventDatabase;
+        this.pathToEventDatabase = eventDataDbFile;
         this.downSampling = downSampling;
+        this.eventRepositoryType = eventRepositoryType;
+        this.eventDataDbHost = eventDataDbHost;
+        this.eventDataDbPort = eventDataDbPort;
+        this.eventDataDbName = eventDataDbName;
+        this.eventDataDbUsername = eventDataDbUsername;
+        this.eventDataDbPassword = eventDataDbPassword;
     }
 
     @Override
@@ -84,8 +97,17 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     @Provides
     @Singleton
     EventRepository provideEventRepository() {
-        SessionFactory sessionFactory = H2EventRepository.newSessionFactory(new File(pathToEventDatabase));
-        return new H2EventRepository(sessionFactory, false);
+        SessionFactory sessionFactory;
+
+        if ("h2".equalsIgnoreCase(eventRepositoryType)) {
+            sessionFactory = JpaSessionFactoryFactory.newH2SessionFactory(new File(pathToEventDatabase));
+        } else if ("pgsql".equalsIgnoreCase(eventRepositoryType)) {
+            sessionFactory = JpaSessionFactoryFactory.newPostgresSessionFactory(eventDataDbHost, eventDataDbPort, eventDataDbName, eventDataDbUsername, eventDataDbPassword);
+        } else {
+            throw new IllegalArgumentException("eventRepositoryType: " + eventRepositoryType);
+        }
+
+        return new JpaEventRepository(sessionFactory, false);
     }
 
     @Provides

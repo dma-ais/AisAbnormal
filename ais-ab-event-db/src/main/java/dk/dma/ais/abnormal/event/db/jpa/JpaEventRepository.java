@@ -14,40 +14,29 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package dk.dma.ais.abnormal.event.db.h2;
+package dk.dma.ais.abnormal.event.db.jpa;
 
 import com.google.inject.Inject;
 import dk.dma.ais.abnormal.event.db.EventRepository;
-import dk.dma.ais.abnormal.event.db.domain.Behaviour;
-import dk.dma.ais.abnormal.event.db.domain.CourseOverGroundEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
-import dk.dma.ais.abnormal.event.db.domain.ShipSizeOrTypeEvent;
-import dk.dma.ais.abnormal.event.db.domain.SpeedOverGroundEvent;
-import dk.dma.ais.abnormal.event.db.domain.SuddenSpeedChangeEvent;
-import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
-import dk.dma.ais.abnormal.event.db.domain.Vessel;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.service.ServiceRegistry;
-import org.hibernate.service.ServiceRegistryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.util.Date;
 import java.util.List;
 
 /**
- * H2EventRepository is an implementation of the EventRepository interface which
- * manages persistent Event objects in an H2 database (accessed via Hibernate).
+ * JpaEventRepository is an implementation of the EventRepository interface which
+ * manages persistent Event objects in a relational database accessed via Hibernate.
  */
 @SuppressWarnings("JpaQlInspection")
-public class H2EventRepository implements EventRepository {
+public class JpaEventRepository implements EventRepository {
 
-    private static final Logger LOG = LoggerFactory.getLogger(H2EventRepository.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JpaEventRepository.class);
     {
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
@@ -55,39 +44,8 @@ public class H2EventRepository implements EventRepository {
     private final SessionFactory sessionFactory;
     private final boolean readonly;
 
-    public static SessionFactory newSessionFactory(File dbFilename) {
-        LOG.debug("Loading Hibernate configuration.");
-
-        Configuration configuration = new Configuration()
-                .setProperty("hibernate.connection.driver_class", "org.h2.Driver")
-                .setProperty("hibernate.connection.url", buildConnectionUrl(dbFilename))
-                .setProperty("hibernate.connection.username", "sa")
-                .setProperty("hibernate.connection.password", "")
-                .setProperty("hibernate.default_schema", "PUBLIC")
-                .setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect")
-                        //.setProperty("hibernate.show_sql", "true")
-                .setProperty("hibernate.hbm2ddl.auto", "update")
-                .setProperty("hibernate.order_updates", "true")
-                .addAnnotatedClass(CourseOverGroundEvent.class)
-                .addAnnotatedClass(SpeedOverGroundEvent.class)
-                .addAnnotatedClass(ShipSizeOrTypeEvent.class)
-                .addAnnotatedClass(SuddenSpeedChangeEvent.class)
-                .addAnnotatedClass(Vessel.class)
-                .addAnnotatedClass(Behaviour.class)
-                .addAnnotatedClass(TrackingPoint.class);
-        ServiceRegistryBuilder serviceRegistryBuilder = new ServiceRegistryBuilder();
-        serviceRegistryBuilder.applySettings(configuration.getProperties());
-        ServiceRegistry serviceRegistry = serviceRegistryBuilder.buildServiceRegistry();
-
-        LOG.info("Starting Hibernate.");
-        SessionFactory sessionFactory = configuration.buildSessionFactory(serviceRegistry);
-        LOG.info("Hibernate started.");
-
-        return sessionFactory;
-    }
-
     @Inject
-    public H2EventRepository(SessionFactory sessionFactory, boolean readonly) {
+    public JpaEventRepository(SessionFactory sessionFactory, boolean readonly) {
         this.readonly = readonly;
         this.sessionFactory = sessionFactory;
     }
@@ -96,18 +54,6 @@ public class H2EventRepository implements EventRepository {
     protected void finalize() {
         LOG.info("Closing database session factory.");
         sessionFactory.close();
-    }
-
-    private static String buildConnectionUrl(File dbFilename) {
-        StringBuffer connectionUrl = new StringBuffer();
-        connectionUrl.append("jdbc:h2:");
-        connectionUrl.append(dbFilename.getAbsolutePath());
-        connectionUrl.append(";");
-        connectionUrl.append("TRACE_LEVEL_FILE=0");
-        connectionUrl.append(";");
-        connectionUrl.append("TRACE_LEVEL_SYSTEM_OUT=1");
-        LOG.debug("Using connectionUrl=" + connectionUrl);
-        return connectionUrl.toString();
     }
 
     private Session getSession() {
