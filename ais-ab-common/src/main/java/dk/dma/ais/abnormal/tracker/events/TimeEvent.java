@@ -17,30 +17,34 @@
 package dk.dma.ais.abnormal.tracker.events;
 
 import com.google.common.base.Objects;
-import dk.dma.ais.abnormal.tracker.Track;
-import dk.dma.enav.model.geometry.Position;
 
 /**
- * A PositionChangedEvent is fired by the tracker every time the position of a track is updated.
+ * TimeEvent is a special type of TrackerEvent which is emitted at periodic intervals in the AIS data stream.
+ * The exact period can be configured in the Tracker.
  */
-public class PositionChangedEvent extends TrackEvent {
-    private final Position oldPosition;
+public class TimeEvent extends TrackerEvent {
 
-    public PositionChangedEvent(Track track, Position oldPosition) {
-        super(track);
-        this.oldPosition = oldPosition;
+    private final long timestamp;
+    private final int millisSinceLastMark;
+
+    public TimeEvent(long timestamp, int millisSinceLastMark) {
+        this.timestamp = timestamp;
+        this.millisSinceLastMark = millisSinceLastMark;
     }
 
-    public final Position getOldPosition() {
-        return oldPosition;
+    public final long getTimestamp() {
+        return timestamp;
+    }
+
+    public int getMillisSinceLastMark() {
+        return millisSinceLastMark;
     }
 
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                .add("mmsi", getTrack().getMmsi())
-                .add("oldPosition", oldPosition)
-                .add("newPosition", getTrack().getProperty(Track.POSITION))
+                .add("timestamp", timestamp)
+                .add("millisSinceLastMark", millisSinceLastMark)
                 .toString();
     }
 }

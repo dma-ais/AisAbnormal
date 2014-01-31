@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement />
+  <nodes>
+    <node x="-239.1818181818182" y="-174.54545454545453">dk.dma.ais.abnormal.tracker.events.TrackEvent</node>
+    <node x="-254.1818181818182" y="-94.54545454545453">dk.dma.ais.abnormal.tracker.events.TrackStaleEvent</node>
+    <node x="-448.1818181818182" y="-94.54545454545453">dk.dma.ais.abnormal.tracker.events.PositionChangedEvent</node>
+    <node x="-184.6818181818182" y="-254.54545454545453">dk.dma.ais.abnormal.tracker.events.TrackerEvent</node>
+    <node x="-101.18181818181819" y="-94.54545454545453">dk.dma.ais.abnormal.tracker.events.CellChangedEvent</node>
+    <node x="-116.18181818181819" y="-174.54545454545453">dk.dma.ais.abnormal.tracker.events.TimeEvent</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="dk.dma.ais.abnormal.tracker.events.PositionChangedEvent" target="dk.dma.ais.abnormal.tracker.events.TrackEvent">
+      <point x="0.0" y="-15.0" />
+      <point x="-361.1818181818182" y="-119.54545454545453" />
+      <point x="-222.01515151515153" y="-119.54545454545453" />
+      <point x="-34.333333333333336" y="15.0" />
+    </edge>
+    <edge source="dk.dma.ais.abnormal.tracker.events.CellChangedEvent" target="dk.dma.ais.abnormal.tracker.events.TrackEvent">
+      <point x="0.0" y="-15.0" />
+      <point x="-27.681818181818187" y="-119.54545454545453" />
+      <point x="-153.34848484848482" y="-119.54545454545453" />
+      <point x="34.33333333333334" y="15.0" />
+    </edge>
+    <edge source="dk.dma.ais.abnormal.tracker.events.TrackEvent" target="dk.dma.ais.abnormal.tracker.events.TrackerEvent">
+      <point x="0.0" y="-15.0" />
+      <point x="-187.6818181818182" y="-199.54545454545453" />
+      <point x="-155.9318181818182" y="-199.54545454545453" />
+      <point x="-28.75" y="15.0" />
+    </edge>
+    <edge source="dk.dma.ais.abnormal.tracker.events.TimeEvent" target="dk.dma.ais.abnormal.tracker.events.TrackerEvent">
+      <point x="0.0" y="-15.0" />
+      <point x="-66.68181818181819" y="-199.54545454545453" />
+      <point x="-98.43181818181819" y="-199.54545454545453" />
+      <point x="28.75" y="15.0" />
+    </edge>
+    <edge source="dk.dma.ais.abnormal.tracker.events.TrackStaleEvent" target="dk.dma.ais.abnormal.tracker.events.TrackEvent">
+      <point x="0.0" y="-15.0" />
+      <point x="7.105427357601002E-15" y="15.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.1" x="-58.72727272727275" y="-80.00000000000006" />
+  <SelectedNodes />
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

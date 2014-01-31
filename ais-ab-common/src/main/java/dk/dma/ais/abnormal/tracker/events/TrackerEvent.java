@@ -16,25 +16,8 @@
 
 package dk.dma.ais.abnormal.tracker.events;
 
-import com.google.common.base.Objects;
-import dk.dma.ais.abnormal.tracker.Track;
-
-public abstract class TrackingEvent {
-
-    private final Track track;
-
-    TrackingEvent(Track track) {
-        this.track = track;
-    }
-
-    public final Track getTrack() {
-        return track;
-    }
-
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this)
-                .add("track", track)
-                .toString();
-    }
+/**
+ * TrackerEvent is the base class of all event that can be emitted by the TrackingService.
+ */
+public abstract class TrackerEvent {
 }

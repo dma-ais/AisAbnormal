@@ -23,7 +23,7 @@ import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeFeatureData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
-import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
+import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
 import dk.dma.enav.model.geometry.Position;
 import org.hamcrest.Matcher;
@@ -163,7 +163,7 @@ public class ShipTypeAndSizeAnalysisTest {
     public void testNoAnalysisDoneForInsufficientData() {
         // Create test data
         Track track = new Track(123456);
-        CellIdChangedEvent event = new CellIdChangedEvent(track, null);
+        CellChangedEvent event = new CellChangedEvent(track, null);
 
         // Create object under test
         final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository);
@@ -220,7 +220,7 @@ public class ShipTypeAndSizeAnalysisTest {
         track.setProperty(Track.POSITION_IS_INTERPOLATED, false);
         track.setProperty(Track.POSITION, Position.create(56, 12));
 
-        CellIdChangedEvent event = new CellIdChangedEvent(track, null);
+        CellChangedEvent event = new CellChangedEvent(track, null);
 
         // Create object under test
         final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository);
@@ -254,7 +254,7 @@ public class ShipTypeAndSizeAnalysisTest {
         track.setProperty(Track.POSITION_IS_INTERPOLATED, false);
         track.setProperty(Track.POSITION, Position.create(56, 12));
 
-        CellIdChangedEvent event = new CellIdChangedEvent(track, null);
+        CellChangedEvent event = new CellChangedEvent(track, null);
 
         // Create object under test
         final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository);

@@ -21,8 +21,9 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import dk.dma.ais.abnormal.application.statistics.AppStatisticsService;
-import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
+import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
 import dk.dma.ais.abnormal.tracker.events.PositionChangedEvent;
+import dk.dma.ais.abnormal.tracker.events.TimeEvent;
 import dk.dma.ais.abnormal.tracker.events.TrackStaleEvent;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisMessage5;
@@ -48,11 +49,9 @@ import java.util.TreeMap;
 public class TrackingServiceImpl implements TrackingService {
 
     static final Logger LOG = LoggerFactory.getLogger(TrackingServiceImpl.class);
-
     {
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
-
 
     private EventBus eventBus = new EventBus();
     private final AppStatisticsService statisticsService;
@@ -64,9 +63,26 @@ public class TrackingServiceImpl implements TrackingService {
     static final int TRACK_INTERPOLATION_REQUIRED_SECS = 30;  // 30 secs
     static final int INTERPOLATION_TIME_STEP_MILLIS = 10000;
 
-    Calendar markCalendar = Calendar.getInstance();
-    private int markLastTimeProcessed;
+    /**
+     * A simple counter which is used to reduce CPU load by only performing more complicated
+     * calculations when this markTrigger has reached certain values.
+     */
     private int markTrigger;
+
+    /**
+     * The last hour-of-the-day when a timestamp message was log to the LOG.
+     */
+    private int markLastHourLogged;
+
+    /**
+     * The time since Epoch when the most recent TimeEvent was posted to the EventBus.
+     */
+    private long lastTimeEventMillis = 0;
+
+    /**
+     * The approximate no. of milliseconds between each TimeEvent.
+     */
+    static final int TIME_EVENT_PERIOD_MILLIS = 60000;
 
     @Inject
     public TrackingServiceImpl(Grid grid, AppStatisticsService statisticsService) {
@@ -77,8 +93,6 @@ public class TrackingServiceImpl implements TrackingService {
 
     @Override
     public void update(Date timestamp, AisMessage aisMessage) {
-        mark(timestamp);
-
         final AisTargetType targetType = aisMessage.getTargetType();
 
         int mmsi = aisMessage.getUserId();
@@ -145,11 +159,8 @@ public class TrackingServiceImpl implements TrackingService {
                 LOG.debug("Message of type " + aisMessage.getMsgId() + " ignored because it is out of sequence (delayed) by " + timeDelta + " msecs (mmsi " + mmsi + ")");
             }
         }
-        /*
-        else {
-            LOG.debug("Tracker does not support target type " + targetType + " (mmsi " + mmsi + ")");
-        }
-        */
+
+        mark(timestamp);
     }
 
     private void interpolatePositions(Track track, Long currentUpdate, IPositionMessage positionMessage) {
@@ -288,12 +299,12 @@ public class TrackingServiceImpl implements TrackingService {
             if ((oldCellId == null && newCellId != null) ||
                     (oldCellId != null && newCellId == null) ||
                     (oldCellId != null && newCellId != null && !oldCellId.equals(newCellId))) {
-                eventBus.post(new CellIdChangedEvent(track, oldCellId));
+                eventBus.post(new CellChangedEvent(track, oldCellId));
             }
         } else {
             track.removeProperty(Track.CELL_ID);
             if (oldCellId != null) {
-                eventBus.post(new CellIdChangedEvent(track, oldCellId));
+                eventBus.post(new CellChangedEvent(track, oldCellId));
             }
             LOG.warn("Message type contained no valid position (mmsi " + track.getMmsi() + ")");
         }
@@ -340,20 +351,40 @@ public class TrackingServiceImpl implements TrackingService {
     }
 
     /**
-     * Occassionally check how far we have come in the data stream, and log a message if there are any
-     * significant news.
+     * Occasionally check how far we have come in the data stream, and fire a TimeEvent event to the EventBus
+     * approximately every TIME_EVENT_PERIOD_MILLIS msecs. The mechanism is based on timestamps from the data
+     * stream and therefore quite unprecise. Significant slack must be expected.
      *
      * @param timestamp timestamp of current message.
      */
     private void mark(Date timestamp) {
-        if (markTrigger++ % 100000 == 0) {
+        // Put marks in the log
+        if ((markTrigger & 0xffff) == 0) {
+            Calendar markCalendar = Calendar.getInstance();
             markCalendar.setTime(timestamp);
             int t = markCalendar.get(Calendar.HOUR_OF_DAY);
-            if (t != markLastTimeProcessed) {
-                markLastTimeProcessed = t;
+            if (t != markLastHourLogged) {
+                markLastHourLogged = t;
                 LOG.info("Now processing stream at time " + timestamp);
             }
         }
+
+        // Fire TimeEvents
+        //if ((markTrigger & 0xff) == 0) {
+        long timestampMillis = timestamp.getTime();
+        long millisSinceLastTimeEvent = timestampMillis - lastTimeEventMillis;
+
+        if (millisSinceLastTimeEvent >= TIME_EVENT_PERIOD_MILLIS) {
+            TimeEvent timeEvent = new TimeEvent(timestampMillis, lastTimeEventMillis == 0 ? -1 : (int) millisSinceLastTimeEvent);
+            eventBus.post(timeEvent);
+            lastTimeEventMillis = timestampMillis;
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("TimeEvent emitted at time " + timeEvent.getTimestamp() + " msecs (" + timeEvent.getMillisSinceLastMark() + " msecs since last).");
+            }
+        }
+        //}
+
+        markTrigger++;
     }
 
 }

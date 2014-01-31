@@ -19,10 +19,12 @@ package dk.dma.ais.abnormal.tracker;
 import com.google.common.eventbus.Subscribe;
 import dk.dma.ais.abnormal.application.statistics.AppStatisticsService;
 import dk.dma.ais.abnormal.application.statistics.AppStatisticsServiceImpl;
-import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
+import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
 import dk.dma.ais.abnormal.tracker.events.PositionChangedEvent;
+import dk.dma.ais.abnormal.tracker.events.TimeEvent;
 import dk.dma.ais.binary.SixbitException;
 import dk.dma.ais.message.AisMessage;
+import dk.dma.ais.message.AisMessage24;
 import dk.dma.ais.message.AisMessage3;
 import dk.dma.ais.message.AisMessage5;
 import dk.dma.ais.message.AisMessageException;
@@ -58,14 +60,14 @@ public class TrackingServiceTest {
     final AppStatisticsService statisticsService = new AppStatisticsServiceImpl();
 
     /**
-     * Test that grid cell change events are emitted by the tracker when a simulated track is moving
+     * Test that grid cell change events are fired by the tracker when a simulated track is moving
      * north under the Great Belt bridge.
      *
      * Assumes grid size 100m.
      * Track starts in cell id 24686212289 (55°20'13.7"N,11°02'21.8"E) - (55°20'10.5"N,11°02'25.1"E)
      */
     @Test
-    public void testGridChangeEventsEmitted() {
+    public void testGridChangeEventsFired() {
         // Starting position in the center of cell 24686212289
         Position startingPosition = Position.create((55.33714285714286 + 55.33624454148472) / 2, (11.039401122894573 + 11.040299438552713) / 2);
         System.out.println("Starting position: " + startingPosition);
@@ -143,7 +145,7 @@ public class TrackingServiceTest {
     }
 
     /**
-     * Test that events are emitted by the tracker at the correct times, when a
+     * Test that events are fired by the tracker at the correct times, when a
      * when track movement is simulated by PositionReaderSimulator.
      *
      * The test scenario includes that no AIS message of type 5 (with static content
@@ -159,7 +161,7 @@ public class TrackingServiceTest {
     }
 
     /**
-     * Test that events are emitted by the tracker at the correct times, when a
+     * Test that events are fired by the tracker at the correct times, when a
      * when track movement is simulated by PositionReaderSimulator.
      *
      * The test scenario includes that an AIS message of type 5 (with static content)
@@ -516,14 +518,14 @@ public class TrackingServiceTest {
     }
 
     /**
-     * Test that grid cell change events are not emitted by the tracker when a simulated track is moving
+     * Test that grid cell change events are not fired by the tracker when a simulated track is moving
      * inside the same cell.
      *
      * Assumes grid size 100m.
      * Track starts in cell id 24686212289 (55°20'13.7"N,11°02'21.8"E) - (55°20'10.5"N,11°02'25.1"E)
      */
     @Test
-    public void testGridChangeEventsNotEmittedForMovementsInsideSameCell() {
+    public void testGridChangeEventsNotFiredForMovementsInsideSameCell() {
         // Starting position in the center of cell 24686212289
         Position startingPosition = Position.create((55.33714285714286 + 55.33624454148472) / 2, (11.039401122894573 + 11.040299438552713) / 2);
         System.out.println("Starting position: " + startingPosition);
@@ -579,6 +581,40 @@ public class TrackingServiceTest {
 
         assertEquals(1, testSubscriber.getNumberOfCellIdChangedEventsReceived());
         assertEquals(Integer.valueOf(1), tracker.getNumberOfTracks());
+    }
+
+    /**
+     * Test that TimeEvents are fired by the tracker at periodic intervals in the data stream.
+     */
+    @Test
+    public void testTimeEventsFired() {
+        // Create object under test
+        final TrackingService tracker = new TrackingServiceImpl(grid, statisticsService);
+
+        // Wire up test subscriber
+        // (discussion: https://code.google.com/p/guava-libraries/issues/detail?id=875)
+        TestSubscriber testSubscriber = new TestSubscriber();
+        tracker.registerSubscriber(testSubscriber);
+
+        // Play events through tracker
+        long firstTimestamp = System.currentTimeMillis();
+        int timeStep = TrackingServiceImpl.TIME_EVENT_PERIOD_MILLIS / 2 - 1;
+
+        assertEquals(0, testSubscriber.getNumberOfTimeEventsReceived());
+        tracker.update(new Date(firstTimestamp), new AisMessage24());
+        assertEquals(1, testSubscriber.getNumberOfTimeEventsReceived());
+        tracker.update(new Date(firstTimestamp + 1 * timeStep), new AisMessage24());
+        assertEquals(1, testSubscriber.getNumberOfTimeEventsReceived());
+        tracker.update(new Date(firstTimestamp + 2 * timeStep), new AisMessage24());
+        assertEquals(1, testSubscriber.getNumberOfTimeEventsReceived());
+        tracker.update(new Date(firstTimestamp + 3 * timeStep), new AisMessage24());
+        assertEquals(2, testSubscriber.getNumberOfTimeEventsReceived());
+        tracker.update(new Date(firstTimestamp + 4 * timeStep), new AisMessage24());
+        assertEquals(2, testSubscriber.getNumberOfTimeEventsReceived());
+        tracker.update(new Date(firstTimestamp + 5 * timeStep), new AisMessage24());
+        assertEquals(2, testSubscriber.getNumberOfTimeEventsReceived());
+        tracker.update(new Date(firstTimestamp + 6 * timeStep), new AisMessage24());
+        assertEquals(3, testSubscriber.getNumberOfTimeEventsReceived());
     }
 
     /**
@@ -914,9 +950,11 @@ public class TrackingServiceTest {
         private long currentCellId;
         private Position currentPosition;
 
+        private int numberOfTimeEventsReceived;
         private int numberOfCellIdChangedEventsReceived;
         private int numberOfPositionChangedEventsReceived;
 
+        private boolean timeEventFired;
         private boolean cellIdChangedEventFired;
         private boolean positionChangedEventFired;
 
@@ -926,8 +964,15 @@ public class TrackingServiceTest {
         }
 
         @Subscribe
-        public void onCellIdChanged(CellIdChangedEvent event) {
-            System.out.println("CellIdChangedEvent");
+        public void onTimeMark(TimeEvent event) {
+            System.out.println("TimeEvent");
+            timeEventFired = true;
+            numberOfTimeEventsReceived++;
+        }
+
+        @Subscribe
+        public void onCellIdChanged(CellChangedEvent event) {
+            System.out.println("CellChangedEvent");
             cellIdChangedEventFired = true;
 
             numberOfCellIdChangedEventsReceived++;
@@ -972,6 +1017,10 @@ public class TrackingServiceTest {
 
         public int getNumberOfCellIdChangedEventsReceived() {
             return numberOfCellIdChangedEventsReceived;
+        }
+
+        public int getNumberOfTimeEventsReceived() {
+            return numberOfTimeEventsReceived;
         }
 
         public int getNumberOfPositionChangedEventsReceived() {

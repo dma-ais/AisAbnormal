@@ -22,7 +22,7 @@ import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 import dk.dma.ais.abnormal.stat.db.data.SpeedOverGroundFeatureData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
-import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
+import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
@@ -42,7 +42,7 @@ public class SpeedOverGroundFeatureTest {
     FeatureDataRepository featureDataRepository;
 
     Track track;
-    CellIdChangedEvent event;
+    CellChangedEvent event;
 
     SpeedOverGroundFeature feature;
 
@@ -59,7 +59,7 @@ public class SpeedOverGroundFeatureTest {
         track.setProperty(Track.SHIP_TYPE, 40);     /* bucket 3 */
         track.setProperty(Track.VESSEL_LENGTH, 75); /* bucket 3 */
         track.setProperty(Track.SPEED_OVER_GROUND, Float.valueOf((float) 15.0)); /* bucket 5 */
-        event = new CellIdChangedEvent(track, null);
+        event = new CellChangedEvent(track, null);
 
         feature = new SpeedOverGroundFeature(statisticsService, trackingService, featureDataRepository);
     }

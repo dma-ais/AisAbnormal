@@ -28,7 +28,7 @@ import dk.dma.ais.abnormal.stat.db.data.CourseOverGroundFeatureData;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
-import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
+import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
 import dk.dma.ais.abnormal.tracker.events.TrackStaleEvent;
 import dk.dma.ais.abnormal.util.Categorizer;
 import dk.dma.enav.model.geometry.Position;
@@ -62,7 +62,7 @@ public class CourseOverGroundAnalysis extends FeatureDataBasedAnalysis {
 
     @AllowConcurrentEvents
     @Subscribe
-    public void onCellIdChanged(CellIdChangedEvent trackEvent) {
+    public void onCellIdChanged(CellChangedEvent trackEvent) {
         statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events received");
 
         Track track = trackEvent.getTrack();

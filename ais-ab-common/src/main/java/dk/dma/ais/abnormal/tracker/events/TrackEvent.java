@@ -19,24 +19,25 @@ package dk.dma.ais.abnormal.tracker.events;
 import com.google.common.base.Objects;
 import dk.dma.ais.abnormal.tracker.Track;
 
-public class CellIdChangedEvent extends TrackingEvent {
-    private final Long oldCellId;
+/**
+ * TrackEvent is a special type of TrackerEvent which involves at least one track.
+ */
+public abstract class TrackEvent extends TrackerEvent {
 
-    public CellIdChangedEvent(Track track, Long oldCellId) {
-        super(track);
-        this.oldCellId = oldCellId;
+    private final Track track;
+
+    TrackEvent(Track track) {
+        this.track = track;
     }
 
-    public final Long getOldCellId() {
-        return oldCellId;
+    public final Track getTrack() {
+        return track;
     }
 
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                .add("mmsi", getTrack().getMmsi())
-                .add("oldCellId", oldCellId)
-                .add("newCellId", getTrack().getProperty(Track.CELL_ID))
+                .add("track", track)
                 .toString();
     }
 }

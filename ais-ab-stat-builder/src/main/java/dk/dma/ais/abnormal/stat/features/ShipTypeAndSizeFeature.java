@@ -25,7 +25,7 @@ import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeFeatureData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
-import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
+import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
 import dk.dma.ais.abnormal.util.Categorizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +65,7 @@ public class ShipTypeAndSizeFeature implements Feature {
      */
     @AllowConcurrentEvents
     @Subscribe
-    public void onCellIdChanged(CellIdChangedEvent event) {
+    public void onCellIdChanged(CellChangedEvent event) {
         appStatisticsService.incFeatureStatistics(this.getClass().getSimpleName(), "Events processed");
 
         LOG.debug("Received " + event.toString());

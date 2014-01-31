@@ -16,17 +16,30 @@
 
 package dk.dma.ais.abnormal.tracker.events;
 
+import com.google.common.base.Objects;
 import dk.dma.ais.abnormal.tracker.Track;
 
 /**
- * The TrackStaleEvent is fired by the tracker when a track has not been updated for a while. It
- * is then considered "stale" all will never receive any updates again. If the same vessel later
- * on starts reporting, then a new track will be created.
+ * A CellChangedEvent is fired by the tracker every time the cell of a track changes.
  */
-public class TrackStaleEvent extends TrackEvent {
+public class CellChangedEvent extends TrackEvent {
+    private final Long oldCellId;
 
-    public TrackStaleEvent(Track track) {
+    public CellChangedEvent(Track track, Long oldCellId) {
         super(track);
+        this.oldCellId = oldCellId;
     }
 
+    public final Long getOldCellId() {
+        return oldCellId;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("mmsi", getTrack().getMmsi())
+                .add("oldCellId", oldCellId)
+                .add("newCellId", getTrack().getProperty(Track.CELL_ID))
+                .toString();
+    }
 }

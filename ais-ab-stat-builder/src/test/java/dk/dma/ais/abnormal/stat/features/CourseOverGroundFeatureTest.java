@@ -22,7 +22,7 @@ import dk.dma.ais.abnormal.stat.db.data.CourseOverGroundFeatureData;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
-import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
+import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
@@ -42,7 +42,7 @@ public class CourseOverGroundFeatureTest {
     FeatureDataRepository featureDataRepository;
 
     Track track;
-    CellIdChangedEvent event;
+    CellChangedEvent event;
 
     CourseOverGroundFeature feature;
 
@@ -60,7 +60,7 @@ public class CourseOverGroundFeatureTest {
         track.setProperty(Track.VESSEL_LENGTH, 75); /* bucket 3 */
         track.setProperty(Track.SPEED_OVER_GROUND, Float.valueOf((float) 15.0));
         track.setProperty(Track.COURSE_OVER_GROUND, Float.valueOf((float) 127.6)); /* bucket 5 */
-        event = new CellIdChangedEvent(track, null);
+        event = new CellChangedEvent(track, null);
 
         feature = new CourseOverGroundFeature(statisticsService, trackingService, featureDataRepository);
     }

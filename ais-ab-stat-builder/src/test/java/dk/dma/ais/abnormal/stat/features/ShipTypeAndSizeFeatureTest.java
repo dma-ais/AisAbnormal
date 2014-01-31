@@ -22,7 +22,7 @@ import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeFeatureData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
-import dk.dma.ais.abnormal.tracker.events.CellIdChangedEvent;
+import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
@@ -65,7 +65,7 @@ public class ShipTypeAndSizeFeatureTest {
     @Test
     public void testNewShipCountIsCreated() {
         Long oldCellId = null;
-        CellIdChangedEvent event = new CellIdChangedEvent(track, oldCellId);
+        CellChangedEvent event = new CellChangedEvent(track, oldCellId);
 
         // Setup expectations
         final ArgumentCaptor<FeatureData> featureData = ArgumentCaptor.forClass(FeatureData.class);
@@ -107,7 +107,7 @@ public class ShipTypeAndSizeFeatureTest {
     @Test
     public void testExistingShipCountIsUpdated() {
         Long oldCellId = null;
-        CellIdChangedEvent event = new CellIdChangedEvent(track, oldCellId);
+        CellChangedEvent event = new CellChangedEvent(track, oldCellId);
 
         // Setup expectations
         final ShipTypeAndSizeFeatureData existingFeatureData = ShipTypeAndSizeFeatureData.create();
@@ -158,7 +158,7 @@ public class ShipTypeAndSizeFeatureTest {
         track.setProperty(Track.SPEED_OVER_GROUND, Float.valueOf(1.99f));
 
         Long oldCellId = null;
-        CellIdChangedEvent event = new CellIdChangedEvent(track, oldCellId);
+        CellChangedEvent event = new CellChangedEvent(track, oldCellId);
 
         context.checking(new Expectations() {{
             oneOf(trackingService).registerSubscriber(feature);
@@ -179,7 +179,7 @@ public class ShipTypeAndSizeFeatureTest {
         track.setProperty(Track.SPEED_OVER_GROUND, Float.valueOf(2.01f));
 
         Long oldCellId = null;
-        CellIdChangedEvent event = new CellIdChangedEvent(track, oldCellId);
+        CellChangedEvent event = new CellChangedEvent(track, oldCellId);
 
         context.checking(new Expectations() {{
             oneOf(trackingService).registerSubscriber(feature);
@@ -200,7 +200,7 @@ public class ShipTypeAndSizeFeatureTest {
         track.setProperty(Track.SPEED_OVER_GROUND, null);
 
         Long oldCellId = null;
-        CellIdChangedEvent event = new CellIdChangedEvent(track, oldCellId);
+        CellChangedEvent event = new CellChangedEvent(track, oldCellId);
 
         context.checking(new Expectations() {{
             oneOf(trackingService).registerSubscriber(feature);
