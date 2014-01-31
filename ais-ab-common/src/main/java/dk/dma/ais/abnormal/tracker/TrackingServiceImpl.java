@@ -16,6 +16,7 @@
 
 package dk.dma.ais.abnormal.tracker;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -35,6 +36,8 @@ import dk.dma.ais.message.IVesselPositionMessage;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.grid.Cell;
 import dk.dma.enav.model.geometry.grid.Grid;
+import net.jcip.annotations.GuardedBy;
+import net.jcip.annotations.ThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +48,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * TrackingServiceImpl is a thread-safe implementation of the TrackingService interface.
+ */
+@ThreadSafe
 public class TrackingServiceImpl implements TrackingService {
 
     static final Logger LOG = LoggerFactory.getLogger(TrackingServiceImpl.class);
@@ -56,7 +65,10 @@ public class TrackingServiceImpl implements TrackingService {
     private EventBus eventBus = new EventBus();
     private final AppStatisticsService statisticsService;
 
+    @GuardedBy("tracksLock")
     final HashMap<Integer, Track> tracks = new HashMap<>(256);
+    private final Lock tracksLock = new ReentrantLock();
+
     final Grid grid;
 
     static final int TRACK_STALE_SECS = 1800;  // 30 mins
@@ -91,6 +103,9 @@ public class TrackingServiceImpl implements TrackingService {
         this.statisticsService = statisticsService;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void update(Date timestamp, AisMessage aisMessage) {
         final AisTargetType targetType = aisMessage.getTargetType();
@@ -321,33 +336,82 @@ public class TrackingServiceImpl implements TrackingService {
     }
 
     private void removeTrack(int mmsi) {
-        eventBus.post(new TrackStaleEvent(tracks.get(mmsi)));
-        tracks.remove(mmsi);
+        tracksLock.lock();
+        try {
+            Track track = tracks.get(mmsi);
+            tracks.remove(mmsi);
+            eventBus.post(new TrackStaleEvent(track));
+        } finally {
+            tracksLock.unlock();
+        }
     }
 
     private Track getOrCreateTrack(int mmsi) {
-        Track track = tracks.get(mmsi);
-        if (track == null) {
-            track = new Track(mmsi);
-            tracks.put(mmsi, track);
+        Track track;
+        tracksLock.lock();
+        try {
+            track = tracks.get(mmsi);
+            if (track == null) {
+                track = new Track(mmsi);
+                tracks.put(mmsi, track);
+            }
+        } finally {
+            tracksLock.unlock();
         }
         return track;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Subscribe
     @SuppressWarnings("unused")
     public void listen(DeadEvent event) {
         LOG.trace("No subscribers were interested in this event: " + event.getEvent());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void registerSubscriber(Object subscriber) {
         eventBus.register(subscriber);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<Track> cloneTracks() {
+        ImmutableSet.Builder<Track> setBuilder = new ImmutableSet.Builder<>();
+
+        tracksLock.lock();
+        try {
+            tracks.values().forEach(
+                t -> { setBuilder.add(t.clone());
+            });
+        } finally {
+            tracksLock.unlock();
+        }
+
+        return setBuilder.build();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Integer getNumberOfTracks() {
-        return tracks.size();
+        int n;
+
+        tracksLock.lock();
+        try {
+            n = tracks.size();
+        } finally {
+            tracksLock.unlock();
+        }
+
+        return n;
     }
 
     /**

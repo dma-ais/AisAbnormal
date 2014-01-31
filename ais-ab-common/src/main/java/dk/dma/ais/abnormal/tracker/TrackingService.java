@@ -19,11 +19,43 @@ package dk.dma.ais.abnormal.tracker;
 import dk.dma.ais.message.AisMessage;
 
 import java.util.Date;
+import java.util.Set;
 
+/**
+ * A tracking service receives AisMessages and based on these it maintains a collection of all known tracks,
+ * including their position, speed, course, etc.
+ *
+ * If a certain track has not received any updates for a while
+ * it enteres status 'stale' and will receive no further updates. Instead a new track is created if more
+ * AisMessages are received from the same vessel later on.
+ *
+ * The AisMesssages are assumed to arrive in timely order; i.e. by ever-increasing values of timestamp.
+ */
 public interface TrackingService {
+
+    /**
+     * Update the tracker with a new aisMessage.
+     * @param timestamp time when the aisMessage was received.
+     * @param aisMessage the AIS message.
+     */
     void update(Date timestamp, AisMessage aisMessage);
+
+    /**
+     * Count and return the number of tracks current ACTIVE or STALE in the tracker.
+     * @return the no. of tracks.
+     */
     Integer getNumberOfTracks();
 
-    /* Subscribe to tracking events */
+    /**
+     *  Register a subscriber to receive Events from the tracker.
+     */
     void registerSubscriber(Object subscriber);
+
+    /**
+     * Get a set of cloned tracks from the tracker. The fact that the list is cloned makes is possible
+     * to work with its contents in isolation without worrying about multi-theaded behaviour in the tracker.
+     *
+     * @return A list of Tracks cloned from the tracker.
+     */
+    Set<Track> cloneTracks();
 }

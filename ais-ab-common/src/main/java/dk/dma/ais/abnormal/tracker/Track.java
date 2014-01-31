@@ -16,10 +16,12 @@
 
 package dk.dma.ais.abnormal.tracker;
 
+import com.rits.cloning.Cloner;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public final class Track {
+public final class Track implements Cloneable {
 
     public static final String TIMESTAMP_ANY_UPDATE = "lastUpdate";
     public static final String TIMESTAMP_POSITION_UPDATE = "lastPosUpdate";
@@ -55,5 +57,10 @@ public final class Track {
 
     public void removeProperty(String propertyName) {
         properties.remove(propertyName);
+    }
+
+    @Override
+    public Track clone() {
+        return new Cloner().deepClone(this);
     }
 }
