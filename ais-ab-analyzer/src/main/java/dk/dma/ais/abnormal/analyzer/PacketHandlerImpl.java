@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import dk.dma.ais.abnormal.analyzer.analysis.Analysis;
+import dk.dma.ais.abnormal.analyzer.analysis.CloseEncounterAnalysis;
 import dk.dma.ais.abnormal.analyzer.analysis.CourseOverGroundAnalysis;
 import dk.dma.ais.abnormal.analyzer.analysis.ShipTypeAndSizeAnalysis;
 import dk.dma.ais.abnormal.analyzer.analysis.SpeedOverGroundAnalysis;
@@ -101,6 +102,7 @@ public class PacketHandlerImpl implements PacketHandler {
                 .add(injector.getInstance(SpeedOverGroundAnalysis.class))
                 .add(injector.getInstance(ShipTypeAndSizeAnalysis.class))
                 .add(injector.getInstance(SuddenSpeedChangeAnalysis.class))
+                .add(injector.getInstance(CloseEncounterAnalysis.class))
                 .build();
 
         for (Analysis analysis : analyses) {
