@@ -182,26 +182,25 @@
                                 </exec>
                                 <exec dir="." os="Linux" executable="bash" outputproperty="app.pids">
                                     <arg value="-c"></arg>
-                                    <arg value="ps -ael | grep java | grep ais-ab-web | grep -v ant | grep -v bash | awk '{print $2}' | paste -sd ' ' -" />
+                                    <arg value="ps -aef | grep java | grep ais-ab-web | grep -v ant | grep -v bash | awk '{print $2}' | paste -sd ' ' -" />
                                 </exec>
                                 <!-- Kill PID's -->
                                 <echo>Killing pid ${app.pids}</echo>
-                                <exec dir="." os="Linux" executable="bash">
-                                    <arg value="-c" />
-                                    <arg value="kill -9 ${app.pids}" />
-                                </exec>
                                 <exec dir="." os="Mac OS X" executable="bash">
                                     <arg value="-c" />
                                     <arg value="kill -9 ${app.pids}" />
                                 </exec>
-                                <!-- Echo any remaining matching PID's (there shouldn't be any) -->
+                                <exec dir="." os="Linux" executable="bash">
+                                    <arg value="-c" />
+                                    <arg value="kill -9 ${app.pids}" />
+                                </exec>                                <!-- Echo any remaining matching PID's (there shouldn't be any) -->
                                 <exec dir="." os="Mac OS X" executable="bash" outputproperty="app.pids.survived">
                                     <arg value="-c"></arg>
                                     <arg value="ps -ael | grep java | grep ais-ab-web | grep -v ant | grep -v bash | awk '{print $2}' | paste -sd ' ' -" />
                                 </exec>
                                 <exec dir="." os="Linux" executable="bash" outputproperty="app.pids.survived">
                                     <arg value="-c"></arg>
-                                    <arg value="ps -ael | grep java | grep ais-ab-web | grep -v ant | grep -v bash | awk '{print $2}' | paste -sd ' ' -" />
+                                    <arg value="ps -aef | grep java | grep ais-ab-web | grep -v ant | grep -v bash | awk '{print $2}' | paste -sd ' ' -" />
                                 </exec>
                                 <echo>These pid's survived: ${app.pids.survived}</echo>
                             </target>
