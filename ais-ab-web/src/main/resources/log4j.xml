@@ -12,7 +12,11 @@
 		</layout>
 	</appender>
 
-    <logger name="dk.dma.ais.abnormal.event.rest">
+    <logger name="javax.ws.rs">
+        <level value="DEBUG"/>
+    </logger>
+
+    <logger name="dk.dma.ais.abnormal.event.db.jpa">
         <level value="DEBUG"/>
     </logger>
 
