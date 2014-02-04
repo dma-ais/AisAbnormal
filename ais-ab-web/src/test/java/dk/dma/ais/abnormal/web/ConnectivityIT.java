@@ -22,7 +22,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 
-import static com.thoughtworks.selenium.SeleneseTestCase.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public class ConnectivityIT {
 
@@ -41,7 +41,7 @@ public class ConnectivityIT {
         element.sendKeys("Cheese!");
         element.submit();
 
-        assertEquals("Cheese! - Google*", driver.getTitle());
+        assertEquals("Cheese! - Google", driver.getTitle().substring(0, "Cheese! - Google".length()));
     }
 
     @Test
