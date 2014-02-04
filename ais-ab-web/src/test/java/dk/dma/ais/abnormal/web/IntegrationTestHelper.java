@@ -23,10 +23,12 @@ import java.io.File;
 
 public class IntegrationTestHelper {
 
+    private final static long runNo = System.currentTimeMillis();
+
     public static void takeScreenshot(WebDriver browser, String name) {
         if (browser instanceof TakesScreenshot) {
             File tempfile = ((TakesScreenshot) browser).getScreenshotAs(OutputType.FILE);
-            File dumpfile = new File(System.getProperty("user.home") + File.separator + "selenium-scrshot-" + System.currentTimeMillis() + "-" + name + ".png");
+            File dumpfile = new File(System.getProperty("user.dir") + File.separator + "target" + File.separator + "selenium-scrshot-" + runNo + "-" + name + ".png");
             tempfile.renameTo(dumpfile);
             System.err.println("Screen shot dumped to: " + dumpfile.getAbsolutePath());
         } else {

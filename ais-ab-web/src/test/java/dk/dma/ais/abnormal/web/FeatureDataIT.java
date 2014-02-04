@@ -34,11 +34,14 @@ import static org.junit.Assert.assertEquals;
 public class FeatureDataIT {
 
     private static WebDriver browser;
+    private static WebDriverWait wait;
+
 
     @BeforeClass
     public static void setup() {
         browser = new PhantomJSDriver();
         browser.manage().window().setSize(new Dimension(1280, 1024));
+        wait = new WebDriverWait(browser, 120);
     }
 
     @Test
@@ -65,9 +68,10 @@ public class FeatureDataIT {
         actions.moveToElement(map);
         actions.click();
         actions.perform();
-        assertEquals("Cell id 6249703285 (56°02'19.4\"N,12°38'21.5\"E) - (56°02'13\"N,12°38'28\"E)", browser.findElement(By.cssSelector("div.cell-data-contents > h5")).getText());
-
-        IntegrationTestHelper.takeScreenshot(browser, "debug");
+        IntegrationTestHelper.takeScreenshot(browser, "debug1");
+        wait.until(ExpectedConditions.textToBePresentInElement(By.cssSelector("div.cell-data-contents > h5"), "Cell id 6249703285 (56°02'19.4\"N,12°38'21.5\"E) - (56°02'13\"N,12°38'28\"E)"));
+        //assertEquals("Cell id 6249703285 (56°02'19.4\"N,12°38'21.5\"E) - (56°02'13\"N,12°38'28\"E)", browser.findElement(By.cssSelector("div.cell-data-contents > h5")).getText());
+        IntegrationTestHelper.takeScreenshot(browser, "debug2");
     }
 
     private static WebElement getMap() {
@@ -92,7 +96,6 @@ public class FeatureDataIT {
             Thread.sleep(300);
             assertCellLayerLoadStatusNoCellsLoaded();
             zoomIn.click();
-            WebDriverWait wait = new WebDriverWait(browser, 120);
             wait.until(ExpectedConditions.textToBePresentInElement(By.id("cell-layer-load-status"), "61 cells loaded, 61 added to map."));
         } catch (Throwable e) {
             if (browser instanceof TakesScreenshot) {
