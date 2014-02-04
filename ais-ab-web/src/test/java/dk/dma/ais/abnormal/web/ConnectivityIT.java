@@ -41,7 +41,7 @@ public class ConnectivityIT {
         element.sendKeys("Cheese!");
         element.submit();
 
-        assertEquals("Cheese! - Google-s*", driver.getTitle());
+        assertEquals("Cheese! - Google*", driver.getTitle());
     }
 
     @Test

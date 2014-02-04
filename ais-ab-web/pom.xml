@@ -226,7 +226,7 @@
                             <goal>wait</goal>
                         </goals>
                         <configuration>
-                            <timeout>60000</timeout>
+                            <timeout>120</timeout>
                             <url>http://127.0.0.1:8080/abnormal</url>
                         </configuration>
                     </execution>
