@@ -50,11 +50,16 @@ public class FeatureDataIT {
         Thread.sleep(1000);
         IntegrationTestHelper.takeScreenshot(browser, "init");
 
+        checkFeatureSetMetadata();
         zoomInUntilCellsLoadedAndDisplayed();
         clickOnACell();
     }
 
-
+    private void checkFeatureSetMetadata() {
+        browser.findElement(By.id("ui-id-2")).click();
+        assertEquals("200 m", browser.findElement(By.cssSelector("div#gridsize.useroutput span.data")).getText());
+        assertEquals("10 secs", browser.findElement(By.cssSelector("div#downsampling.useroutput span.data")).getText());
+    }
 
     private void clickOnACell() throws InterruptedException {
         if (browser instanceof JavascriptExecutor) {
@@ -68,9 +73,16 @@ public class FeatureDataIT {
         actions.moveToElement(map);
         actions.click();
         actions.perform();
+        Thread.sleep(2500);
+
+        // Assert user output
+        browser.findElement(By.id("ui-id-1")).click();
+        assertEquals("(56°02'17.3\"N, 12°38'26.4\"E)\n(56°01'54.7\"N, 12°39'33.6\"E)", browser.findElement(By.cssSelector("div#viewport.useroutput p")).getText());
+        assertEquals("(56°02'17.3\"N, 12°38'26.4\"E)", browser.findElement(By.cssSelector("div#cursorpos.useroutput p")).getText());
+
+        // Assert feature data
         IntegrationTestHelper.takeScreenshot(browser, "debug1");
         wait.until(ExpectedConditions.textToBePresentInElement(By.cssSelector("div.cell-data-contents > h5"), "Cell id 6249703285 (56°02'19.4\"N,12°38'21.5\"E) - (56°02'13\"N,12°38'28\"E)"));
-        //assertEquals("Cell id 6249703285 (56°02'19.4\"N,12°38'21.5\"E) - (56°02'13\"N,12°38'28\"E)", browser.findElement(By.cssSelector("div.cell-data-contents > h5")).getText());
         IntegrationTestHelper.takeScreenshot(browser, "debug2");
     }
 
