@@ -12,12 +12,11 @@
 
 	<groupId>dk.dma.ais.abnormal</groupId>
 	<artifactId>ais-ab-web</artifactId>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>AisAbnormal Web</name>
 	<description>AisAbnormal web module</description>
 
 	<properties>
-		<version.war.plugin>2.4</version.war.plugin>
 		<dependencies.jersey.version>2.4</dependencies.jersey.version>
 	</properties>
 
@@ -79,40 +78,175 @@
             <artifactId>jersey-guice</artifactId>
             <version>1.17.1</version>
         </dependency>
+        <dependency>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+            <version>1.4.01</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-server</artifactId>
+            <version>2.37.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-common</artifactId>
+            <version>2.0b1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>2.37.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.detro.ghostdriver</groupId>
+            <artifactId>phantomjsdriver</artifactId>
+            <version>1.0.4</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<version>${version.war.plugin}</version>
-				<configuration>
-					<failOnMissingWebXml>false</failOnMissingWebXml>
-				</configuration>
-			</plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.2.1</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.2</version>
                 <executions>
                     <execution>
+                        <phase>package</phase>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>dk.dma.ais.abnormal.web.AbnormalWebApp</mainClass>
+                                </transformer>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <!-- Start application in the background for integration-test -->
+                    <execution>
+                        <id>start-ais-ab-web-appl</id>
+                        <phase>pre-integration-test</phase>
+                        <configuration>
+                            <target>
+                                <exec executable="java" dir="${project.basedir}" spawn="true">
+                                    <arg value="-jar"/>
+                                    <arg value="target/ais-ab-web-0.1-SNAPSHOT.jar"/>
+                                    <arg value="-featureData"/>
+                                    <arg value="${project.basedir}/src/test/resources/features/aisdump_dk-grid200-down10"/>
+                                    <arg value="-eventDataRepositoryType"/>
+                                    <arg value="h2"/>
+                                    <arg value="-eventDataDbFile"/>
+                                    <arg value="${project.basedir}/src/test/resources/events/events"/>
+                                </exec>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <!-- Stop application in the background for integration-test -->
+                    <!-- (has room for improvement) -->
+                    <execution>
+                        <id>stop-ais-ab-web-appl</id>
+                        <phase>post-integration-test</phase>
+                        <configuration>
+                            <target>
+                                <!-- Find PID's to kill -->
+                                <exec dir="." os="Mac OS X" executable="bash" outputproperty="app.pids">
+                                    <arg value="-c"></arg>
+                                    <arg value="ps -ael | grep java | grep ais-ab-web | grep -v ant | grep -v bash | awk '{print $2}' | paste -sd ' ' -" />
+                                </exec>
+                                <exec dir="." os="Linux" executable="bash" outputproperty="app.pids">
+                                    <arg value="-c"></arg>
+                                    <arg value="ps -ael | grep java | grep ais-ab-web | grep -v ant | grep -v bash | awk '{print $2}' | paste -sd ' ' -" />
+                                </exec>
+                                <!-- Kill PID's -->
+                                <echo>Killing pid ${app.pids}</echo>
+                                <exec dir="." os="Linux" executable="bash">
+                                    <arg value="-c" />
+                                    <arg value="kill -9 ${app.pids}" />
+                                </exec>
+                                <exec dir="." os="Mac OS X" executable="bash">
+                                    <arg value="-c" />
+                                    <arg value="kill -9 ${app.pids}" />
+                                </exec>
+                                <!-- Echo any remaining matching PID's (there shouldn't be any) -->
+                                <exec dir="." os="Mac OS X" executable="bash" outputproperty="app.pids.survived">
+                                    <arg value="-c"></arg>
+                                    <arg value="ps -ael | grep java | grep ais-ab-web | grep -v ant | grep -v bash | awk '{print $2}' | paste -sd ' ' -" />
+                                </exec>
+                                <exec dir="." os="Linux" executable="bash" outputproperty="app.pids.survived">
+                                    <arg value="-c"></arg>
+                                    <arg value="ps -ael | grep java | grep ais-ab-web | grep -v ant | grep -v bash | awk '{print $2}' | paste -sd ' ' -" />
+                                </exec>
+                                <echo>These pid's survived: ${app.pids.survived}</echo>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+
+                </executions>
+            </plugin>
+            <!-- Wait for application to launch in the background during integration-test -->
+            <plugin>
+                <groupId>org.kuali.maven.plugins</groupId>
+                <artifactId>maven-http-plugin</artifactId>
+                <version>1.0.5</version>
+                <executions>
+                    <execution>
+                        <id>wait-for-ais-ab-web-startup</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>wait</goal>
+                        </goals>
+                        <configuration>
+                            <timeout>60000</timeout>
+                            <url>http://127.0.0.1:8080/abnormal</url>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Perform functional test / integration-test -->
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.16</version>
+                <executions>
+                    <execution>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <mainClass>dk.dma.ais.abnormal.web.AbnormalWebApp</mainClass>
-                    <executable>maven</executable>
-                    <arguments>
-                        <argument>-eventData</argument>
-                        <argument>/Users/tbsalling/Documents/tbsalling.dk/Udvikling/SFS/idea.workspace/AisAbnormal/ais-ab-analyzer/src/test/resources/db/repository.h2.db</argument>
-                        <argument>-featureData</argument>
-                        <argument>/Users/tbsalling/Documents/tbsalling.dk/Udvikling/SFS/data/features/aisdk-2013H2-grid500-dwn5-test</argument>
-                    </arguments>
-                </configuration>
             </plugin>
-		</plugins>
+        </plugins>
 	</build>
 
 </project>
