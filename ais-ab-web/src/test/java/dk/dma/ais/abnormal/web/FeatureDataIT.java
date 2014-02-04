@@ -26,6 +26,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import static org.junit.Assert.assertEquals;
 
@@ -89,13 +91,9 @@ public class FeatureDataIT {
             zoomIn.click();
             Thread.sleep(300);
             assertCellLayerLoadStatusNoCellsLoaded();
-
             zoomIn.click();
-            Thread.sleep(1000);
-
-            WebElement cellLayerLoadStatus = browser.findElement(By.id("cell-layer-load-status"));
-            assertEquals("61 cells loaded, 61 added to map.", cellLayerLoadStatus.getText());
-
+            WebDriverWait wait = new WebDriverWait(browser, 120);
+            wait.until(ExpectedConditions.textToBePresentInElement(By.id("cell-layer-load-status"), "61 cells loaded, 61 added to map."));
         } catch (Throwable e) {
             if (browser instanceof TakesScreenshot) {
                 IntegrationTestHelper.takeScreenshot(browser, "error");
