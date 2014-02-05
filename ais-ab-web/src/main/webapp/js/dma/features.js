@@ -227,12 +227,14 @@ var featureModule = {
     userOutputCreateCellDataTabs: function (cellDataDomNode, cell) {
         cellDataDomNode.append('<div class="tabs" id="cell-data-tabs"><ul></ul></div>');
 
+        cell.featureData.sort( function(a, b) { return a.featureName > b.featureName; });
+
         $.each(cell.featureData, function (i, fd) {
             var featureName = fd.featureName;
             var featureType = fd.featureDataType;
             var totalShipCount = cell.totalShipCount[featureName];
 
-            $("#cell-data-tabs ul").append('<li><a href="#cell-data-tab-' + i + '">' + featureName.replace('FeatureData','') + '</a></li>');
+            $("#cell-data-tabs ul").append('<li><a id="tab-' + featureName.replace('FeatureData','') + '" href="#cell-data-tab-' + i + '">' + featureName.replace('FeatureData','') + '</a></li>');
             $("#cell-data-tabs").append('<div id="cell-data-tab-' + i + '"></div>');
 
             var tabRoot = $("#cell-data-tabs #cell-data-tab-" + i);

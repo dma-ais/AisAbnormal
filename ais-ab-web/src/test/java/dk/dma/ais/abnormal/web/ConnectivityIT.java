@@ -15,7 +15,8 @@
  */
 package dk.dma.ais.abnormal.web;
 
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -26,10 +27,10 @@ import static org.junit.Assert.assertEquals;
 
 public class ConnectivityIT {
 
-    private WebDriver driver;
+    private static WebDriver driver;
 
-    @Before
-    public void startSelenium() {
+    @BeforeClass
+    public static void setUp() {
         driver = new PhantomJSDriver();
     }
 
@@ -48,6 +49,11 @@ public class ConnectivityIT {
     public void testApplicationConnectivity() {
         driver.get("http://127.0.0.1:8080/abnormal");
         assertEquals("Danish Maritime Authority", driver.getTitle());
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        driver.close();
     }
 
 }

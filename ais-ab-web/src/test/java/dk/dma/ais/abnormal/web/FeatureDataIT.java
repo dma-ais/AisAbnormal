@@ -15,6 +15,7 @@
  */
 package dk.dma.ais.abnormal.web;
 
+import com.google.common.base.Predicate;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,16 +31,20 @@ import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import javax.annotation.Nullable;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class FeatureDataIT {
 
     private static WebDriver browser;
     private static WebDriverWait wait;
-
+    private final static String TEST_NAME = FeatureDataIT.class.getSimpleName();
 
     @BeforeClass
-    public static void setup() {
+    public static void setUp() {
         browser = new PhantomJSDriver();
         browser.manage().window().setSize(new Dimension(1280, 1024));
         wait = new WebDriverWait(browser, 120);
@@ -49,55 +54,92 @@ public class FeatureDataIT {
     public void testCanZoomInToSelectCellAndDisplayFeatureData() throws InterruptedException {
         browser.get("http://127.0.0.1:8080/abnormal");
         Thread.sleep(1000);
-        IntegrationTestHelper.takeScreenshot(browser, "init");
+        IntegrationTestHelper.takeScreenshot(browser, TEST_NAME, "init");
 
         try {
             checkFeatureSetMetadata();
-            zoomInUntilCellsLoadedAndDisplayed();
+            checkCellsAreDisplayedWhenZoomingIn();
             clickOnACell();
-        } catch(WebDriverException e) {
-            IntegrationTestHelper.takeScreenshot(browser, "error");
+            checkFeatureDataDisplayedCorrectlyForClickedCell();
+        } catch (AssertionError e) {
+            IntegrationTestHelper.takeScreenshot(browser, TEST_NAME, "error");
+            throw e;
+        } catch (WebDriverException e) {
+            IntegrationTestHelper.takeScreenshot(browser, TEST_NAME, "error");
+            throw e;
         }
+        IntegrationTestHelper.takeScreenshot(browser, TEST_NAME, "success");
+    }
+
+    private void checkFeatureDataDisplayedCorrectlyForClickedCell() {
+        // Check that a tab is shown for each feature
+        List<WebElement> tabs = browser.findElements(By.cssSelector("div#cell-data-tabs.tabs li"));
+        assertNotNull(tabs);
+        assertEquals(3, tabs.size());
+        assertEquals("CourseOverGround", tabs.get(0).getText());
+        assertEquals("SpeedOverGround", tabs.get(1).getText());
+        assertEquals("ShipTypeAndSize", tabs.get(2).getText());
+
+        // Check course over ground data
+        browser.findElement(By.cssSelector("a#tab-CourseOverGround.ui-tabs-anchor")).click();
+        WebElement cogTab = browser.findElement(By.cssSelector("div[aria-labelledby=\"tab-CourseOverGround\"]"));
+        List<WebElement> cogTabDivs = cogTab.findElements(By.tagName("div"));
+        assertEquals("Total ship count is 8.", cogTabDivs.get(1).getText());
+
+        // Check speed over ground data
+        browser.findElement(By.cssSelector("a#tab-SpeedOverGround.ui-tabs-anchor")).click();
+        WebElement sogTab = browser.findElement(By.cssSelector("div[aria-labelledby=\"tab-SpeedOverGround\"]"));
+        List<WebElement> sogTabDivs = sogTab.findElements(By.tagName("div"));
+        assertEquals("Total ship count is 8.", sogTabDivs.get(1).getText());
+
+        // Check ship type and size data
+        browser.findElement(By.cssSelector("a#tab-ShipTypeAndSize.ui-tabs-anchor")).click();
+        WebElement stsTab = browser.findElement(By.cssSelector("div[aria-labelledby=\"tab-ShipTypeAndSize\"]"));
+        List<WebElement> stsTabDivs = stsTab.findElements(By.tagName("div"));
+        assertEquals("Total ship count is 8.", stsTabDivs.get(1).getText());
     }
 
     private void checkFeatureSetMetadata() {
         browser.findElement(By.id("ui-id-2")).click();
         assertEquals("200 m", browser.findElement(By.cssSelector("div#gridsize.useroutput span.data")).getText());
         assertEquals("10 secs", browser.findElement(By.cssSelector("div#downsampling.useroutput span.data")).getText());
-        IntegrationTestHelper.takeScreenshot(browser, "metadata");
+        IntegrationTestHelper.takeScreenshot(browser, TEST_NAME, "metadata");
     }
 
     private void clickOnACell() throws InterruptedException {
-        if (browser instanceof JavascriptExecutor) {
-            ((JavascriptExecutor)browser).executeScript("mapModule.map.setCenter(new OpenLayers.LonLat(12.65,56.035).transform(new OpenLayers.Projection(\"EPSG:4326\"), new OpenLayers.Projection(\"EPSG:900913\")), 16)");
-            Thread.sleep(1000);
-        }
+        zoomIntoHelsinore();
+        waitForCellsToBeDisplayed();
 
         WebElement map = getMap();
 
         Actions actions = new Actions(browser);
-        actions.moveToElement(map,map.getSize().getWidth()/2,map.getSize().getHeight()/2);
+        actions.moveToElement(map, map.getSize().getWidth() / 2, map.getSize().getHeight() / 2);
         actions.click();
         actions.perform();
-        Thread.sleep(2500);
-        // Assert user output
-        browser.findElement(By.id("ui-id-1")).click();
-        assertEquals("(56°02'17.3\"N, 12°38'26.4\"E)\n(56°01'54.7\"N, 12°39'33.6\"E)", browser.findElement(By.cssSelector("div#viewport.useroutput p")).getText());
-        // Cursor position is exactly in the center of the map
-        assertEquals("(56°02'06\"N, 12°39'00\"E)", browser.findElement(By.cssSelector("div#cursorpos.useroutput p")).getText());
 
-        // Assert feature data
-        IntegrationTestHelper.takeScreenshot(browser, "debug1");
+        // Cursor position is exactly in the center of the map
+        browser.findElement(By.id("ui-id-1")).click();
+        assertEquals("(56°02'05.7\"N, 12°38'59.7\"E)", browser.findElement(By.cssSelector("div#cursorpos.useroutput p")).getText());
+
+        // Assert feature data for correct cell displayed
         final String expectedCellInfo = "Cell id 6249302540 (56°02'06.5\"N,12°38'53.8\"E) - (56°02'00\"N,12°39'00.3\"E)";
         By actualCellInfoElement = By.cssSelector("div.cell-data-contents > h5");
         wait.until(ExpectedConditions.textToBePresentInElement(actualCellInfoElement, expectedCellInfo));
-        IntegrationTestHelper.takeScreenshot(browser, "debug2");
+    }
+
+    private void waitForCellsToBeDisplayed() {
+        browser.findElement(By.id("ui-id-1")).click();
+        wait.until(new Predicate<WebDriver>() {
+            @Override
+            public boolean apply(@Nullable WebDriver webDriver) {
+                return webDriver.findElement(By.id("cell-layer-load-status")).getText().matches(".*cells loaded.*");
+            }
+        });
     }
 
     private static WebElement getMap() {
         // WebElement map = browser.findElement(By.cssSelector("svg#OpenLayers_Layer_Vector_27_svgRoot"));
         WebElement map = browser.findElement(By.cssSelector("div#map"));
-        System.out.println("getMap() found map at " + map.getLocation() + ", size " + map.getSize());
         assertEquals(55, map.getLocation().getX());
         assertEquals(169, map.getLocation().getY());
         assertEquals(870, map.getSize().getWidth());
@@ -105,7 +147,18 @@ public class FeatureDataIT {
         return map;
     }
 
-    private void zoomInUntilCellsLoadedAndDisplayed() throws InterruptedException {
+    private void zoomIntoHelsinore() throws InterruptedException {
+        if (browser instanceof JavascriptExecutor) {
+            ((JavascriptExecutor) browser).executeScript("mapModule.map.setCenter(new OpenLayers.LonLat(12.65,56.035).transform(new OpenLayers.Projection(\"EPSG:4326\"), new OpenLayers.Projection(\"EPSG:900913\")), 12)");
+        }
+
+        browser.findElement(By.id("ui-id-1")).click();
+        final String expectedViewPortInfo = "(56°05'06.8\"N, 12°30'02.4\"E)\n(55°59'05\"N, 12°47'57.6\"E)";
+        By actualViewPortInfoElement = By.cssSelector("div#viewport.useroutput p");
+        wait.until(ExpectedConditions.textToBePresentInElement(actualViewPortInfoElement, expectedViewPortInfo));
+    }
+
+    private void checkCellsAreDisplayedWhenZoomingIn() throws InterruptedException {
         assertCellLayerLoadStatusNoCellsLoaded();
 
         try {
@@ -126,7 +179,7 @@ public class FeatureDataIT {
             wait.until(ExpectedConditions.textToBePresentInElement(By.id("cell-layer-load-status"), "61 cells loaded, 61 added to map."));
         } catch (Throwable e) {
             if (browser instanceof TakesScreenshot) {
-                IntegrationTestHelper.takeScreenshot(browser, "error");
+                IntegrationTestHelper.takeScreenshot(browser, TEST_NAME, "error");
             }
             throw e;
         }

@@ -30,10 +30,10 @@ public class IntegrationTestHelper {
         screenShotParentDir.mkdirs();
     }
 
-    public static void takeScreenshot(WebDriver browser, String name) {
+    public static void takeScreenshot(WebDriver browser, String integrationTestCaseName, String screenshotName) {
         if (browser instanceof TakesScreenshot) {
             File tempfile = ((TakesScreenshot) browser).getScreenshotAs(OutputType.FILE);
-            File dumpfile = new File(screenShotParentDir.getAbsolutePath() + File.separator  + "scrshot-" + runNo + "-" + name + ".png");
+            File dumpfile = new File(screenShotParentDir.getAbsolutePath() + File.separator  + "scrshot-" + runNo + "-" + integrationTestCaseName + "-" + screenshotName + ".png");
             tempfile.renameTo(dumpfile);
             System.err.println("Screen shot dumped to: " + dumpfile.getAbsolutePath());
         } else {
