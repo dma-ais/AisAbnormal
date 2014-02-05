@@ -59,8 +59,8 @@ public abstract class FourKeyFeatureData implements FeatureData, FourKeyMap {
     }
 
     @Override
-    public void incrementValue(int shipTypeBucket, int shipSizeBucket, int cogBucket, String statisticName) {
-        short key = computeMapKey(shipTypeBucket, shipSizeBucket, cogBucket, statisticName);
+    public void incrementValue(int key1, int key2, int key3, String key4) {
+        short key = computeMapKey(key1, key2, key3, key4);
         if (data.get(key) != data.getNoEntryValue()) {
             data.increment(key);
         } else {
@@ -70,15 +70,15 @@ public abstract class FourKeyFeatureData implements FeatureData, FourKeyMap {
     }
 
     @Override
-    public void setValue(int shipTypeBucket, int shipSizeBucket, int cogBucket, String statisticName, int value) {
-        short key = computeMapKey(shipTypeBucket, shipSizeBucket, cogBucket, statisticName);
+    public void setValue(int key1, int key2, int key3, String key4, int value) {
+        short key = computeMapKey(key1, key2, key3, key4);
         data.put(key, value);
         data.compact();
     }
 
     @Override
-    public Integer getValue(int shipTypeBucket, int shipSizeBucket, int cogBucket, String statisticName) {
-        short key = computeMapKey(shipTypeBucket, shipSizeBucket, cogBucket, statisticName);
+    public Integer getValue(int key1, int key2, int key3, String key4) {
+        short key = computeMapKey(key1, key2, key3, key4);
         Integer statisticsValue = data.get(key);
         statisticsValue = statisticsValue == data.getNoEntryValue() ? null : statisticsValue;
         return statisticsValue;
