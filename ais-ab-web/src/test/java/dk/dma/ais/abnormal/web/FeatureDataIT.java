@@ -77,8 +77,8 @@ public class FeatureDataIT {
         assertNotNull(tabs);
         assertEquals(3, tabs.size());
         assertEquals("CourseOverGround", tabs.get(0).getText());
-        assertEquals("SpeedOverGround", tabs.get(1).getText());
-        assertEquals("ShipTypeAndSize", tabs.get(2).getText());
+        assertEquals("ShipTypeAndSize", tabs.get(1).getText());
+        assertEquals("SpeedOverGround", tabs.get(2).getText());
 
         // Check course over ground data
         browser.findElement(By.cssSelector("a#tab-CourseOverGround.ui-tabs-anchor")).click();
@@ -86,17 +86,17 @@ public class FeatureDataIT {
         List<WebElement> cogTabDivs = cogTab.findElements(By.tagName("div"));
         assertEquals("Total ship count is 8.", cogTabDivs.get(1).getText());
 
-        // Check speed over ground data
-        browser.findElement(By.cssSelector("a#tab-SpeedOverGround.ui-tabs-anchor")).click();
-        WebElement sogTab = browser.findElement(By.cssSelector("div[aria-labelledby=\"tab-SpeedOverGround\"]"));
-        List<WebElement> sogTabDivs = sogTab.findElements(By.tagName("div"));
-        assertEquals("Total ship count is 8.", sogTabDivs.get(1).getText());
-
         // Check ship type and size data
         browser.findElement(By.cssSelector("a#tab-ShipTypeAndSize.ui-tabs-anchor")).click();
         WebElement stsTab = browser.findElement(By.cssSelector("div[aria-labelledby=\"tab-ShipTypeAndSize\"]"));
         List<WebElement> stsTabDivs = stsTab.findElements(By.tagName("div"));
         assertEquals("Total ship count is 8.", stsTabDivs.get(1).getText());
+
+        // Check speed over ground data
+        browser.findElement(By.cssSelector("a#tab-SpeedOverGround.ui-tabs-anchor")).click();
+        WebElement sogTab = browser.findElement(By.cssSelector("div[aria-labelledby=\"tab-SpeedOverGround\"]"));
+        List<WebElement> sogTabDivs = sogTab.findElements(By.tagName("div"));
+        assertEquals("Total ship count is 8.", sogTabDivs.get(1).getText());
     }
 
     private void checkFeatureSetMetadata() {

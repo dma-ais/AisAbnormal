@@ -227,7 +227,17 @@ var featureModule = {
     userOutputCreateCellDataTabs: function (cellDataDomNode, cell) {
         cellDataDomNode.append('<div class="tabs" id="cell-data-tabs"><ul></ul></div>');
 
-        cell.featureData.sort( function(a, b) { return a.featureName > b.featureName; });
+        cell.featureData = cell.featureData.sort(
+            function(a, b) {
+                if (a.featureName > b.featureName) {
+                    return 1;
+                } else if (a.featureName < b.featureName) {
+                    return -1;
+                } else {
+                    return 0;
+                };
+            }
+        );
 
         $.each(cell.featureData, function (i, fd) {
             var featureName = fd.featureName;
