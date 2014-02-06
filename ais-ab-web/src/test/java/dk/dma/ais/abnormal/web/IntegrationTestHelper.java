@@ -30,15 +30,33 @@ public class IntegrationTestHelper {
         screenShotParentDir.mkdirs();
     }
 
-    public static void takeScreenshot(WebDriver browser, String integrationTestCaseName, String screenshotName) {
+    public static void takeScreenshot(WebDriver browser, String screenshotName) {
         if (browser instanceof TakesScreenshot) {
+            String testCaseClass  = calledByClass();
+            String testCaseMethod = calledByMethod();
+
             File tempfile = ((TakesScreenshot) browser).getScreenshotAs(OutputType.FILE);
-            File dumpfile = new File(screenShotParentDir.getAbsolutePath() + File.separator  + "scrshot-" + runNo + "-" + integrationTestCaseName + "-" + screenshotName + ".png");
+            File dumpfile = new File(screenShotParentDir.getAbsolutePath() + File.separator  + "scrshot-" + runNo + "-" + testCaseClass + "-" + testCaseMethod + "-" + screenshotName + ".png");
             tempfile.renameTo(dumpfile);
             System.err.println("Screen shot dumped to: " + dumpfile.getAbsolutePath());
         } else {
             System.err.println("Browser does not support screen shots.");
         }
+    }
+
+    private static String calledByClass() {
+        StackTraceElement[] stacktrace = Thread.currentThread().getStackTrace();
+        StackTraceElement e = stacktrace[3];
+        String className = e.getClassName();
+        className = className.substring(className.lastIndexOf('.')+1);
+        return className;
+    }
+
+    private static String calledByMethod() {
+        StackTraceElement[] stacktrace = Thread.currentThread().getStackTrace();
+        StackTraceElement e = stacktrace[3];
+        String methodName = e.getMethodName();
+        return methodName;
     }
 
 }

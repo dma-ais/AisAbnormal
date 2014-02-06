@@ -15,10 +15,9 @@
  */
 package dk.dma.ais.abnormal.web;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
-import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
@@ -28,32 +27,43 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.openqa.selenium.By.cssSelector;
+import static org.openqa.selenium.By.id;
+import static org.openqa.selenium.support.ui.ExpectedConditions.not;
+import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentInElement;
+import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated;
 
 public class EventsIT {
 
-    private static WebDriver browser;
-    private static WebDriverWait wait;
-    private final static String TEST_NAME = EventsIT.class.getSimpleName();
+    private WebDriver browser;
+    private WebDriverWait wait;
 
-    @BeforeClass
-    public static void setUp() {
+    @Before
+    public void setUp() {
         browser = new PhantomJSDriver();
         browser.manage().window().setSize(new Dimension(1280, 1024));
+        browser.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
         wait = new WebDriverWait(browser, 120);
+
+        try {
+            browser.get("http://127.0.0.1:8080/abnormal");
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
     public void canDisplayEventsViaTicker() throws InterruptedException {
-        browser.get("http://127.0.0.1:8080/abnormal");
-        Thread.sleep(1000);
-        IntegrationTestHelper.takeScreenshot(browser, TEST_NAME, "init");
-
         try {
             // Assert there are 5 events in the ticker
-            List<WebElement> tickerElements = browser.findElements(By.cssSelector("#ticker li"));
+            List<WebElement> tickerElements = browser.findElements(cssSelector("#ticker li"));
             assertEquals(5, tickerElements.size());
 
             // Assert that the ticker rolls between events
@@ -71,19 +81,115 @@ public class EventsIT {
             assertTrue(ticker1Element.getText().matches(".*EIDE FIGHTER.*"));
 
             // Assert that event in ticker can be clicked
-            ticker1Element.findElement(By.cssSelector("span.glyphicon")).click();
+            ticker1Element.findElement(cssSelector("span.glyphicon")).click();
         } catch (AssertionError e) {
-            IntegrationTestHelper.takeScreenshot(browser, TEST_NAME, "error");
+            IntegrationTestHelper.takeScreenshot(browser, "error");
             throw e;
         } catch (WebDriverException e) {
-            IntegrationTestHelper.takeScreenshot(browser, TEST_NAME, "error");
+            IntegrationTestHelper.takeScreenshot(browser, "error");
             throw e;
         }
-        IntegrationTestHelper.takeScreenshot(browser, TEST_NAME, "success");
     }
 
-    @AfterClass
-    public static void tearDown() {
+    @Test
+    public void navigateToSearchDialog() {
+        try {
+            // Navigate to search dialog
+            WebElement searchModal = browser.findElement(id("event-search-modal"));
+            assertFalse(searchModal.isDisplayed());
+
+            WebElement eventsTab = browser.findElement(id("tab-events"));
+            eventsTab.click();
+            WebElement searchButton = browser.findElement(id("events-search"));
+            searchButton.click();
+            wait.until(visibilityOfElementLocated(id("event-search-modal")));
+            assertTrue(searchModal.isDisplayed());
+
+            // Ensure that "search-by-other" tab on search dialog is displayed
+            WebElement searchByOtherButton = browser.findElement(id("event-search-by-other"));
+            WebElement searchByIdButton = browser.findElement(id("event-search-by-id"));
+            assertTrue(searchByOtherButton.isDisplayed());
+            assertFalse(searchByIdButton.isDisplayed());
+        } catch (AssertionError e) {
+            IntegrationTestHelper.takeScreenshot(browser, "error");
+            throw e;
+        } catch (WebDriverException e) {
+            IntegrationTestHelper.takeScreenshot(browser, "error");
+            throw e;
+        }
+    }
+
+    @Test
+    public void canShowSearchAllEvents() throws InterruptedException {
+        navigateToSearchDialog();
+        try {
+            WebElement searchByOtherButton = browser.findElement(id("event-search-by-other"));
+            searchByOtherButton.click();
+            assertNumberOfSearchResults(23);
+        } catch (AssertionError e) {
+            IntegrationTestHelper.takeScreenshot(browser, "error");
+            throw e;
+        } catch (WebDriverException e) {
+            IntegrationTestHelper.takeScreenshot(browser, "error");
+            throw e;
+        }
+    }
+
+    @Test
+    public void canShowSearchByVesselName() throws InterruptedException {
+        navigateToSearchDialog();
+        try {
+            WebElement vesselNameCallsignImoField = browser.findElement(id("search-event-vessel"));
+            vesselNameCallsignImoField.sendKeys("FINNSEA");
+            WebElement searchByOtherButton = browser.findElement(id("event-search-by-other"));
+            searchByOtherButton.click();
+            assertNumberOfSearchResults(2);
+        } catch (AssertionError e) {
+            IntegrationTestHelper.takeScreenshot(browser, "error");
+            throw e;
+        } catch (WebDriverException e) {
+            IntegrationTestHelper.takeScreenshot(browser, "error");
+            throw e;
+        }
+    }
+
+    @Test
+    public void canDisplayEventOnMapFromSearchResults() throws InterruptedException {
+        canShowSearchByVesselName();
+        try {
+            // Click on search result
+            WebElement glyphIcon = browser.findElement(cssSelector("div.search-data span#result-6.glyphicon"));
+            glyphIcon.click();
+
+            // Assert search modal closes
+            WebElement searchModal = browser.findElement(id("event-search-modal"));
+            wait.until(not(visibilityOfElementLocated(id("event-search-modal"))));
+
+            // Assert event drawn by OpenLayers in SVG
+            List<WebElement> svgEventLabel = browser.findElements(cssSelector("div#map text tspan"));
+            assertEquals(4, svgEventLabel.size());
+        } catch (AssertionError e) {
+            IntegrationTestHelper.takeScreenshot(browser, "error");
+            throw e;
+        } catch (WebDriverException e) {
+            IntegrationTestHelper.takeScreenshot(browser, "error");
+            throw e;
+        }
+    }
+
+    private void assertNumberOfSearchResults(int expectedNumberOfSearchResults) {
+        WebElement searchStatus = browser.findElement(cssSelector("div.search-status"));
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        wait.until(not(textToBePresentInElement(id("event-search-modal"), "Searching...")));
+        assertEquals("Found " + String.valueOf(expectedNumberOfSearchResults)+ " matching events.", searchStatus.getText());
+    }
+
+    @After
+    public void tearDown() {
         browser.close();
     }
 

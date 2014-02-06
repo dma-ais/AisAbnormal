@@ -45,9 +45,9 @@
             <div class="col-md-3">
                 <div class="tabs">
                     <ul>
-                        <li><a href="#tabs-1">Map</a></li>
-                        <li><a href="#tabs-2">Statistics</a></li>
-                        <li><a href="#tabs-3">Events</a></li>
+                        <li><a href="#tabs-1" id="tab-map">Map</a></li>
+                        <li><a href="#tabs-2" id="tab-stats">Statistics</a></li>
+                        <li><a href="#tabs-3" id="tab-events">Events</a></li>
                     </ul>
                     <div id="tabs-1">
                         <div class="headline">View</div>
@@ -65,7 +65,7 @@
                     </div>
                     <div id="tabs-3">
                         <div class="headline">Event</div>
-                        <button data-toggle="modal" data-target="#event-search-modal">Search events...</button>
+                        <button id="events-search" data-toggle="modal" data-target="#event-search-modal">Search events...</button>
                         <button id="events-remove">Hide events</button>
                     </div>
                 </div>

@@ -33,6 +33,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -41,12 +42,13 @@ public class FeatureDataIT {
 
     private static WebDriver browser;
     private static WebDriverWait wait;
-    private final static String TEST_NAME = FeatureDataIT.class.getSimpleName();
 
     @BeforeClass
     public static void setUp() {
         browser = new PhantomJSDriver();
         browser.manage().window().setSize(new Dimension(1280, 1024));
+        browser.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
         wait = new WebDriverWait(browser, 120);
     }
 
@@ -54,7 +56,7 @@ public class FeatureDataIT {
     public void testCanZoomInToSelectCellAndDisplayFeatureData() throws InterruptedException {
         browser.get("http://127.0.0.1:8080/abnormal");
         Thread.sleep(1000);
-        IntegrationTestHelper.takeScreenshot(browser, TEST_NAME, "init");
+        IntegrationTestHelper.takeScreenshot(browser, "init");
 
         try {
             checkFeatureSetMetadata();
@@ -62,13 +64,13 @@ public class FeatureDataIT {
             clickOnACell();
             checkFeatureDataDisplayedCorrectlyForClickedCell();
         } catch (AssertionError e) {
-            IntegrationTestHelper.takeScreenshot(browser, TEST_NAME, "error");
+            IntegrationTestHelper.takeScreenshot(browser,"error");
             throw e;
         } catch (WebDriverException e) {
-            IntegrationTestHelper.takeScreenshot(browser, TEST_NAME, "error");
+            IntegrationTestHelper.takeScreenshot(browser,"error");
             throw e;
         }
-        IntegrationTestHelper.takeScreenshot(browser, TEST_NAME, "success");
+        IntegrationTestHelper.takeScreenshot(browser,"success");
     }
 
     private void checkFeatureDataDisplayedCorrectlyForClickedCell() {
@@ -100,10 +102,10 @@ public class FeatureDataIT {
     }
 
     private void checkFeatureSetMetadata() {
-        browser.findElement(By.id("ui-id-2")).click();
+        browser.findElement(By.id("tab-stats")).click();
         assertEquals("200 m", browser.findElement(By.cssSelector("div#gridsize.useroutput span.data")).getText());
         assertEquals("10 secs", browser.findElement(By.cssSelector("div#downsampling.useroutput span.data")).getText());
-        IntegrationTestHelper.takeScreenshot(browser, TEST_NAME, "metadata");
+        IntegrationTestHelper.takeScreenshot(browser,"metadata");
     }
 
     private void clickOnACell() throws InterruptedException {
@@ -118,7 +120,7 @@ public class FeatureDataIT {
         actions.perform();
 
         // Cursor position is exactly in the center of the map
-        browser.findElement(By.id("ui-id-1")).click();
+        browser.findElement(By.id("tab-map")).click();
         assertEquals("(56°02'05.7\"N, 12°38'59.7\"E)", browser.findElement(By.cssSelector("div#cursorpos.useroutput p")).getText());
 
         // Assert feature data for correct cell displayed
@@ -128,7 +130,7 @@ public class FeatureDataIT {
     }
 
     private void waitForCellsToBeDisplayed() {
-        browser.findElement(By.id("ui-id-1")).click();
+        browser.findElement(By.id("tab-map")).click();
         wait.until(new Predicate<WebDriver>() {
             @Override
             public boolean apply(@Nullable WebDriver webDriver) {
@@ -152,7 +154,7 @@ public class FeatureDataIT {
             ((JavascriptExecutor) browser).executeScript("mapModule.map.setCenter(new OpenLayers.LonLat(12.65,56.035).transform(new OpenLayers.Projection(\"EPSG:4326\"), new OpenLayers.Projection(\"EPSG:900913\")), 12)");
         }
 
-        browser.findElement(By.id("ui-id-1")).click();
+        browser.findElement(By.id("tab-map")).click();
         final String expectedViewPortInfo = "(56°05'06.8\"N, 12°30'02.4\"E)\n(55°59'05\"N, 12°47'57.6\"E)";
         By actualViewPortInfoElement = By.cssSelector("div#viewport.useroutput p");
         wait.until(ExpectedConditions.textToBePresentInElement(actualViewPortInfoElement, expectedViewPortInfo));
@@ -179,7 +181,7 @@ public class FeatureDataIT {
             wait.until(ExpectedConditions.textToBePresentInElement(By.id("cell-layer-load-status"), "61 cells loaded, 61 added to map."));
         } catch (Throwable e) {
             if (browser instanceof TakesScreenshot) {
-                IntegrationTestHelper.takeScreenshot(browser, TEST_NAME, "error");
+                IntegrationTestHelper.takeScreenshot(browser,"error");
             }
             throw e;
         }
