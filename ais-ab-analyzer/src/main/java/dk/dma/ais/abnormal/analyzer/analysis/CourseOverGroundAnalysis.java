@@ -52,7 +52,7 @@ public class CourseOverGroundAnalysis extends FeatureDataBasedAnalysis {
 
     private final AppStatisticsService statisticsService;
 
-    private static final int TOTAL_COUNT_THRESHOLD = 1000;
+    static final int TOTAL_SHIP_COUNT_THRESHOLD = 1000;
 
     @Inject
     public CourseOverGroundAnalysis(AppStatisticsService statisticsService, FeatureDataRepository featureDataRepository, TrackingService trackingService, EventRepository eventRepository) {
@@ -132,7 +132,7 @@ public class CourseOverGroundAnalysis extends FeatureDataBasedAnalysis {
 
         if (courseOverGroundFeatureData instanceof CourseOverGroundFeatureData) {
             Integer totalCount  = ((CourseOverGroundFeatureData) courseOverGroundFeatureData).getSumFor(CourseOverGroundFeatureData.STAT_SHIP_COUNT);
-            if (totalCount > TOTAL_COUNT_THRESHOLD) {
+            if (totalCount > TOTAL_SHIP_COUNT_THRESHOLD) {
                 Integer shipCount = ((CourseOverGroundFeatureData) courseOverGroundFeatureData).getValue(shipTypeBucket, shipSizeBucket, courseOverGroundBucket, CourseOverGroundFeatureData.STAT_SHIP_COUNT);
                 if (shipCount == null) {
                     shipCount = 0;
