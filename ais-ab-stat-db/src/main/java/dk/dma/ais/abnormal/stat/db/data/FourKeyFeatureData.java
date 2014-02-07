@@ -109,23 +109,26 @@ public abstract class FourKeyFeatureData implements FeatureData, FourKeyMap {
             int key1 = extractKey1(key);
             int key2 = extractKey2(key);
             int key3 = extractKey3(key);
+            int bucket1 = key1 + 1;
+            int bucket2 = key2 + 1;
+            int bucket3 = key3 + 1;
 
-            TreeMap<Integer, TreeMap<Integer, HashMap<String, Integer>>> level1 = root.get(key1);
+            TreeMap<Integer, TreeMap<Integer, HashMap<String, Integer>>> level1 = root.get(bucket1);
             if (level1 == null) {
                 level1 = new TreeMap<>();
-                root.put(key1, level1);
+                root.put(bucket1, level1);
             }
 
-            TreeMap<Integer, HashMap<String, Integer>> level2 = level1.get(key2);
+            TreeMap<Integer, HashMap<String, Integer>> level2 = level1.get(bucket2);
             if (level2 == null) {
                 level2 = new TreeMap<>();
-                level1.put(key2, level2);
+                level1.put(bucket2, level2);
             }
 
-            HashMap<String, Integer> level3 = level2.get(key3);
+            HashMap<String, Integer> level3 = level2.get(bucket3);
             if (level3 == null) {
                 level3 = new HashMap<>();
-                level2.put(key3, level3);
+                level2.put(bucket3, level3);
             }
 
             Integer value = getValue(key1, key2, key3, getNameOfOnlySupportedValueOfKey4());

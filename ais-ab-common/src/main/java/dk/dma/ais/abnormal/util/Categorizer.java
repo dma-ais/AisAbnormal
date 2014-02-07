@@ -16,6 +16,11 @@
 
 package dk.dma.ais.abnormal.util;
 
+import com.google.common.collect.ImmutableMap;
+
+import java.util.Map;
+import java.util.TreeMap;
+
 /**
  * The Categorizer maps vessel properties into "categories"
  * (or "buckets") for use by those Analyses which require
@@ -27,10 +32,81 @@ package dk.dma.ais.abnormal.util;
  */
 public final class Categorizer {
 
-    public static final int NUM_SHIP_TYPE_CATEGORIES = 8;
-    public static final int NUM_SHIP_SIZE_CATEGORIES = 6;
-    public static final int NUM_COURSE_OVER_GROUND_CATEGORIES = 12;
+    private final static String[] SHIP_TYPE_CATEGORIES = {
+            "tanker",    //  1
+            "cargo",     //  2
+            "passenger", //  3
+            "support",   //  4
+            "fishing",   //  5
+            "class b",   //  6
+            "other",     //  7
+            "undef"      //  8
+    };
 
+    private final static String[] SHIP_SIZE_CATEGORIES = {
+            "undef",     //  1
+            "1-50m",     //  2
+            "50-100m",   //  3
+            "100-200m",  //  4
+            "200-999m"   //  5
+    };
+
+    private final static String[] COG_CATEGORIES = {
+            "000-030",   //  1
+            "030-060",   //  2
+            "060-090",   //  3
+            "090-120",   //  4
+            "120-150",   //  5
+            "150-180",   //  6
+            "180-210",   //  7
+            "210-240",   //  8
+            "240-270",   //  9
+            "270-300",   // 10
+            "300-330",   // 11
+            "330-360"    // 12
+    };
+
+    private final static String[] SOG_CATEGORIES = {
+            "0-1kts",    //  1
+            "1-5kts",    //  2
+            "5-10kts",   //  3
+            "10-15kts",  //  4
+            "15-20kts",  //  5
+            "20-30kts",  //  6
+            "30-50kts",  //  7
+            "50-100kts"  //  8
+    };
+
+    public static final int NUM_SHIP_TYPE_CATEGORIES = SHIP_TYPE_CATEGORIES.length;
+    public static final int NUM_SHIP_SIZE_CATEGORIES = SHIP_SIZE_CATEGORIES.length;
+    public static final int NUM_COURSE_OVER_GROUND_CATEGORIES = COG_CATEGORIES.length;
+    public static final int NUM_SPEED_OVER_GROUND_CATEGORIES = SOG_CATEGORIES.length;
+
+    private static Map<Short, String> ALL_SHIP_TYPE_CATEGORY_MAPPINGS;
+    private static Map<Short, String> ALL_SHIP_SIZE_CATEGORY_MAPPINGS;
+    private static Map<Short, String> ALL_COURSE_OVER_GROUND_CATEGORY_MAPPINGS;
+    private static Map<Short, String> ALL_SPEED_OVER_GROUND_CATEGORY_MAPPINGS;
+
+    static {
+        ALL_SHIP_TYPE_CATEGORY_MAPPINGS = initMapping(ALL_SHIP_TYPE_CATEGORY_MAPPINGS, SHIP_TYPE_CATEGORIES);
+        ALL_SHIP_SIZE_CATEGORY_MAPPINGS = initMapping(ALL_SHIP_SIZE_CATEGORY_MAPPINGS, SHIP_SIZE_CATEGORIES);
+        ALL_COURSE_OVER_GROUND_CATEGORY_MAPPINGS = initMapping(ALL_COURSE_OVER_GROUND_CATEGORY_MAPPINGS, COG_CATEGORIES);
+        ALL_SPEED_OVER_GROUND_CATEGORY_MAPPINGS = initMapping(ALL_SPEED_OVER_GROUND_CATEGORY_MAPPINGS, SOG_CATEGORIES);
+    }
+
+    private static ImmutableMap<Short, String> initMapping(Map mapping, String[] categories) {
+        mapping = new TreeMap<>();
+        for (short c=1; c<=categories.length; c++) {
+            mapping.put(c, mapCategoryToString(categories, c));
+        }
+        return ImmutableMap.copyOf(mapping);
+    }
+
+    /**
+     * Map AIS ship type to DMA category
+     * @param shipType
+     * @return
+     */
     public static short mapShipTypeToCategory(int shipType) {
         short category = 8;
 
@@ -55,6 +131,11 @@ public final class Categorizer {
         return (short) (category - 1);
     }
 
+    /**
+     * Map AIS ship length to DMA category
+     * @param shipLength
+     * @return
+     */
     public static short mapShipLengthToCategory(int shipLength) {
         short category;
 
@@ -75,11 +156,21 @@ public final class Categorizer {
         return (short) (category - 1);
     }
 
+    /**
+     * Map course to DMA category
+     * @param cog
+     * @return
+     */
     public static short mapCourseOverGroundToCategory(float cog) {
         cog = cog % (float) 360.0;
         return (short) (cog / 30);
     }
 
+    /**
+     * Map speed over ground to DMA category
+     * @param sog
+     * @return
+     */
     public static short mapSpeedOverGroundToCategory(float sog) {
         short category;
 
@@ -102,5 +193,69 @@ public final class Categorizer {
         }
 
         return (short) (category - 1);
+    }
+
+    /**
+     * Map ship type category to English text
+     * @param category
+     * @return
+     */
+    public static String mapShipTypeCategoryToString(short category) {
+        return mapCategoryToString(SHIP_TYPE_CATEGORIES, category);
+    }
+
+    /**
+     * Map ship length category to English text
+     * @param category
+     * @return
+     */
+    public static String mapShipSizeCategoryToString(short category) {
+        return mapCategoryToString(SHIP_SIZE_CATEGORIES, category);
+    }
+
+    /**
+     * Map course over ground category to text
+     * @param category
+     * @return
+     */
+    public static String mapCourseOverGroundCategoryToString(short category) {
+        return mapCategoryToString(COG_CATEGORIES, category);
+    }
+
+    /**
+     * Map speed over ground category to text
+     * @param category
+     * @return
+     */
+    public static String mapSpeedOverGroundCategoryToString(short category) {
+        return mapCategoryToString(SOG_CATEGORIES, category);
+    }
+
+    private static String mapCategoryToString(String[] categories, short category) {
+        String categoryAsString;
+
+        if (category >= 1 && category <= categories.length) {
+            categoryAsString = categories[category-1];
+        } else {
+            categoryAsString = String.valueOf(category);
+        }
+
+        return categoryAsString;
+    }
+
+    public static Map<Short, String> getAllShipTypeCategoryMappings() {
+        return ALL_SHIP_TYPE_CATEGORY_MAPPINGS;
+    }
+
+    public static Map<Short, String> getAllShipSizeCategoryMappings() {
+        return ALL_SHIP_SIZE_CATEGORY_MAPPINGS;
+    }
+
+    public static Map<Short, String> getAllCourseOverGroundCategoryMappings() {
+        return ALL_COURSE_OVER_GROUND_CATEGORY_MAPPINGS;
+    }
+
+    public static Map<Short, String> getAllSpeedOverGroundCategoryMappings() {
+        return ALL_SPEED_OVER_GROUND_CATEGORY_MAPPINGS;
     }
 }

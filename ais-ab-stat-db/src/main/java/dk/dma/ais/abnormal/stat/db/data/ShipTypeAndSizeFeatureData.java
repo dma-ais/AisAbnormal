@@ -37,8 +37,8 @@ public class ShipTypeAndSizeFeatureData implements FeatureData, ThreeKeyMap {
     final byte MAX_KEY_1;
     final byte MAX_KEY_2;
 
-    private static final String MEANING_OF_KEY_1 = "shipType";
-    private static final String MEANING_OF_KEY_2 = "shipSize";
+    private static final String MEANING_OF_KEY_1 = "type";
+    private static final String MEANING_OF_KEY_2 = "size";
     private static final String MEANING_OF_KEY_3 = "statName";
 
     public static final String STAT_SHIP_COUNT = "shipCount";
@@ -97,8 +97,10 @@ public class ShipTypeAndSizeFeatureData implements FeatureData, ThreeKeyMap {
         TShortIterator keys = data.keySet().iterator();
         while(keys.hasNext()) {
             short key = keys.next();
-            int shipTypeBucket = extractKey1(key);
-            int shipSizeBucket = extractKey2(key);
+            int key1 = extractKey1(key);
+            int key2 = extractKey2(key);
+            int shipTypeBucket = key1 + 1;
+            int shipSizeBucket = key2 + 1;
 
             TreeMap<Integer, HashMap<String, Integer>> level1 = root.get(shipTypeBucket);
             if (level1 == null) {
@@ -111,7 +113,7 @@ public class ShipTypeAndSizeFeatureData implements FeatureData, ThreeKeyMap {
                 level1.put(shipSizeBucket, statistics);
             }
             String statisticsName = STAT_SHIP_COUNT;
-            Integer statisticsValue = getValue(shipTypeBucket, shipSizeBucket, statisticsName);
+            Integer statisticsValue = getValue(key1, key2, statisticsName);
             if (statisticsValue != null) {
                 statistics.put(statisticsName, statisticsValue);
             }

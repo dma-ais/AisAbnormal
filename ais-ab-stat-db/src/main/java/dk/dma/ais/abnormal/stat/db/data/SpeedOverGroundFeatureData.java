@@ -31,19 +31,19 @@ public class SpeedOverGroundFeatureData extends FourKeyFeatureData {
     @Override
     @SuppressWarnings("unused")
     public String getMeaningOfKey1() {
-        return "shipType";
+        return "type";
     }
 
     @Override
     @SuppressWarnings("unused")
     public String getMeaningOfKey2() {
-        return "shipSize";
+        return "size";
     }
 
     @Override
     @SuppressWarnings("unused")
     public String getMeaningOfKey3() {
-        return "sogInterval";
+        return "sog";
     }
 
     @Override
@@ -58,7 +58,7 @@ public class SpeedOverGroundFeatureData extends FourKeyFeatureData {
     }
 
     public static SpeedOverGroundFeatureData create() {
-        return new SpeedOverGroundFeatureData(Categorizer.NUM_SHIP_TYPE_CATEGORIES - 1, Categorizer.NUM_SHIP_SIZE_CATEGORIES - 1, Categorizer.NUM_COURSE_OVER_GROUND_CATEGORIES - 1, 1);
+        return new SpeedOverGroundFeatureData(Categorizer.NUM_SHIP_TYPE_CATEGORIES - 1, Categorizer.NUM_SHIP_SIZE_CATEGORIES - 1, Categorizer.NUM_SPEED_OVER_GROUND_CATEGORIES - 1, 1);
     }
 
     protected SpeedOverGroundFeatureData(int maxKey1, int maxKey2, int maxKey3, int maxNumKey4) {

@@ -22,6 +22,14 @@ div#map {
     margin: 20px auto;
 }
 
+.percentage {
+    text-align: right;
+}
+
+.count {
+    text-align: right;
+}
+
 li {
     font-size: smaller;
 }

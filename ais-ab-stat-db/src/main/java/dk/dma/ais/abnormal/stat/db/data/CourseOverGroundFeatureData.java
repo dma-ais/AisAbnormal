@@ -31,19 +31,19 @@ public class CourseOverGroundFeatureData extends FourKeyFeatureData {
     @Override
     @SuppressWarnings("unused")
     public String getMeaningOfKey1() {
-        return "shipType";
+        return "type";
     }
 
     @Override
     @SuppressWarnings("unused")
     public String getMeaningOfKey2() {
-        return "shipSize";
+        return "size";
     }
 
     @Override
     @SuppressWarnings("unused")
     public String getMeaningOfKey3() {
-        return "cogInterval";
+        return "cog";
     }
 
     @Override

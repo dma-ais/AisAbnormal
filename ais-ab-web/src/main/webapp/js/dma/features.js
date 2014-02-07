@@ -4,6 +4,8 @@
 
 var featureModule = {
 
+    categories: null,
+
     init: function () {
         this.userOutputClearCellData();
         this.userOutputMetadata();
@@ -25,11 +27,13 @@ var featureModule = {
             east: se.x,
             south: se.y,
             west: nw.x
-        }).done(function (cells) {
+        }).done(function (celldata) {
+                featureModule.categories = celldata.metadata.categories;
+
                 $('#cell-layer-load-status').html('Processing cells...');
                 var numCellsAdded = 0;
                 var gridLayer = mapModule.getGridLayer();
-                $.each(cells, function (i, cell) {
+                $.each(celldata.cells, function (i, cell) {
                     var cellAlreadyLoadded = gridLayer.getFeatureByFid(cell.cellId);
                     if (!cellAlreadyLoadded) {
                         featureModule.preProcessCell(cell);
@@ -37,7 +41,7 @@ var featureModule = {
                         numCellsAdded++;
                     }
                 });
-                $('#cell-layer-load-status').html(cells.length + ' cells loaded, ' + numCellsAdded + " added to map.");
+                $('#cell-layer-load-status').html(celldata.cells.length + ' cells loaded, ' + numCellsAdded + " added to map.");
             }).fail(function (jqXHR, textStatus) {
                 $('#cell-layer-load-status').html("Cell load failed: " + textStatus);
             });
@@ -121,37 +125,38 @@ var featureModule = {
     },
 
     userOutputCreateThreeKeyMap: function (parentNode, fd, totalShipCount) {
-        var meaningOfKey1 = fd.meaningOfKey1.replace('ship','');
-        var meaningOfKey2 = fd.meaningOfKey2.replace('ship','');
+        var meaningOfKey1 = fd.meaningOfKey1;
+        var meaningOfKey2 = fd.meaningOfKey2;
 
-        var tableHtml = "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"dataTable\" style=\”width: 260px;\” id=\"feature-table\">";
+        var tableHtml = "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"dataTable\" style=\"width: 260px;\" id=\"feature-table\">";
         tableHtml += "<thead>";
         tableHtml += "<tr>";
-        tableHtml += "<th>" + meaningOfKey1 + " &#92; " + meaningOfKey2 + "</th>";
-        for (var i = 0; i < 10; i++) {
-            tableHtml += "<th>" + parseInt(i+1) + "</th>";
-        }
+        tableHtml += "<th></th>";
+        $.each(featureModule.categories[meaningOfKey2], function(key2, value2) {
+            var category2 = parseInt(key2);
+            var label2 = featureModule.categories[meaningOfKey2][category2];
+            tableHtml += "<th>" + label2 + "</th>";
+        });
         tableHtml += "</tr>";
         tableHtml += "</thead>";
         tableHtml += "<tbody>";
-        $.each(fd.data, function(key1, value1) {
+        $.each(featureModule.categories[meaningOfKey1], function(key1, value1) {
             tableHtml += "<tr>";
-            var i = parseInt(key1) + 1;
-            tableHtml += "<td>" + i + "</td>";
-            for (var key2 = 0; key2 < 10; key2++) {
-                tableHtml += "<td>";
-                if (value1) {
-                    var value2 = value1[key2];
-                    if (value2) {
-                        var pd = 100 * value2.shipCount / totalShipCount;
-                        var stats = (Math.round(pd * 100) / 100).toFixed(2);
-                        if (stats) {
-                            tableHtml += stats + "%";
-                        }
-                    }
+            var category1 = parseInt(key1);
+            var label1 = featureModule.categories[meaningOfKey1][category1];
+            tableHtml += "<td>" + label1 + "</td>";
+            $.each(featureModule.categories[meaningOfKey2], function(key2, value2) {
+                var shipCount = '';
+                var stats = '';
+                try {
+                    shipCount = fd.data[key1][key2].shipCount;
+                    var pd = 100 * shipCount / totalShipCount;
+                    var stats = (Math.round(pd * 100) / 100).toFixed(2) + '%';
+                } catch(e) {
+                    // Expected behaviour for statistics with no shipCount
                 }
-                tableHtml += "</td>";
-            }
+                tableHtml += '<td class="percentage">' + stats + '</td>';
+            });
             tableHtml += "</tr>";
         });
         tableHtml += "</tbody>";
@@ -171,8 +176,8 @@ var featureModule = {
     },
 
     userOutputCreateFourKeyMap: function (parentNode, fd, totalShipCount) {
-        var meaningOfKey1 = fd.meaningOfKey1.replace('ship','');
-        var meaningOfKey2 = fd.meaningOfKey2.replace('ship','');
+        var meaningOfKey1 = fd.meaningOfKey1;
+        var meaningOfKey2 = fd.meaningOfKey2;
         var meaningOfKey3 = fd.meaningOfKey3;
 
         var tableHtml = "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"dataTable\" style=\”width: 260px;\” id=\"feature-table\">";
@@ -187,23 +192,32 @@ var featureModule = {
         tableHtml += "</thead>";
         tableHtml += "<tbody>";
 
-        $.each(fd.data, function(key1, value1) {
-            $.each(value1, function(key2, value2) {
-                $.each(value2, function(key3, statistic) {
-                    if (statistic) {
-                        var pd = 100 * statistic.shipCount / totalShipCount;
-                        var stats = (Math.round(pd * 100) / 100).toFixed(2);
-                        if (stats) {
-                            tableHtml +=
-                                "<tr>" +
-                                    "<td>" + (parseInt(key1)+parseInt(1)) + "</td>" +
-                                    "<td>" + (parseInt(key2)+parseInt(1)) + "</td>" +
-                                    "<td>" + (parseInt(key3)+parseInt(1)) + "</td>" +
-                                    "<td>" + statistic.shipCount + "</td>" +
-                                    "<td>" + stats + "%</td>" +
-                                    "</tr>";
-                        }
+        $.each(featureModule.categories[meaningOfKey1], function(key1, value1) {
+            var category1 = parseInt(key1);
+            var label1 = featureModule.categories[meaningOfKey1][category1];
+            $.each(featureModule.categories[meaningOfKey2], function(key2, value2) {
+                var category2 = parseInt(key2);
+                var label2 = featureModule.categories[meaningOfKey2][category2];
+                $.each(featureModule.categories[meaningOfKey3], function(key3, value3) {
+                    var category3 = parseInt(key3);
+                    var label3 = featureModule.categories[meaningOfKey3][category3];
+                    var shipCount = '';
+                    var stats = '';
+                    try {
+                        shipCount = fd.data[key1][key2][key3].shipCount;
+                        var pd = 100 * shipCount / totalShipCount;
+                        stats = (Math.round(pd * 100) / 100).toFixed(2) + "%";
+                    } catch(e) {
+                        // Expected behaviour for statistics with no shipCount
                     }
+                    tableHtml +=
+                            "<tr>" +
+                            "<td>" + label1 + "</td>" +
+                            "<td>" + label2 + "</td>" +
+                            "<td>" + label3 + "</td>" +
+                            "<td class='count'>" + shipCount + "</td>" +
+                            "<td class='percentage'>" + stats + "</td>" +
+                            "</tr>";
                 })
             })
         })

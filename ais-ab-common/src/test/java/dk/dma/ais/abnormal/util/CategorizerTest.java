@@ -30,4 +30,25 @@ public class CategorizerTest {
         assertEquals(11, Categorizer.mapCourseOverGroundToCategory((float) 359.999));
         assertEquals(0, Categorizer.mapCourseOverGroundToCategory((float) 360.000));
     }
+
+    @Test
+    public void testMapShipTypeCategoryToString() {
+        assertEquals("tanker", Categorizer.mapShipTypeCategoryToString((short) 1));
+        assertEquals("cargo", Categorizer.mapShipTypeCategoryToString((short) 2));
+    }
+
+    @Test
+    public void testMapShipSizeCategoryToString() {
+        assertEquals("0-1m", Categorizer.mapShipSizeCategoryToString((short) 1));
+    }
+
+    @Test
+    public void testMapCourseOverGroundCategoryToString() {
+        assertEquals("000-030", Categorizer.mapCourseOverGroundCategoryToString((short) 1));
+    }
+
+    @Test
+    public void testMapSpeedOverGroundCategoryToString() {
+        assertEquals("1-5kts", Categorizer.mapSpeedOverGroundCategoryToString((short) 2));
+    }
 }
