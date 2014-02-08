@@ -20,20 +20,17 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -45,10 +42,7 @@ public class FeatureDataIT {
 
     @BeforeClass
     public static void setUp() {
-        browser = new PhantomJSDriver();
-        browser.manage().window().setSize(new Dimension(1280, 1024));
-        browser.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-
+        browser = IntegrationTestHelper.createPhantomJSWebDriver();
         wait = new WebDriverWait(browser, 120);
     }
 

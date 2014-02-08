@@ -18,16 +18,13 @@ package dk.dma.ais.abnormal.web;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -45,10 +42,7 @@ public class EventsIT {
 
     @Before
     public void setUp() {
-        browser = new PhantomJSDriver();
-        browser.manage().window().setSize(new Dimension(1280, 1024));
-        browser.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-
+        browser = IntegrationTestHelper.createPhantomJSWebDriver();
         wait = new WebDriverWait(browser, 120);
 
         try {

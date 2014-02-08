@@ -15,11 +15,16 @@
  */
 package dk.dma.ais.abnormal.web;
 
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.phantomjs.PhantomJSDriver;
+import org.openqa.selenium.phantomjs.PhantomJSDriverService;
+import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 public class IntegrationTestHelper {
 
@@ -28,6 +33,28 @@ public class IntegrationTestHelper {
     static {
         screenShotParentDir = new File(System.getProperty("user.dir") + File.separator + "target" + File.separator + "selenium");
         screenShotParentDir.mkdirs();
+    }
+
+    public static PhantomJSDriver createPhantomJSWebDriver() {
+        String os = System.getProperty("os.name");
+
+        DesiredCapabilities capabilities = new DesiredCapabilities();
+        if ("Mac OS X".equalsIgnoreCase(os)) {
+            capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY, "/usr/local/bin/phantomjs");
+        } else if ("Linux".equalsIgnoreCase(os)) {
+            capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY, System.getProperty("user.home") + "/bin/phantomjs");
+        }
+
+        System.out.println("Using PhantomJS executable path: " + capabilities.getCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY));
+
+        PhantomJSDriverService driverService = PhantomJSDriverService.createDefaultService(capabilities);
+
+        PhantomJSDriver driver = new PhantomJSDriver(driverService, capabilities);
+
+        driver.manage().window().setSize(new Dimension(1280, 1024));
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
+        return driver;
     }
 
     public static void takeScreenshot(WebDriver browser, String screenshotName) {

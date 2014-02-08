@@ -21,7 +21,8 @@ import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
+
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -30,8 +31,8 @@ public class ConnectivityIT {
     private static WebDriver driver;
 
     @BeforeClass
-    public static void setUp() {
-        driver = new PhantomJSDriver();
+    public static void setUp() throws IOException {
+        driver = IntegrationTestHelper.createPhantomJSWebDriver();
     }
 
     @Test
