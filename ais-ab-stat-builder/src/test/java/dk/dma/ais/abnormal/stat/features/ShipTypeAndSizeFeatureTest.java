@@ -86,15 +86,15 @@ public class ShipTypeAndSizeFeatureTest {
         // TODO assertEquals(ShipTypeAndSizeFeature.FEATURE_NAME, featureData.getCapturedObject().getFeatureName());
         assertEquals(ShipTypeAndSizeFeatureData.class, featureData.getCapturedObject().getClass());
         ShipTypeAndSizeFeatureData capturedFeatureData = (ShipTypeAndSizeFeatureData) featureData.getCapturedObject();
-        assertEquals("shipType", capturedFeatureData.getMeaningOfKey1());
-        assertEquals("shipSize", capturedFeatureData.getMeaningOfKey2());
+        assertEquals("type", capturedFeatureData.getMeaningOfKey1());
+        assertEquals("size", capturedFeatureData.getMeaningOfKey2());
         assertEquals(TreeMap.class, featureData.getCapturedObject().getData().getClass());
         TreeMap<Integer, TreeMap<Integer, HashMap<String,Integer>>> data = capturedFeatureData.getData();
         assertEquals(1, data.size()); // Assert one statistic recorded
         int shipType = data.firstKey();
-        assertEquals(3 - 1 /* -1 because idx counts from zero */, shipType);
+        assertEquals(3, shipType);
         int shipSize = data.get(shipType).firstKey();
-        assertEquals(3 - 1 /* -1 because idx counts from zero */, shipSize);
+        assertEquals(3, shipSize);
         int numberOfStatsForShipTypeAndShipSize = data.get(shipType).get(shipSize).size();
         assertEquals(1, numberOfStatsForShipTypeAndShipSize);
         String statName = data.get(shipType).get(shipSize).keySet().iterator().next();
@@ -136,15 +136,15 @@ public class ShipTypeAndSizeFeatureTest {
         // TODO assertEquals(ShipTypeAndSizeFeature.FEATURE_NAME, featureData2.getCapturedObject().getFeatureName());
         assertEquals(ShipTypeAndSizeFeatureData.class, featureData2.getCapturedObject().getClass());
         ShipTypeAndSizeFeatureData capturedFeatureData = (ShipTypeAndSizeFeatureData) featureData2.getCapturedObject();
-        assertEquals("shipType", capturedFeatureData.getMeaningOfKey1());
-        assertEquals("shipSize", capturedFeatureData.getMeaningOfKey2());
+        assertEquals("type", capturedFeatureData.getMeaningOfKey1());
+        assertEquals("size", capturedFeatureData.getMeaningOfKey2());
         assertEquals(TreeMap.class, featureData2.getCapturedObject().getData().getClass());
         TreeMap<Integer, TreeMap<Integer, HashMap<String,Integer>>> data = capturedFeatureData.getData();
         assertEquals(1, data.size()); // Assert one statistic recorded
         int shipType = data.firstKey();
-        assertEquals(3 - 1 /* -1 because idx counts from zero */, shipType);
+        assertEquals(3, shipType);
         int shipSize = data.get(shipType).firstKey();
-        assertEquals(3 - 1 /* -1 because idx counts from zero */, shipSize);
+        assertEquals(3, shipSize);
         int numberOfStatsForShipTypeAndShipSize = data.get(shipType).get(shipSize).size();
         assertEquals(1, numberOfStatsForShipTypeAndShipSize);
         String statName = data.get(shipType).get(shipSize).keySet().iterator().next();

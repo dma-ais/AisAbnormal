@@ -89,10 +89,10 @@ public class ShipTypeAndSizeAnalysis extends FeatureDataBasedAnalysis {
             return;
         }
 
-        short shipTypeBucket = Categorizer.mapShipTypeToCategory(shipType);
-        short shipLengthBucket = Categorizer.mapShipLengthToCategory(shipLength);
+        int shipTypeKey = Categorizer.mapShipTypeToCategory(shipType) - 1;
+        int shipLengthKey = Categorizer.mapShipLengthToCategory(shipLength) - 1;
 
-        if (isAbnormalCellForShipTypeAndSize(cellId, shipTypeBucket, shipLengthBucket)) {
+        if (isAbnormalCellForShipTypeAndSize(cellId, shipTypeKey, shipLengthKey)) {
             raiseOrMaintainAbnormalEvent(ShipSizeOrTypeEvent.class, track);
         } else {
             lowerExistingAbnormalEventIfExists(ShipSizeOrTypeEvent.class, track);
@@ -112,11 +112,11 @@ public class ShipTypeAndSizeAnalysis extends FeatureDataBasedAnalysis {
      * that shiptype and size.
      *
      * @param cellId
-     * @param shipTypeBucket
-     * @param shipSizeBucket
+     * @param shipTypeKey
+     * @param shipSizeKey
      * @return true if the presence of size/type in this cell is abnormal. False otherwise.
      */
-    boolean isAbnormalCellForShipTypeAndSize(Long cellId, int shipTypeBucket, int shipSizeBucket) {
+    boolean isAbnormalCellForShipTypeAndSize(Long cellId, int shipTypeKey, int shipSizeKey) {
         float pd = 1.0f;
 
         FeatureData shipSizeAndTypeData = getFeatureDataRepository().getFeatureData("ShipTypeAndSizeFeature", cellId);
@@ -124,12 +124,12 @@ public class ShipTypeAndSizeAnalysis extends FeatureDataBasedAnalysis {
         if (shipSizeAndTypeData instanceof ShipTypeAndSizeFeatureData) {
             Integer totalCount  = ((ShipTypeAndSizeFeatureData) shipSizeAndTypeData).getSumFor("shipCount");
             if (totalCount > TOTAL_COUNT_THRESHOLD) {
-                Integer shipCount = ((ShipTypeAndSizeFeatureData) shipSizeAndTypeData).getValue(shipTypeBucket, shipSizeBucket, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT);
+                Integer shipCount = ((ShipTypeAndSizeFeatureData) shipSizeAndTypeData).getValue(shipTypeKey, shipSizeKey, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT);
                 if (shipCount == null) {
                     shipCount = 0;
                 }
                 pd = (float) shipCount / (float) totalCount;
-                LOG.debug("cellId=" + cellId + ", shipType=" + shipTypeBucket + ", shipSize=" + shipSizeBucket + ", shipCount=" + shipCount + ", totalCount=" + totalCount + ", pd=" + pd);
+                LOG.debug("cellId=" + cellId + ", shipType=" + shipTypeKey + ", shipSize=" + shipSizeKey + ", shipCount=" + shipCount + ", totalCount=" + totalCount + ", pd=" + pd);
             } else {
                 LOG.debug("totalCount of " + totalCount + " is not enough statistical data for cell " + cellId);
             }

@@ -97,11 +97,11 @@ public class CourseOverGroundAnalysis extends FeatureDataBasedAnalysis {
             return;
         }
 
-        short shipTypeBucket = Categorizer.mapShipTypeToCategory(shipType);
-        short shipLengthBucket = Categorizer.mapShipLengthToCategory(shipLength);
-        short courseOverGroundBucket = Categorizer.mapCourseOverGroundToCategory(courseOverGround);
+        int shipTypeKey = Categorizer.mapShipTypeToCategory(shipType) - 1;
+        int shipLengthKey = Categorizer.mapShipLengthToCategory(shipLength) - 1;
+        int courseOverGroundKey = Categorizer.mapCourseOverGroundToCategory(courseOverGround) - 1;
 
-        if (isAbnormalCourseOverGround(cellId, shipTypeBucket, shipLengthBucket, courseOverGroundBucket)) {
+        if (isAbnormalCourseOverGround(cellId, shipTypeKey, shipLengthKey, courseOverGroundKey)) {
             raiseOrMaintainAbnormalEvent(CourseOverGroundEvent.class, track);
         } else {
             lowerExistingAbnormalEventIfExists(CourseOverGroundEvent.class, track);
@@ -121,11 +121,12 @@ public class CourseOverGroundAnalysis extends FeatureDataBasedAnalysis {
      * that shiptype and size.
      *
      * @param cellId
-     * @param shipTypeBucket
-     * @param shipSizeBucket
+     * @param shipTypeKey
+     * @param shipSizeKey
+     * @param courseOverGroundKey
      * @return true if the presence of size/type with this cog in this cell is abnormal. False otherwise.
      */
-    boolean isAbnormalCourseOverGround(Long cellId, int shipTypeBucket, int shipSizeBucket, int courseOverGroundBucket) {
+    boolean isAbnormalCourseOverGround(Long cellId, int shipTypeKey, int shipSizeKey, int courseOverGroundKey) {
         float pd = 1.0f;
 
         FeatureData courseOverGroundFeatureData = getFeatureDataRepository().getFeatureData("CourseOverGroundFeature", cellId);
@@ -133,12 +134,12 @@ public class CourseOverGroundAnalysis extends FeatureDataBasedAnalysis {
         if (courseOverGroundFeatureData instanceof CourseOverGroundFeatureData) {
             Integer totalCount  = ((CourseOverGroundFeatureData) courseOverGroundFeatureData).getSumFor(CourseOverGroundFeatureData.STAT_SHIP_COUNT);
             if (totalCount > TOTAL_SHIP_COUNT_THRESHOLD) {
-                Integer shipCount = ((CourseOverGroundFeatureData) courseOverGroundFeatureData).getValue(shipTypeBucket, shipSizeBucket, courseOverGroundBucket, CourseOverGroundFeatureData.STAT_SHIP_COUNT);
+                Integer shipCount = ((CourseOverGroundFeatureData) courseOverGroundFeatureData).getValue(shipTypeKey, shipSizeKey, courseOverGroundKey, CourseOverGroundFeatureData.STAT_SHIP_COUNT);
                 if (shipCount == null) {
                     shipCount = 0;
                 }
                 pd = (float) shipCount / (float) totalCount;
-                LOG.debug("cellId=" + cellId + ", shipType=" + shipTypeBucket + ", shipSize=" + shipSizeBucket + ", cog=" + courseOverGroundBucket + ", shipCount=" + shipCount + ", totalCount=" + totalCount + ", pd=" + pd);
+                LOG.debug("cellId=" + cellId + ", shipType=" + shipTypeKey + ", shipSize=" + shipSizeKey + ", cog=" + courseOverGroundKey + ", shipCount=" + shipCount + ", totalCount=" + totalCount + ", pd=" + pd);
             } else {
                 LOG.debug("totalCount of " + totalCount + " is not enough statistical data for cell " + cellId);
             }

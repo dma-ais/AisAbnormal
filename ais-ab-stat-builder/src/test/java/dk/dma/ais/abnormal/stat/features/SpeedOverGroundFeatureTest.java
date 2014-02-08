@@ -89,11 +89,11 @@ public class SpeedOverGroundFeatureTest {
 
         assertEquals(1, data.size()); // Assert one statistic recorded
         int shipTypeBucket = data.firstKey();
-        assertEquals(3 - 1 /* -1 because idx counts from zero */, shipTypeBucket);
+        assertEquals(3, shipTypeBucket);
         int shipSizeBucket = data.get(shipTypeBucket).firstKey();
-        assertEquals(3 - 1 /* -1 because idx counts from zero */, shipSizeBucket);
+        assertEquals(3, shipSizeBucket);
         int sogBucket = data.get(shipTypeBucket).get(shipSizeBucket).firstKey();
-        assertEquals(5 - 1 /* -1 because idx counts from zero */, sogBucket);
+        assertEquals(5, sogBucket);
 
         int numberOfStats = data.get(shipTypeBucket).get(shipSizeBucket).get(sogBucket).size();
         assertEquals(1, numberOfStats);
@@ -104,8 +104,8 @@ public class SpeedOverGroundFeatureTest {
 
         // Other assertations now we're here
         assertEquals(SpeedOverGroundFeatureData.class, featureData.getCapturedObject().getClass());
-        assertEquals("shipType", capturedFeatureData.getMeaningOfKey1());
-        assertEquals("shipSize", capturedFeatureData.getMeaningOfKey2());
+        assertEquals("type", capturedFeatureData.getMeaningOfKey1());
+        assertEquals("size", capturedFeatureData.getMeaningOfKey2());
         assertEquals(TreeMap.class, featureData.getCapturedObject().getData().getClass());
         assertEquals(SpeedOverGroundFeatureData.STAT_SHIP_COUNT, statName);
     }
@@ -140,17 +140,17 @@ public class SpeedOverGroundFeatureTest {
         // TODO assertEquals(SpeedOverGroundFeature.FEATURE_NAME, featureData2.getCapturedObject().getFeatureName());
         assertEquals(SpeedOverGroundFeatureData.class, featureData2.getCapturedObject().getClass());
         SpeedOverGroundFeatureData capturedFeatureData = (SpeedOverGroundFeatureData) featureData2.getCapturedObject();
-        assertEquals("shipType", capturedFeatureData.getMeaningOfKey1());
-        assertEquals("shipSize", capturedFeatureData.getMeaningOfKey2());
+        assertEquals("type", capturedFeatureData.getMeaningOfKey1());
+        assertEquals("size", capturedFeatureData.getMeaningOfKey2());
         assertEquals(TreeMap.class, featureData2.getCapturedObject().getData().getClass());
         TreeMap<Integer, TreeMap<Integer, TreeMap<Integer, HashMap<String, Integer>>>> data = capturedFeatureData.getData();
         assertEquals(1, data.size()); // Assert one statistic recorded
         int shipTypeBucket = data.firstKey();
-        assertEquals(3 - 1 /* -1 because idx counts from zero */, shipTypeBucket);
+        assertEquals(3, shipTypeBucket);
         int shipSizeBucket = data.get(shipTypeBucket).firstKey();
-        assertEquals(3 - 1 /* -1 because idx counts from zero */, shipSizeBucket);
+        assertEquals(3, shipSizeBucket);
         int sogBucket = data.get(shipTypeBucket).get(shipSizeBucket).firstKey();
-        assertEquals(5 - 1 /* -1 because idx counts from zero */, sogBucket);
+        assertEquals(5, sogBucket);
         int numberOfStatsForShipTypeAndShipSize = data.get(shipTypeBucket).get(shipSizeBucket).size();
         assertEquals(1, numberOfStatsForShipTypeAndShipSize);
         String statName = data.get(shipTypeBucket).get(shipSizeBucket).get(sogBucket).keySet().iterator().next();

@@ -72,7 +72,7 @@ public class ShipTypeAndSizeFeatureDataTest {
     public void canSumFor() {
         featureData.setValue(1, 3, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT, 17);
         featureData.setValue(2, 3, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT, 42);
-        featureData.setValue(3, 5, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT, 22);
+        featureData.setValue(0, 4, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT, 22);
         featureData.setValue(4, 0, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT, 431);
 
         assertEquals(17+42+22+431, featureData.getSumFor(ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
@@ -84,24 +84,24 @@ public class ShipTypeAndSizeFeatureDataTest {
 
         TreeMap<Integer,TreeMap<Integer,HashMap<String,Integer>>> data = featureData.getData();
 
-        assertEquals(42, (int) data.get(3).get(1).get(ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
-        assertNull(data.get(3).get(2));
-        assertNull(data.get(2));
+        assertEquals(42, (int) data.get(3+1).get(1+1).get(ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
+        assertNull(data.get(3+1).get(2+1));
+        assertNull(data.get(2+1));
         assertEquals(1, data.keySet().size());
-        assertEquals(1, data.get(3).keySet().size());
+        assertEquals(1, data.get(3+1).keySet().size());
     }
 
     @Test
     public void computeKey() {
         assertEquals(0, featureData.computeMapKey(0, 0, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
-        assertEquals(5, featureData.computeMapKey(0, 5, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
-        assertEquals(6, featureData.computeMapKey(1, 0, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
-        assertEquals(7, featureData.computeMapKey(1, 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
-        assertEquals(12, featureData.computeMapKey(2, 0, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
-        assertEquals(17, featureData.computeMapKey(2, 5, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
-        assertEquals(18, featureData.computeMapKey(3, 0, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
-        assertEquals(19, featureData.computeMapKey(3, 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
-        assertEquals(35, featureData.computeMapKey(5, 5, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
+        assertEquals(4, featureData.computeMapKey(0, 4, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
+        assertEquals(5, featureData.computeMapKey(1, 0, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
+        assertEquals(6, featureData.computeMapKey(1, 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
+        assertEquals(10, featureData.computeMapKey(2, 0, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
+        assertEquals(14, featureData.computeMapKey(2, 4, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
+        assertEquals(15, featureData.computeMapKey(3, 0, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
+        assertEquals(16, featureData.computeMapKey(3, 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
+        assertEquals(29, featureData.computeMapKey(5, 4, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
     }
 
     @Test
@@ -113,30 +113,18 @@ public class ShipTypeAndSizeFeatureDataTest {
     }
 
     @Test
-    public void extractKey1() {
-        assertEquals(0, featureData.extractKey1((short) 0));
-        assertEquals(0, featureData.extractKey1((short) 5));
-        assertEquals(1, featureData.extractKey1((short) 6));
-        assertEquals(1, featureData.extractKey1((short) 7));
-        assertEquals(2, featureData.extractKey1((short) 12));
-        assertEquals(2, featureData.extractKey1((short) 17));
-        assertEquals(3, featureData.extractKey1((short) 18));
-        assertEquals(3, featureData.extractKey1((short) 19));
-        assertEquals(5, featureData.extractKey1((short) 35));
+    public void extractKeys() {
+        int expectedKey = 0;
 
-    }
-
-    @Test
-    public void extractKey2() {
-        assertEquals(0, featureData.extractKey2((short) 0));
-        assertEquals(5, featureData.extractKey2((short) 5));
-        assertEquals(0, featureData.extractKey2((short) 6));
-        assertEquals(1, featureData.extractKey2((short) 7));
-        assertEquals(0, featureData.extractKey2((short) 12));
-        assertEquals(5, featureData.extractKey2((short) 17));
-        assertEquals(0, featureData.extractKey2((short) 18));
-        assertEquals(1, featureData.extractKey2((short) 19));
-        assertEquals(5, featureData.extractKey2((short) 35));
+        for (int key1 = 0; key1 < Categorizer.NUM_SHIP_TYPE_CATEGORIES; key1++) {
+            for (int key2 = 0; key2 < Categorizer.NUM_SHIP_SIZE_CATEGORIES; key2++) {
+                short key = featureData.computeMapKey(key1, key2, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT);
+                System.out.println("key:" + key + " key1:" + key1 + " key2:" + key2);
+                assertEquals(expectedKey++, key);
+                assertEquals(key1, featureData.extractKey1(key));
+                assertEquals(key2, featureData.extractKey2(key));
+            }
+        }
     }
 
 }

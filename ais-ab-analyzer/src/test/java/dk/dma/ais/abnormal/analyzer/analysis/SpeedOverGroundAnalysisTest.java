@@ -66,15 +66,15 @@ public class SpeedOverGroundAnalysisTest {
         featureData.setValue((short) 1, (short) 1, (short) 1, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
         featureData.setValue((short) 1, (short) 2, (short) 0, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
         featureData.setValue((short) 2, (short) 0, (short) 0, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        featureData.setValue((short) 2, (short) 3, (short) 0, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        featureData.setValue((short) 2, (short) 3, (short) 1, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        featureData.setValue((short) 2, (short) 3, (short) 2, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        featureData.setValue((short) 2, (short) 3, (short) 3, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        featureData.setValue((short) 2, (short) 3, (short) 4, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        featureData.setValue((short) 2, (short) 3, (short) 5, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
         featureData.setValue((short) 2, (short) 4, (short) 0, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
         featureData.setValue((short) 2, (short) 4, (short) 1, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
         featureData.setValue((short) 2, (short) 4, (short) 2, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 975);
-        featureData.setValue((short) 2, (short) 5, (short) 0, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 5, (short) 1, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 5, (short) 2, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 5, (short) 3, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 5, (short) 4, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 5, (short) 5, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
 
         final int sum  = featureData.getSumFor(SpeedOverGroundFeatureData.STAT_SHIP_COUNT);
         final int n1    = featureData.getValue(2, 4, 2, SpeedOverGroundFeatureData.STAT_SHIP_COUNT);
@@ -111,19 +111,19 @@ public class SpeedOverGroundAnalysisTest {
         featureData.setValue((short) 1, (short) 1, (short) 1, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
         featureData.setValue((short) 1, (short) 2, (short) 0, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
         featureData.setValue((short) 2, (short) 0, (short) 0, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        featureData.setValue((short) 2, (short) 3, (short) 0, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        featureData.setValue((short) 2, (short) 3, (short) 1, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        featureData.setValue((short) 2, (short) 3, (short) 2, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        featureData.setValue((short) 2, (short) 3, (short) 3, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        featureData.setValue((short) 2, (short) 3, (short) 4, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        featureData.setValue((short) 2, (short) 3, (short) 5, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1000);
         featureData.setValue((short) 2, (short) 4, (short) 0, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
         featureData.setValue((short) 2, (short) 4, (short) 1, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
         featureData.setValue((short) 2, (short) 4, (short) 2, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 5, (short) 0, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 5, (short) 1, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 5, (short) 2, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 5, (short) 3, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 5, (short) 4, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 5, (short) 5, SpeedOverGroundFeatureData.STAT_SHIP_COUNT, 1000);
 
         final int sum   = featureData.getSumFor(SpeedOverGroundFeatureData.STAT_SHIP_COUNT);
         final int n1    = featureData.getValue(2, 4, 1, SpeedOverGroundFeatureData.STAT_SHIP_COUNT);
-        final int n2    = featureData.getValue(2, 5, 5, SpeedOverGroundFeatureData.STAT_SHIP_COUNT);
+        final int n2    = featureData.getValue(2, 3, 5, SpeedOverGroundFeatureData.STAT_SHIP_COUNT);
         final float pd1 = (float) n1 / (float) sum;
         final float pd2 = (float) n2 / (float) sum;
         assertTrue(sum > SpeedOverGroundAnalysis.TOTAL_SHIP_COUNT_THRESHOLD);
@@ -150,7 +150,7 @@ public class SpeedOverGroundAnalysisTest {
             ignoring(statisticsService).incAnalysisStatistics(with("SpeedOverGroundAnalysis"), with(any(String.class)));
             oneOf(featureDataRepository).getFeatureData("SpeedOverGroundFeature", 123456L); will(returnValue(featureData));
         }});
-        assertFalse(analysis.isAbnormalSpeedOverGround(123456L, 2, 5, 5));
+        assertFalse(analysis.isAbnormalSpeedOverGround(123456L, 2, 3, 5));
     }
 
 }

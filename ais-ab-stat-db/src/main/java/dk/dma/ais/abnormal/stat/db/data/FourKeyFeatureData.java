@@ -37,6 +37,9 @@ public abstract class FourKeyFeatureData implements FeatureData, FourKeyMap {
     final byte MAX_KEY_2;
     final byte MAX_KEY_3;
 
+    final int d2;
+    final int d3;
+
     protected FourKeyFeatureData(int maxKey1, int maxKey2, int maxKey3, int maxNumKey4) {
         if (maxKey1 <= 0) {
             throw new IllegalArgumentException("maxKey1 <= 0 not supported.");
@@ -54,6 +57,9 @@ public abstract class FourKeyFeatureData implements FeatureData, FourKeyMap {
         this.MAX_KEY_1 = (byte) maxKey1;
         this.MAX_KEY_2 = (byte) maxKey2;
         this.MAX_KEY_3 = (byte) maxKey3;
+
+        d2 = MAX_KEY_2 + 1;
+        d3 = MAX_KEY_3 + 1;
 
         this.data = new TShortIntHashMap(1);
     }
@@ -156,22 +162,19 @@ public abstract class FourKeyFeatureData implements FeatureData, FourKeyMap {
             throw new IllegalArgumentException("key4 '" + key4 + "' is not supported.");
         }
 
-        final int d1 = MAX_KEY_2 + 1;
-        final int d2 = MAX_KEY_3 + 1;
-
-        return (short) (key3 + key2*d2 + key1*d1*d2);
+        return (short) (key1*d2*d3 + key2*d3 + key3);
     }
 
     int extractKey1(short key) {
-        return (key / ((MAX_KEY_2+1)*(MAX_KEY_3+1)));
+        return key / (d2*d3);
     }
 
     int extractKey2(short key) {
-        return (key / (MAX_KEY_3+1)) % (MAX_KEY_2+1);
+        return (key - extractKey1(key)*d2*d3) / d3;
     }
 
     int extractKey3(short key) {
-        return key % (MAX_KEY_3+1);
+        return (key - extractKey1(key)*d2*d3 - extractKey2(key)*d3);
     }
 
     int extractKey4(short key) {

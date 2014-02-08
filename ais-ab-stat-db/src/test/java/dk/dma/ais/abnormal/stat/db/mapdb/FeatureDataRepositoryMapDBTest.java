@@ -79,7 +79,7 @@ public class FeatureDataRepositoryMapDBTest {
         ShipTypeAndSizeFeatureData featureData = (ShipTypeAndSizeFeatureData) featureDataRepository.getFeatureData(TEST_FEATURE_NAME, testCellId);
         assertEquals((Integer) (1 % 100), featureData.getValue(1, 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
         assertEquals((Integer) ((7*4) % 100), featureData.getValue(7, 4, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
-        assertEquals((Integer) ((6*5)%100), featureData.getValue(6, 5, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
+        assertEquals((Integer) ((6*3)%100), featureData.getValue(6, 3, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
         assertEquals((Integer) ((key1 * key2) % 100), featureData.getValue(key1, key2, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
 
         featureDataRepository.close();
@@ -273,7 +273,7 @@ public class FeatureDataRepositoryMapDBTest {
         ShipTypeAndSizeFeatureData featureData = (ShipTypeAndSizeFeatureData) featureDataRepository1.getFeatureData(TEST_FEATURE_NAME, testCellId);
         assertEquals((Integer)(   1 %100), featureData.getValue(1, 1, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
         assertEquals((Integer)((7*4)%100), featureData.getValue(7, 4, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
-        assertEquals((Integer)((6*5)%100), featureData.getValue(6, 5, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
+        assertEquals((Integer)((6*3)%100), featureData.getValue(6, 3, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
         assertEquals((Integer)((key1 * key2) % 100), featureData.getValue(key1, key2, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT));
     }
 

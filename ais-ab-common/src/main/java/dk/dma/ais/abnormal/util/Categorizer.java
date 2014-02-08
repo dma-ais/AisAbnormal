@@ -128,7 +128,7 @@ public final class Categorizer {
             category = 8;
         }
 
-        return (short) (category - 1);
+        return (short) category;
     }
 
     /**
@@ -150,10 +150,10 @@ public final class Categorizer {
         } else if (shipLength >= 200 && shipLength < 999) {
             category = 5;
         } else {
-            category = 6;
+            throw new IllegalArgumentException("shipLength: " + shipLength);
         }
 
-        return (short) (category - 1);
+        return (short) category;
     }
 
     /**
@@ -163,7 +163,7 @@ public final class Categorizer {
      */
     public static short mapCourseOverGroundToCategory(float cog) {
         cog = cog % (float) 360.0;
-        return (short) (cog / 30);
+        return (short) ((short) (cog / 30) + 1);
     }
 
     /**
@@ -192,7 +192,7 @@ public final class Categorizer {
             category = 8;
         }
 
-        return (short) (category - 1);
+        return (short) category;
     }
 
     /**

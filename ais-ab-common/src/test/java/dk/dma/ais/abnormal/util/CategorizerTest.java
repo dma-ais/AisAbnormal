@@ -24,11 +24,11 @@ public class CategorizerTest {
 
     @Test
     public void testMapCourseOverGroundToCategory() {
-        assertEquals(0, Categorizer.mapCourseOverGroundToCategory((float) 0.0));
-        assertEquals(0, Categorizer.mapCourseOverGroundToCategory((float) 29.999));
-        assertEquals(1, Categorizer.mapCourseOverGroundToCategory((float) 30.0));
-        assertEquals(11, Categorizer.mapCourseOverGroundToCategory((float) 359.999));
-        assertEquals(0, Categorizer.mapCourseOverGroundToCategory((float) 360.000));
+        assertEquals(1, Categorizer.mapCourseOverGroundToCategory((float) 0.0));
+        assertEquals(1, Categorizer.mapCourseOverGroundToCategory((float) 29.999));
+        assertEquals(2, Categorizer.mapCourseOverGroundToCategory((float) 30.0));
+        assertEquals(12, Categorizer.mapCourseOverGroundToCategory((float) 359.999));
+        assertEquals(1, Categorizer.mapCourseOverGroundToCategory((float) 360.000));
     }
 
     @Test
@@ -39,7 +39,7 @@ public class CategorizerTest {
 
     @Test
     public void testMapShipSizeCategoryToString() {
-        assertEquals("0-1m", Categorizer.mapShipSizeCategoryToString((short) 1));
+        assertEquals("undef", Categorizer.mapShipSizeCategoryToString((short) 1));
     }
 
     @Test

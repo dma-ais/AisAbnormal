@@ -91,11 +91,11 @@ public class SpeedOverGroundAnalysis extends FeatureDataBasedAnalysis {
             return;
         }
 
-        short shipTypeBucket = Categorizer.mapShipTypeToCategory(shipType);
-        short shipLengthBucket = Categorizer.mapShipLengthToCategory(shipLength);
-        short speedOverGroundBucket = Categorizer.mapSpeedOverGroundToCategory(speedOverGround);
+        int shipTypeKey = Categorizer.mapShipTypeToCategory(shipType) - 1;
+        int shipLengthKey = Categorizer.mapShipLengthToCategory(shipLength) - 1;
+        int speedOverGroundKey = Categorizer.mapSpeedOverGroundToCategory(speedOverGround) - 1;
 
-        if (isAbnormalSpeedOverGround(cellId, shipTypeBucket, shipLengthBucket, speedOverGroundBucket)) {
+        if (isAbnormalSpeedOverGround(cellId, shipTypeKey, shipLengthKey, speedOverGroundKey)) {
             raiseOrMaintainAbnormalEvent(SpeedOverGroundEvent.class, track);
         } else {
             lowerExistingAbnormalEventIfExists(SpeedOverGroundEvent.class, track);
@@ -115,11 +115,11 @@ public class SpeedOverGroundAnalysis extends FeatureDataBasedAnalysis {
      * that shiptype and size.
      *
      * @param cellId
-     * @param shipTypeBucket
-     * @param shipSizeBucket
+     * @param shipTypeKey
+     * @param shipSizeKey
      * @return true if the presence of size/type with this sog in this cell is abnormal. False otherwise.
      */
-    boolean isAbnormalSpeedOverGround(Long cellId, int shipTypeBucket, int shipSizeBucket, int speedOverGroundBucket) {
+    boolean isAbnormalSpeedOverGround(Long cellId, int shipTypeKey, int shipSizeKey, int speedOverGroundKey) {
         float pd = 1.0f;
 
         FeatureData speedOverGroundFeatureData = getFeatureDataRepository().getFeatureData("SpeedOverGroundFeature", cellId);
@@ -127,12 +127,12 @@ public class SpeedOverGroundAnalysis extends FeatureDataBasedAnalysis {
         if (speedOverGroundFeatureData instanceof SpeedOverGroundFeatureData) {
             Integer totalCount  = ((SpeedOverGroundFeatureData) speedOverGroundFeatureData).getSumFor(SpeedOverGroundFeatureData.STAT_SHIP_COUNT);
             if (totalCount > TOTAL_SHIP_COUNT_THRESHOLD) {
-                Integer shipCount = ((SpeedOverGroundFeatureData) speedOverGroundFeatureData).getValue(shipTypeBucket, shipSizeBucket, speedOverGroundBucket, SpeedOverGroundFeatureData.STAT_SHIP_COUNT);
+                Integer shipCount = ((SpeedOverGroundFeatureData) speedOverGroundFeatureData).getValue(shipTypeKey, shipSizeKey, speedOverGroundKey, SpeedOverGroundFeatureData.STAT_SHIP_COUNT);
                 if (shipCount == null) {
                     shipCount = 0;
                 }
                 pd = (float) shipCount / (float) totalCount;
-                LOG.debug("cellId=" + cellId + ", shipType=" + shipTypeBucket + ", shipSize=" + shipSizeBucket + ", sog=" + speedOverGroundBucket + ", shipCount=" + shipCount + ", totalCount=" + totalCount + ", pd=" + pd);
+                LOG.debug("cellId=" + cellId + ", shipType=" + shipTypeKey + ", shipSize=" + shipSizeKey + ", sog=" + speedOverGroundKey + ", shipCount=" + shipCount + ", totalCount=" + totalCount + ", pd=" + pd);
             } else {
                 LOG.debug("totalCount of " + totalCount + " is not enough statistical data for cell " + cellId);
             }

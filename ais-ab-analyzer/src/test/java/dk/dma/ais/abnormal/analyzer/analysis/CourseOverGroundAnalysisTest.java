@@ -67,18 +67,17 @@ public class CourseOverGroundAnalysisTest {
         featureData.setValue((short) 1, (short) 2, (short) 0, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
         featureData.setValue((short) 2, (short) 0, (short) 0, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
         featureData.setValue((short) 2, (short) 4, (short) 0, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 4, (short) 1, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        featureData.setValue((short) 2, (short) 4, (short) 1, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 975);
         featureData.setValue((short) 2, (short) 4, (short) 2, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 5, (short) 0, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 975);
-        featureData.setValue((short) 2, (short) 5, (short) 1, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 5, (short) 2, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 5, (short) 3, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 5, (short) 4, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 5, (short) 5, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        featureData.setValue((short) 2, (short) 3, (short) 1, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        featureData.setValue((short) 2, (short) 3, (short) 2, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        featureData.setValue((short) 2, (short) 3, (short) 3, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        featureData.setValue((short) 2, (short) 3, (short) 4, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        featureData.setValue((short) 2, (short) 3, (short) 5, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
 
         final int sum  = featureData.getSumFor(CourseOverGroundFeatureData.STAT_SHIP_COUNT);
-        final int n1    = featureData.getValue(2, 5, 0, CourseOverGroundFeatureData.STAT_SHIP_COUNT);
-        final int n2    = featureData.getValue(2, 5, 1, CourseOverGroundFeatureData.STAT_SHIP_COUNT);
+        final int n1    = featureData.getValue(2, 4, 1, CourseOverGroundFeatureData.STAT_SHIP_COUNT);
+        final int n2    = featureData.getValue(2, 4, 2, CourseOverGroundFeatureData.STAT_SHIP_COUNT);
         assertTrue(sum < CourseOverGroundAnalysis.TOTAL_SHIP_COUNT_THRESHOLD);
         assertTrue((float) n1 / (float) sum > 0.01);
         assertTrue((float) n2 / (float) sum < 0.01);
@@ -89,13 +88,13 @@ public class CourseOverGroundAnalysisTest {
             ignoring(statisticsService).incAnalysisStatistics(with("CourseOverGroundAnalysis"), with(any(String.class)));
             oneOf(featureDataRepository).getFeatureData("CourseOverGroundFeature", 123456L); will(returnValue(featureData));
         }});
-        assertFalse(analysis.isAbnormalCourseOverGround(123456L, 2, 5, 0));
+        assertFalse(analysis.isAbnormalCourseOverGround(123456L, 2, 4, 1));
 
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with("CourseOverGroundAnalysis"), with(any(String.class)));
             oneOf(featureDataRepository).getFeatureData("CourseOverGroundFeature", 123456L); will(returnValue(featureData));
         }});
-        assertFalse(analysis.isAbnormalCourseOverGround(123456L, 2, 5, 1));
+        assertFalse(analysis.isAbnormalCourseOverGround(123456L, 2, 4, 2));
     }
 
     /**
@@ -113,17 +112,17 @@ public class CourseOverGroundAnalysisTest {
         featureData.setValue((short) 2, (short) 4, (short) 0, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
         featureData.setValue((short) 2, (short) 4, (short) 1, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
         featureData.setValue((short) 2, (short) 4, (short) 2, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 5, (short) 0, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 5, (short) 1, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 5, (short) 2, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 5, (short) 3, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 5, (short) 4, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 254);
-        featureData.setValue((short) 2, (short) 5, (short) 5, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1000);
+        featureData.setValue((short) 2, (short) 3, (short) 0, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        featureData.setValue((short) 2, (short) 3, (short) 1, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        featureData.setValue((short) 2, (short) 3, (short) 2, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        featureData.setValue((short) 2, (short) 3, (short) 3, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        featureData.setValue((short) 2, (short) 3, (short) 4, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 254);
+        featureData.setValue((short) 2, (short) 3, (short) 5, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1000);
 
         final int sum   = featureData.getSumFor(CourseOverGroundFeatureData.STAT_SHIP_COUNT);
         final int n1    = featureData.getValue(2, 4, 1, CourseOverGroundFeatureData.STAT_SHIP_COUNT);
-        final int n2    = featureData.getValue(2, 5, 4, CourseOverGroundFeatureData.STAT_SHIP_COUNT);
-        final int n3    = featureData.getValue(2, 5, 5, CourseOverGroundFeatureData.STAT_SHIP_COUNT);
+        final int n2    = featureData.getValue(2, 3, 4, CourseOverGroundFeatureData.STAT_SHIP_COUNT);
+        final int n3    = featureData.getValue(2, 3, 5, CourseOverGroundFeatureData.STAT_SHIP_COUNT);
         final float pd1 = (float) n1 / (float) sum;
         final float pd2 = (float) n2 / (float) sum;
         final float pd3 = (float) n3 / (float) sum;
@@ -138,27 +137,27 @@ public class CourseOverGroundAnalysisTest {
             ignoring(statisticsService).incAnalysisStatistics(with("CourseOverGroundAnalysis"), with(any(String.class)));
             oneOf(featureDataRepository).getFeatureData("CourseOverGroundFeature", 123456L); will(returnValue(featureData));
         }});
-        assertNotNull(featureData.getValue(2, 4, 1, CourseOverGroundFeatureData.STAT_SHIP_COUNT));
-        assertTrue(analysis.isAbnormalCourseOverGround(123456L, 2, 4, 1));
+        assertNotNull(featureData.getValue(2, 4, 0, CourseOverGroundFeatureData.STAT_SHIP_COUNT));
+        assertTrue(analysis.isAbnormalCourseOverGround(123456L, 2, 4, 0));
 
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with("CourseOverGroundAnalysis"), with(any(String.class)));
             oneOf(featureDataRepository).getFeatureData("CourseOverGroundFeature", 123456L); will(returnValue(featureData));
         }});
-        assertNull(featureData.getValue(1, 3, 1, CourseOverGroundFeatureData.STAT_SHIP_COUNT)); // null
-        assertTrue(analysis.isAbnormalCourseOverGround(123456L, 1, 3, 1));
+        assertNull(featureData.getValue(2, 0, 2, CourseOverGroundFeatureData.STAT_SHIP_COUNT)); // null
+        assertTrue(analysis.isAbnormalCourseOverGround(123456L, 2, 0, 2));
 
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with("CourseOverGroundAnalysis"), with(any(String.class)));
             oneOf(featureDataRepository).getFeatureData("CourseOverGroundFeature", 123456L); will(returnValue(featureData));
         }});
-        assertFalse(analysis.isAbnormalCourseOverGround(123456L, 2, 5, 4));
+        assertFalse(analysis.isAbnormalCourseOverGround(123456L, 2, 3, 4));
 
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with("CourseOverGroundAnalysis"), with(any(String.class)));
             oneOf(featureDataRepository).getFeatureData("CourseOverGroundFeature", 123456L); will(returnValue(featureData));
         }});
-        assertFalse(analysis.isAbnormalCourseOverGround(123456L, 2, 5, 5));
+        assertFalse(analysis.isAbnormalCourseOverGround(123456L, 2, 3, 5));
     }
 
 }

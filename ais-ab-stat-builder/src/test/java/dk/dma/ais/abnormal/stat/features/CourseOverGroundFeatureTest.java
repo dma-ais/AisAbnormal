@@ -58,7 +58,7 @@ public class CourseOverGroundFeatureTest {
         track.setProperty(Track.CELL_ID, 5674365784L);
         track.setProperty(Track.SHIP_TYPE, 40);     /* bucket 3 */
         track.setProperty(Track.VESSEL_LENGTH, 75); /* bucket 3 */
-        track.setProperty(Track.SPEED_OVER_GROUND, Float.valueOf((float) 15.0));
+        track.setProperty(Track.SPEED_OVER_GROUND, Float.valueOf((float) 15.0));   /* bucket 5 */
         track.setProperty(Track.COURSE_OVER_GROUND, Float.valueOf((float) 127.6)); /* bucket 5 */
         event = new CellChangedEvent(track, null);
 
@@ -90,11 +90,11 @@ public class CourseOverGroundFeatureTest {
 
         assertEquals(1, data.size()); // Assert one statistic recorded
         int shipTypeBucket = data.firstKey();
-        assertEquals(3 - 1 /* -1 because idx counts from zero */, shipTypeBucket);
+        assertEquals(3, shipTypeBucket);
         int shipSizeBucket = data.get(shipTypeBucket).firstKey();
-        assertEquals(3 - 1 /* -1 because idx counts from zero */, shipSizeBucket);
+        assertEquals(3, shipSizeBucket);
         int cogBucket = data.get(shipTypeBucket).get(shipSizeBucket).firstKey();
-        assertEquals(5 - 1 /* -1 because idx counts from zero */, cogBucket);
+        assertEquals(5, cogBucket);
 
         int numberOfStats = data.get(shipTypeBucket).get(shipSizeBucket).get(cogBucket).size();
         assertEquals(1, numberOfStats);
@@ -105,8 +105,8 @@ public class CourseOverGroundFeatureTest {
 
         // Other assertations now we're here
         assertEquals(CourseOverGroundFeatureData.class, featureData.getCapturedObject().getClass());
-        assertEquals("shipType", capturedFeatureData.getMeaningOfKey1());
-        assertEquals("shipSize", capturedFeatureData.getMeaningOfKey2());
+        assertEquals("type", capturedFeatureData.getMeaningOfKey1());
+        assertEquals("size", capturedFeatureData.getMeaningOfKey2());
         assertEquals(TreeMap.class, featureData.getCapturedObject().getData().getClass());
         assertEquals(CourseOverGroundFeatureData.STAT_SHIP_COUNT, statName);
     }
@@ -114,7 +114,7 @@ public class CourseOverGroundFeatureTest {
     @Test
     public void testExistingShipCountIsUpdated() {
         final CourseOverGroundFeatureData existingFeatureData = CourseOverGroundFeatureData.create();
-        existingFeatureData.setValue(3 - 1 /* -1 because idx counts from zero */, 3 - 1 /* -1 because idx counts from zero */, 5 - 1 /* -1 because idx counts from zero */, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        existingFeatureData.setValue(3-1, 3-1, 5-1, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
 
         final ArgumentCaptor<FeatureData> featureData1 = ArgumentCaptor.forClass(FeatureData.class);
         final ArgumentCaptor<FeatureData> featureData2 = ArgumentCaptor.forClass(FeatureData.class);
@@ -141,17 +141,17 @@ public class CourseOverGroundFeatureTest {
         // TODO assertEquals(CourseOverGroundFeature.FEATURE_NAME, featureData2.getCapturedObject().getFeatureName());
         assertEquals(CourseOverGroundFeatureData.class, featureData2.getCapturedObject().getClass());
         CourseOverGroundFeatureData capturedFeatureData = (CourseOverGroundFeatureData) featureData2.getCapturedObject();
-        assertEquals("shipType", capturedFeatureData.getMeaningOfKey1());
-        assertEquals("shipSize", capturedFeatureData.getMeaningOfKey2());
+        assertEquals("type", capturedFeatureData.getMeaningOfKey1());
+        assertEquals("size", capturedFeatureData.getMeaningOfKey2());
         assertEquals(TreeMap.class, featureData2.getCapturedObject().getData().getClass());
         TreeMap<Integer, TreeMap<Integer, TreeMap<Integer, HashMap<String, Integer>>>> data = capturedFeatureData.getData();
         assertEquals(1, data.size()); // Assert one statistic recorded
         int shipTypeBucket = data.firstKey();
-        assertEquals(3 - 1 /* -1 because idx counts from zero */, shipTypeBucket);
+        assertEquals(3, shipTypeBucket);
         int shipSizeBucket = data.get(shipTypeBucket).firstKey();
-        assertEquals(3 - 1 /* -1 because idx counts from zero */, shipSizeBucket);
+        assertEquals(3, shipSizeBucket);
         int cogBucket = data.get(shipTypeBucket).get(shipSizeBucket).firstKey();
-        assertEquals(5 - 1 /* -1 because idx counts from zero */, cogBucket);
+        assertEquals(5, cogBucket);
         int numberOfStatsForShipTypeAndShipSize = data.get(shipTypeBucket).get(shipSizeBucket).size();
         assertEquals(1, numberOfStatsForShipTypeAndShipSize);
         String statName = data.get(shipTypeBucket).get(shipSizeBucket).get(cogBucket).keySet().iterator().next();

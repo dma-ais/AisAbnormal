@@ -123,8 +123,8 @@ public class ShipTypeAndSizeFeatureData implements FeatureData, ThreeKeyMap {
     }
 
     @Override
-    public void incrementValue(int shipTypeBucket, int shipSizeBucket, String statisticName) {
-        short key = computeMapKey(shipTypeBucket, shipSizeBucket, statisticName);
+    public void incrementValue(int key1, int key2, String key3) {
+        short key = computeMapKey(key1, key2, key3);
         if (data.get(key) != data.getNoEntryValue()) {
             data.increment(key);
         } else {
@@ -134,15 +134,15 @@ public class ShipTypeAndSizeFeatureData implements FeatureData, ThreeKeyMap {
     }
 
     @Override
-    public void setValue(int shipTypeBucket, int shipSizeBucket, String statisticName, int value) {
-        short key = computeMapKey(shipTypeBucket, shipSizeBucket, statisticName);
+    public void setValue(int key1, int key2, String key3, int value) {
+        short key = computeMapKey(key1, key2, key3);
         data.put(key, value);
         data.compact();
     }
 
     @Override
-    public Integer getValue(int shipTypeBucket, int shipSizeBucket, String statisticName) {
-        short key = computeMapKey(shipTypeBucket, shipSizeBucket, statisticName);
+    public Integer getValue(int key1, int key2, String key3) {
+        short key = computeMapKey(key1, key2, key3);
 
         Integer statisticsValue = data.get(key);
         statisticsValue = statisticsValue == data.getNoEntryValue() ? null : statisticsValue;
@@ -151,19 +151,19 @@ public class ShipTypeAndSizeFeatureData implements FeatureData, ThreeKeyMap {
     }
 
     @Override
-    public int getSumFor(String statisticName) {
+    public int getSumFor(String key3) {
         return Ints.asList(data.values()).stream().mapToInt(value -> value).sum();
     }
 
     short computeMapKey(int key1, int key2, String key3) {
         if (key1 > MAX_KEY_1) {
-            throw new IllegalArgumentException("key1 must be 0-" + MAX_KEY_1 + ".");
+            throw new IllegalArgumentException("key1 must be 0-" + MAX_KEY_1 + "; not " + key1 + ".");
         }
         if (key2 > MAX_KEY_2) {
-            throw new IllegalArgumentException("key2 must be 0-" + MAX_KEY_2 + ".");
+            throw new IllegalArgumentException("key2 must be 0-" + MAX_KEY_2 + "; not " + key2 + ".");
         }
         if (! STAT_SHIP_COUNT.equals(key3)) {
-            throw new IllegalArgumentException("key4 '" + key3 + "' is not supported.");
+            throw new IllegalArgumentException("key3 '" + key3 + "' is not supported.");
         }
 
         final int d1 = MAX_KEY_2 + 1;
