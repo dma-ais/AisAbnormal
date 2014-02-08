@@ -19,6 +19,7 @@ import org.openqa.selenium.Dimension;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriverService;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -49,10 +50,20 @@ public class IntegrationTestHelper {
 
         PhantomJSDriverService driverService = PhantomJSDriverService.createDefaultService(capabilities);
 
-        PhantomJSDriver driver = new PhantomJSDriver(driverService, capabilities);
+        PhantomJSDriver driver;
 
-        driver.manage().window().setSize(new Dimension(1280, 1024));
-        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        try {
+            driver = new PhantomJSDriver(driverService, capabilities);
+            driver.manage().window().setSize(new Dimension(1280, 1024));
+            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        } catch (WebDriverException e) {
+            System.err.println(e.getMessage());
+            System.err.println(e.getAdditionalInformation());
+            System.err.println(e.getSupportUrl());
+            System.err.println(e.getSystemInformation());
+            System.err.println(e.getSupportUrl().toString());
+            throw e;
+        }
 
         return driver;
     }
