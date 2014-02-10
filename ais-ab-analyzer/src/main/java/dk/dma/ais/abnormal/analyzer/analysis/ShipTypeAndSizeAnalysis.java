@@ -20,6 +20,10 @@ import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
+import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManager;
+import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventLower;
+import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventMaintain;
+import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventRaise;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.ShipSizeOrTypeEvent;
@@ -56,8 +60,8 @@ public class ShipTypeAndSizeAnalysis extends FeatureDataBasedAnalysis {
     private static final int TOTAL_COUNT_THRESHOLD = 1000;
 
     @Inject
-    public ShipTypeAndSizeAnalysis(AppStatisticsService statisticsService, FeatureDataRepository featureDataRepository, TrackingService trackingService, EventRepository eventRepository) {
-        super(eventRepository, featureDataRepository, trackingService);
+    public ShipTypeAndSizeAnalysis(AppStatisticsService statisticsService, FeatureDataRepository featureDataRepository, TrackingService trackingService, EventRepository eventRepository, BehaviourManager behaviourManager) {
+        super(eventRepository, featureDataRepository, trackingService, behaviourManager);
         this.statisticsService = statisticsService;
     }
 
@@ -93,9 +97,9 @@ public class ShipTypeAndSizeAnalysis extends FeatureDataBasedAnalysis {
         int shipLengthKey = Categorizer.mapShipLengthToCategory(shipLength) - 1;
 
         if (isAbnormalCellForShipTypeAndSize(cellId, shipTypeKey, shipLengthKey)) {
-            raiseOrMaintainAbnormalEvent(ShipSizeOrTypeEvent.class, track);
+            getBehaviourManager().abnormalBehaviourDetected(ShipSizeOrTypeEvent.class, track);
         } else {
-            lowerExistingAbnormalEventIfExists(ShipSizeOrTypeEvent.class, track);
+            getBehaviourManager().normalBehaviourDetected(ShipSizeOrTypeEvent.class, track);
         }
 
         statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events processed");
@@ -104,7 +108,31 @@ public class ShipTypeAndSizeAnalysis extends FeatureDataBasedAnalysis {
     @AllowConcurrentEvents
     @Subscribe
     public void onTrackStale(TrackStaleEvent trackEvent) {
+        getBehaviourManager().trackStaleDetected(ShipSizeOrTypeEvent.class, trackEvent.getTrack());
         lowerExistingAbnormalEventIfExists(ShipSizeOrTypeEvent.class, trackEvent.getTrack());
+    }
+
+    @Subscribe
+    public void onAbnormalEventRaise(AbnormalEventRaise behaviourEvent) {
+        LOG.debug("onAbnormalEventRaise " + behaviourEvent.getTrack().getMmsi());
+        if (behaviourEvent.getEventClass().equals(ShipSizeOrTypeEvent.class)) {
+            raiseOrMaintainAbnormalEvent(ShipSizeOrTypeEvent.class, behaviourEvent.getTrack());
+        }
+    }
+    @Subscribe
+    public void onAbnormalEventMaintain(AbnormalEventMaintain behaviourEvent) {
+        LOG.debug("onAbnormalEventMaintain " + behaviourEvent.getTrack().getMmsi());
+        if (behaviourEvent.getEventClass().equals(ShipSizeOrTypeEvent.class)) {
+            raiseOrMaintainAbnormalEvent(ShipSizeOrTypeEvent.class, behaviourEvent.getTrack());
+        }
+    }
+
+    @Subscribe
+    public void onAbnormalEventLower(AbnormalEventLower behaviourEvent) {
+        LOG.debug("onAbnormalEventLower " + behaviourEvent.getTrack().getMmsi());
+        if (behaviourEvent.getEventClass().equals(ShipSizeOrTypeEvent.class)) {
+            lowerExistingAbnormalEventIfExists(ShipSizeOrTypeEvent.class, behaviourEvent.getTrack());
+        }
     }
 
     /**

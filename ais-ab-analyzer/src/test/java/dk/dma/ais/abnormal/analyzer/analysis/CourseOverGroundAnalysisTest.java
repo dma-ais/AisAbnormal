@@ -17,6 +17,7 @@
 package dk.dma.ais.abnormal.analyzer.analysis;
 
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
+import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManager;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.CourseOverGroundFeatureData;
@@ -41,6 +42,7 @@ public class CourseOverGroundAnalysisTest {
     private AppStatisticsService statisticsService;
     private FeatureDataRepository featureDataRepository;
     private EventRepository eventRepository;
+    private BehaviourManager behaviourManager;
     private CourseOverGroundFeatureData featureData;
 
     @Before
@@ -52,6 +54,7 @@ public class CourseOverGroundAnalysisTest {
         statisticsService = context.mock(AppStatisticsService.class);
         featureDataRepository = context.mock(FeatureDataRepository.class);
         eventRepository = context.mock(EventRepository.class);
+        behaviourManager = context.mock(BehaviourManager.class);
     }
 
     /**
@@ -81,8 +84,11 @@ public class CourseOverGroundAnalysisTest {
         assertTrue(sum < CourseOverGroundAnalysis.TOTAL_SHIP_COUNT_THRESHOLD);
         assertTrue((float) n1 / (float) sum > 0.01);
         assertTrue((float) n2 / (float) sum < 0.01);
-        
-        final CourseOverGroundAnalysis analysis = new CourseOverGroundAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository);
+
+        context.checking(new Expectations() {{
+            oneOf(behaviourManager).registerSubscriber(with(any(CourseOverGroundAnalysis.class)));
+        }});
+        final CourseOverGroundAnalysis analysis = new CourseOverGroundAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository, behaviourManager);
 
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with("CourseOverGroundAnalysis"), with(any(String.class)));
@@ -131,7 +137,10 @@ public class CourseOverGroundAnalysisTest {
         assertTrue(pd2 > 0.001);
         assertTrue(pd2 > 0.001);
 
-        final CourseOverGroundAnalysis analysis = new CourseOverGroundAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository);
+        context.checking(new Expectations() {{
+            oneOf(behaviourManager).registerSubscriber(with(any(CourseOverGroundAnalysis.class)));
+        }});
+        final CourseOverGroundAnalysis analysis = new CourseOverGroundAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository, behaviourManager);
 
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with("CourseOverGroundAnalysis"), with(any(String.class)));

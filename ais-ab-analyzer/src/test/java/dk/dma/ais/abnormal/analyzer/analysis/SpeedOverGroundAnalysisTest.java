@@ -17,6 +17,7 @@
 package dk.dma.ais.abnormal.analyzer.analysis;
 
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
+import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManager;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.SpeedOverGroundFeatureData;
@@ -42,6 +43,7 @@ public class SpeedOverGroundAnalysisTest {
     private FeatureDataRepository featureDataRepository;
     private EventRepository eventRepository;
     private SpeedOverGroundFeatureData featureData;
+    private BehaviourManager behaviourManager;
 
     @Before
     public void prepareTest() {
@@ -52,6 +54,7 @@ public class SpeedOverGroundAnalysisTest {
         statisticsService = context.mock(AppStatisticsService.class);
         featureDataRepository = context.mock(FeatureDataRepository.class);
         eventRepository = context.mock(EventRepository.class);
+        behaviourManager = context.mock(BehaviourManager.class);
     }
 
     /**
@@ -83,7 +86,10 @@ public class SpeedOverGroundAnalysisTest {
         assertTrue((float) n1 / (float) sum > 0.01);
         assertTrue((float) n2 / (float) sum < 0.01);
 
-        final SpeedOverGroundAnalysis analysis = new SpeedOverGroundAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository);
+        context.checking(new Expectations() {{
+            oneOf(behaviourManager).registerSubscriber(with(any(SpeedOverGroundAnalysis.class)));
+        }});
+        final SpeedOverGroundAnalysis analysis = new SpeedOverGroundAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository, behaviourManager);
 
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with("SpeedOverGroundAnalysis"), with(any(String.class)));
@@ -130,7 +136,10 @@ public class SpeedOverGroundAnalysisTest {
         assertTrue(pd1 < 0.001);
         assertTrue(pd2 > 0.001);
 
-        final SpeedOverGroundAnalysis analysis = new SpeedOverGroundAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository);
+        context.checking(new Expectations() {{
+            oneOf(behaviourManager).registerSubscriber(with(any(SpeedOverGroundAnalysis.class)));
+        }});
+        final SpeedOverGroundAnalysis analysis = new SpeedOverGroundAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository, behaviourManager);
 
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with("SpeedOverGroundAnalysis"), with(any(String.class)));

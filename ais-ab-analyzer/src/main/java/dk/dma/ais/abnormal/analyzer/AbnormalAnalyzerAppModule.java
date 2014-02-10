@@ -19,6 +19,8 @@ package dk.dma.ais.abnormal.analyzer;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManager;
+import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManagerImpl;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.jpa.JpaEventRepository;
 import dk.dma.ais.abnormal.event.db.jpa.JpaSessionFactoryFactory;
@@ -80,6 +82,7 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
         bind(dk.dma.ais.abnormal.application.statistics.AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
         bind(PacketHandler.class).to(PacketHandlerImpl.class).in(Singleton.class);
         bind(TrackingService.class).to(TrackingServiceImpl.class).in(Singleton.class);
+        bind(BehaviourManager.class).to(BehaviourManagerImpl.class).in(Singleton.class);
     }
 
     @Provides

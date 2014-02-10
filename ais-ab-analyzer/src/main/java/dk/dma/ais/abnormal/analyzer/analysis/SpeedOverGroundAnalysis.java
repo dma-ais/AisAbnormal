@@ -20,7 +20,12 @@ import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
+import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManager;
+import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventLower;
+import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventMaintain;
+import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventRaise;
 import dk.dma.ais.abnormal.event.db.EventRepository;
+import dk.dma.ais.abnormal.event.db.domain.CourseOverGroundEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.SpeedOverGroundEvent;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
@@ -55,8 +60,8 @@ public class SpeedOverGroundAnalysis extends FeatureDataBasedAnalysis {
     static final int TOTAL_SHIP_COUNT_THRESHOLD = 1000;
 
     @Inject
-    public SpeedOverGroundAnalysis(AppStatisticsService statisticsService, FeatureDataRepository featureDataRepository, TrackingService trackingService, EventRepository eventRepository) {
-        super(eventRepository, featureDataRepository, trackingService);
+    public SpeedOverGroundAnalysis(AppStatisticsService statisticsService, FeatureDataRepository featureDataRepository, TrackingService trackingService, EventRepository eventRepository, BehaviourManager behaviourManager) {
+        super(eventRepository, featureDataRepository, trackingService, behaviourManager);
         this.statisticsService = statisticsService;
     }
 
@@ -96,9 +101,9 @@ public class SpeedOverGroundAnalysis extends FeatureDataBasedAnalysis {
         int speedOverGroundKey = Categorizer.mapSpeedOverGroundToCategory(speedOverGround) - 1;
 
         if (isAbnormalSpeedOverGround(cellId, shipTypeKey, shipLengthKey, speedOverGroundKey)) {
-            raiseOrMaintainAbnormalEvent(SpeedOverGroundEvent.class, track);
+            getBehaviourManager().abnormalBehaviourDetected(CourseOverGroundEvent.class, track);
         } else {
-            lowerExistingAbnormalEventIfExists(SpeedOverGroundEvent.class, track);
+            getBehaviourManager().normalBehaviourDetected(CourseOverGroundEvent.class, track);
         }
 
         statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events processed");
@@ -107,7 +112,31 @@ public class SpeedOverGroundAnalysis extends FeatureDataBasedAnalysis {
     @AllowConcurrentEvents
     @Subscribe
     public void onTrackStale(TrackStaleEvent trackEvent) {
+        getBehaviourManager().trackStaleDetected(SpeedOverGroundEvent.class, trackEvent.getTrack());
         lowerExistingAbnormalEventIfExists(SpeedOverGroundEvent.class, trackEvent.getTrack());
+    }
+
+    @Subscribe
+    public void onAbnormalEventRaise(AbnormalEventRaise behaviourEvent) {
+        LOG.debug("onAbnormalEventRaise " + behaviourEvent.getTrack().getMmsi());
+        if (behaviourEvent.getEventClass().equals(SpeedOverGroundEvent.class)) {
+            raiseOrMaintainAbnormalEvent(SpeedOverGroundEvent.class, behaviourEvent.getTrack());
+        }
+    }
+    @Subscribe
+    public void onAbnormalEventMaintain(AbnormalEventMaintain behaviourEvent) {
+        LOG.debug("onAbnormalEventMaintain " + behaviourEvent.getTrack().getMmsi());
+        if (behaviourEvent.getEventClass().equals(SpeedOverGroundEvent.class)) {
+            raiseOrMaintainAbnormalEvent(SpeedOverGroundEvent.class, behaviourEvent.getTrack());
+        }
+    }
+
+    @Subscribe
+    public void onAbnormalEventLower(AbnormalEventLower behaviourEvent) {
+        LOG.debug("onAbnormalEventLower " + behaviourEvent.getTrack().getMmsi());
+        if (behaviourEvent.getEventClass().equals(SpeedOverGroundEvent.class)) {
+            lowerExistingAbnormalEventIfExists(SpeedOverGroundEvent.class, behaviourEvent.getTrack());
+        }
     }
 
     /**

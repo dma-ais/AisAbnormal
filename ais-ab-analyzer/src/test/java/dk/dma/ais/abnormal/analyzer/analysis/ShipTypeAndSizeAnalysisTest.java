@@ -17,6 +17,7 @@
 package dk.dma.ais.abnormal.analyzer.analysis;
 
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
+import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManager;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.ShipSizeOrTypeEvent;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
@@ -26,7 +27,6 @@ import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
 import dk.dma.enav.model.geometry.Position;
-import org.hamcrest.Matcher;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
@@ -48,6 +48,7 @@ public class ShipTypeAndSizeAnalysisTest {
     private FeatureDataRepository featureDataRepository;
     private EventRepository eventRepository;
     private ShipTypeAndSizeFeatureData featureData;
+    private BehaviourManager behaviourManager;
 
     @Before
     public void prepareTest() {
@@ -58,6 +59,7 @@ public class ShipTypeAndSizeAnalysisTest {
         statisticsService = context.mock(AppStatisticsService.class);
         featureDataRepository = context.mock(FeatureDataRepository.class);
         eventRepository = context.mock(EventRepository.class);
+        behaviourManager = context.mock(BehaviourManager.class);
 
         // Mock shipCount table
         featureData = ShipTypeAndSizeFeatureData.create();
@@ -79,13 +81,14 @@ public class ShipTypeAndSizeAnalysisTest {
         // Setup expectations
         final ArgumentCaptor<Analysis> analysisCaptor = ArgumentCaptor.forClass(Analysis.class);
         context.checking(new Expectations() {{
+            oneOf(behaviourManager).registerSubscriber(with(any(ShipTypeAndSizeAnalysis.class)));
             oneOf(trackingService).registerSubscriber(with(analysisCaptor.getMatcher()));
             oneOf(featureDataRepository).getFeatureData("ShipTypeAndSizeFeature", testCellId); will(returnValue(featureData));
             ignoring(statisticsService).incAnalysisStatistics(with(ShipTypeAndSizeAnalysis.class.getSimpleName()), with(any(String.class)));
         }});
 
         // Create object under test
-        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository);
+        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository, behaviourManager);
         analysis.start();
 
         // Perform test
@@ -108,13 +111,14 @@ public class ShipTypeAndSizeAnalysisTest {
         // Setup expectations
         final ArgumentCaptor<Analysis> analysisCaptor = ArgumentCaptor.forClass(Analysis.class);
         context.checking(new Expectations() {{
+            oneOf(behaviourManager).registerSubscriber(with(any(ShipTypeAndSizeAnalysis.class)));
             oneOf(trackingService).registerSubscriber(with(analysisCaptor.getMatcher()));
             oneOf(featureDataRepository).getFeatureData("ShipTypeAndSizeFeature", testCellId); will(returnValue(featureData));
             ignoring(statisticsService).incAnalysisStatistics(with(ShipTypeAndSizeAnalysis.class.getSimpleName()), with(any(String.class)));
         }});
 
         // Create object under test
-        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository);
+        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository, behaviourManager);
         analysis.start();
 
         // Perform test
@@ -137,13 +141,14 @@ public class ShipTypeAndSizeAnalysisTest {
         // Setup expectations
         final ArgumentCaptor<Analysis> analysisCaptor = ArgumentCaptor.forClass(Analysis.class);
         context.checking(new Expectations() {{
+            oneOf(behaviourManager).registerSubscriber(with(any(ShipTypeAndSizeAnalysis.class)));
             oneOf(trackingService).registerSubscriber(with(analysisCaptor.getMatcher()));
             oneOf(featureDataRepository).getFeatureData("ShipTypeAndSizeFeature", testCellId); will(returnValue(featureData));
             ignoring(statisticsService).incAnalysisStatistics(with(ShipTypeAndSizeAnalysis.class.getSimpleName()), with(any(String.class)));
         }});
 
         // Create object under test
-        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository);
+        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository, behaviourManager);
         analysis.start();
 
         // Perform test
@@ -166,7 +171,10 @@ public class ShipTypeAndSizeAnalysisTest {
         CellChangedEvent event = new CellChangedEvent(track, null);
 
         // Create object under test
-        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository);
+        context.checking(new Expectations() {{
+            oneOf(behaviourManager).registerSubscriber(with(any(ShipTypeAndSizeAnalysis.class)));
+        }});
+        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository, behaviourManager);
 
         // Perform test - none of the required data are there
         context.checking(new Expectations() {{
@@ -197,7 +205,7 @@ public class ShipTypeAndSizeAnalysisTest {
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with(ShipTypeAndSizeAnalysis.class.getSimpleName()), with(any(String.class)));
             oneOf(featureDataRepository).getFeatureData("ShipTypeAndSizeFeature", 123L);
-            oneOf(eventRepository).findOngoingEventByVessel(with(123456), with(ShipSizeOrTypeEvent.class));
+            oneOf(behaviourManager).normalBehaviourDetected(ShipSizeOrTypeEvent.class, track);
         }});
         event.getTrack().setProperty(Track.VESSEL_LENGTH, 4);
         analysis.onCellIdChanged(event);
@@ -223,15 +231,17 @@ public class ShipTypeAndSizeAnalysisTest {
         CellChangedEvent event = new CellChangedEvent(track, null);
 
         // Create object under test
-        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository);
+        context.checking(new Expectations() {{
+            oneOf(behaviourManager).registerSubscriber(with(any(ShipTypeAndSizeAnalysis.class)));
+        }});
+        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository, behaviourManager);
 
         // Perform test - none of the required data are there
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with(ShipTypeAndSizeAnalysis.class.getSimpleName()), with(any(String.class)));
             oneOf(trackingService).registerSubscriber(analysis);
             oneOf(featureDataRepository).getFeatureData("ShipTypeAndSizeFeature", 123L); will(returnValue(featureData));
-            oneOf(eventRepository).findOngoingEventByVessel(with(123456), with(ShipSizeOrTypeEvent.class)); will(returnValue(null));
-            oneOf(eventRepository).save(with((Matcher<ShipSizeOrTypeEvent>) any(ShipSizeOrTypeEvent.class)));
+            oneOf(behaviourManager).abnormalBehaviourDetected(ShipSizeOrTypeEvent.class, track);
         }});
         analysis.start();
         analysis.onCellIdChanged(event);
@@ -257,15 +267,17 @@ public class ShipTypeAndSizeAnalysisTest {
         CellChangedEvent event = new CellChangedEvent(track, null);
 
         // Create object under test
-        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository);
+        context.checking(new Expectations() {{
+            oneOf(behaviourManager).registerSubscriber(with(any(ShipTypeAndSizeAnalysis.class)));
+        }});
+        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository, behaviourManager);
 
         // Perform test - none of the required data are there
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with(ShipTypeAndSizeAnalysis.class.getSimpleName()), with(any(String.class)));
             oneOf(trackingService).registerSubscriber(analysis);
             oneOf(featureDataRepository).getFeatureData("ShipTypeAndSizeFeature", 123L); will(returnValue(featureData));
-            oneOf(eventRepository).findOngoingEventByVessel(with(123456), with(ShipSizeOrTypeEvent.class)); will(returnValue(null));
-            never(eventRepository).save(with((Matcher<ShipSizeOrTypeEvent>) any(ShipSizeOrTypeEvent.class)));
+            oneOf(behaviourManager).normalBehaviourDetected(ShipSizeOrTypeEvent.class, track);
         }});
         analysis.start();
         analysis.onCellIdChanged(event);

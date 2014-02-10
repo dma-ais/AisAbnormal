@@ -20,6 +20,10 @@ import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
+import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManager;
+import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventLower;
+import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventMaintain;
+import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventRaise;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.CourseOverGroundEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
@@ -55,8 +59,8 @@ public class CourseOverGroundAnalysis extends FeatureDataBasedAnalysis {
     static final int TOTAL_SHIP_COUNT_THRESHOLD = 1000;
 
     @Inject
-    public CourseOverGroundAnalysis(AppStatisticsService statisticsService, FeatureDataRepository featureDataRepository, TrackingService trackingService, EventRepository eventRepository) {
-        super(eventRepository, featureDataRepository, trackingService);
+    public CourseOverGroundAnalysis(AppStatisticsService statisticsService, FeatureDataRepository featureDataRepository, TrackingService trackingService, EventRepository eventRepository, BehaviourManager behaviourManager) {
+        super(eventRepository, featureDataRepository, trackingService, behaviourManager);
         this.statisticsService = statisticsService;
     }
 
@@ -102,9 +106,9 @@ public class CourseOverGroundAnalysis extends FeatureDataBasedAnalysis {
         int courseOverGroundKey = Categorizer.mapCourseOverGroundToCategory(courseOverGround) - 1;
 
         if (isAbnormalCourseOverGround(cellId, shipTypeKey, shipLengthKey, courseOverGroundKey)) {
-            raiseOrMaintainAbnormalEvent(CourseOverGroundEvent.class, track);
+            getBehaviourManager().abnormalBehaviourDetected(CourseOverGroundEvent.class, track);
         } else {
-            lowerExistingAbnormalEventIfExists(CourseOverGroundEvent.class, track);
+            getBehaviourManager().normalBehaviourDetected(CourseOverGroundEvent.class, track);
         }
 
         statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events processed");
@@ -113,7 +117,31 @@ public class CourseOverGroundAnalysis extends FeatureDataBasedAnalysis {
     @AllowConcurrentEvents
     @Subscribe
     public void onTrackStale(TrackStaleEvent trackEvent) {
+        getBehaviourManager().trackStaleDetected(CourseOverGroundEvent.class, trackEvent.getTrack());
         lowerExistingAbnormalEventIfExists(CourseOverGroundEvent.class, trackEvent.getTrack());
+    }
+
+    @Subscribe
+    public void onAbnormalEventRaise(AbnormalEventRaise behaviourEvent) {
+        LOG.debug("onAbnormalEventRaise " + behaviourEvent.getTrack().getMmsi());
+        if (behaviourEvent.getEventClass().equals(CourseOverGroundEvent.class)) {
+            raiseOrMaintainAbnormalEvent(CourseOverGroundEvent.class, behaviourEvent.getTrack());
+        }
+    }
+    @Subscribe
+    public void onAbnormalEventMaintain(AbnormalEventMaintain behaviourEvent) {
+        LOG.debug("onAbnormalEventMaintain " + behaviourEvent.getTrack().getMmsi());
+        if (behaviourEvent.getEventClass().equals(CourseOverGroundEvent.class)) {
+            raiseOrMaintainAbnormalEvent(CourseOverGroundEvent.class, behaviourEvent.getTrack());
+        }
+    }
+
+    @Subscribe
+    public void onAbnormalEventLower(AbnormalEventLower behaviourEvent) {
+        LOG.debug("onAbnormalEventLower " + behaviourEvent.getTrack().getMmsi());
+        if (behaviourEvent.getEventClass().equals(CourseOverGroundEvent.class)) {
+            lowerExistingAbnormalEventIfExists(CourseOverGroundEvent.class, behaviourEvent.getTrack());
+        }
     }
 
     /**
