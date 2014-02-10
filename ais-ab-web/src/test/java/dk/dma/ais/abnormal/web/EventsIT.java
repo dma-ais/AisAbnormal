@@ -67,12 +67,12 @@ public class EventsIT {
             System.out.println("ticker0="+ticker0Element.getText());
             wait.until(ExpectedConditions.visibilityOf(ticker0Element));
             System.out.println("ticker0="+ticker0Element.getText());
-            assertTrue(ticker0Element.getText().matches(".*LEHMANN SOUND.*"));
+            assertTrue(ticker0Element.getText().matches(".*AMANDA.*"));
 
             System.out.println("ticker1=" + ticker1Element.getText());
             wait.until(ExpectedConditions.visibilityOf(ticker1Element));
             System.out.println("ticker1=" + ticker1Element.getText());
-            assertTrue(ticker1Element.getText().matches(".*EIDE FIGHTER.*"));
+            assertTrue(ticker1Element.getText().matches(".*INGER KATHRINE.*"));
 
             // Assert that event in ticker can be clicked
             ticker1Element.findElement(cssSelector("span.glyphicon")).click();
@@ -119,7 +119,7 @@ public class EventsIT {
         try {
             WebElement searchByOtherButton = browser.findElement(id("event-search-by-other"));
             searchByOtherButton.click();
-            assertNumberOfSearchResults(23);
+            assertNumberOfSearchResults(236);
         } catch (AssertionError e) {
             IntegrationTestHelper.takeScreenshot(browser, "error");
             throw e;
@@ -137,7 +137,7 @@ public class EventsIT {
             vesselNameCallsignImoField.sendKeys("FINNSEA");
             WebElement searchByOtherButton = browser.findElement(id("event-search-by-other"));
             searchByOtherButton.click();
-            assertNumberOfSearchResults(2);
+            assertNumberOfSearchResults(6);
         } catch (AssertionError e) {
             IntegrationTestHelper.takeScreenshot(browser, "error");
             throw e;

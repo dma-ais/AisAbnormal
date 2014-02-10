@@ -88,6 +88,7 @@ public class SuddenSpeedChangeAnalysisTest {
 
         track.setProperty(Track.TIMESTAMP_POSITION_UPDATE, ((long) track.getProperty(Track.TIMESTAMP_POSITION_UPDATE)) + deltaSecs*1000);
         track.setProperty(Track.SPEED_OVER_GROUND, 0.1f);
+        track.setProperty(Track.SHIP_TYPE, 11);
         analysis.onSpeedOverGroundUpdated(event);
 
         SuddenSpeedChangeEvent capturedEvent = eventCaptor.getCapturedObject();

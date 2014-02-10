@@ -163,16 +163,19 @@ public class ShipTypeAndSizeAnalysis extends FeatureDataBasedAnalysis {
         Float sog = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
         Boolean interpolated = (Boolean) track.getProperty(Track.POSITION_IS_INTERPOLATED);
 
-        short shipTypeBucket = Categorizer.mapShipTypeToCategory(shipType);
-        short shipLengthBucket = Categorizer.mapShipLengthToCategory(shipLength);
+        short shipTypeCategory = Categorizer.mapShipTypeToCategory(shipType);
+        short shipLengthCategory = Categorizer.mapShipLengthToCategory(shipLength);
 
-        String desc = String.format("type:%d(%d) size:%d(%d)", shipType, shipTypeBucket+1, shipLength, shipLengthBucket+1);
+        String shipTypeAsString = Categorizer.mapShipTypeCategoryToString(shipTypeCategory);
+        String shipLengthAsString = Categorizer.mapShipSizeCategoryToString(shipLengthCategory);
+
+        String desc = String.format("type:%d(%s) size:%d(%s)", shipType, shipTypeAsString, shipLength, shipLengthAsString);
         LOG.info(positionTimestamp + ": Detected ShipSizeOrTypeEvent for mmsi " + mmsi + ": "+ desc + ".");
 
         Event event =
                 ShipSizeOrTypeEvent()
-                    .shipType(shipTypeBucket)
-                    .shipLength(shipLengthBucket)
+                    .shipType(shipTypeCategory)
+                    .shipLength(shipLengthCategory)
                     .description(desc)
                     .startTime(positionTimestamp)
                     .behaviour()

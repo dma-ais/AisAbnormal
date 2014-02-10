@@ -173,19 +173,24 @@ public class CourseOverGroundAnalysis extends FeatureDataBasedAnalysis {
         Float sog = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
         Boolean interpolated = (Boolean) track.getProperty(Track.POSITION_IS_INTERPOLATED);
 
-        short shipTypeBucket = Categorizer.mapShipTypeToCategory(shipType);
-        short shipLengthBucket = Categorizer.mapShipLengthToCategory(shipLength);
-        short courseOverGroundBucket = Categorizer.mapCourseOverGroundToCategory(cog);
-        short speedOverGroundBucket = Categorizer.mapSpeedOverGroundToCategory(sog);
+        short shipTypeCategory = Categorizer.mapShipTypeToCategory(shipType);
+        short shipLengthCategory = Categorizer.mapShipLengthToCategory(shipLength);
+        short courseOverGroundCategory = Categorizer.mapCourseOverGroundToCategory(cog);
+        short speedOverGroundCategory = Categorizer.mapSpeedOverGroundToCategory(sog);
 
-        String desc = String.format("cog:%.0f(%d) sog:%.1f(%d) type:%d(%d) size:%d(%d)", cog, courseOverGroundBucket+1, sog, speedOverGroundBucket, shipType, shipTypeBucket+1, shipLength, shipLengthBucket+1);
+        String shipTypeAsString = Categorizer.mapShipTypeCategoryToString(shipTypeCategory);
+        String shipLengthAsString = Categorizer.mapShipSizeCategoryToString(shipLengthCategory);
+        String courseOverGroundAsString = Categorizer.mapCourseOverGroundCategoryToString(courseOverGroundCategory);
+        String speedOverGroundAsString = Categorizer.mapSpeedOverGroundCategoryToString(speedOverGroundCategory);
+
+        String desc = String.format("cog:%.0f(%s) sog:%.1f(%s) type:%d(%s) size:%d(%s)", cog, courseOverGroundAsString, sog, speedOverGroundAsString, shipType, shipTypeAsString, shipLength, shipLengthAsString);
         LOG.info(positionTimestamp + ": Detected CourseOverGroundEvent for mmsi " + mmsi + ": "+ desc + "." );
 
         Event event =
                 CourseOverGroundEvent()
-                        .shipType(shipTypeBucket)
-                        .shipLength(shipLengthBucket)
-                        .courseOverGround(courseOverGroundBucket)
+                        .shipType(shipTypeCategory)
+                        .shipLength(shipLengthCategory)
+                        .courseOverGround(courseOverGroundCategory)
                         .description(desc)
                         .startTime(positionTimestamp)
                         .behaviour()

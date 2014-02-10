@@ -166,18 +166,22 @@ public class SpeedOverGroundAnalysis extends FeatureDataBasedAnalysis {
         Float sog = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
         Boolean interpolated = (Boolean) track.getProperty(Track.POSITION_IS_INTERPOLATED);
 
-        short shipTypeBucket = Categorizer.mapShipTypeToCategory(shipType);
-        short shipLengthBucket = Categorizer.mapShipLengthToCategory(shipLength);
-        short speedOverGroundBucket = Categorizer.mapSpeedOverGroundToCategory(sog);
+        short shipTypeCategory = Categorizer.mapShipTypeToCategory(shipType);
+        short shipLengthCategory = Categorizer.mapShipLengthToCategory(shipLength);
+        short speedOverGroundCategory = Categorizer.mapSpeedOverGroundToCategory(sog);
 
-        String desc = String.format("sog:%.0f(%d) type:%d(%d) size:%d(%d)", sog, speedOverGroundBucket+1, shipType, shipTypeBucket+1, shipLength, shipLengthBucket+1);
+        String shipTypeAsString = Categorizer.mapShipTypeCategoryToString(shipTypeCategory);
+        String shipLengthAsString = Categorizer.mapShipSizeCategoryToString(shipLengthCategory);
+        String speedOverGroundAsString = Categorizer.mapSpeedOverGroundCategoryToString(speedOverGroundCategory);
+
+        String desc = String.format("sog:%.1f(%s) type:%d(%s) size:%d(%s)", sog, speedOverGroundAsString, shipType, shipTypeAsString, shipLength, shipLengthAsString);
         LOG.info(positionTimestamp + ": Detected SpeedOverGroundEvent for mmsi " + mmsi + ": "+ desc + "." );
 
         Event event =
                 SpeedOverGroundEvent()
-                        .shipType(shipTypeBucket)
-                        .shipLength(shipLengthBucket)
-                        .speedOverGround(speedOverGroundBucket)
+                        .shipType(shipTypeCategory)
+                        .shipLength(shipLengthCategory)
+                        .speedOverGround(speedOverGroundCategory)
                         .description(desc)
                         .startTime(positionTimestamp)
                         .behaviour()
