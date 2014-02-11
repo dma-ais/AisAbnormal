@@ -57,11 +57,11 @@ public class IntegrationTestHelper {
             driver.manage().window().setSize(new Dimension(1280, 1024));
             driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         } catch (WebDriverException e) {
-            System.err.println(e.getMessage());
-            System.err.println(e.getAdditionalInformation());
-            System.err.println(e.getSupportUrl());
-            System.err.println(e.getSystemInformation());
-            System.err.println(e.getSupportUrl().toString());
+            System.err.println("Message: " + e.getMessage());
+            System.err.println("Additional info: " + e.getAdditionalInformation());
+            System.err.println("Support url: " + e.getSupportUrl());
+            System.err.println("System info: " + e.getSystemInformation());
+            System.err.println("Build info: " + e.getBuildInformation());
             throw e;
         }
 
