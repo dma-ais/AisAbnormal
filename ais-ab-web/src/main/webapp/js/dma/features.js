@@ -9,6 +9,17 @@ var featureModule = {
     init: function () {
         this.userOutputClearCellData();
         this.userOutputMetadata();
+
+        // init categories
+        var cellResourceService = "/abnormal/rest/cell";
+        $.getJSON(cellResourceService, {
+            north: 56.00001,
+            east: 12.00001,
+            south: 56.00000,
+            west: 12.00000
+        }).done(function (celldata) {
+            featureModule.categories = celldata.metadata.categories;
+        });
     },
 
     loadCells: function () {

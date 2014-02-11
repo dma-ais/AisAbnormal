@@ -172,11 +172,11 @@ var vesselModule = {
 
             var eventType = event.eventType;
             if (eventType == "ShipSizeOrTypeEvent") {
-                var shipSizeBucket = parseInt(event.shipLength) + 1;
-                var shipTypeBucket = parseInt(event.shipType) + 1;
+                var shipSizeBucket = parseInt(event.shipLength);
+                var shipTypeBucket = parseInt(event.shipType);
                 tooltip += "\n"
-                        +  "\nShip type: " + shipTypeBucket
-                        +  "\nShip size: " + shipSizeBucket;
+                        +  "\nShip type: " + shipTypeBucket + " (" + featureModule.categories['type'][shipTypeBucket] + ")"
+                        +  "\nShip size: " + shipSizeBucket + " (" + featureModule.categories['size'][shipSizeBucket] + ")";
             }
 
             trackSymbolFeature.style.title = tooltip;
