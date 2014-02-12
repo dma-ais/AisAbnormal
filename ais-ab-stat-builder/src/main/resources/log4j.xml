@@ -20,7 +20,7 @@
     -->
 
     <logger name="dk.dma.ais.reader">
-        <level value="DEBUG"/>
+        <level value="INFO"/>
     </logger>
 
     <logger name="dk.dma.ais.abnormal.stat.features">
@@ -28,11 +28,11 @@
     </logger>
 
     <logger name="dk.dma.ais.abnormal.tracker">
-        <level value="ERROR"/>
+        <level value="INFO"/>
     </logger>
 
     <logger name="dk.dma.ais.abnormal.stat">
-        <level value="DEBUG"/>
+        <level value="INFO"/>
     </logger>
 
     <logger name="dk.dma.ais">

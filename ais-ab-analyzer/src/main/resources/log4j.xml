@@ -13,12 +13,8 @@
 		</layout>
 	</appender>
 
-    <logger name="dk.dma.ais.abnormal.analyzer">
-        <level value="DEBUG"></level>
-    </logger>
-
-    <logger name="dk.dma.ais.abnormal.stat.db.mapdb">
-        <level value="DEBUG"></level>
+    <logger name="dk.dma.ais.abnormal.analyzer.behaviour">
+        <level value="INFO"></level>
     </logger>
 
 	<root>

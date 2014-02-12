@@ -16,7 +16,6 @@
 
 package dk.dma.ais.abnormal.analyzer.analysis;
 
-import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
@@ -28,9 +27,18 @@ import dk.dma.ais.abnormal.tracker.events.TimeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
+import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 /**
  * This analysis manages events where two vessels have a close encounter and therefore
  * are in risk of collision.
+ *
+ * This analysis is rather extensive, and we can therefore now allow to block the EventBus
+ * for the duration of a complete analysis. Instead the worked is spawned to a separate worker
+ * thread.
  */
 public class CloseEncounterAnalysis extends Analysis {
     private static final Logger LOG = LoggerFactory.getLogger(CloseEncounterAnalysis.class);
@@ -39,21 +47,55 @@ public class CloseEncounterAnalysis extends Analysis {
     }
 
     private final AppStatisticsService statisticsService;
-
     private final String analysisName;
+
+    /**
+     * Minimum no. of msecs between runs of this analysis.
+     */
+    private final static int ANALYS_PERIOD_MILLIS = 5 * 60 * 1000;
+
+    /**
+     * The time when the analysis should next be run.
+     */
+    private Date nextRunTime;
+
+    /**
+     * Executor to perform the actual work.
+     */
+    private Executor executor = Executors.newSingleThreadExecutor();
 
     @Inject
     public CloseEncounterAnalysis(AppStatisticsService statisticsService, TrackingService trackingService, EventRepository eventRepository) {
-        super(eventRepository, trackingService);
+        super(eventRepository, trackingService, null);
         this.statisticsService = statisticsService;
         this.analysisName = this.getClass().getSimpleName();
+        this.nextRunTime = new Date(0L);
     }
 
-    @AllowConcurrentEvents
     @Subscribe
     public void onMark(TimeEvent timeEvent) {
         LOG.debug(timeEvent.toString());
+
+        Date now = new Date(timeEvent.getTimestamp());
+
+        if (nextRunTime.before(now)) {
+            executor.execute(() -> performAnalysis());
+            nextRunTime = new Date(now.getTime() + ANALYS_PERIOD_MILLIS);
+            LOG.debug("nextRunTime: " + nextRunTime);
+        }
+    }
+
+    private void performAnalysis() {
+        LOG.debug("Starting " + analysisName);
+
+        Set<Track> tracks = getTrackingService().cloneTracks();
+        tracks.forEach(t -> performAnalysis(tracks, t));
+
         statisticsService.incAnalysisStatistics(analysisName, "Analyses performed");
+        LOG.debug("Finished " + analysisName);
+    }
+
+    private void performAnalysis(Set<Track> tracks, Track track) {
     }
 
     @Override
