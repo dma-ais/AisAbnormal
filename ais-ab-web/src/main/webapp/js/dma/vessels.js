@@ -179,13 +179,27 @@ var vesselModule = {
                 + "\nIMO " + vessel.imo
                 + "\nMMSI " + vessel.mmsi;
 
-            var eventType = event.eventType;
-            if (eventType == "ShipSizeOrTypeEvent") {
+
+            tooltip += "\n"
+
+            if (event.shipLength) {
                 var shipSizeBucket = parseInt(event.shipLength);
+                tooltip += "\nShip size: " + shipSizeBucket + " (" + featureModule.categories['size'][shipSizeBucket] + ")"
+            }
+
+            if (event.shipType) {
                 var shipTypeBucket = parseInt(event.shipType);
-                tooltip += "\n"
-                        +  "\nShip type: " + shipTypeBucket + " (" + featureModule.categories['type'][shipTypeBucket] + ")"
-                        +  "\nShip size: " + shipSizeBucket + " (" + featureModule.categories['size'][shipSizeBucket] + ")";
+                tooltip += "\nShip type: " + shipTypeBucket + " (" + featureModule.categories['type'][shipTypeBucket] + ")"
+            }
+
+            if (event.speedOverGround) {
+                var sogBucket = parseInt(event.speedOverGround);
+                tooltip += "\nSpeed: " + sogBucket + " (" + featureModule.categories['sog'][sogBucket] + ")"
+            }
+
+            if (event.courseOverGround) {
+                var cogBucket = parseInt(event.courseOverGround);
+                tooltip += "\nSpeed: " + cogBucket + " (" + featureModule.categories['cog'][cogBucket] + ")"
             }
 
             trackSymbolFeature.style.title = tooltip;
