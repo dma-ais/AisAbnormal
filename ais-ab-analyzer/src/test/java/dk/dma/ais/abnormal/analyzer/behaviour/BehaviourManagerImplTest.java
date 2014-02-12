@@ -22,8 +22,8 @@ import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventMaintain;
 import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventRaise;
 import dk.dma.ais.abnormal.application.statistics.AppStatisticsService;
 import dk.dma.ais.abnormal.event.db.domain.CourseOverGroundEvent;
-import dk.dma.ais.abnormal.tracker.PositionReport;
 import dk.dma.ais.abnormal.tracker.Track;
+import dk.dma.ais.abnormal.tracker.TrackingReport;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.TrackingServiceImpl;
 import dk.dma.enav.model.geometry.Position;
@@ -49,7 +49,7 @@ public class BehaviourManagerImplTest {
         trackingService = new TrackingServiceImpl(Grid.createSize(200), statisticsService);
         behaviourManager = new BehaviourManagerImpl(trackingService);
         track = new Track(12345678);
-        track.updatePosition(PositionReport.create(1234567890L, Position.create(56, 12), false));
+        track.updatePosition(TrackingReport.create(1234567890L, Position.create(56, 12), 45.0f, 10.1f, false));
 
         testSubscriber = new EventBusSubscriber();
         behaviourManager.registerSubscriber(testSubscriber);

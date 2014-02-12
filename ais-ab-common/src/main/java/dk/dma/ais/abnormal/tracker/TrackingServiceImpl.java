@@ -111,6 +111,7 @@ public class TrackingServiceImpl implements TrackingService {
         final AisTargetType targetType = aisMessage.getTargetType();
 
         int mmsi = aisMessage.getUserId();
+
         if (targetType == AisTargetType.A || targetType == AisTargetType.B) {
             Track track = getOrCreateTrack(mmsi);
             Long currentUpdate = timestamp.getTime();
@@ -136,8 +137,8 @@ public class TrackingServiceImpl implements TrackingService {
 
             // Perform track updates
             if (currentUpdate >= lastAnyUpdate) {
-                if (aisMessage instanceof IPositionMessage) {
-                    IPositionMessage positionMessage = (IPositionMessage) aisMessage;
+                if (aisMessage instanceof IVesselPositionMessage) {
+                    IVesselPositionMessage positionMessage = (IVesselPositionMessage) aisMessage;
                     final boolean aisMessageHasValidPosition = positionMessage.getPos().getGeoLocation() != null;
                     if (aisMessageHasValidPosition) {
                         if (isInterpolationRequired(lastPositionUpdate, currentUpdate)) {
@@ -179,9 +180,11 @@ public class TrackingServiceImpl implements TrackingService {
     }
 
     private void interpolatePositions(Track track, Long currentUpdate, IPositionMessage positionMessage) {
-        PositionReport positionReport = track.getPositionReport();
-        Position p1 = positionReport.getPosition();
-        long t1 = positionReport.getTimestamp();
+        TrackingReport trackingReport = track.getPositionReport();
+        Position p1 = trackingReport.getPosition();
+        Float cog = trackingReport.getCourseOverGround();
+        Float sog = trackingReport.getSpeedOverGround();
+        long t1 = trackingReport.getTimestamp();
 
         Position p2 = positionMessage.getPos().getGeoLocation();
         long t2 = currentUpdate;
@@ -196,7 +199,7 @@ public class TrackingServiceImpl implements TrackingService {
             Map.Entry<Long, Position> positionEntry = iterator.next();
             long positionTimestamp = positionEntry.getKey();
             Position p = positionEntry.getValue();
-            updatePosition(track, positionTimestamp, p, iterator.hasNext());
+            updatePosition(track, positionTimestamp, p, cog, sog, iterator.hasNext());
         }
 
         LOG.debug("Used " + interpolatedPositionEntries.size() + " interpolation points for track " + track.getMmsi());
@@ -279,26 +282,27 @@ public class TrackingServiceImpl implements TrackingService {
         track.setProperty(Track.SPEED_OVER_GROUND, new Float(sog / 10.000000000000));
     }
 
-    private void updatePosition(Track track, long positionTimestamp, IPositionMessage aisMessage) {
-        IPositionMessage positionMessage = (IPositionMessage) aisMessage;
-        AisPosition aisPosition = positionMessage.getPos();
+    private void updatePosition(Track track, long positionTimestamp, IVesselPositionMessage aisMessage) {
+        AisPosition aisPosition = aisMessage.getPos();
+        float cog = (float) (aisMessage.getCog() / 10.0);
+        float sog = (float) (aisMessage.getSog() / 10.0);
         Position position = aisPosition.getGeoLocation();
 
-        updatePosition(track, positionTimestamp, position, false);
+        updatePosition(track, positionTimestamp, position, cog, sog, false);
     }
 
-    private void updatePosition(Track track, long positionTimestamp, Position position, boolean positionIsInterpolated) {
+    private void updatePosition(Track track, long positionTimestamp, Position position, float cog, float sog, boolean positionIsInterpolated) {
         track.setProperty(Track.TIMESTAMP_ANY_UPDATE, Long.valueOf(positionTimestamp));
 
-        performUpdatePosition(track, positionTimestamp, position, positionIsInterpolated);
+        performUpdatePosition(track, positionTimestamp, position, cog, sog, positionIsInterpolated);
         performUpdateCellId(track, position);
     }
 
-    private void performUpdatePosition(Track track, long positionTimestamp, Position position, boolean positionIsInterpolated) {
+    private void performUpdatePosition(Track track, long positionTimestamp, Position position, float cog, float sog, boolean positionIsInterpolated) {
         Position oldPosition = track.getPositionReportPosition();
 
-        PositionReport positionReport = PositionReport.create(positionTimestamp, position, positionIsInterpolated);
-        track.updatePosition(positionReport);
+        TrackingReport trackingReport = TrackingReport.create(positionTimestamp, position, cog, sog, positionIsInterpolated);
+        track.updatePosition(trackingReport);
 
         eventBus.post(new PositionChangedEvent(track, oldPosition));
     }

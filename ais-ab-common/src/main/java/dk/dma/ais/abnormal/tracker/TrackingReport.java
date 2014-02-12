@@ -24,20 +24,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 @NotThreadSafe
-public final class PositionReport implements Cloneable {
+public final class TrackingReport implements Cloneable {
     private final long timestamp;
     private final Position position;
+    private final Float courseOverGround;
+    private final Float speedOverGround;
     private final boolean interpolated;
 
     private final Map<String, Object> properties = new HashMap<>(1);
 
-    public static PositionReport create(long timestamp, Position position, boolean interpolated) {
-        return new PositionReport(timestamp, position, interpolated);
+    public static TrackingReport create(long timestamp, Position position, Float courseOverGround, Float speedOverGround, boolean interpolated) {
+        return new TrackingReport(timestamp, position, courseOverGround, speedOverGround, interpolated);
     }
 
-    private PositionReport(long timestamp, Position position, boolean interpolated) {
+    private TrackingReport(long timestamp, Position position, Float courseOverGround, Float speedOverGround, boolean interpolated) {
         this.timestamp = timestamp;
         this.position = position;
+        this.speedOverGround = speedOverGround;
+        this.courseOverGround = courseOverGround;
         this.interpolated = interpolated;
     }
 
@@ -61,12 +65,20 @@ public final class PositionReport implements Cloneable {
         return position;
     }
 
+    public Float getCourseOverGround() {
+        return courseOverGround;
+    }
+
+    public Float getSpeedOverGround() {
+        return speedOverGround;
+    }
+
     public boolean isInterpolated() {
         return interpolated;
     }
 
     @Override
-    public PositionReport clone() {
+    public TrackingReport clone() {
         return new Cloner().deepClone(this);
     }
 }

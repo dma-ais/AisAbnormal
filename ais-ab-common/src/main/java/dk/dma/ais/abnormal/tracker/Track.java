@@ -56,12 +56,12 @@ public final class Track implements Cloneable {
     private final int mmsi;
     private final Map<String, Object> properties = new HashMap<>(10);
 
-    private static final Comparator<PositionReport> byTimestamp = comparingLong(PositionReport::getTimestamp);
-    private static final Supplier<TreeSet<PositionReport>> treeSetSupplier = () -> new TreeSet<PositionReport>(byTimestamp);
+    private static final Comparator<TrackingReport> byTimestamp = comparingLong(TrackingReport::getTimestamp);
+    private static final Supplier<TreeSet<TrackingReport>> treeSetSupplier = () -> new TreeSet<TrackingReport>(byTimestamp);
     private boolean positionReportPurgeEnable = true;
 
     final static int MAX_AGE_POSITION_REPORTS_MINUTES = 10;
-    TreeSet<PositionReport> positionReports = treeSetSupplier.get();
+    TreeSet<TrackingReport> trackingReports = treeSetSupplier.get();
 
     /**
      * Create a new track with the given MMSI no.
@@ -96,10 +96,10 @@ public final class Track implements Cloneable {
     }
 
     /**
-     * Update the track with a new positionReport
+     * Update the track with a new trackingReport
      */
-    public void updatePosition(PositionReport positionReport) {
-        positionReports.add(positionReport);
+    public void updatePosition(TrackingReport trackingReport) {
+        trackingReports.add(trackingReport);
         purgePositionReports(MAX_AGE_POSITION_REPORTS_MINUTES);
     }
 
@@ -107,26 +107,26 @@ public final class Track implements Cloneable {
      * Get the oldest reported position report kept.
      * @return
      */
-    private PositionReport getOldestPositionReport() {
-        PositionReport oldestPositionReport = null;
+    private TrackingReport getOldestPositionReport() {
+        TrackingReport oldestTrackingReport = null;
         try {
-            oldestPositionReport = positionReports.first();
+            oldestTrackingReport = trackingReports.first();
         } catch(NoSuchElementException e)  {
         }
-        return oldestPositionReport;
+        return oldestTrackingReport;
     }
 
     /**
      * Get the most recently reported position report.
      * @return
      */
-    public PositionReport getPositionReport() {
-        PositionReport mostRecentPositionReport = null;
+    public TrackingReport getPositionReport() {
+        TrackingReport mostRecentTrackingReport = null;
         try {
-            mostRecentPositionReport = positionReports.last();
+            mostRecentTrackingReport = trackingReports.last();
         } catch(NoSuchElementException e)  {
         }
-        return mostRecentPositionReport;
+        return mostRecentTrackingReport;
     }
 
     /**
@@ -136,9 +136,9 @@ public final class Track implements Cloneable {
      */
     public Position getPositionReportPosition() {
         Position position = null;
-        PositionReport positionReport = getPositionReport();
-        if (positionReport != null) {
-            position = positionReport.getPosition();
+        TrackingReport trackingReport = getPositionReport();
+        if (trackingReport != null) {
+            position = trackingReport.getPosition();
         }
         return position;
     }
@@ -150,9 +150,9 @@ public final class Track implements Cloneable {
      */
     public Boolean getPositionReportIsInterpolated() {
         Boolean isInterpolated = null;
-        PositionReport positionReport = getPositionReport();
-        if (positionReport != null) {
-            isInterpolated = positionReport.isInterpolated();
+        TrackingReport trackingReport = getPositionReport();
+        if (trackingReport != null) {
+            isInterpolated = trackingReport.isInterpolated();
         }
         return isInterpolated;
     }
@@ -164,9 +164,9 @@ public final class Track implements Cloneable {
      */
     public Long getPositionReportTimestamp() {
         Long timestamp = null;
-        PositionReport positionReport = getPositionReport();
-        if (positionReport != null) {
-            timestamp = positionReport.getTimestamp();
+        TrackingReport trackingReport = getPositionReport();
+        if (trackingReport != null) {
+            timestamp = trackingReport.getTimestamp();
         }
         return timestamp;
     }
@@ -176,9 +176,9 @@ public final class Track implements Cloneable {
      * minutes older than the newest (if position report purging is enabled; otherwise there is no limit).
      * @return
      */
-    public List<PositionReport> getPositionReports() {
+    public List<TrackingReport> getTrackingReports() {
         purgePositionReports(MAX_AGE_POSITION_REPORTS_MINUTES);
-        return ImmutableList.copyOf(positionReports);
+        return ImmutableList.copyOf(trackingReports);
     }
 
     /**
@@ -191,9 +191,9 @@ public final class Track implements Cloneable {
             long now = getPositionReport().getTimestamp();
             long oldestKept = now - maxAgeMinutes*60*1000;
 
-            PositionReport oldestPositionReport = getOldestPositionReport();
-            if (oldestPositionReport != null && oldestPositionReport.getTimestamp() < oldestKept) {
-                positionReports = positionReports
+            TrackingReport oldestTrackingReport = getOldestPositionReport();
+            if (oldestTrackingReport != null && oldestTrackingReport.getTimestamp() < oldestKept) {
+                trackingReports = trackingReports
                 .stream()
                 .filter(p -> p.getTimestamp() >= oldestKept)
                 .collect(Collectors.toCollection(treeSetSupplier));

@@ -23,8 +23,8 @@ import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventLower;
 import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventMaintain;
 import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventRaise;
 import dk.dma.ais.abnormal.event.db.domain.Event;
-import dk.dma.ais.abnormal.tracker.PositionReport;
 import dk.dma.ais.abnormal.tracker.Track;
+import dk.dma.ais.abnormal.tracker.TrackingReport;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,16 +75,19 @@ public class BehaviourManagerImpl implements BehaviourManager {
             if (score < RAISE_EVENT_SCORE_THRESHOLD) {
                 score++;
                 if (score == RAISE_EVENT_SCORE_THRESHOLD) {
+                    // Threshold reached. Raise event.
                     setEventRaised(eventClass, track, true);
                     setEventScore(eventClass, track, 0);
                     setEventCertaintyOnCurrentPositionReport(eventClass, track);
                     fireRaiseEvent(eventClass, track);
                 } else {
+                    // Threshold not reached. Keep counting.
                     setEventScore(eventClass, track, score);
                     setEventCertaintyOnCurrentPositionReport(eventClass, track);
                 }
             }
         } else {
+            // Maintain existing event
             setEventScore(eventClass, track, 0);
             setEventCertaintyOnCurrentPositionReport(eventClass, track);
             fireMaintainEvent(eventClass, track);
@@ -99,11 +102,13 @@ public class BehaviourManagerImpl implements BehaviourManager {
             if (score < LOWER_EVENT_SCORE_THRESHOLD) {
                 score++;
                 if (score == LOWER_EVENT_SCORE_THRESHOLD) {
+                    // Threshold reached. Lower event.
                     fireLowerEvent(eventClass, track);
                     removeEventRaised(eventClass, track);
                     removeEventScore(eventClass, track);
                     setEventCertaintyOnCurrentPositionReport(eventClass, track);
                 } else {
+                    // Threshold not reached. Keep counting. And maintain event raised.
                     setEventScore(eventClass, track, score);
                     setEventRaised(eventClass, track, true);
                     setEventCertaintyOnCurrentPositionReport(eventClass, track);
@@ -112,6 +117,7 @@ public class BehaviourManagerImpl implements BehaviourManager {
                 }
             }
         } else {
+            // No event raised and no need to count.
             setEventScore(eventClass, track, 0);
             setEventCertaintyOnCurrentPositionReport(eventClass, track);
         }
@@ -132,10 +138,10 @@ public class BehaviourManagerImpl implements BehaviourManager {
     public EventCertainty getEventCertaintyAtCurrentPosition(Class<? extends Event> eventClass, Track track) {
         EventCertainty eventCertainty = null;
 
-        PositionReport positionReport = track.getPositionReport();
-        if (positionReport != null) {
+        TrackingReport trackingReport = track.getPositionReport();
+        if (trackingReport != null) {
             String eventCertaintyKey = getEventCertaintyKey(eventClass);
-            eventCertainty = (EventCertainty) positionReport.getProperty(eventCertaintyKey);
+            eventCertainty = (EventCertainty) trackingReport.getProperty(eventCertaintyKey);
         }
 
         return eventCertainty == null ? EventCertainty.UNDEFINED : eventCertainty;
@@ -276,9 +282,9 @@ public class BehaviourManagerImpl implements BehaviourManager {
      * @param track
      */
     private static void setEventCertaintyOnCurrentPositionReport(Class<? extends Event> eventClass, Track track) {
-        PositionReport positionReport = track.getPositionReport();
-        if (positionReport != null) {
-            positionReport.setProperty(getEventCertaintyKey(eventClass), getEventCertainty(eventClass, track));
+        TrackingReport trackingReport = track.getPositionReport();
+        if (trackingReport != null) {
+            trackingReport.setProperty(getEventCertaintyKey(eventClass), getEventCertainty(eventClass, track));
         }
     }
 }

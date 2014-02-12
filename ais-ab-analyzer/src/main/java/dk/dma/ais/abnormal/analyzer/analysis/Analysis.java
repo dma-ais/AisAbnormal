@@ -23,8 +23,8 @@ import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
 import dk.dma.ais.abnormal.event.db.domain.builders.TrackingPointBuilder;
-import dk.dma.ais.abnormal.tracker.PositionReport;
 import dk.dma.ais.abnormal.tracker.Track;
+import dk.dma.ais.abnormal.tracker.TrackingReport;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.enav.model.geometry.Position;
 import org.slf4j.Logger;
@@ -155,26 +155,26 @@ public abstract class Analysis {
      * @param track
      */
     protected void addPreviousTrackingPoints(Event event, Track track) {
-        List<PositionReport> positionReports = track.getPositionReports();
+        List<TrackingReport> trackingReports = track.getTrackingReports();
 
-        Iterator<PositionReport> positionReportIterator = positionReports.iterator();
+        Iterator<TrackingReport> positionReportIterator = trackingReports.iterator();
 
         while (positionReportIterator.hasNext()) {
-            PositionReport positionReport = positionReportIterator.next();
+            TrackingReport trackingReport = positionReportIterator.next();
             // Do not add the last one - duplicate
             if (positionReportIterator.hasNext()) {
                 TrackingPoint.EventCertainty certainty = null;
 
                 String eventCertaintyKey = BehaviourManagerImpl.getEventCertaintyKey(event.getClass());
-                EventCertainty eventCertaintyTmp = (EventCertainty) positionReport.getProperty(eventCertaintyKey);
+                EventCertainty eventCertaintyTmp = (EventCertainty) trackingReport.getProperty(eventCertaintyKey);
                 TrackingPoint.EventCertainty eventCertainty = eventCertaintyTmp == null ? TrackingPoint.EventCertainty.UNDEFINED : TrackingPoint.EventCertainty.create(eventCertaintyTmp.getCertainty());
 
                 addTrackingPoint(event,
-                        new Date(positionReport.getTimestamp()),
-                        positionReport.getPosition(),
-                        null, // cog
-                        null, // sog
-                        positionReport.isInterpolated(),
+                        new Date(trackingReport.getTimestamp()),
+                        trackingReport.getPosition(),
+                        trackingReport.getCourseOverGround(), // cog
+                        trackingReport.getSpeedOverGround(), // sog
+                        trackingReport.isInterpolated(),
                         eventCertainty);
             }
         }

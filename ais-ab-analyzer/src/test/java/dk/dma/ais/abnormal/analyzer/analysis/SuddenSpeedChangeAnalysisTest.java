@@ -20,8 +20,8 @@ import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.SuddenSpeedChangeEvent;
-import dk.dma.ais.abnormal.tracker.PositionReport;
 import dk.dma.ais.abnormal.tracker.Track;
+import dk.dma.ais.abnormal.tracker.TrackingReport;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.PositionChangedEvent;
 import dk.dma.ais.abnormal.tracker.events.TrackStaleEvent;
@@ -59,7 +59,7 @@ public class SuddenSpeedChangeAnalysisTest {
         track = new Track(123456);
 
         // These are needed to create an event object in the database:
-        track.updatePosition(PositionReport.create(1370589743L, Position.create(56, 12), false));
+        track.updatePosition(TrackingReport.create(1370589743L, Position.create(56, 12), 45.0f, 10.1f, false));
     }
 
     @Test
@@ -85,7 +85,7 @@ public class SuddenSpeedChangeAnalysisTest {
         track.setProperty(Track.SPEED_OVER_GROUND, 12.2f);
         analysis.onSpeedOverGroundUpdated(event);
 
-        track.updatePosition(PositionReport.create(track.getPositionReportTimestamp() + deltaSecs * 1000, Position.create(56, 12), false));
+        track.updatePosition(TrackingReport.create(track.getPositionReportTimestamp() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 10.1f, false));
         track.setProperty(Track.SPEED_OVER_GROUND, 0.1f);
         track.setProperty(Track.SHIP_TYPE, 11);
         analysis.onSpeedOverGroundUpdated(event);
@@ -120,7 +120,7 @@ public class SuddenSpeedChangeAnalysisTest {
         track.setProperty(Track.SPEED_OVER_GROUND, 12.2f);
         analysis.onSpeedOverGroundUpdated(event);
 
-        track.updatePosition(PositionReport.create(track.getPositionReportTimestamp() + deltaSecs*1000, Position.create(56,12), false));
+        track.updatePosition(TrackingReport.create(track.getPositionReportTimestamp() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 10.1f, false));
         track.setProperty(Track.SPEED_OVER_GROUND, 0.1f);
         analysis.onSpeedOverGroundUpdated(event);
 
@@ -147,7 +147,7 @@ public class SuddenSpeedChangeAnalysisTest {
         track.setProperty(Track.SPEED_OVER_GROUND, 22.2f);
         analysis.onSpeedOverGroundUpdated(event);
 
-        track.updatePosition(PositionReport.create(track.getPositionReportTimestamp() + deltaSecs*1000, Position.create(56,12), false));
+        track.updatePosition(TrackingReport.create(track.getPositionReportTimestamp() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 10.1f, false));
         track.setProperty(Track.SPEED_OVER_GROUND, 9.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
@@ -197,7 +197,7 @@ public class SuddenSpeedChangeAnalysisTest {
         TrackStaleEvent staleEvent = new TrackStaleEvent(track);
         analysis.onTrackStale(staleEvent);
 
-        track.updatePosition(PositionReport.create(track.getPositionReportTimestamp() + deltaSecs*1000, Position.create(56,12), false));
+        track.updatePosition(TrackingReport.create(track.getPositionReportTimestamp() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 10.1f, false));
         track.setProperty(Track.SPEED_OVER_GROUND, 0.1f);
         analysis.onSpeedOverGroundUpdated(event);
 
@@ -224,7 +224,7 @@ public class SuddenSpeedChangeAnalysisTest {
         track.setProperty(Track.SPEED_OVER_GROUND, 102.3f); // 1023 int
         analysis.onSpeedOverGroundUpdated(event);
 
-        track.updatePosition(PositionReport.create(track.getPositionReportTimestamp() + deltaSecs*1000, Position.create(56,12), false));
+        track.updatePosition(TrackingReport.create(track.getPositionReportTimestamp() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 10.1f, false));
         track.setProperty(Track.SPEED_OVER_GROUND, 0.1f);
         analysis.onSpeedOverGroundUpdated(event);
 
