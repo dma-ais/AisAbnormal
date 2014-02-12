@@ -21,8 +21,6 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriverService;
-import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
@@ -37,13 +35,12 @@ public class IntegrationTestHelper {
     }
 
     public static PhantomJSDriver createPhantomJSWebDriver() {
-        DesiredCapabilities capabilities = new DesiredCapabilities();
-        PhantomJSDriverService driverService = PhantomJSDriverService.createDefaultService(capabilities);
-
         PhantomJSDriver driver;
         try {
-            driver = new PhantomJSDriver(driverService, capabilities);
-            driver.getFileDetector()
+            // DesiredCapabilities capabilities = new DesiredCapabilities();
+            // PhantomJSDriverService driverService = PhantomJSDriverService.createDefaultService(capabilities);
+
+            driver = new PhantomJSDriver(); //driverService, capabilities);
             driver.manage().window().setSize(new Dimension(1280, 1024));
             driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         } catch (WebDriverException e) {
