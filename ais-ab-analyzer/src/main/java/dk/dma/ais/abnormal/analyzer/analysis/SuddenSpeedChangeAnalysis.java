@@ -23,6 +23,7 @@ import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.SuddenSpeedChangeEvent;
+import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
 import dk.dma.ais.abnormal.event.db.domain.builders.SuddenSpeedChangeEventBuilder;
 import dk.dma.ais.abnormal.event.db.domain.builders.TrackingPointBuilder;
 import dk.dma.ais.abnormal.tracker.Track;
@@ -162,7 +163,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
                     .trackingPoint()
                         .timestamp(prevTimestamp)
                         .positionInterpolated(prevInterpolated)
-                        //.eventRaised(true)
+                        .eventCertainty(TrackingPoint.EventCertainty.RAISED)
                         .speedOverGround(prevSog)
                         .courseOverGround(prevCog)
                         .latitude(prevPosition.getLatitude())
@@ -173,6 +174,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
             TrackingPointBuilder.TrackingPoint()
                 .timestamp(timestamp)
                 .positionInterpolated(interpolated)
+                .eventCertainty(TrackingPoint.EventCertainty.RAISED)
                 .speedOverGround(sog)
                 .courseOverGround(cog)
                 .latitude(position.getLatitude())
