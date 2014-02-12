@@ -987,7 +987,7 @@ public class TrackingServiceTest {
             positionChangedEventFired = true;
 
             numberOfPositionChangedEventsReceived++;
-            currentPosition = (Position) event.getTrack().getProperty(Track.POSITION);
+            currentPosition = event.getTrack().getPositionReport().getPosition();
             System.out.println("We are now in position: " + currentPosition);
             assertTrackTimestamps(event.getTrack());
         }
@@ -995,7 +995,7 @@ public class TrackingServiceTest {
         private void assertTrackTimestamps(Track track) {
             // TIMESTAMP_ANY_UPDATE is never allowed to fall behind TIMESTAMP_POSITION_UPDATE
             Long anyUpdate = getTimestampFromTrack(track, Track.TIMESTAMP_ANY_UPDATE);
-            Long posUpdate = getTimestampFromTrack(track, Track.TIMESTAMP_POSITION_UPDATE);
+            Long posUpdate = track.getPositionReportTimestamp();
             assertTrue(anyUpdate >= posUpdate);
         }
 
@@ -1046,7 +1046,7 @@ public class TrackingServiceTest {
         @Subscribe
         public void onPositionChanged(PositionChangedEvent event) {
             System.out.println("PositionChangedEvent");
-            positionIsInterpolated.add(new Boolean((Boolean) event.getTrack().getProperty(Track.POSITION_IS_INTERPOLATED)));
+            positionIsInterpolated.add(new Boolean((Boolean) event.getTrack().getPositionReport().isInterpolated()));
         }
 
         public int getNumberOfPositionChangedEventsReceived() {

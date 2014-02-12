@@ -58,7 +58,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
 
     @Inject
     public SuddenSpeedChangeAnalysis(AppStatisticsService statisticsService, TrackingService trackingService, EventRepository eventRepository) {
-        super(eventRepository, trackingService);
+        super(eventRepository, trackingService, null);
         this.statisticsService = statisticsService;
         this.tracks = new HashMap<>();
         analysisName = this.getClass().getSimpleName();
@@ -95,13 +95,13 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
         TrackingPointData trackingPointData = tracks.get(mmsi);
 
         if (sog >= 8.0) {
-            final long timestamp = (long) track.getProperty(Track.TIMESTAMP_POSITION_UPDATE);
+            final long timestamp = track.getPositionReportTimestamp();
             if (trackingPointData == null) {
-                trackingPointData = new TrackingPointData(timestamp, sog, (Float) track.getProperty(Track.COURSE_OVER_GROUND), (Boolean) track.getProperty(Track.POSITION_IS_INTERPOLATED), (Position) track.getProperty(Track.POSITION));
+                trackingPointData = new TrackingPointData(timestamp, sog, (Float) track.getProperty(Track.COURSE_OVER_GROUND), track.getPositionReportIsInterpolated(), track.getPositionReportPosition());
                 tracks.put(mmsi, trackingPointData);
             }
         } else if (sog <= 1.0) {
-            final long timestamp = (long) track.getProperty(Track.TIMESTAMP_POSITION_UPDATE);
+            final long timestamp = track.getPositionReportTimestamp();
             if (trackingPointData != null) {
                 long prevTimestamp = trackingPointData.getTimestamp();
 
@@ -120,15 +120,15 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
 
     @Override
     protected Event buildEvent(Track track) {
-        Date timestamp = new Date((Long) track.getProperty(Track.TIMESTAMP_POSITION_UPDATE));
+        Date timestamp = new Date(track.getPositionReportTimestamp());
         Integer mmsi = track.getMmsi();
         Integer imo = (Integer) track.getProperty(Track.IMO);
         String callsign = (String) track.getProperty(Track.CALLSIGN);
         String name = (String) track.getProperty(Track.SHIP_NAME);
-        Position position = (Position) track.getProperty(Track.POSITION);
+        Position position = track.getPositionReportPosition();
         Float cog = (Float) track.getProperty(Track.COURSE_OVER_GROUND);
         Float sog = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
-        Boolean interpolated = (Boolean) track.getProperty(Track.POSITION_IS_INTERPOLATED);
+        Boolean interpolated = track.getPositionReportIsInterpolated();
         Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
 
         short shipTypeCategory = Categorizer.mapShipTypeToCategory(shipType);
@@ -162,6 +162,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
                     .trackingPoint()
                         .timestamp(prevTimestamp)
                         .positionInterpolated(prevInterpolated)
+                        //.eventRaised(true)
                         .speedOverGround(prevSog)
                         .courseOverGround(prevCog)
                         .latitude(prevPosition.getLatitude())
@@ -177,6 +178,8 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
                 .latitude(position.getLatitude())
                 .longitude(position.getLongitude())
             .getTrackingPoint());
+
+        addPreviousTrackingPoints(event, track);
 
         return event;
     }

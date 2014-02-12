@@ -121,7 +121,7 @@ public class TrackingServiceImpl implements TrackingService {
                 lastAnyUpdate = 0L;
             }
 
-            Long lastPositionUpdate = (Long) track.getProperty(Track.TIMESTAMP_POSITION_UPDATE);
+            Long lastPositionUpdate = track.getPositionReportTimestamp();
             if (lastPositionUpdate == null) {
                 lastPositionUpdate = 0L;
             }
@@ -179,8 +179,9 @@ public class TrackingServiceImpl implements TrackingService {
     }
 
     private void interpolatePositions(Track track, Long currentUpdate, IPositionMessage positionMessage) {
-        Position p1 = (Position) track.getProperty(Track.POSITION);
-        long t1 = (long) track.getProperty(Track.TIMESTAMP_POSITION_UPDATE);
+        PositionReport positionReport = track.getPositionReport();
+        Position p1 = positionReport.getPosition();
+        long t1 = positionReport.getTimestamp();
 
         Position p2 = positionMessage.getPos().getGeoLocation();
         long t2 = currentUpdate;
@@ -287,21 +288,18 @@ public class TrackingServiceImpl implements TrackingService {
     }
 
     private void updatePosition(Track track, long positionTimestamp, Position position, boolean positionIsInterpolated) {
-        track.setProperty(Track.POSITION_IS_INTERPOLATED, positionIsInterpolated);
         track.setProperty(Track.TIMESTAMP_ANY_UPDATE, Long.valueOf(positionTimestamp));
-        track.setProperty(Track.TIMESTAMP_POSITION_UPDATE, Long.valueOf(positionTimestamp));
 
-        performUpdatePosition(track, position);
+        performUpdatePosition(track, positionTimestamp, position, positionIsInterpolated);
         performUpdateCellId(track, position);
     }
 
-    private void performUpdatePosition(Track track, Position position) {
-        Position oldPosition = (Position) track.getProperty(Track.POSITION);
-        if (position != null) {
-            track.setProperty(Track.POSITION, position);
-        } else {
-            track.removeProperty(Track.POSITION);
-        }
+    private void performUpdatePosition(Track track, long positionTimestamp, Position position, boolean positionIsInterpolated) {
+        Position oldPosition = track.getPositionReportPosition();
+
+        PositionReport positionReport = PositionReport.create(positionTimestamp, position, positionIsInterpolated);
+        track.updatePosition(positionReport);
+
         eventBus.post(new PositionChangedEvent(track, oldPosition));
     }
 

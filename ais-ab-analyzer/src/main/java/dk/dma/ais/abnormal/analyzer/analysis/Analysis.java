@@ -16,9 +16,14 @@
 
 package dk.dma.ais.abnormal.analyzer.analysis;
 
+import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManager;
+import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManagerImpl;
+import dk.dma.ais.abnormal.analyzer.behaviour.EventCertainty;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.Event;
+import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
 import dk.dma.ais.abnormal.event.db.domain.builders.TrackingPointBuilder;
+import dk.dma.ais.abnormal.tracker.PositionReport;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.enav.model.geometry.Position;
@@ -26,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * An Analysis is a class which is known to the ais-ab-analyzer application and possesses certain public
@@ -43,10 +50,19 @@ public abstract class Analysis {
 
     private final EventRepository eventRepository;
     private final TrackingService trackingService;
+    private final BehaviourManager behaviourManager;
 
-    protected Analysis(EventRepository eventRepository, TrackingService trackingService) {
+    protected Analysis(EventRepository eventRepository, TrackingService trackingService, BehaviourManager behaviourManager) {
         this.eventRepository = eventRepository;
         this.trackingService = trackingService;
+        this.behaviourManager = behaviourManager;
+        if (behaviourManager != null) {
+            this.behaviourManager.registerSubscriber(this);
+        }
+    }
+
+    protected final BehaviourManager getBehaviourManager() {
+        return behaviourManager;
     }
 
     /**
@@ -94,27 +110,74 @@ public abstract class Analysis {
         Event event = eventRepository.findOngoingEventByVessel(mmsi, eventClass);
 
         if (event != null) {
-            Date positionTimestamp = new Date((Long) track.getProperty(Track.TIMESTAMP_POSITION_UPDATE));
-            Position position = (Position) track.getProperty(Track.POSITION);
+            Date positionTimestamp = new Date(track.getPositionReportTimestamp());
+            Position position = track.getPositionReportPosition();
             Float cog = (Float) track.getProperty(Track.COURSE_OVER_GROUND);
             Float sog = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
-            Boolean interpolated = (Boolean) track.getProperty(Track.POSITION_IS_INTERPOLATED);
+            Boolean interpolated = track.getPositionReportIsInterpolated();
 
-            event.getBehaviour().addTrackingPoint(
-                TrackingPointBuilder.TrackingPoint()
-                    .timestamp(positionTimestamp)
-                    .positionInterpolated(interpolated)
-                    .speedOverGround(sog)
-                    .courseOverGround(cog)
-                    .latitude(position.getLatitude())
-                    .longitude(position.getLongitude())
-                .getTrackingPoint()
-            );
+            TrackingPoint.EventCertainty certainty = TrackingPoint.EventCertainty.UNDEFINED;
+            if (behaviourManager != null) {
+                EventCertainty eventCertainty = getBehaviourManager().getEventCertaintyAtCurrentPosition(eventClass, track);
+                if (eventCertainty != null) {
+                    certainty = TrackingPoint.EventCertainty.create(eventCertainty.getCertainty());
+                }
+            }
+
+            addTrackingPoint(event, positionTimestamp, position, cog, sog, interpolated, certainty);
         } else {
             event = buildEvent(track);
         }
 
         eventRepository.save(event);
+    }
+
+    /**
+     * Add a tracking point to an event.
+     */
+    protected static void addTrackingPoint(Event event, Date positionTimestamp, Position position, Float cog, Float sog, Boolean interpolated, TrackingPoint.EventCertainty eventCertainty) {
+        event.getBehaviour().addTrackingPoint(
+                TrackingPointBuilder.TrackingPoint()
+                        .timestamp(positionTimestamp)
+                        .positionInterpolated(interpolated)
+                        .eventCertainty(eventCertainty)
+                        .speedOverGround(sog)
+                        .courseOverGround(cog)
+                        .latitude(position.getLatitude())
+                        .longitude(position.getLongitude())
+                        .getTrackingPoint()
+        );
+    }
+
+    /**
+     * Add the most recent track points (except THE most recent one) to the track history.
+     * @param event
+     * @param track
+     */
+    protected void addPreviousTrackingPoints(Event event, Track track) {
+        List<PositionReport> positionReports = track.getPositionReports();
+
+        Iterator<PositionReport> positionReportIterator = positionReports.iterator();
+
+        while (positionReportIterator.hasNext()) {
+            PositionReport positionReport = positionReportIterator.next();
+            // Do not add the last one - duplicate
+            if (positionReportIterator.hasNext()) {
+                TrackingPoint.EventCertainty certainty = null;
+
+                String eventCertaintyKey = BehaviourManagerImpl.getEventCertaintyKey(event.getClass());
+                EventCertainty eventCertaintyTmp = (EventCertainty) positionReport.getProperty(eventCertaintyKey);
+                TrackingPoint.EventCertainty eventCertainty = eventCertaintyTmp == null ? TrackingPoint.EventCertainty.UNDEFINED : TrackingPoint.EventCertainty.create(eventCertaintyTmp.getCertainty());
+
+                addTrackingPoint(event,
+                        new Date(positionReport.getTimestamp()),
+                        positionReport.getPosition(),
+                        null, // cog
+                        null, // sog
+                        positionReport.isInterpolated(),
+                        eventCertainty);
+            }
+        }
     }
 
     protected EventRepository getEventRepository() {

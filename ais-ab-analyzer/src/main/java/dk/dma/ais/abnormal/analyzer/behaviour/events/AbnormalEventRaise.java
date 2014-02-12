@@ -16,27 +16,16 @@
 
 package dk.dma.ais.abnormal.analyzer.behaviour.events;
 
+import dk.dma.ais.abnormal.analyzer.behaviour.EventCertainty;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.tracker.Track;
 
 /**
  * AbnormalEventRaise is posted on the event bus by the BehaviourManager when an abnormal event should be raised.
  */
-public class AbnormalEventRaise {
+public class AbnormalEventRaise extends AbnormalAbstractEvent {
 
-    private final Class<? extends Event> eventClass;
-    private final Track track;
-
-    public AbnormalEventRaise(Class<? extends Event> eventClass, Track track) {
-        this.eventClass = eventClass;
-        this.track = track;
-    }
-
-    public Class<? extends Event> getEventClass() {
-        return eventClass;
-    }
-
-    public Track getTrack() {
-        return track;
+    public AbnormalEventRaise(Class<? extends Event> eventClass, Track track, EventCertainty eventCertainty) {
+        super(eventClass, track, eventCertainty);
     }
 }

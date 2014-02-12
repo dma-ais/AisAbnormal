@@ -59,6 +59,10 @@ public class TrackingPointBuilder {
         return this;
     }
 
+    public TrackingPointBuilder eventCertainty(TrackingPoint.EventCertainty eventCertainty) {
+        trackingPoint.setEventCertainty(eventCertainty);
+        return this;
+    }
     public TrackingPointBuilder speedOverGround(Float speedOverGround) {
         trackingPoint.setSpeedOverGround(speedOverGround);
         return this;

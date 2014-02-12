@@ -22,9 +22,11 @@ import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventMaintain;
 import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventRaise;
 import dk.dma.ais.abnormal.application.statistics.AppStatisticsService;
 import dk.dma.ais.abnormal.event.db.domain.CourseOverGroundEvent;
+import dk.dma.ais.abnormal.tracker.PositionReport;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.TrackingServiceImpl;
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.grid.Grid;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
@@ -47,6 +49,7 @@ public class BehaviourManagerImplTest {
         trackingService = new TrackingServiceImpl(Grid.createSize(200), statisticsService);
         behaviourManager = new BehaviourManagerImpl(trackingService);
         track = new Track(12345678);
+        track.updatePosition(PositionReport.create(1234567890L, Position.create(56, 12), false));
 
         testSubscriber = new EventBusSubscriber();
         behaviourManager.registerSubscriber(testSubscriber);
@@ -183,28 +186,89 @@ public class BehaviourManagerImplTest {
 
         behaviourManager.normalBehaviourDetected(CourseOverGroundEvent.class, track);
         assertEquals(1, testSubscriber.numAbnormalEventRaise);
-        assertEquals(4+BehaviourManagerImpl.LOWER_EVENT_SCORE_THRESHOLD-1-1, testSubscriber.numAbnormalEventMaintain);
+        assertEquals(4 + BehaviourManagerImpl.LOWER_EVENT_SCORE_THRESHOLD - 1 - 1, testSubscriber.numAbnormalEventMaintain);
         assertEquals(1, testSubscriber.numAbnormalEventLower);
+    }
+
+    @Test
+    public void testEventCertainty() {
+        EventCertainty eventCertainty;
+
+        assertEquals(Integer.valueOf(0), behaviourManager.trackingService.getNumberOfTracks());
+
+        //
+        behaviourManager.normalBehaviourDetected(CourseOverGroundEvent.class, track);
+        eventCertainty = (EventCertainty) track.getPositionReport().getProperty(BehaviourManagerImpl.getEventCertaintyKey(CourseOverGroundEvent.class));
+        System.out.println(eventCertainty);
+        assertEquals(EventCertainty.LOWERED, eventCertainty);
+
+        // Raise event
+        for (int i=0; i<BehaviourManagerImpl.RAISE_EVENT_SCORE_THRESHOLD - 1; i++) {
+            behaviourManager.abnormalBehaviourDetected(CourseOverGroundEvent.class, track);
+            eventCertainty = (EventCertainty) track.getPositionReport().getProperty(BehaviourManagerImpl.getEventCertaintyKey(CourseOverGroundEvent.class));
+            System.out.println(eventCertainty);
+            assertEquals(EventCertainty.UNCERTAIN, eventCertainty);
+        }
+
+        behaviourManager.abnormalBehaviourDetected(CourseOverGroundEvent.class, track);
+        eventCertainty = (EventCertainty) track.getPositionReport().getProperty(BehaviourManagerImpl.getEventCertaintyKey(CourseOverGroundEvent.class));
+        System.out.println(eventCertainty);
+        assertEquals(EventCertainty.RAISED, eventCertainty);
+
+        // Raise again
+        behaviourManager.abnormalBehaviourDetected(CourseOverGroundEvent.class, track);
+        eventCertainty = (EventCertainty) track.getPositionReport().getProperty(BehaviourManagerImpl.getEventCertaintyKey(CourseOverGroundEvent.class));
+        System.out.println(eventCertainty);
+        assertEquals(EventCertainty.RAISED, eventCertainty);
+
+        // Make us a bit uncertain
+        behaviourManager.normalBehaviourDetected(CourseOverGroundEvent.class, track);
+        eventCertainty = (EventCertainty) track.getPositionReport().getProperty(BehaviourManagerImpl.getEventCertaintyKey(CourseOverGroundEvent.class));
+        System.out.println(eventCertainty);
+        assertEquals(EventCertainty.UNCERTAIN, eventCertainty);
+
+        // Reassure us
+        behaviourManager.abnormalBehaviourDetected(CourseOverGroundEvent.class, track);
+        eventCertainty = (EventCertainty) track.getPositionReport().getProperty(BehaviourManagerImpl.getEventCertaintyKey(CourseOverGroundEvent.class));
+        System.out.println(eventCertainty);
+        assertEquals(EventCertainty.RAISED, eventCertainty);
+
+        // Now we require the full no. of consective normal behaviours to lower event
+        for (int i=0; i<BehaviourManagerImpl.LOWER_EVENT_SCORE_THRESHOLD-1; i++) {
+            behaviourManager.normalBehaviourDetected(CourseOverGroundEvent.class, track);
+            eventCertainty = (EventCertainty) track.getPositionReport().getProperty(BehaviourManagerImpl.getEventCertaintyKey(CourseOverGroundEvent.class));
+            System.out.println(eventCertainty);
+            assertEquals(EventCertainty.UNCERTAIN, eventCertainty);
+        }
+
+        behaviourManager.normalBehaviourDetected(CourseOverGroundEvent.class, track);
+        eventCertainty = (EventCertainty) track.getPositionReport().getProperty(BehaviourManagerImpl.getEventCertaintyKey(CourseOverGroundEvent.class));
+        System.out.println(eventCertainty);
+        assertEquals(EventCertainty.LOWERED, eventCertainty);
     }
 
     public final class EventBusSubscriber {
         int numAbnormalEventRaise = 0;
         int numAbnormalEventMaintain = 0;
         int numAbnormalEventLower = 0;
+        EventCertainty eventCertainty;
 
         @Subscribe
         public void onAbnormalEventRaise(AbnormalEventRaise event) {
             numAbnormalEventRaise++;
+            eventCertainty = event.getEventCertainty();
         }
 
         @Subscribe
-        public void onAbnormalEventRaise(AbnormalEventMaintain event) {
+        public void onAbnormalEventMaintain(AbnormalEventMaintain event) {
             numAbnormalEventMaintain++;
+            eventCertainty = event.getEventCertainty();
         }
 
         @Subscribe
         public void onAbnormalEventLower(AbnormalEventLower event) {
             numAbnormalEventLower++;
+            eventCertainty = event.getEventCertainty();
         }
     }
 

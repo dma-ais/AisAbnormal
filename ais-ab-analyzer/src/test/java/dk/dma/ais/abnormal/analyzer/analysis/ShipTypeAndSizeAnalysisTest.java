@@ -22,6 +22,7 @@ import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.ShipSizeOrTypeEvent;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeFeatureData;
+import dk.dma.ais.abnormal.tracker.PositionReport;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
@@ -224,9 +225,7 @@ public class ShipTypeAndSizeAnalysisTest {
         track.setProperty(Track.VESSEL_LENGTH, 15);
 
         // These are needed to create an event object in the database:
-        track.setProperty(Track.TIMESTAMP_POSITION_UPDATE, 1370589743L);
-        track.setProperty(Track.POSITION_IS_INTERPOLATED, false);
-        track.setProperty(Track.POSITION, Position.create(56, 12));
+        track.updatePosition(PositionReport.create(1370589743L, Position.create(56, 12), false));
 
         CellChangedEvent event = new CellChangedEvent(track, null);
 
@@ -260,9 +259,7 @@ public class ShipTypeAndSizeAnalysisTest {
         track.setProperty(Track.VESSEL_LENGTH, 150);
 
         // These are needed to create an event object in the database:
-        track.setProperty(Track.TIMESTAMP_POSITION_UPDATE, 1370589743L);
-        track.setProperty(Track.POSITION_IS_INTERPOLATED, false);
-        track.setProperty(Track.POSITION, Position.create(56, 12));
+        track.updatePosition(PositionReport.create(1370589743L, Position.create(56,12), false));
 
         CellChangedEvent event = new CellChangedEvent(track, null);
 

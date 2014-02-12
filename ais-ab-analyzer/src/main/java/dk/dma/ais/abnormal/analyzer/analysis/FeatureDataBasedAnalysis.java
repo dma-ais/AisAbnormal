@@ -28,20 +28,13 @@ import dk.dma.ais.abnormal.tracker.TrackingService;
 public abstract class FeatureDataBasedAnalysis extends Analysis {
 
     private final FeatureDataRepository featureDataRepository;
-    private final BehaviourManager behaviourManager;
 
     protected FeatureDataBasedAnalysis(EventRepository eventRepository, FeatureDataRepository featureDataRepository, TrackingService trackingService, BehaviourManager behaviourManager) {
-        super(eventRepository, trackingService);
+        super(eventRepository, trackingService, behaviourManager);
         this.featureDataRepository = featureDataRepository;
-        this.behaviourManager = behaviourManager;
-        this.behaviourManager.registerSubscriber(this);
     }
 
     protected final FeatureDataRepository getFeatureDataRepository() {
         return featureDataRepository;
-    }
-
-    protected final BehaviourManager getBehaviourManager() {
-        return behaviourManager;
     }
 }

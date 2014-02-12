@@ -50,4 +50,10 @@ public interface BehaviourManager {
      */
     void registerSubscriber(Object subscriber);
 
+    /**
+     * Get the event certainty computed for the most recent position report.
+     * @param eventClass
+     * @return
+     */
+    EventCertainty getEventCertaintyAtCurrentPosition(Class<? extends Event> eventClass, Track track);
 }

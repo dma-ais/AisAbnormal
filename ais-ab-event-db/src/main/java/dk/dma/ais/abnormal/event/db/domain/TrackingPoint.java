@@ -18,6 +18,8 @@ package dk.dma.ais.abnormal.event.db.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -53,6 +55,10 @@ public class TrackingPoint implements Comparable<TrackingPoint> {
 
     @NotNull
     private Boolean positionInterpolated;
+
+    @NotNull
+    @Enumerated(EnumType.ORDINAL)
+    private EventCertainty eventCertainty;
 
     @Override
     public int compareTo(TrackingPoint otherPosition) {
@@ -110,4 +116,31 @@ public class TrackingPoint implements Comparable<TrackingPoint> {
     public Boolean getPositionInterpolated() {
         return positionInterpolated;
     }
+
+    public void setEventCertainty(EventCertainty eventCertainty) {
+        this.eventCertainty = eventCertainty;
+    }
+
+    public EventCertainty getEventCertainty() {
+        return eventCertainty;
+    }
+
+    public enum EventCertainty {
+        UNDEFINED(0), LOWERED(1), UNCERTAIN(2), RAISED(3);
+
+        public static EventCertainty create(int certainty) {
+            return EventCertainty.values()[certainty];
+        }
+
+        private int certainty;
+
+        public int getCertainty() {
+            return certainty;
+        }
+
+        EventCertainty(int certainty) {
+            this.certainty = certainty;
+        }
+    }
+
 }

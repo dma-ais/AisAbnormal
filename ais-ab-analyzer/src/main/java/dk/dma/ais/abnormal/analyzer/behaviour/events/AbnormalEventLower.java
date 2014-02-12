@@ -16,27 +16,17 @@
 
 package dk.dma.ais.abnormal.analyzer.behaviour.events;
 
+import dk.dma.ais.abnormal.analyzer.behaviour.EventCertainty;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.tracker.Track;
 
 /**
  * AbnormalEventLower is posted on the event bus by the BehaviourManager when an abnormal event should be lowered.
  */
-public class AbnormalEventLower {
+public class AbnormalEventLower extends AbnormalAbstractEvent {
 
-    private final Class<? extends Event> eventClass;
-    private final Track track;
-
-    public AbnormalEventLower(Class<? extends Event> eventClass, Track track) {
-        this.eventClass = eventClass;
-        this.track = track;
+    public AbnormalEventLower(Class<? extends Event> eventClass, Track track, EventCertainty eventCertainty) {
+        super(eventClass, track, eventCertainty);
     }
 
-    public Class<? extends Event> getEventClass() {
-        return eventClass;
-    }
-
-    public Track getTrack() {
-        return track;
-    }
 }

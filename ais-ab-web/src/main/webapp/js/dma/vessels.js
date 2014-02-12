@@ -88,9 +88,22 @@ var vesselModule = {
         $.each(trackingPoints, function (i, trackingPoint) {
             var point = new OpenLayers.Geometry.Point(trackingPoint.longitude, trackingPoint.latitude);
             point.transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator);
-            var markerStyle = { strokeColor: 'orange', fillOpacity: 0.5, pointRadius: 3 };
+            var markerStyle = { strokeColor: 'orange', strokeWidth: 2, fillOpacity: 1.0, pointRadius: 3 };
             if (trackingPoint.positionInterpolated == true) {
                 markerStyle.strokeColor = 'grey';
+            }
+
+            trackingPoint.eventCertainty
+            "RAISED"
+
+            if (trackingPoint.eventCertainty == 'RAISED') {
+                markerStyle.fillColor = 'red';
+            } else if (trackingPoint.eventCertainty == 'UNCERTAIN') {
+                markerStyle.fillColor = 'yellow';
+            } else if (trackingPoint.eventCertainty == 'LOWERED') {
+                markerStyle.fillColor = 'green';
+            } else {
+                markerStyle.fillColor = 'blue';
             }
             var markerFeature = new OpenLayers.Feature.Vector(point, {type: "circle"}, markerStyle);
             markerFeature.fid = 'trackingPoint-'+event.id+'-'+trackingPoint.id;

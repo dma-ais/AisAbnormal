@@ -40,7 +40,7 @@ public class PositionChangedEvent extends TrackEvent {
         return Objects.toStringHelper(this)
                 .add("mmsi", getTrack().getMmsi())
                 .add("oldPosition", oldPosition)
-                .add("newPosition", getTrack().getProperty(Track.POSITION))
+                .add("newPosition", getTrack().getPositionReport().getPosition())
                 .toString();
     }
 }

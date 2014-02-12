@@ -21,13 +21,14 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManager;
+import dk.dma.ais.abnormal.analyzer.behaviour.EventCertainty;
 import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventLower;
 import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventMaintain;
 import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventRaise;
 import dk.dma.ais.abnormal.event.db.EventRepository;
-import dk.dma.ais.abnormal.event.db.domain.CourseOverGroundEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.SpeedOverGroundEvent;
+import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
 import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 import dk.dma.ais.abnormal.stat.db.data.SpeedOverGroundFeatureData;
@@ -101,9 +102,9 @@ public class SpeedOverGroundAnalysis extends FeatureDataBasedAnalysis {
         int speedOverGroundKey = Categorizer.mapSpeedOverGroundToCategory(speedOverGround) - 1;
 
         if (isAbnormalSpeedOverGround(cellId, shipTypeKey, shipLengthKey, speedOverGroundKey)) {
-            getBehaviourManager().abnormalBehaviourDetected(CourseOverGroundEvent.class, track);
+            getBehaviourManager().abnormalBehaviourDetected(SpeedOverGroundEvent.class, track);
         } else {
-            getBehaviourManager().normalBehaviourDetected(CourseOverGroundEvent.class, track);
+            getBehaviourManager().normalBehaviourDetected(SpeedOverGroundEvent.class, track);
         }
 
         statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events processed");
@@ -189,11 +190,17 @@ public class SpeedOverGroundAnalysis extends FeatureDataBasedAnalysis {
         String name = (String) track.getProperty(Track.SHIP_NAME);
         Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
         Integer shipLength = (Integer) track.getProperty(Track.VESSEL_LENGTH);
-        Date positionTimestamp = new Date((Long) track.getProperty(Track.TIMESTAMP_POSITION_UPDATE));
-        Position position = (Position) track.getProperty(Track.POSITION);
+        Date positionTimestamp = new Date(track.getPositionReportTimestamp());
+        Position position = track.getPositionReportPosition();
         Float cog = (Float) track.getProperty(Track.COURSE_OVER_GROUND);
         Float sog = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
-        Boolean interpolated = (Boolean) track.getProperty(Track.POSITION_IS_INTERPOLATED);
+        Boolean interpolated = track.getPositionReportIsInterpolated();
+
+        TrackingPoint.EventCertainty certainty = TrackingPoint.EventCertainty.UNDEFINED;
+        EventCertainty eventCertainty = getBehaviourManager().getEventCertaintyAtCurrentPosition(SpeedOverGroundEvent.class, track);
+        if (eventCertainty != null) {
+            certainty = TrackingPoint.EventCertainty.create(eventCertainty.getCertainty());
+        }
 
         short shipTypeCategory = Categorizer.mapShipTypeToCategory(shipType);
         short shipLengthCategory = Categorizer.mapShipLengthToCategory(shipLength);
@@ -222,11 +229,14 @@ public class SpeedOverGroundAnalysis extends FeatureDataBasedAnalysis {
                             .trackingPoint()
                                 .timestamp(positionTimestamp)
                                 .positionInterpolated(interpolated)
+                                .eventCertainty(certainty)
                                 .speedOverGround(sog)
                                 .courseOverGround(cog)
                                 .latitude(position.getLatitude())
                                 .longitude(position.getLongitude())
                 .getEvent();
+
+        addPreviousTrackingPoints(event, track);
 
         return event;
     }
