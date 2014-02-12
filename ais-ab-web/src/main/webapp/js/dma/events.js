@@ -206,7 +206,9 @@ var eventModule = {
         var trackingPoints = event.behaviour.trackingPoints;
         $.each(trackingPoints, function (idx, trackingPoint) {
             var point = new OpenLayers.LonLat(trackingPoint.longitude, trackingPoint.latitude);
-            bounds.extend(point);
+            if (trackingPoint.eventCertainty == 'RAISED' || trackingPoint.eventCertainty == 'UNCERTAIN') {
+                bounds.extend(point);
+            }
         });
 
         return eventModule.expandBounds(bounds, 1000);
