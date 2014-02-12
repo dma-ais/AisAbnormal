@@ -92,10 +92,6 @@ var vesselModule = {
             if (trackingPoint.positionInterpolated == true) {
                 markerStyle.strokeColor = 'grey';
             }
-
-            trackingPoint.eventCertainty
-            "RAISED"
-
             if (trackingPoint.eventCertainty == 'RAISED') {
                 markerStyle.fillColor = 'red';
             } else if (trackingPoint.eventCertainty == 'UNCERTAIN') {

@@ -23,7 +23,6 @@ import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventLower;
 import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventMaintain;
 import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventRaise;
 import dk.dma.ais.abnormal.event.db.domain.Event;
-import dk.dma.ais.abnormal.event.db.domain.SpeedOverGroundEvent;
 import dk.dma.ais.abnormal.tracker.PositionReport;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
@@ -70,10 +69,6 @@ public class BehaviourManagerImpl implements BehaviourManager {
 
     @Override
     public void abnormalBehaviourDetected(Class<? extends Event> eventClass, Track track) {
-        if (track.getMmsi() == 230618000 && eventClass == SpeedOverGroundEvent.class) {
-            System.out.print(line++ + " " + Thread.currentThread() + " AN " + track + " " + getEventScore(eventClass, track) + "\t");
-        }
-
         if (!getEventRaised(eventClass, track)) {
             int score = getEventScore(eventClass, track);
 
@@ -94,18 +89,10 @@ public class BehaviourManagerImpl implements BehaviourManager {
             setEventCertaintyOnCurrentPositionReport(eventClass, track);
             fireMaintainEvent(eventClass, track);
         }
-
-        if (track.getMmsi() == 230618000 && eventClass == SpeedOverGroundEvent.class) {
-            System.out.println("AN " + track + " " + getEventCertaintyAtCurrentPosition(eventClass, track) + " " + getEventRaised(eventClass, track) + " " + getEventScore(eventClass, track));
-        }
     }
 
     @Override
     public void normalBehaviourDetected(Class<? extends Event> eventClass, Track track) {
-        if (track.getMmsi() == 230618000 && eventClass == SpeedOverGroundEvent.class) {
-            System.out.print(line++ + " " + Thread.currentThread() + " NO " + track + " " + getEventScore(eventClass, track) + "\t");
-        }
-
         if (getEventRaised(eventClass, track)) {
             int score = getEventScore(eventClass, track);
 
@@ -128,11 +115,6 @@ public class BehaviourManagerImpl implements BehaviourManager {
             setEventScore(eventClass, track, 0);
             setEventCertaintyOnCurrentPositionReport(eventClass, track);
         }
-
-        if (track.getMmsi() == 230618000 && eventClass == SpeedOverGroundEvent.class) {
-            System.out.println("NO " + track + " " + getEventCertaintyAtCurrentPosition(eventClass, track) + " " + getEventRaised(eventClass, track) + " " + getEventScore(eventClass, track));
-        }
-
     }
 
     @Override
