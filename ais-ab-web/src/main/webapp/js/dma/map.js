@@ -26,8 +26,70 @@ var mapModule = {
         mapModule.constructGridLayer();
         mapModule.constructVesselLayer();
 
+        mapModule.initContextMenu();
+
         this.registerEventHandlers();
         this.zoomToDenmark();
+    },
+
+    initContextMenu: function() {
+        var contextMenuDef = [
+            {'Name': {disabled:true} },
+            {'IMO': {disabled:true} },
+            {'MMSI': {disabled:true}},
+            {'Callsign': {disabled:true} },
+            $.contextMenu.separator,
+            {'Show on VesselFinder.com ...':function(menuItem,menu) {
+                var evt = menu.originalEvent;
+                var feature = mapModule.getVesselLayer().getFeatureFromEvent(evt);
+                if (feature && feature.fid && feature.fid.match("^trackSymbol")) {
+                    var imo = feature.data.imo;
+                    if (imo) {
+                        var url = "http://www.vesselfinder.com/?imo=" + imo;
+                        window.open(url, '_blank');
+                    } else {
+                        alert("Sorry cannot lookup on VesselFinder.com because IMO no. is unknown.");
+                    }
+                }
+            }},
+            {'Show on MarineTraffic.com ...':function(menuItem,menu) {
+                var evt = menu.originalEvent;
+                var feature = mapModule.getVesselLayer().getFeatureFromEvent(evt);
+                if (feature && feature.fid && feature.fid.match("^trackSymbol")) {
+                    var mmsi = feature.data.mmsi;
+                    if (mmsi) {
+                        var url = "http://www.marinetraffic.com/en/ais/details/ships/" + mmsi;
+                        window.open(url, '_blank');
+                    } else {
+                        alert("Sorry cannot lookup on MarineTraffic.com because MMSI no. is unknown.");
+                    }
+                }
+            }}
+        ];
+
+        $('div#map').contextMenu(contextMenuDef, {
+            theme:'osx',
+            beforeShow: function() {
+                var feature = mapModule.getVesselLayer().getFeatureFromEvent(this.originalEvent);
+                if (feature && feature.fid && feature.fid.match("^trackSymbol")) {
+                    var fid = feature.fid;
+                    $('.context-menu-item:nth-child(1)').find('.context-menu-item-inner').html(feature.data.name);
+                    $('.context-menu-item:nth-child(2)').find('.context-menu-item-inner').html('IMO: ' + feature.data.imo);
+                    $('.context-menu-item:nth-child(3)').find('.context-menu-item-inner').html('MMSI: ' + feature.data.mmsi);
+                    $('.context-menu-item:nth-child(4)').find('.context-menu-item-inner').html('C/S: ' + feature.data.callsign);
+                    $('.context-menu-item:nth-child(6)').find('.context-menu-item-inner').removeClass('context-menu-item-disabled');
+                    $('.context-menu-item:nth-child(7)').find('.context-menu-item-inner').removeClass('context-menu-item-disabled');
+                }
+                else {
+                    $('.context-menu-item:nth-child(1)').find('.context-menu-item-inner').html('Name:');
+                    $('.context-menu-item:nth-child(2)').find('.context-menu-item-inner').html('IMO:');
+                    $('.context-menu-item:nth-child(3)').find('.context-menu-item-inner').html('MMSI:');
+                    $('.context-menu-item:nth-child(4)').find('.context-menu-item-inner').html('C/S:');
+                    $('.context-menu-item:nth-child(6)').find('.context-menu-item-inner').addClass('context-menu-item-disabled');
+                    $('.context-menu-item:nth-child(7)').find('.context-menu-item-inner').addClass('context-menu-item-disabled');
+                }
+            }
+        });
     },
 
     zoomTo: function(bounds) {
