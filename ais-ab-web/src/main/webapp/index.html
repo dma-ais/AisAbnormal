@@ -43,6 +43,12 @@
                         <li>No events</li>
                     </ul>
                 </div>
+                <div id="cell-data" class="row">
+                    <div class="col-md-12">
+                        <h4>Cell data</h4>
+                        <div class="cell-data-contents">...</div>
+                    </div>
+                </div>
             </div>
             <div class="col-md-3">
                 <div class="tabs">
@@ -78,12 +84,20 @@
                         <div class="useroutput" id="cell-layer-display-status">Cell layer hidden.</div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div id="cell-data" class="row">
-            <div class="col-md-12">
-                <h4>Cell data</h4>
-                <div class="cell-data-contents">...</div>
+                <div class="panel panel-default" style="margin-top: 10px;">
+                    <div class="panel-body">
+                        <div class="headline">Events shown</div>
+                        <table class="useroutput" id="events-shown" style="width: 240px; margin-left: 0px;" class="dataTable">
+                            <thead>
+                                <th>ID</th>
+                                <th>Vessel</th>
+                                <th style="margin-right: 0px;">&nbsp;</th>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
         <div id="push"></div>

@@ -30,6 +30,20 @@ var eventModule = {
                 eventModule.visualizeAllSearchResults();
                 $('#event-search-modal').modal('hide');
             });
+
+            $('#events-shown').dataTable({
+                "bFilter": false,
+                "bInfo": false,
+                "bPaginate": false,
+                "bLengthChange": true,
+                "bSort": true,
+                "bAutoWidth": false,
+                "aoColumnDefs": [
+                    {   "sWidth": "20px", "aTargets": [0] },
+                    {   "sWidth": "212px", "aTargets": [1] },
+                    {   "sWidth": "8px", "aTargets": [2] }
+                ]
+            });
         });
 
         $("#events-remove").click(function() {
@@ -43,6 +57,7 @@ var eventModule = {
 
     removeAllEvents: function() {
         mapModule.getVesselLayer().removeAllFeatures();
+        eventModule.synchronizeEventsOnMapWithTable();
     },
 
     formatTimestamp: function (t) {
@@ -232,5 +247,25 @@ var eventModule = {
 
     visualizeEvent: function(event) {
         vesselModule.addEvent(event);
+        eventModule.synchronizeEventsOnMapWithTable();
+    },
+
+    synchronizeEventsOnMapWithTable: function() {
+        var eventTable = $('#events-shown');
+        var events = vesselModule.getAllEvents();
+
+        eventTable.dataTable().fnClearTable();
+
+        $.each(events, function (i, event) {
+            eventTable.dataTable().fnAddData([
+                event.fid.substring('event-'.length),
+                event.data.jsonEvent.behaviour.vessel.name,
+                "<span id='" + event.fid + "' class='glyphicon glyphicon-film'></span>"
+            ]);
+
+            $("#events-shown #" + event.fid).on("click", function() {
+                eventModule.visualizeEvent(event.data.jsonEvent);
+            });
+        });
     }
 };

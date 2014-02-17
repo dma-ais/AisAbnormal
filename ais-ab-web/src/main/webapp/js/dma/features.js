@@ -24,6 +24,7 @@ var featureModule = {
 
     loadCells: function () {
         $('#cell-layer-load-status').html('Loading cells...');
+        $("body").css("cursor", "progress");
 
         var viewport = mapModule.map.getExtent();
 
@@ -53,8 +54,10 @@ var featureModule = {
                     }
                 });
                 $('#cell-layer-load-status').html(celldata.cells.length + ' cells loaded, ' + numCellsAdded + " added to map.");
+                $("body").css("cursor", "default");
             }).fail(function (jqXHR, textStatus) {
                 $('#cell-layer-load-status').html("Cell load failed: " + textStatus);
+                $("body").css("cursor", "default");
             });
     },
 

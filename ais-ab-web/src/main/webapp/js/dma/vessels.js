@@ -7,6 +7,17 @@ var vesselModule = {
     init: function () {
     },
 
+    getAllEvents: function() {
+        var events = [];
+        var features = mapModule.getVesselLayer().features;
+        $.each(features, function (i, feature) {
+            if (feature && feature.fid && feature.fid.match("^event-")) {
+                events.push(feature);
+            }
+        });
+        return events;
+    },
+
     addEvent: function(event) {
         var extent = eventModule.computeEventExtent(event);
 
@@ -17,7 +28,7 @@ var vesselModule = {
             console.log("Event id " + event.id + " already added to map.");
         }
 
-        var zoomExtent = eventModule.expandBounds(extent, 1000);
+        var zoomExtent = eventModule.expandBounds(extent, 20000);
 
         mapModule.zoomTo(zoomExtent);
     },
@@ -44,7 +55,10 @@ var vesselModule = {
             fillOpacity: 0.5
         };
         var eventBoxGeometry = new OpenLayers.Geometry.LinearRing(corners);
-        var eventBoxFeature = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Polygon([eventBoxGeometry]), null, eventBoxStyle);
+        var eventBoxFeature = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Polygon([eventBoxGeometry]),
+            {
+                jsonEvent: event
+            }, eventBoxStyle);
         eventBoxFeature.fid = "event-" + event.id;
 
         // Label
