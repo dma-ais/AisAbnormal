@@ -11,25 +11,129 @@ var mapModule = {
 
     projectionWGS84: null,
     projectionSphericalMercator: null,
+    projectionWebMercator: null,
 
     init: function() {
-        this.projectionWGS84 = new OpenLayers.Projection("EPSG:4326");
-        this.projectionSphericalMercator = new OpenLayers.Projection("EPSG:900913");
+        $('#map-enable-nautical-charts').submit(
+            function( event ) {
+                event.preventDefault();
 
-        this.map = new OpenLayers.Map("map");
-        this.map.addLayer(new OpenLayers.Layer.OSM());
+                var gstUsername = $('#map-gst-username').val();
+                if (! gstUsername) {
+                    alert("Please provide a username to display nautical charts.");
+                    return;
+                }
+
+                var gstPassword = $('#map-gst-password').val();
+                if (! gstPassword) {
+                    alert("Please provide a password to display nautical charts.");
+                    return;
+                }
+
+                mapModule.addNauticalLayers(gstUsername, gstPassword);
+            }
+        );
+
+        mapModule.projectionWGS84 = new OpenLayers.Projection("EPSG:4326");
+        mapModule.projectionSphericalMercator = new OpenLayers.Projection("EPSG:900913");
+        mapModule.projectionWebMercator = new OpenLayers.Projection("EPSG:3857");
+
+        mapModule.map = new OpenLayers.Map("map");
+        mapModule.map.addLayer(new OpenLayers.Layer.OSM());
 
         var zoom = new OpenLayers.Control.Zoom();
-        this.map.addControl(zoom);
+        mapModule.map.addControl(zoom);
         zoom.activate();
+
+        mapModule.map.addControl(new OpenLayers.Control.LayerSwitcher());
 
         mapModule.constructGridLayer();
         mapModule.constructVesselLayer();
 
         mapModule.initContextMenu();
 
-        this.registerEventHandlers();
-        this.zoomToDenmark();
+        mapModule.registerEventHandlers();
+        mapModule.zoomToDenmark();
+    },
+
+    addNauticalLayers: function (gstUsername, gstPassword) {
+        var url = "http://kortforsyningen.kms.dk/";
+
+        var layers = {
+            200: new OpenLayers.Layer.WMS("Default", url, {
+                layers: 'cells',
+                servicename: 'soe_enc',
+                transparent: 'true',
+                styles: 'default',
+                login: gstUsername,
+                password: gstPassword
+            }, {
+                isBaseLayer: false,
+                visibility: true,
+                projection: 'EPSG:3857'
+            }),
+            261: new OpenLayers.Layer.WMS("Base with paper chart symbols", url, {
+                layers: 'cells',
+                servicename: 'soe_enc',
+                transparent: 'true',
+                styles: 'default',
+                login: gstUsername,
+                password: gstPassword
+            }, {
+                isBaseLayer: false,
+                visibility: false,
+                projection: 'EPSG:3857'
+            }),
+            245: new OpenLayers.Layer.WMS("Full with paper chart symbols", url, {
+                layers: 'cells',
+                servicename: 'soe_enc',
+                transparent: 'true',
+                styles: 'default',
+                login: gstUsername,
+                password: gstPassword
+            }, {
+                isBaseLayer: false,
+                visibility: false,
+                projection: 'EPSG:3857'
+            }),
+            260: new OpenLayers.Layer.WMS("Full with ECDIS chart symbols", url, {
+                layers: 'cells',
+                servicename: 'soe_enc',
+                transparent: 'true',
+                styles: 'default',
+                login: gstUsername,
+                password: gstPassword
+            }, {
+                isBaseLayer: false,
+                visibility: false,
+                projection: 'EPSG:3857'
+            }),
+            246: new OpenLayers.Layer.WMS("Standard with paper chart symbols",
+                url, {
+                    layers: 'cells',
+                    servicename: 'soe_enc',
+                    transparent: 'true',
+                    styles: 'default',
+                    login: gstUsername,
+                    password: gstPassword
+                }, {
+                    isBaseLayer: false,
+                    visibility: false,
+                    projection: 'EPSG:3857'
+                })
+        };
+        for (var key in layers) {
+            try {
+                mapModule.map.removeLayer(layers[key]);
+            } catch (e) {
+            }
+        }
+        for (var key in layers) {
+            mapModule.map.addLayer(layers[key]);
+            mapModule.map.setLayerIndex(layers[key], 1);
+        }
+        mapModule.map.setLayerIndex(mapModule.getGridLayer(), 98);
+        mapModule.map.setLayerIndex(mapModule.getVesselLayer(), 99);
     },
 
     initContextMenu: function() {
@@ -159,7 +263,6 @@ var mapModule = {
         featureModule.loadCells();
         // Book-keeping
         mapModule.isGridLayerVisible = true;
-        $('#cell-layer-display-status').html('Cell layer visible.');
     },
 
     showVesselLayer: function () {
@@ -179,7 +282,6 @@ var mapModule = {
 
             // Book-keeping
             mapModule.isGridLayerVisible = false;
-            $('#cell-layer-display-status').html('Cell layer hidden.');
         }
     },
 
@@ -216,7 +318,7 @@ var mapModule = {
         });
 
         mapModule.map.addLayer(gridLayer);
-        mapModule.map.setLayerIndex(gridLayer, 1);
+        mapModule.map.setLayerIndex(gridLayer, 98);
     },
 
     constructVesselLayer: function () {
@@ -234,7 +336,7 @@ var mapModule = {
         });
 
         mapModule.map.addLayer(vesselLayer);
-        mapModule.map.setLayerIndex(vesselLayer, 2);
+        mapModule.map.setLayerIndex(vesselLayer, 99);
     },
 
     userOutputUpdateCursorPos: function (screenpos) {

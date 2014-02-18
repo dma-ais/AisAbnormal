@@ -109,7 +109,7 @@ var featureModule = {
         if (totalShipCount >= 1000) {
             strokeColor = "#66cc66";
         }
-        var fillOpacity = 0.05 + (Math.min(totalShipCount/500, 1))*0.9;
+        var fillOpacity = 0.05 + (Math.min(totalShipCount/500, 1))*0.5;
 
         var strokeOpacity = fillOpacity;
 
