@@ -15,9 +15,11 @@
  */
 package dk.dma.ais.abnormal.web;
 
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
@@ -33,24 +35,24 @@ import static org.openqa.selenium.By.cssSelector;
 import static org.openqa.selenium.By.id;
 import static org.openqa.selenium.support.ui.ExpectedConditions.not;
 import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentInElement;
+import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated;
 
 public class EventsIT {
 
-    private WebDriver browser;
-    private WebDriverWait wait;
+    private static WebDriver browser;
+    private static WebDriverWait wait;
 
-    @Before
-    public void setUp() {
+    @BeforeClass
+    public static void setUp() {
         browser = IntegrationTestHelper.createPhantomJSWebDriver();
         wait = new WebDriverWait(browser, 120);
+        IntegrationTestHelper.reloadWebApplication(browser);
+    }
 
-        try {
-            browser.get("http://127.0.0.1:8080/abnormal");
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    @Before
+    public void reloadWebApplication() {
+        IntegrationTestHelper.reloadWebApplication(browser);
     }
 
     @Test
@@ -64,9 +66,9 @@ public class EventsIT {
             WebElement ticker0Element = tickerElements.get(0);
             WebElement ticker1Element = tickerElements.get(1);
 
-            System.out.println("ticker0="+ticker0Element.getText());
+            System.out.println("ticker0=" + ticker0Element.getText());
             wait.until(ExpectedConditions.visibilityOf(ticker0Element));
-            System.out.println("ticker0="+ticker0Element.getText());
+            System.out.println("ticker0=" + ticker0Element.getText());
             assertTrue(ticker0Element.getText().matches(".*LOTUS.*"));
 
             System.out.println("ticker1=" + ticker1Element.getText());
@@ -171,6 +173,82 @@ public class EventsIT {
         }
     }
 
+    @Test
+    public void addsShownEventsToEventList() {
+        try {
+            // Assert events list empty
+            List<WebElement> eventsShown = browser.findElements(By.cssSelector("table#events-shown tbody > tr"));
+            assertEquals(1, eventsShown.size());
+            WebElement noElementsShown = browser.findElement(By.cssSelector("table#events-shown tbody > tr:nth-child(1) td"));
+            assertEquals("No data available in table", noElementsShown.getText());
+
+            // Search event by vessel and display it on map
+            navigateToSearchDialogAndSearchEventsByVessel();
+            WebElement icon = browser.findElement(By.cssSelector("span#result-1.glyphicon"));
+            icon.click();
+            WebElement close = browser.findElement(By.id("search-close"));
+            close.click();
+            wait.until( not(visibilityOf(browser.findElement(id("event-search-modal")))) );
+
+            // Assert that event list was updated with event
+            eventsShown = browser.findElements(By.cssSelector("table#events-shown tbody > tr"));
+            assertEquals(1, eventsShown.size());
+            List<WebElement> elementShown = browser.findElements(By.cssSelector("table#events-shown tbody > tr td"));
+            assertEquals(3, elementShown.size());
+            assertEquals("FINNSEA", elementShown.get(1).getText());
+
+            // Assert that showing same event again does not cause duplicate on list
+            navigateToSearchDialogAndSearchEventsByVessel();
+            icon = browser.findElement(By.cssSelector("span#result-1.glyphicon"));
+            icon.click();
+            close = browser.findElement(By.id("search-close"));
+            close.click();
+            wait.until( not(visibilityOf(browser.findElement(id("event-search-modal")))) );
+
+            eventsShown = browser.findElements(By.cssSelector("table#events-shown tbody > tr"));
+            assertEquals(1, eventsShown.size());
+            elementShown = browser.findElements(By.cssSelector("table#events-shown tbody > tr td"));
+            assertEquals(3, elementShown.size());
+            assertEquals("FINNSEA", elementShown.get(1).getText());
+
+            // Assert that adding another event shows up on list
+            navigateToSearchDialogAndSearchEventsByVessel();
+            icon = browser.findElement(By.cssSelector("span#result-17.glyphicon"));
+            icon.click();
+            close = browser.findElement(By.id("search-close"));
+            close.click();
+            wait.until( not(visibilityOf(browser.findElement(id("event-search-modal")))) );
+
+            eventsShown = browser.findElements(By.cssSelector("table#events-shown tbody > tr"));
+            assertEquals(2, eventsShown.size());
+
+            // Assert that removing all events from the map clears the event list
+            WebElement button = browser.findElement(By.id("events-remove"));
+            button.click();
+
+            eventsShown = browser.findElements(By.cssSelector("table#events-shown tbody > tr"));
+            assertEquals(1, eventsShown.size());
+            noElementsShown = browser.findElement(By.cssSelector("table#events-shown tbody > tr:nth-child(1) td"));
+            assertEquals("No data available in table", noElementsShown.getText());
+        } catch (AssertionError e) {
+            IntegrationTestHelper.takeScreenshot(browser, "error");
+            throw e;
+        } catch (WebDriverException e) {
+            IntegrationTestHelper.takeScreenshot(browser, "error");
+            throw e;
+        }
+    }
+
+    private void navigateToSearchDialogAndSearchEventsByVessel() {
+        navigateToSearchDialog();
+        WebElement vesselNameCallsignImoField = browser.findElement(id("search-event-vessel"));
+        vesselNameCallsignImoField.clear();
+        vesselNameCallsignImoField.sendKeys("FINNSEA");
+        WebElement searchByOtherButton = browser.findElement(id("event-search-by-other"));
+        searchByOtherButton.click();
+        assertNumberOfSearchResults(2);
+    }
+
     private void assertNumberOfSearchResults(int expectedNumberOfSearchResults) {
         WebElement searchStatus = browser.findElement(cssSelector("div.search-status"));
         try {
@@ -182,8 +260,8 @@ public class EventsIT {
         assertEquals("Found " + String.valueOf(expectedNumberOfSearchResults)+ " matching events.", searchStatus.getText());
     }
 
-    @After
-    public void tearDown() {
+    @AfterClass
+    public static void tearDown() {
         browser.close();
     }
 

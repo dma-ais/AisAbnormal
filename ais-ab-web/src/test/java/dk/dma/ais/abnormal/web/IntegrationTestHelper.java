@@ -76,6 +76,10 @@ public class IntegrationTestHelper {
         }
     }
 
+    public static void reloadWebApplication(WebDriver driver) {
+        driver.get("http://127.0.0.1:8080/abnormal");
+    }
+
     private static String calledByClass() {
         StackTraceElement[] stacktrace = Thread.currentThread().getStackTrace();
         StackTraceElement e = stacktrace[3];
