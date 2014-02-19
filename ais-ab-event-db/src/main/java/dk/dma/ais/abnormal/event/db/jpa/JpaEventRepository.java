@@ -238,8 +238,9 @@ public class JpaEventRepository implements EventRepository {
 
         T event = null;
         try {
-            Query query = session.createQuery("SELECT e FROM Event e WHERE TYPE(e)=:class AND e.state=:state AND e.behaviour.vessel.mmsi=:mmsi");
-            query.setParameter("class", eventClass);
+            Query query = session.createQuery("SELECT e FROM Event e WHERE TYPE(e) = :clazz AND e.state = :state AND e.behaviour.vessel.mmsi = :mmsi");
+            query.setCacheable(true);
+            query.setParameter("clazz", eventClass);
             query.setString("state", "ONGOING");
             query.setInteger("mmsi", mmsi);
             List events = query.list();

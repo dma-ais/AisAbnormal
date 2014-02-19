@@ -57,9 +57,13 @@ public final class JpaSessionFactoryFactory {
                 .setProperty("hibernate.connection.password", "")
                 .setProperty("hibernate.default_schema", "PUBLIC")
                 .setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect")
-                        //.setProperty("hibernate.show_sql", "true")
+                //.setProperty("hibernate.show_sql", "true")
                 .setProperty("hibernate.hbm2ddl.auto", "update")
                 .setProperty("hibernate.order_updates", "true")
+                .setProperty("hibernate.cache.provider_class", "org.hibernate.cache.EhCacheProvider")
+                .setProperty("hibernate.cache.use_second_level_cache", "true")
+                .setProperty("hibernate.cache.use_query_cache", "true")
+                .setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory")
                 .addAnnotatedClass(CourseOverGroundEvent.class)
                 .addAnnotatedClass(SpeedOverGroundEvent.class)
                 .addAnnotatedClass(ShipSizeOrTypeEvent.class)
@@ -67,6 +71,7 @@ public final class JpaSessionFactoryFactory {
                 .addAnnotatedClass(Vessel.class)
                 .addAnnotatedClass(Behaviour.class)
                 .addAnnotatedClass(TrackingPoint.class);
+
         ServiceRegistryBuilder serviceRegistryBuilder = new ServiceRegistryBuilder();
         serviceRegistryBuilder.applySettings(configuration.getProperties());
         ServiceRegistry serviceRegistry = serviceRegistryBuilder.buildServiceRegistry();
@@ -100,10 +105,14 @@ public final class JpaSessionFactoryFactory {
                 .setProperty("hibernate.connection.password", dbPassword)
                 .setProperty("hibernate.default_schema", "PUBLIC")
                 .setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect")
-               //.setProperty("hibernate.show_sql", "true")
+                //.setProperty("hibernate.show_sql", "true")
                 .setProperty("hibernate.hbm2ddl.auto", "update")
                 .setProperty("hibernate.order_updates", "true")
                 .setProperty("hibernate.connection_pool_size", "1")
+                .setProperty("hibernate.cache.provider_class", "org.hibernate.cache.EhCacheProvider")
+                .setProperty("hibernate.cache.use_second_level_cache", "true")
+                .setProperty("hibernate.cache.use_query_cache", "true")
+                .setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory")
                 .addAnnotatedClass(CourseOverGroundEvent.class)
                 .addAnnotatedClass(SpeedOverGroundEvent.class)
                 .addAnnotatedClass(ShipSizeOrTypeEvent.class)
@@ -111,6 +120,7 @@ public final class JpaSessionFactoryFactory {
                 .addAnnotatedClass(Vessel.class)
                 .addAnnotatedClass(Behaviour.class)
                 .addAnnotatedClass(TrackingPoint.class);
+
         ServiceRegistryBuilder serviceRegistryBuilder = new ServiceRegistryBuilder();
         serviceRegistryBuilder.applySettings(configuration.getProperties());
         ServiceRegistry serviceRegistry = serviceRegistryBuilder.buildServiceRegistry();
