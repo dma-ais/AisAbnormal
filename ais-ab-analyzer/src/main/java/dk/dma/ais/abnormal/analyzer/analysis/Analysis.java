@@ -169,13 +169,15 @@ public abstract class Analysis {
                 EventCertainty eventCertaintyTmp = (EventCertainty) trackingReport.getProperty(eventCertaintyKey);
                 TrackingPoint.EventCertainty eventCertainty = eventCertaintyTmp == null ? TrackingPoint.EventCertainty.UNDEFINED : TrackingPoint.EventCertainty.create(eventCertaintyTmp.getCertainty());
 
-                addTrackingPoint(event,
-                        new Date(trackingReport.getTimestamp()),
-                        trackingReport.getPosition(),
-                        trackingReport.getCourseOverGround(), // cog
-                        trackingReport.getSpeedOverGround(), // sog
-                        trackingReport.isInterpolated(),
-                        eventCertainty);
+                if (eventCertainty != TrackingPoint.EventCertainty.UNDEFINED) /* Small hack to store one TP per grid cell */ {
+                    addTrackingPoint(event,
+                            new Date(trackingReport.getTimestamp()),
+                            trackingReport.getPosition(),
+                            trackingReport.getCourseOverGround(),
+                            trackingReport.getSpeedOverGround(),
+                            trackingReport.isInterpolated(),
+                            eventCertainty);
+                }
             }
         }
     }
