@@ -106,8 +106,6 @@ public class SpeedOverGroundAnalysis extends FeatureDataBasedAnalysis {
         } else {
             getBehaviourManager().normalBehaviourDetected(SpeedOverGroundEvent.class, track);
         }
-
-        statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events processed");
     }
 
     @AllowConcurrentEvents
@@ -237,6 +235,8 @@ public class SpeedOverGroundAnalysis extends FeatureDataBasedAnalysis {
                 .getEvent();
 
         addPreviousTrackingPoints(event, track);
+
+        statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events raised");
 
         return event;
     }

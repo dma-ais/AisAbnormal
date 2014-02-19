@@ -100,6 +100,7 @@ public class CloseEncounterAnalysis extends Analysis {
 
     @Override
     protected Event buildEvent(Track track) {
+        statisticsService.incAnalysisStatistics(analysisName, "Events raised");
         return null;
     }
 

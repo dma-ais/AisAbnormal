@@ -183,11 +183,12 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
 
         addPreviousTrackingPoints(event, track);
 
+        statisticsService.incAnalysisStatistics(analysisName, "Events raised");
+
         return event;
     }
 
     private void raiseAndLowerSuddenSpeedChangeEvent(Track track) {
-        statisticsService.incAnalysisStatistics(analysisName, "Total speed change evts");
         raiseOrMaintainAbnormalEvent(SuddenSpeedChangeEvent.class, track);
         lowerExistingAbnormalEventIfExists(SuddenSpeedChangeEvent.class, track);
     }

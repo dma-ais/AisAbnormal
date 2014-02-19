@@ -34,6 +34,7 @@ import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
 import dk.dma.enav.model.geometry.grid.Grid;
+import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,12 +103,17 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     EventRepository provideEventRepository() {
         SessionFactory sessionFactory;
 
-        if ("h2".equalsIgnoreCase(eventRepositoryType)) {
-            sessionFactory = JpaSessionFactoryFactory.newH2SessionFactory(new File(pathToEventDatabase));
-        } else if ("pgsql".equalsIgnoreCase(eventRepositoryType)) {
-            sessionFactory = JpaSessionFactoryFactory.newPostgresSessionFactory(eventDataDbHost, eventDataDbPort, eventDataDbName, eventDataDbUsername, eventDataDbPassword);
-        } else {
-            throw new IllegalArgumentException("eventRepositoryType: " + eventRepositoryType);
+        try {
+            if ("h2".equalsIgnoreCase(eventRepositoryType)) {
+                    sessionFactory = JpaSessionFactoryFactory.newH2SessionFactory(new File(pathToEventDatabase));
+            } else if ("pgsql".equalsIgnoreCase(eventRepositoryType)) {
+                sessionFactory = JpaSessionFactoryFactory.newPostgresSessionFactory(eventDataDbHost, eventDataDbPort, eventDataDbName, eventDataDbUsername, eventDataDbPassword);
+            } else {
+                throw new IllegalArgumentException("eventRepositoryType: " + eventRepositoryType);
+            }
+        } catch (HibernateException e) {
+            LOG.error(e.getMessage(), e);
+            throw e;
         }
 
         return new JpaEventRepository(sessionFactory, false);

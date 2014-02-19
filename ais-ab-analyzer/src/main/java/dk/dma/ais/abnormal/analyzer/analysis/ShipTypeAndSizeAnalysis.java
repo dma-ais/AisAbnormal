@@ -103,8 +103,6 @@ public class ShipTypeAndSizeAnalysis extends FeatureDataBasedAnalysis {
         } else {
             getBehaviourManager().normalBehaviourDetected(ShipSizeOrTypeEvent.class, track);
         }
-
-        statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events processed");
     }
 
     @AllowConcurrentEvents
@@ -231,6 +229,8 @@ public class ShipTypeAndSizeAnalysis extends FeatureDataBasedAnalysis {
                 .getEvent();
 
         addPreviousTrackingPoints(event, track);
+
+        statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events raised");
 
         return event;
     }

@@ -112,8 +112,6 @@ public class CourseOverGroundAnalysis extends FeatureDataBasedAnalysis {
         } else {
             getBehaviourManager().normalBehaviourDetected(CourseOverGroundEvent.class, track);
         }
-
-        statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events processed");
     }
 
     @AllowConcurrentEvents
@@ -246,6 +244,8 @@ public class CourseOverGroundAnalysis extends FeatureDataBasedAnalysis {
                 .getEvent();
 
         addPreviousTrackingPoints(event, track);
+
+        statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events raised");
 
         return event;
     }
