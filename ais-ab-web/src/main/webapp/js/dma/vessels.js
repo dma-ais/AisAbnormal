@@ -213,7 +213,7 @@ var vesselModule = {
 
             if (event.courseOverGround) {
                 var cogBucket = parseInt(event.courseOverGround);
-                tooltip += "\nSpeed: " + cogBucket + " (" + featureModule.categories['cog'][cogBucket] + ")"
+                tooltip += "\nCourse: " + cogBucket + " (" + featureModule.categories['cog'][cogBucket] + ")"
             }
 
             trackSymbolFeature.style.title = tooltip;
