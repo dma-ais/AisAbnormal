@@ -11,3 +11,5 @@ target
 .idea/
 *.iml
 
+ais-ab-web/dependency-reduced-pom.xml
+
