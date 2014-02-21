@@ -31,6 +31,13 @@ used as a basis for the event.
 charts (including nautical charts available via [WMS](http://en.wikipedia.org/wiki/Web_Map_Service)), vessels, grid/cells,
 statistical data and detected abnormal events.
 
+The architecture can be visualized like this:
+
+![The big picture](documentation/architecture/architecture.png "AisAbnormal system architecture")
+
+In the diagram the "AIS sources" can be files with recorded AIS data, or network streams with live or recorded data.
+The bold elipses depict executables, which are described in further detail below.
+
 # Prerequisites #
 
 AisAbnormal is programmed in:
@@ -336,7 +343,7 @@ This module holds a command line tool to analyze AIS data for abnormal events. S
 
 Interface and implementation of an event database API, which is used by both the analyzer and the web application.
 
-Currently two implementations of the event-db interfacce are provided:
+Currently two implementations of the event-db interface are provided:
 
 - H2
 - Postgres

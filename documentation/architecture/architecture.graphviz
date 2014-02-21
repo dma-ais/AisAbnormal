@@ -1,0 +1,21 @@
+/*
+  This is a graphviz file.
+  Generate diagram with e.g. "dot architecture.graphviz -Tpng -o architecture.png"
+*/
+
+digraph AisAbnormalBehaviour {
+  ais_data_1 [label="AIS source", shape=box]
+  ais_data_2 [label="AIS source", shape=box]
+  stat_builder [penwidth=2, label="Statistics builder"]
+  analyzer [penwidth=2, label="Analyzer"] 
+  webapp [penwidth=2, label="Web application"]
+  stat_db [label="Statistics database"]
+  event_db [shape=DatabaseShape, label="Event database"]
+
+  ais_data_1 -> analyzer [label="AIS data"]
+  ais_data_2 -> stat_builder [label="AIS data"]
+  stat_builder -> stat_db  [label="Statistics"]
+  analyzer -> event_db [label="Events"]
+  stat_db -> webapp [label="Statistics"]
+  event_db -> webapp [label="Events"]
+}
