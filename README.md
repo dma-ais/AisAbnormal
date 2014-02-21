@@ -321,6 +321,11 @@ Once the web application has launched it can be accessed from a browser, e.g. lo
 
          http://localhost:8080/abnormal/
 
+Once the web application server part is launched and a browser pointed to it, the expected initial browser screen
+looks like this:
+
+![Web application startup screenshot](documentation/webapp/webapp-init.png "AisAbnormal web application - right after startup.")
+
 <font color='red'>_Note! Until further, it is necessary to launch the application with the current directory being ais-ab-web (so that
 static assets assumed by the program to be in src/main/webapp are available)._</font>
 
