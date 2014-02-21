@@ -9,8 +9,8 @@ digraph AisAbnormalBehaviour {
   stat_builder [penwidth=2, label="Statistics builder"]
   analyzer [penwidth=2, label="Analyzer"] 
   webapp [penwidth=2, label="Web application"]
-  stat_db [label="Statistics database"]
-  event_db [shape=DatabaseShape, label="Event database"]
+  stat_db [shape=octagon, label="Statistics database"]
+  event_db [shape=octagon, label="Event database"]
 
   ais_data_1 -> analyzer [label="AIS data"]
   ais_data_2 -> stat_builder [label="AIS data"]
