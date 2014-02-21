@@ -4,13 +4,13 @@ AisAbnormal
 # Introduction #
 
 AisAbnormal is a system to work with maritime data received via the
-"[Automatic Identification System](http://en.wikipedia.org/wiki/Automatic_Identification_System)" , abbreviated
+[Automatic Identification System](http://en.wikipedia.org/wiki/Automatic_Identification_System), abbreviated
 AIS. AIS data contain information about vessel's identities, positions, draughts, manouvering intentions, and more.
 An AIS data stream therefore makes it possible to maintain a detailed picture of maritime traffic.
 
 The purpose of AisAbnormal is to detect "abnormal" vessel behaviours in real-time, so as to aid marine traffic
 controllers and others to determine which of many screen targets to focus their attention to. AisAbnormal can
-also be used on off-line mode to batch analyse historic, non real-time data.
+also be used in off-line mode to batch analyse historic, non real-time data.
 
 # Architecture #
 
@@ -36,10 +36,15 @@ The architecture can be visualized like this:
 ![The big picture](documentation/architecture/architecture.png "AisAbnormal system architecture")
 
 In the diagram the "AIS sources" can be files with recorded AIS data, or network streams with live or recorded data.
-The bold elipses depict executables, which are described in further detail below.
+The bold ellipses depict executables, which are described in further detail below.
 
 # Prerequisites #
+The only prerequisite for running the executables in AisAbnormal is a standard instance of the Java 8 runtime
+environment (JRE) which can be downloaded from Oracle's website. Until March 2014 only early access versions are available.
 
+[Download Java 8 runtime](http://www.oracle.com/technetwork/java/javase/downloads/ea-jsp-142245.html).
+
+# Dependencies #
 AisAbnormal is programmed in:
 
 * Java 8
@@ -64,7 +69,7 @@ and standing on the shoulders of amongst others:
 unit and functional tested using
 
 * [JUnit](http://junit.org/)
-* [JMock]()
+* [JMock](http://jmock.org/)
 * [Selenium](http://seleniumhq.org/)
 * [PhantomJS](http://phantomjs.org/)
 * [GhostDriver](https://github.com/detro/ghostdriver)
@@ -273,6 +278,9 @@ purpose the analyzer can connect to and use a separately installed, configured, 
 database accessible via the designated IP, port, database name, user name and password.
 
 ## Web application ##
+
+### Starting ###
+
 The web application contains an embedded web server, and it does therefore not need to be deployed in a traditional
 Java middleware server. Instead, the web application can be started like this:
 
@@ -313,8 +321,8 @@ Once the web application has launched it can be accessed from a browser, e.g. lo
 
          http://localhost:8080/abnormal/
 
-_Note! Until further, it is necessary to launch the application with the current directory being ais-ab-web (so that
-static assets assumed by the program to be in src/main/webapp are available)._
+<font color='red'>_Note! Until further, it is necessary to launch the application with the current directory being ais-ab-web (so that
+static assets assumed by the program to be in src/main/webapp are available)._</font>
 
 # Modules ##
 
