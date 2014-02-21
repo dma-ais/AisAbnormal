@@ -119,6 +119,8 @@ This will produce a helpful output like this:
            Recursive directory scan
            Default: false
 
+The -mt option is currently experimental and may be subject to be removed.
+
 As an example: To launch the stat-builder where it reads AIS input from a compressed plain text file
 named aisdump_dk.txt.gz, downsamples these messages by 10 seconds, uses a cell size of 200 metres for the grid
 system, and stores the output in a file called test-stats.feature - use this command line:
@@ -127,11 +129,14 @@ system, and stores the output in a file called test-stats.feature - use this com
 
 ### Output ###
 The stat-builder produces two files: One with the extension .featureData
-and one with the extension .featureData.p. E.g. test-stats.featureData and test-stats.featureData.p.
+and one with the extension .featureData.p:
+
+    $ ls -l features/
+     -rw-r--r--+ 1 tbsalling  staff      131072 20 Feb 15:06 test-stats.featureData
+     -rw-r--r--+ 1 tbsalling  staff     6291456 20 Feb 15:06 test-stats.featureData.p
+
 It is important to keep these two files together and keep them together as a pair if moving or copying
 them around in the file system.
-
-The -mt option is currently experimental and may be subject to be removed.
 
 ## Analyzer ##
 
