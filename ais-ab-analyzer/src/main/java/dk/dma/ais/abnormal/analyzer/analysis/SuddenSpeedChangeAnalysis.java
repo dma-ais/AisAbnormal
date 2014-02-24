@@ -170,7 +170,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
                         .longitude(prevPosition.getLongitude())
             .getEvent();
 
-        event.getBehaviour().addTrackingPoint(
+        event.getBehaviour(mmsi).addTrackingPoint(
             TrackingPointBuilder.TrackingPoint()
                 .timestamp(timestamp)
                 .positionInterpolated(interpolated)

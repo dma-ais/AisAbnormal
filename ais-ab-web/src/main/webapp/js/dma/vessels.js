@@ -76,7 +76,7 @@ var vesselModule = {
     },
 
     addBehavior: function(event) {
-        var behaviour = event.behaviour;
+        var behaviour = event.behaviours[0];
         var trackingPoints = behaviour.trackingPoints;
         var vessel = behaviour.vessel;
 

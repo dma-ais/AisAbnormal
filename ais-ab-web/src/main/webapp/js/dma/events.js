@@ -139,7 +139,7 @@ var eventModule = {
         searchResultHtml += "<td>" + eventModule.camelCaseToSentenceCase(eventType); + "</td>";
         searchResultHtml += "<td>" + eventStart + "</td>";
         searchResultHtml += "<td>" + eventEnd + "</td>";
-        searchResultHtml += "<td>" + event.behaviour.vessel.name + "</td>";
+        searchResultHtml += "<td>" + event.behaviours[0].vessel.name + "</td>";
         searchResultHtml += "</tr>";
 
         $('#event-search-modal .search-results .search-data tbody').append(searchResultHtml);
@@ -218,12 +218,13 @@ var eventModule = {
     computeEventExtent: function(event) {
         var bounds = new OpenLayers.Bounds();
 
-        var trackingPoints = event.behaviour.trackingPoints;
-        $.each(trackingPoints, function (idx, trackingPoint) {
-            var point = new OpenLayers.LonLat(trackingPoint.longitude, trackingPoint.latitude);
-            if (trackingPoint.eventCertainty == 'RAISED' || trackingPoint.eventCertainty == 'UNCERTAIN') {
-                bounds.extend(point);
-            }
+        $.each(event.behaviours, function (idx, behaviour) {
+            $.each(behaviour.trackingPoints, function (idx, trackingPoint) {
+                var point = new OpenLayers.LonLat(trackingPoint.longitude, trackingPoint.latitude);
+                if (trackingPoint.eventCertainty == 'RAISED' || trackingPoint.eventCertainty == 'UNCERTAIN') {
+                    bounds.extend(point);
+                }
+            });
         });
 
         return eventModule.expandBounds(bounds, 1000);
@@ -259,7 +260,7 @@ var eventModule = {
         $.each(events, function (i, event) {
             eventTable.dataTable().fnAddData([
                 event.fid.substring('event-'.length),
-                event.data.jsonEvent.behaviour.vessel.name,
+                event.data.jsonEvent.behaviours[0].vessel.name,
                 "<span id='" + event.fid + "' class='glyphicon glyphicon-film'></span>"
             ]);
 

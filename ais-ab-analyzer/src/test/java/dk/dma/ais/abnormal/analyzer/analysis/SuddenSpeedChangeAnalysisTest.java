@@ -92,11 +92,11 @@ public class SuddenSpeedChangeAnalysisTest {
 
         SuddenSpeedChangeEvent capturedEvent = eventCaptor.getCapturedObject();
         assertEquals("SuddenSpeedChangeEvent", capturedEvent.getEventType());
-        assertEquals(123456, capturedEvent.getBehaviour().getVessel().getMmsi());
+        assertEquals(123456, capturedEvent.getBehaviour(track.getMmsi()).getVessel().getMmsi());
         assertTrue(capturedEvent.getStartTime().before(capturedEvent.getEndTime()));
-        assertEquals(2, capturedEvent.getBehaviour().getTrackingPoints().size());
-        assertEquals(12.2, capturedEvent.getBehaviour().getTrackingPoints().first().getSpeedOverGround(), 1e-6);
-        assertEquals(0.1, capturedEvent.getBehaviour().getTrackingPoints().last().getSpeedOverGround(), 1e-6);
+        assertEquals(2, capturedEvent.getBehaviour(track.getMmsi()).getTrackingPoints().size());
+        assertEquals(12.2, capturedEvent.getBehaviour(track.getMmsi()).getTrackingPoints().first().getSpeedOverGround(), 1e-6);
+        assertEquals(0.1, capturedEvent.getBehaviour(track.getMmsi()).getTrackingPoints().last().getSpeedOverGround(), 1e-6);
         context.assertIsSatisfied();
     }
 

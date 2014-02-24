@@ -114,10 +114,10 @@ public class JpaEventRepository implements EventRepository {
             StringBuilder hql = new StringBuilder();
 
             if (north != null && east != null && south != null && west != null) {
-                hql.append("SELECT DISTINCT e FROM Event e LEFT JOIN e.behaviour AS b LEFT JOIN b.trackingPoints AS tp WHERE latitude<:north AND latitude>:south AND longitude<:east AND longitude>:west AND ");
+                hql.append("SELECT DISTINCT e FROM Event e LEFT JOIN e.behaviours AS b LEFT JOIN b.trackingPoints AS tp WHERE latitude<:north AND latitude>:south AND longitude<:east AND longitude>:west AND ");
                 usesArea = true;
             } else {
-                hql.append("SELECT e FROM Event e WHERE ");
+                hql.append("SELECT e FROM Event e LEFT JOIN e.behaviours AS b WHERE ");
             }
 
             // from
@@ -141,12 +141,12 @@ public class JpaEventRepository implements EventRepository {
             // vessel
             if (! StringUtils.isBlank(vessel)) {
                 hql.append("(");
-                hql.append("e.behaviour.vessel.callsign LIKE :vessel OR ");
-                hql.append("e.behaviour.vessel.name LIKE :vessel OR ");
+                hql.append("b.vessel.callsign LIKE :vessel OR ");
+                hql.append("b.vessel.name LIKE :vessel OR ");
                 try {
                     Long vesselAsLong = Long.valueOf(vessel);
-                    hql.append("e.behaviour.vessel.mmsi = :vessel OR ");
-                    hql.append("e.behaviour.vessel.imo = :vessel OR ");
+                    hql.append("b.vessel.mmsi = :vessel OR ");
+                    hql.append("b.vessel.imo = :vessel OR ");
                 } catch (NumberFormatException e) {
                 }
                 hql.replace(hql.length()-3, hql.length(), ")"); // "OR " -> ")"
@@ -238,7 +238,7 @@ public class JpaEventRepository implements EventRepository {
 
         T event = null;
         try {
-            Query query = session.createQuery("SELECT e FROM Event e WHERE TYPE(e) = :clazz AND e.state = :state AND e.behaviour.vessel.mmsi = :mmsi");
+            Query query = session.createQuery("SELECT e FROM Event e LEFT JOIN e.behaviours b WHERE TYPE(e) = :clazz AND e.state = :state AND b.vessel.mmsi = :mmsi");
             query.setCacheable(true);
             query.setParameter("clazz", eventClass);
             query.setString("state", "ONGOING");

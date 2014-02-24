@@ -17,6 +17,7 @@
 package dk.dma.ais.abnormal.event.db.domain;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -26,10 +27,13 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * This abstract class is the common class of all Events. An event describes some sort of abnormal behaviour
@@ -68,8 +72,8 @@ public abstract class Event {
     /**
      * The behaviour observed in connection with this event
      */
-    @OneToOne (fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Behaviour behaviour;
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<Behaviour> behaviours;
 
     /**
      * A textual description of the event in English language.
@@ -77,6 +81,7 @@ public abstract class Event {
     private String description;
 
     protected Event() {
+        this.behaviours = new HashSet<>();
     }
 
     public long getId() {
@@ -111,12 +116,21 @@ public abstract class Event {
         this.endTime = endTime;
     }
 
-    public Behaviour getBehaviour() {
+    public Behaviour getBehaviour(int mmsi) {
+        Behaviour behaviour = null;
+        try {
+            behaviour = behaviours.stream().filter(b -> b.getVessel().getMmsi() == mmsi).findFirst().get();
+        } catch (NoSuchElementException e) {
+        }
         return behaviour;
     }
 
-    public void setBehaviour(Behaviour behaviour) {
-        this.behaviour = behaviour;
+    public Set<Behaviour> getBehaviours() {
+        return ImmutableSet.copyOf(behaviours);
+    }
+
+    public void addBehaviour(Behaviour behaviour) {
+        this.behaviours.add(behaviour);
     }
 
     public String getDescription() {
@@ -132,7 +146,6 @@ public abstract class Event {
         return Objects.toStringHelper(this)
                 .add("startTime", startTime)
                 .add("endTime", endTime)
-                .add("behaviour", behaviour)
                 .add("description", description)
                 .toString();
     }

@@ -38,8 +38,8 @@ var tickerModule = {
         var s = eventModule.formatTimestamp(event.startTime) + ": "
                 + (event.state == 'ONGOING' ? "Ongoing " : "Past ")
                 + eventModule.camelCaseToSentenceCase(event.eventType).toLowerCase() + " event involving "
-                + event.behaviour.vessel.name + " "
-                + "(" + event.behaviour.vessel.callsign + ") "
+                + event.behaviours[0].vessel.name + " "
+                + "(" + event.behaviours[0].vessel.callsign + ") "
                 + " near "
                 + "["
                 + OpenLayers.Util.getFormattedLonLat(bounds.getCenterLonLat().lat, 'lat', 'dms')

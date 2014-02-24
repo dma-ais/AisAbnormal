@@ -69,12 +69,12 @@ public class EventsIT {
             System.out.println("ticker0=" + ticker0Element.getText());
             wait.until(ExpectedConditions.visibilityOf(ticker0Element));
             System.out.println("ticker0=" + ticker0Element.getText());
-            assertTrue(ticker0Element.getText().matches(".*LOTUS.*"));
+            assertTrue(ticker0Element.getText().matches(".*HUDSONBORG.*"));
 
             System.out.println("ticker1=" + ticker1Element.getText());
             wait.until(ExpectedConditions.visibilityOf(ticker1Element));
             System.out.println("ticker1=" + ticker1Element.getText());
-            assertTrue(ticker1Element.getText().matches(".*FINNSEA.*"));
+            assertTrue(ticker1Element.getText().matches(".*KLAVERBANK.*"));
 
             // Assert that event in ticker can be clicked
             ticker1Element.findElement(cssSelector("span.glyphicon")).click();
@@ -94,11 +94,18 @@ public class EventsIT {
             WebElement searchModal = browser.findElement(id("event-search-modal"));
             assertFalse(searchModal.isDisplayed());
 
+            // Tab
             WebElement eventsTab = browser.findElement(id("tab-events"));
             eventsTab.click();
+
+            // Button
+            wait.until(visibilityOfElementLocated(id("events-search")));
             WebElement searchButton = browser.findElement(id("events-search"));
             searchButton.click();
+
+            // Popup
             wait.until(visibilityOfElementLocated(id("event-search-modal")));
+            wait.until(visibilityOfElementLocated(id("event-search-by-other")));
             assertTrue(searchModal.isDisplayed());
 
             // Ensure that "search-by-other" tab on search dialog is displayed
@@ -121,7 +128,7 @@ public class EventsIT {
         try {
             WebElement searchByOtherButton = browser.findElement(id("event-search-by-other"));
             searchByOtherButton.click();
-            assertNumberOfSearchResults(18);
+            assertNumberOfSearchResults(8);
         } catch (AssertionError e) {
             IntegrationTestHelper.takeScreenshot(browser, "error");
             throw e;
@@ -136,10 +143,10 @@ public class EventsIT {
         navigateToSearchDialog();
         try {
             WebElement vesselNameCallsignImoField = browser.findElement(id("search-event-vessel"));
-            vesselNameCallsignImoField.sendKeys("FINNSEA");
+            vesselNameCallsignImoField.sendKeys("L");
             WebElement searchByOtherButton = browser.findElement(id("event-search-by-other"));
             searchByOtherButton.click();
-            assertNumberOfSearchResults(2);
+            assertNumberOfSearchResults(4);
         } catch (AssertionError e) {
             IntegrationTestHelper.takeScreenshot(browser, "error");
             throw e;
@@ -154,7 +161,7 @@ public class EventsIT {
         canShowSearchByVesselName();
         try {
             // Click on search result
-            WebElement glyphIcon = browser.findElement(cssSelector("div.search-data span#result-17.glyphicon"));
+            WebElement glyphIcon = browser.findElement(cssSelector("div.search-data span#result-7.glyphicon"));
             glyphIcon.click();
 
             // Assert search modal closes
@@ -184,7 +191,7 @@ public class EventsIT {
 
             // Search event by vessel and display it on map
             navigateToSearchDialogAndSearchEventsByVessel();
-            WebElement icon = browser.findElement(By.cssSelector("span#result-1.glyphicon"));
+            WebElement icon = browser.findElement(By.cssSelector("span#result-4.glyphicon"));
             icon.click();
             WebElement close = browser.findElement(By.id("search-close"));
             close.click();
@@ -195,11 +202,11 @@ public class EventsIT {
             assertEquals(1, eventsShown.size());
             List<WebElement> elementShown = browser.findElements(By.cssSelector("table#events-shown tbody > tr td"));
             assertEquals(3, elementShown.size());
-            assertEquals("FINNSEA", elementShown.get(1).getText());
+            assertEquals("LEHMANN SOUND", elementShown.get(1).getText());
 
             // Assert that showing same event again does not cause duplicate on list
             navigateToSearchDialogAndSearchEventsByVessel();
-            icon = browser.findElement(By.cssSelector("span#result-1.glyphicon"));
+            icon = browser.findElement(By.cssSelector("span#result-4.glyphicon"));
             icon.click();
             close = browser.findElement(By.id("search-close"));
             close.click();
@@ -209,11 +216,11 @@ public class EventsIT {
             assertEquals(1, eventsShown.size());
             elementShown = browser.findElements(By.cssSelector("table#events-shown tbody > tr td"));
             assertEquals(3, elementShown.size());
-            assertEquals("FINNSEA", elementShown.get(1).getText());
+            assertEquals("LEHMANN SOUND", elementShown.get(1).getText());
 
             // Assert that adding another event shows up on list
             navigateToSearchDialogAndSearchEventsByVessel();
-            icon = browser.findElement(By.cssSelector("span#result-17.glyphicon"));
+            icon = browser.findElement(By.cssSelector("span#result-7.glyphicon"));
             icon.click();
             close = browser.findElement(By.id("search-close"));
             close.click();
@@ -243,16 +250,16 @@ public class EventsIT {
         navigateToSearchDialog();
         WebElement vesselNameCallsignImoField = browser.findElement(id("search-event-vessel"));
         vesselNameCallsignImoField.clear();
-        vesselNameCallsignImoField.sendKeys("FINNSEA");
+        vesselNameCallsignImoField.sendKeys("L");
         WebElement searchByOtherButton = browser.findElement(id("event-search-by-other"));
         searchByOtherButton.click();
-        assertNumberOfSearchResults(2);
+        assertNumberOfSearchResults(4);
     }
 
     private void assertNumberOfSearchResults(int expectedNumberOfSearchResults) {
         WebElement searchStatus = browser.findElement(cssSelector("div.search-status"));
         try {
-            Thread.sleep(50);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

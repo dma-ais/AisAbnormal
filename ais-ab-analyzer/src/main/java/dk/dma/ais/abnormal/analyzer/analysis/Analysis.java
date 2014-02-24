@@ -124,7 +124,7 @@ public abstract class Analysis {
                 }
             }
 
-            addTrackingPoint(event, positionTimestamp, position, cog, sog, interpolated, certainty);
+            addTrackingPoint(event, mmsi, positionTimestamp, position, cog, sog, interpolated, certainty);
         } else {
             event = buildEvent(track);
         }
@@ -133,10 +133,10 @@ public abstract class Analysis {
     }
 
     /**
-     * Add a tracking point to an event.
+     * Add a tracking point to an event and a target.
      */
-    protected static void addTrackingPoint(Event event, Date positionTimestamp, Position position, Float cog, Float sog, Boolean interpolated, TrackingPoint.EventCertainty eventCertainty) {
-        event.getBehaviour().addTrackingPoint(
+    protected static void addTrackingPoint(Event event, int mmsi, Date positionTimestamp, Position position, Float cog, Float sog, Boolean interpolated, TrackingPoint.EventCertainty eventCertainty) {
+        event.getBehaviour(mmsi).addTrackingPoint(
                 TrackingPointBuilder.TrackingPoint()
                         .timestamp(positionTimestamp)
                         .positionInterpolated(interpolated)
@@ -170,7 +170,7 @@ public abstract class Analysis {
                 TrackingPoint.EventCertainty eventCertainty = eventCertaintyTmp == null ? TrackingPoint.EventCertainty.UNDEFINED : TrackingPoint.EventCertainty.create(eventCertaintyTmp.getCertainty());
 
                 if (eventCertainty != TrackingPoint.EventCertainty.UNDEFINED) /* Small hack to store one TP per grid cell */ {
-                    addTrackingPoint(event,
+                    addTrackingPoint(event, track.getMmsi(),
                             new Date(trackingReport.getTimestamp()),
                             trackingReport.getPosition(),
                             trackingReport.getCourseOverGround(),

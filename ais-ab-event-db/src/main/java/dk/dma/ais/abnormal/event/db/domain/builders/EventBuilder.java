@@ -16,6 +16,7 @@
 
 package dk.dma.ais.abnormal.event.db.domain.builders;
 
+import dk.dma.ais.abnormal.event.db.domain.Behaviour;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 
 import java.util.Date;
@@ -44,9 +45,16 @@ public abstract class EventBuilder {
         return this;
     }
 
-    public BehaviourBuilder behaviour() {
+    public EventBuilder behaviours(Behaviour... behaviours){
+        for (Behaviour behaviour : behaviours) {
+            getEvent().addBehaviour(behaviour);
+        }
+        return this;
+    }
+
+    public BehaviourBuilder behaviour(){
         BehaviourBuilder builder = new BehaviourBuilder(this);
-        getEvent().setBehaviour(builder.getBehaviour());
+        getEvent().addBehaviour(builder.behaviour);
         return builder;
     }
 
