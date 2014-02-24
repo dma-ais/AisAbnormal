@@ -186,9 +186,9 @@ public class ShipTypeAndSizeAnalysis extends FeatureDataBasedAnalysis {
         Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
         Integer shipLength = (Integer) track.getProperty(Track.VESSEL_LENGTH);
         Date positionTimestamp = new Date(track.getPositionReportTimestamp());
-        Position position = track.getPositionReportPosition();
-        Float cog = (Float) track.getProperty(Track.COURSE_OVER_GROUND);
-        Float sog = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
+        Position position = track.getPosition();
+        Float cog = track.getCourseOverGround();
+        Float sog = track.getSpeedOverGround();
         Boolean interpolated = track.getPositionReportIsInterpolated();
 
         TrackingPoint.EventCertainty certainty = TrackingPoint.EventCertainty.UNDEFINED;

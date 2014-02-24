@@ -68,7 +68,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
     @AllowConcurrentEvents
     @Subscribe
     public void onSpeedOverGroundUpdated(PositionChangedEvent trackEvent) {
-        final Float sogAsFloat = (Float) trackEvent.getTrack().getProperty(Track.SPEED_OVER_GROUND);
+        final Float sogAsFloat = trackEvent.getTrack().getSpeedOverGround();
         if (sogAsFloat == null) {
             return;
         }
@@ -98,7 +98,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
         if (sog >= 8.0) {
             final long timestamp = track.getPositionReportTimestamp();
             if (trackingPointData == null) {
-                trackingPointData = new TrackingPointData(timestamp, sog, (Float) track.getProperty(Track.COURSE_OVER_GROUND), track.getPositionReportIsInterpolated(), track.getPositionReportPosition());
+                trackingPointData = new TrackingPointData(timestamp, sog, track.getCourseOverGround(), track.getPositionReportIsInterpolated(), track.getPosition());
                 tracks.put(mmsi, trackingPointData);
             }
         } else if (sog <= 1.0) {
@@ -126,9 +126,9 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
         Integer imo = (Integer) track.getProperty(Track.IMO);
         String callsign = (String) track.getProperty(Track.CALLSIGN);
         String name = (String) track.getProperty(Track.SHIP_NAME);
-        Position position = track.getPositionReportPosition();
-        Float cog = (Float) track.getProperty(Track.COURSE_OVER_GROUND);
-        Float sog = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
+        Position position = track.getPosition();
+        Float cog = track.getCourseOverGround();
+        Float sog = track.getSpeedOverGround();
         Boolean interpolated = track.getPositionReportIsInterpolated();
         Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
 

@@ -73,7 +73,7 @@ public class CourseOverGroundAnalysis extends FeatureDataBasedAnalysis {
 
         Track track = trackEvent.getTrack();
 
-        Float sog = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
+        Float sog = track.getSpeedOverGround();
         if (sog == null || sog < 2.0) {
             return;
         }
@@ -81,7 +81,7 @@ public class CourseOverGroundAnalysis extends FeatureDataBasedAnalysis {
         Long cellId = (Long) track.getProperty(Track.CELL_ID);
         Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
         Integer shipLength = (Integer) track.getProperty(Track.VESSEL_LENGTH);
-        Float courseOverGround = (Float) track.getProperty(Track.COURSE_OVER_GROUND);
+        Float courseOverGround = track.getCourseOverGround();
 
         if (cellId == null) {
             statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Unknown mmsi");
@@ -196,9 +196,9 @@ public class CourseOverGroundAnalysis extends FeatureDataBasedAnalysis {
         Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
         Integer shipLength = (Integer) track.getProperty(Track.VESSEL_LENGTH);
         Date positionTimestamp = new Date(track.getPositionReportTimestamp());
-        Position position = track.getPositionReportPosition();
-        Float cog = (Float) track.getProperty(Track.COURSE_OVER_GROUND);
-        Float sog = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
+        Position position = track.getPosition();
+        Float cog = track.getCourseOverGround();
+        Float sog = track.getSpeedOverGround();
         Boolean interpolated = track.getPositionReportIsInterpolated();
 
         TrackingPoint.EventCertainty certainty = TrackingPoint.EventCertainty.UNDEFINED;

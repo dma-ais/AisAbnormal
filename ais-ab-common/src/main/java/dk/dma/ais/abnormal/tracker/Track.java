@@ -44,12 +44,15 @@ import static java.util.Comparator.comparingLong;
 public final class Track implements Cloneable {
 
     public static final String TIMESTAMP_ANY_UPDATE = "lastUpdate";
-    public static final String SPEED_OVER_GROUND = "sog";
-    public static final String COURSE_OVER_GROUND = "cog";
     public static final String CELL_ID = "cellId";
-    public static final String SHIP_TYPE = "vesselType";
-    public static final String VESSEL_LENGTH = "vesselLength";
-    public static final String SHIP_NAME = "vesselName";
+    public static final String SHIP_TYPE = "type";
+    public static final String VESSEL_DIM_BOW = "dimbw";
+    public static final String VESSEL_DIM_STERN = "dimsn";
+    public static final String VESSEL_DIM_PORT = "dimpt";
+    public static final String VESSEL_DIM_STARBOARD = "dimsb";
+    public static final String VESSEL_LENGTH = "loa";
+    public static final String VESSEL_BEAM = "beam";
+    public static final String SHIP_NAME = "name";
     public static final String IMO = "imo";
     public static final String CALLSIGN = "callsign";
 
@@ -130,11 +133,39 @@ public final class Track implements Cloneable {
     }
 
     /**
+     * Get the position of the most recently reported speed over ground (if any).
+     * This is a null-safe convenience method to replace getPositionReport().getSpeedOverGround().
+     * @return
+     */
+    public Float getCourseOverGround() {
+        Float cog = null;
+        TrackingReport trackingReport = getPositionReport();
+        if (trackingReport != null) {
+            cog = trackingReport.getCourseOverGround();
+        }
+        return cog;
+    }
+
+    /**
+     * Get the position of the most recently reported speed over ground (if any).
+     * This is a null-safe convenience method to replace getPositionReport().getSpeedOverGround().
+     * @return
+     */
+    public Float getSpeedOverGround() {
+        Float sog = null;
+        TrackingReport trackingReport = getPositionReport();
+        if (trackingReport != null) {
+            sog = trackingReport.getSpeedOverGround();
+        }
+        return sog;
+    }
+
+    /**
      * Get the position of the most recent position report (if any).
      * This is a null-safe convenience method to replace getPositionReport().getPosition().
      * @return
      */
-    public Position getPositionReportPosition() {
+    public Position getPosition() {
         Position position = null;
         TrackingReport trackingReport = getPositionReport();
         if (trackingReport != null) {

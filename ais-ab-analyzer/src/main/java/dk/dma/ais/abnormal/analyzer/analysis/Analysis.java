@@ -111,9 +111,9 @@ public abstract class Analysis {
 
         if (event != null) {
             Date positionTimestamp = new Date(track.getPositionReportTimestamp());
-            Position position = track.getPositionReportPosition();
-            Float cog = (Float) track.getProperty(Track.COURSE_OVER_GROUND);
-            Float sog = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
+            Position position = track.getPosition();
+            Float cog = track.getCourseOverGround();
+            Float sog = track.getSpeedOverGround();
             Boolean interpolated = track.getPositionReportIsInterpolated();
 
             TrackingPoint.EventCertainty certainty = TrackingPoint.EventCertainty.UNDEFINED;

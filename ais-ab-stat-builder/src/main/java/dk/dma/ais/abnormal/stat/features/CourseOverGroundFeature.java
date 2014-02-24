@@ -74,13 +74,13 @@ public class CourseOverGroundFeature implements Feature {
         appStatisticsService.incFeatureStatistics(FEATURE_NAME, "Events processed");
 
         Track track = event.getTrack();
-        Float sog = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
+        Float sog = track.getSpeedOverGround();
 
         if (sog != null && sog >= 2.0) {
             Long cellId = (Long) track.getProperty(Track.CELL_ID);
             Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
             Integer shipLength = (Integer) track.getProperty(Track.VESSEL_LENGTH);
-            Float cog = (Float) track.getProperty(Track.COURSE_OVER_GROUND);
+            Float cog = track.getCourseOverGround();
 
             if (isInputValid(cellId, shipType, shipLength, cog)) {
                 short shipTypeBucket = Categorizer.mapShipTypeToCategory(shipType);

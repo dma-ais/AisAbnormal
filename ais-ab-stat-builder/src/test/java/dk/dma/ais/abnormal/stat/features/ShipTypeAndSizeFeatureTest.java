@@ -21,9 +21,11 @@ import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.FeatureData;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeFeatureData;
 import dk.dma.ais.abnormal.tracker.Track;
+import dk.dma.ais.abnormal.tracker.TrackingReport;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
+import dk.dma.enav.model.geometry.Position;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
@@ -155,7 +157,7 @@ public class ShipTypeAndSizeFeatureTest {
 
     @Test
     public void testDoNotCountTracksWithSogLessThanTwo() {
-        track.setProperty(Track.SPEED_OVER_GROUND, Float.valueOf(1.99f));
+        track.updatePosition(TrackingReport.create(1000L, Position.create(56, 12), 0.0f, 1.99f, false));
 
         Long oldCellId = null;
         CellChangedEvent event = new CellChangedEvent(track, oldCellId);
@@ -176,7 +178,7 @@ public class ShipTypeAndSizeFeatureTest {
 
     @Test
     public void testCountTracksWithSogOverTwo() {
-        track.setProperty(Track.SPEED_OVER_GROUND, Float.valueOf(2.01f));
+        track.updatePosition(TrackingReport.create(1000L, Position.create(56, 12), 0.0f, 2.01f, false));
 
         Long oldCellId = null;
         CellChangedEvent event = new CellChangedEvent(track, oldCellId);
@@ -197,7 +199,7 @@ public class ShipTypeAndSizeFeatureTest {
 
     @Test
     public void testCountTracksWithNoSog() {
-        track.setProperty(Track.SPEED_OVER_GROUND, null);
+        //track.setProperty(Track.SPEED_OVER_GROUND, null);
 
         Long oldCellId = null;
         CellChangedEvent event = new CellChangedEvent(track, oldCellId);

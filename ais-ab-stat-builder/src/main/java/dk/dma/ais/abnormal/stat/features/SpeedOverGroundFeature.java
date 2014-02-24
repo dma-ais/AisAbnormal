@@ -74,7 +74,7 @@ public class SpeedOverGroundFeature implements Feature {
         appStatisticsService.incFeatureStatistics(FEATURE_NAME, "Events processed");
 
         Track track = event.getTrack();
-        Float sog = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
+        Float sog = track.getSpeedOverGround();
 
         if (sog != null) {
             Long cellId = (Long) track.getProperty(Track.CELL_ID);

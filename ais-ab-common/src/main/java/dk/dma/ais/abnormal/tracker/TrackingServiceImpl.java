@@ -151,18 +151,12 @@ public class TrackingServiceImpl implements TrackingService {
 
                 updateTimestamp(track, currentUpdate);
 
-                if (aisMessage instanceof IVesselPositionMessage) {
-                    IVesselPositionMessage vesselPositionMessage = (IVesselPositionMessage) aisMessage;
-                    updateSpeedOverGround(track, vesselPositionMessage);
-                    updateCourseOverGround(track, vesselPositionMessage);
-                }
-
                 if (aisMessage instanceof AisStaticCommon) {
                     AisStaticCommon staticCommon = (AisStaticCommon) aisMessage;
                     updateVesselName(track, staticCommon);
                     updateCallsign(track, staticCommon);
                     updateShipType(track, staticCommon);
-                    updateVesselLength(track, staticCommon);
+                    updateVesselDimensions(track, staticCommon);
                 }
 
                 if (aisMessage instanceof AisMessage5) {
@@ -270,18 +264,6 @@ public class TrackingServiceImpl implements TrackingService {
         track.setProperty(Track.CALLSIGN, callsign);
     }
 
-    private void updateCourseOverGround(Track track, IVesselPositionMessage aisMessage) {
-        IVesselPositionMessage positionMessage = (IVesselPositionMessage) aisMessage;
-        int cog = positionMessage.getCog();
-        track.setProperty(Track.COURSE_OVER_GROUND, new Float(cog / 10.000000000000));
-    }
-
-    private void updateSpeedOverGround(Track track, IVesselPositionMessage aisMessage) {
-        IVesselPositionMessage positionMessage = (IVesselPositionMessage) aisMessage;
-        int sog = positionMessage.getSog();
-        track.setProperty(Track.SPEED_OVER_GROUND, new Float(sog / 10.000000000000));
-    }
-
     private void updatePosition(Track track, long positionTimestamp, IVesselPositionMessage aisMessage) {
         AisPosition aisPosition = aisMessage.getPos();
         float cog = (float) (aisMessage.getCog() / 10.0);
@@ -299,7 +281,7 @@ public class TrackingServiceImpl implements TrackingService {
     }
 
     private void performUpdatePosition(Track track, long positionTimestamp, Position position, float cog, float sog, boolean positionIsInterpolated) {
-        Position oldPosition = track.getPositionReportPosition();
+        Position oldPosition = track.getPosition();
 
         TrackingReport trackingReport = TrackingReport.create(positionTimestamp, position, cog, sog, positionIsInterpolated);
         track.updatePosition(trackingReport);
@@ -332,9 +314,20 @@ public class TrackingServiceImpl implements TrackingService {
         track.setProperty(Track.SHIP_TYPE, shipType);
     }
 
-    private void updateVesselLength(Track track, AisStaticCommon aisMessage) {
-        Integer vesselLength = aisMessage.getDimBow() + aisMessage.getDimStern();
-        track.setProperty(Track.VESSEL_LENGTH, vesselLength);
+    private void updateVesselDimensions(Track track, AisStaticCommon aisMessage) {
+        Integer dimBow = aisMessage.getDimBow();
+        Integer dimStern = aisMessage.getDimStern();
+        Integer dimPort = aisMessage.getDimPort();
+        Integer dimStarboard = aisMessage.getDimStarboard();
+        Integer loa = dimBow + dimStern;
+        Integer beam = dimPort + dimStarboard;
+
+        track.setProperty(Track.VESSEL_DIM_BOW, dimBow);
+        track.setProperty(Track.VESSEL_DIM_STERN, dimStern);
+        track.setProperty(Track.VESSEL_DIM_PORT, dimPort);
+        track.setProperty(Track.VESSEL_DIM_STARBOARD, dimStarboard);
+        track.setProperty(Track.VESSEL_LENGTH, loa);
+        track.setProperty(Track.VESSEL_BEAM, beam);
     }
 
     private void removeTrack(int mmsi) {

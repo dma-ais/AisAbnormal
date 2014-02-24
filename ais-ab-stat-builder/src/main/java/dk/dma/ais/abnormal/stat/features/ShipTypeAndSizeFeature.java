@@ -72,7 +72,7 @@ public class ShipTypeAndSizeFeature implements Feature {
 
         Track track = event.getTrack();
 
-        Float sog = (Float) track.getProperty(Track.SPEED_OVER_GROUND);
+        Float sog = track.getSpeedOverGround();
         if (sog != null && sog < 2.0) {
             return; // If track has a sog and it is < 2 - don't run this feature
         }
