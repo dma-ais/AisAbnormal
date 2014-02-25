@@ -19,27 +19,47 @@ package dk.dma.ais.abnormal.analyzer.analysis;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
+import dk.dma.ais.abnormal.analyzer.helpers.CoordinateTransformer;
+import dk.dma.ais.abnormal.analyzer.helpers.Point;
+import dk.dma.ais.abnormal.analyzer.helpers.SafetyZone;
 import dk.dma.ais.abnormal.event.db.EventRepository;
+import dk.dma.ais.abnormal.event.db.domain.CloseEncounterEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.tracker.Track;
+import dk.dma.ais.abnormal.tracker.TrackingReport;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.TimeEvent;
+import dk.dma.enav.model.geometry.CoordinateSystem;
+import dk.dma.enav.model.geometry.Position;
+import net.jcip.annotations.NotThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 /**
  * This analysis manages events where two vessels have a close encounter and therefore
  * are in risk of collision.
  *
+ * The analysis works by calculating an ellipse around each ship. The ellipse's size and orientation depends on the
+ * vessels loa, beam, speed, and course. The ellipse is translated forward from the vessel's center so that it covers
+ * a larger area in front of the vessel. If two ellipses intersect there is a risk of collision and this is registered
+ * as an abnormal event.
+ *
  * This analysis is rather extensive, and we can therefore now allow to block the EventBus
  * for the duration of a complete analysis. Instead the worked is spawned to a separate worker
  * thread.
  */
+@NotThreadSafe
 public class CloseEncounterAnalysis extends Analysis {
     private static final Logger LOG = LoggerFactory.getLogger(CloseEncounterAnalysis.class);
     {
@@ -89,13 +109,183 @@ public class CloseEncounterAnalysis extends Analysis {
         LOG.debug("Starting " + analysisName);
 
         Set<Track> tracks = getTrackingService().cloneTracks();
-        tracks.forEach(t -> performAnalysis(tracks, t));
+        tracks.forEach(t -> analyseCloseEncounters(tracks, t));
 
         statisticsService.incAnalysisStatistics(analysisName, "Analyses performed");
         LOG.debug("Finished " + analysisName);
     }
 
-    private void performAnalysis(Set<Track> tracks, Track track) {
+    private void analyseCloseEncounters(Set<Track> allTracks, Track track) {
+        clearTrackPairsAnalyzed();
+        Set<Track> nearByTracks = findNearByTracks(allTracks, track, 60000, 1852);
+        nearByTracks.forEach(nearByTrack -> analyseCloseEncounter(track, nearByTrack));
+    }
+
+    void analyseCloseEncounter(Track track1, Track track2) {
+        //  filterOutPreviouslyCompared(track);
+      //  foreach overlappingEllipse(raiseOrMaintainAbnormalEvent());
+        if (! isTrackPairAnalyzed(track1, track2)) {
+            SafetyZone safetyZone1 = computeSafetyZone(track1, track2);
+            SafetyZone safetyZone2 = computeSafetyZone(track2, track1);
+            if (safetyZone1 != null && safetyZone2 != null && safetyZone1.intersects(safetyZone2)) {
+                raiseOrMaintainAbnormalEvent(CloseEncounterEvent.class, track1);
+            } else {
+                lowerExistingAbnormalEventIfExists(CloseEncounterEvent.class, track1);
+            }
+            markTrackPairAnalyzed(track1, track2);
+        } else {
+            LOG.info("PREVIOUSLY COMPARED " + track1.getMmsi() + " AGAINST " + track2.getMmsi());
+        }
+    }
+
+    private Set<String> trackPairsAnalyzed;
+
+    void clearTrackPairsAnalyzed() {
+        trackPairsAnalyzed = new TreeSet<>();
+    }
+
+    void markTrackPairAnalyzed(Track track1, Track track2) {
+        String trackPairKey = calculateTrackPairKey(track1, track2);
+        trackPairsAnalyzed.add(trackPairKey);
+    }
+
+    static String calculateTrackPairKey(Track track1, Track track2) {
+        int mmsi1 = track1.getMmsi();
+        int mmsi2 = track2.getMmsi();
+        return min(mmsi1, mmsi2) + "-" + max(mmsi1, mmsi2);
+    }
+
+    boolean isTrackPairAnalyzed(Track track1, Track track2) {
+        String trackPairKey = calculateTrackPairKey(track1, track2);
+        return trackPairsAnalyzed.contains(trackPairKey);
+    }
+
+    /**
+     * Compute the safety zone for track in the context of otherTrack.
+     * @param track
+     * @param otherTrack
+     * @return The safety zone for the track.
+     */
+    SafetyZone computeSafetyZone(Track track, Track otherTrack) {
+        // Retrieve and validate required input variables
+        Float   cogBoxed = track.getCourseOverGround();
+        Integer loaBoxed = (Integer) track.getProperty(Track.VESSEL_LENGTH);
+        Integer beamBoxed = (Integer) track.getProperty(Track.VESSEL_BEAM);
+        Integer dimSternBoxed = (Integer) track.getProperty(Track.VESSEL_DIM_STERN);
+        Integer dimStarboardBoxed = (Integer) track.getProperty(Track.VESSEL_DIM_STARBOARD);
+
+        if (cogBoxed == null) {
+            LOG.warn("MMSI " + track.getMmsi() + ": Cannot compute safety zone: No cog.");
+            return null;
+        }
+
+        if (loaBoxed == null) {
+            LOG.warn("MMSI " + track.getMmsi() + ": Cannot compute safety zone: No loa.");
+            return null;
+        }
+
+        if (beamBoxed == null) {
+            LOG.warn("MMSI " + track.getMmsi() + ": Cannot compute safety zone: No beam.");
+            return null;
+        }
+
+        if (dimSternBoxed == null) {
+            LOG.warn("MMSI " + track.getMmsi() + ": Cannot compute safety zone: No stern dimension.");
+            return null;
+        }
+
+        if (dimStarboardBoxed == null) {
+            LOG.warn("MMSI " + track.getMmsi() + ": Cannot compute safety zone: No starboard dimension.");
+            return null;
+        }
+
+        final double cog = cogBoxed;
+        final double loa = loaBoxed;
+        final double beam = beamBoxed;
+        final double dimStern = dimSternBoxed;
+        final double dimStarboard = dimStarboardBoxed;
+
+        // Setup configurable input constants
+        final double safetyEllipseLength = 4;
+        final double safetyEllipseBreadth = 5;
+        final double safetyEllipseBehind = 0.5;   // = behindLength ???
+        final double v = 1.0;
+        final double l1 = max(safetyEllipseLength * v, 1.0 + safetyEllipseBehind*v*2.0);
+        final double b1 = max(safetyEllipseBreadth * v, 1.5);
+        final double xc = -safetyEllipseBehind*v+0.5*l1;
+
+        // Compute direction of half axis alpha
+        final double thetaDeg = compass2cartesian(cog);
+
+        // Transform latitude/longitude to cartesian coordinates
+        final double latitude = track.getPosition().getLatitude();
+        final double longitude = track.getPosition().getLongitude();
+
+        final CoordinateTransformer coordinateTransformer = new CoordinateTransformer(longitude, latitude);
+        final double x = coordinateTransformer.lon2x(longitude, latitude);
+        final double y = coordinateTransformer.lat2y(longitude, latitude);
+
+        // Compute center of safety zone
+        final Point pt0 = new Point(x, y);
+        Point pt1 = new Point(pt0.getX() - dimStern + loa*xc, pt0.getY() + dimStarboard - beam/2.0);
+        pt1 = pt1.rotate(pt0, thetaDeg);
+
+        // Compute length of half axis alpha
+        final double alpha = loa * l1 / 2.0;
+
+        // Compute length of half axis beta
+        final double beta = beam * b1 / 2.0;
+
+        return new SafetyZone(pt1.getX(), pt1.getY(), alpha, beta, thetaDeg);
+    }
+
+    /**
+     * Converts a compass heading to a cartesian angle
+     * @param a
+     * @return
+     */
+    private static double compass2cartesian(double a) {
+        double cartesianAngle;
+
+        if ((a >= 0.0) && (a <= 90.0)) {
+            cartesianAngle = 90.0 - a;
+        } else {
+            cartesianAngle = 450.0 - a;
+        }
+        return cartesianAngle;
+    }
+
+    /**
+     * In the set of tracks: find the tracks which are near to the track - with 'near'
+     * defined as
+     *
+     * - last reported position timestamp within +/- 1 minute of track's
+     * - last reported position within 1 nm of track
+     *
+     * @param tracks the set of candidate tracks to search among.
+     * @param track the track to find other near-by tracks for.
+     * @return the set of nearby tracks
+     */
+    Set<Track> findNearByTracks(Set<Track> tracks, Track track, int maxTimestampDeviationMillis, int maxDistanceDeviationMeters) {
+        Set<Track> nearbyTracks = Collections.EMPTY_SET;
+
+        TrackingReport positionReport = track.getPositionReport();
+
+        if (positionReport != null) {
+            long timestamp = positionReport.getTimestamp();
+            Position position = positionReport.getPosition();
+
+            nearbyTracks = tracks.stream().filter(t ->
+                    t.getMmsi() != track.getMmsi() &&
+                    t.getPositionReportTimestamp() != null &&
+                    t.getPositionReportTimestamp() > positionReport.getTimestamp() - maxTimestampDeviationMillis &&
+                    t.getPositionReportTimestamp() < positionReport.getTimestamp() + maxTimestampDeviationMillis &&
+                    t.getPosition().distanceTo(track.getPosition(), CoordinateSystem.CARTESIAN) < maxDistanceDeviationMeters
+
+            ).collect(Collectors.toSet());
+        }
+
+        return nearbyTracks;
     }
 
     @Override
