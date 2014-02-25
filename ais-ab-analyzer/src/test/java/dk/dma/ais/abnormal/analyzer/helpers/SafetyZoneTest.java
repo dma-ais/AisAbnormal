@@ -40,7 +40,6 @@ public class SafetyZoneTest {
         assertFalse(safetyZone2.intersects(safetyZone1));
     }
 
-
     @Test
     public void testIntersects() {
         SafetyZone safetyZone1 = new SafetyZone( 2.0f, 0.0f, 5.0, 2.5f, 0.0f);
@@ -48,6 +47,42 @@ public class SafetyZoneTest {
 
         assertTrue(safetyZone1.intersects(safetyZone2));
         assertTrue(safetyZone2.intersects(safetyZone1));
+    }
+
+    @Test
+    public void testIntersectsExcel1() {
+        SafetyZone safetyZone1 = new SafetyZone( 0.0f,  0.0f, 100.0f,  40.0f,  45.0f);
+        SafetyZone safetyZone2 = new SafetyZone(90.0f, 30.0f,  50.0f,  25.0f, 150.0f);
+
+        assertTrue(safetyZone1.intersects(safetyZone2));
+        assertTrue(safetyZone2.intersects(safetyZone1));
+    }
+
+    @Test
+    public void testIntersectsExcel2() {
+        SafetyZone safetyZone1 = new SafetyZone( 0.0f,  0.0f, 100.0f,  40.0f,  45.0f);
+        SafetyZone safetyZone2 = new SafetyZone(80.0f, 30.0f,  50.0f,  25.0f, 150.0f);
+
+        assertTrue(safetyZone1.intersects(safetyZone2));
+        assertTrue(safetyZone2.intersects(safetyZone1));
+    }
+
+    @Test
+    public void testIntersectsExcel3() {
+        SafetyZone safetyZone1 = new SafetyZone( 0.0f,  0.0f, 100.0f,  40.0f,  62.0f);
+        SafetyZone safetyZone2 = new SafetyZone(118.0,  0.0f, 100.0f,  50.0f,  30.0f);
+
+        assertTrue(safetyZone1.intersects(safetyZone2));
+        assertTrue(safetyZone2.intersects(safetyZone1));
+    }
+
+    @Test
+    public void testIntersectsExcel1Not() {
+        SafetyZone safetyZone1 = new SafetyZone(  0.0f,  0.0f, 100.0f,  40.0f,  45.0f);
+        SafetyZone safetyZone2 = new SafetyZone(130.0f, 30.0f,  50.0f,  25.0f, 150.0f);
+
+        assertFalse(safetyZone1.intersects(safetyZone2));
+        assertFalse(safetyZone2.intersects(safetyZone1));
     }
 
 }
