@@ -20,6 +20,7 @@ import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManager;
 import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManagerImpl;
 import dk.dma.ais.abnormal.analyzer.behaviour.EventCertainty;
 import dk.dma.ais.abnormal.event.db.EventRepository;
+import dk.dma.ais.abnormal.event.db.domain.CloseEncounterEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
 import dk.dma.ais.abnormal.event.db.domain.builders.TrackingPointBuilder;
@@ -78,10 +79,11 @@ public abstract class Analysis {
      * This abstract method is intended to be implemented by subclasses, so that they can build
      * and return the proper Event entity when a new event is raised.
      *
-     * @param track
-     * @return
+     * @param primaryTrack the primary track for which the event is detected.
+     * @param otherTracks other tracks involved in or related to the event.
+     * @return the event.
      */
-    protected abstract Event buildEvent(Track track);
+    protected abstract Event buildEvent(Track primaryTrack, Track... otherTracks);
 
     /**
      * If an event of the given type and involving the given track has already been raised, then lower it.
@@ -99,26 +101,27 @@ public abstract class Analysis {
     }
 
     /**
-     * Raise a new event of type eventClass for the given track. If such an event has already been raised then
+     * Raise a new event of type eventClass for the given primaryTrack. If such an event has already been raised then
      * maintain it and add the tracks newest behaviour to it.
      *
      * @param eventClass
-     * @param track
+     * @param primaryTrack
+     * @param otherTracks
      */
-    protected void raiseOrMaintainAbnormalEvent(Class<? extends Event> eventClass, Track track) {
-        Integer mmsi = track.getMmsi();
+    protected void raiseOrMaintainAbnormalEvent(Class<? extends Event> eventClass, Track primaryTrack, Track... otherTracks) {
+        Integer mmsi = primaryTrack.getMmsi();
         Event event = eventRepository.findOngoingEventByVessel(mmsi, eventClass);
 
         if (event != null) {
-            Date positionTimestamp = new Date(track.getPositionReportTimestamp());
-            Position position = track.getPosition();
-            Float cog = track.getCourseOverGround();
-            Float sog = track.getSpeedOverGround();
-            Boolean interpolated = track.getPositionReportIsInterpolated();
+            Date positionTimestamp = new Date(primaryTrack.getPositionReportTimestamp());
+            Position position = primaryTrack.getPosition();
+            Float cog = primaryTrack.getCourseOverGround();
+            Float sog = primaryTrack.getSpeedOverGround();
+            Boolean interpolated = primaryTrack.getPositionReportIsInterpolated();
 
             TrackingPoint.EventCertainty certainty = TrackingPoint.EventCertainty.UNDEFINED;
             if (behaviourManager != null) {
-                EventCertainty eventCertainty = getBehaviourManager().getEventCertaintyAtCurrentPosition(eventClass, track);
+                EventCertainty eventCertainty = getBehaviourManager().getEventCertaintyAtCurrentPosition(eventClass, primaryTrack);
                 if (eventCertainty != null) {
                     certainty = TrackingPoint.EventCertainty.create(eventCertainty.getCertainty());
                 }
@@ -126,7 +129,7 @@ public abstract class Analysis {
 
             addTrackingPoint(event, mmsi, positionTimestamp, position, cog, sog, interpolated, certainty);
         } else {
-            event = buildEvent(track);
+            event = buildEvent(primaryTrack, otherTracks);
         }
 
         eventRepository.save(event);
@@ -161,15 +164,15 @@ public abstract class Analysis {
 
         while (positionReportIterator.hasNext()) {
             TrackingReport trackingReport = positionReportIterator.next();
-            // Do not add the last one - duplicate
-            if (positionReportIterator.hasNext()) {
+
+            if (trackingReport.getTimestamp() < track.getPositionReportTimestamp() /* Do not add the last one - duplicate */) {
                 TrackingPoint.EventCertainty certainty = null;
 
                 String eventCertaintyKey = BehaviourManagerImpl.getEventCertaintyKey(event.getClass());
                 EventCertainty eventCertaintyTmp = (EventCertainty) trackingReport.getProperty(eventCertaintyKey);
                 TrackingPoint.EventCertainty eventCertainty = eventCertaintyTmp == null ? TrackingPoint.EventCertainty.UNDEFINED : TrackingPoint.EventCertainty.create(eventCertaintyTmp.getCertainty());
 
-                if (eventCertainty != TrackingPoint.EventCertainty.UNDEFINED) /* Small hack to store one TP per grid cell */ {
+                if (event instanceof CloseEncounterEvent || eventCertainty != TrackingPoint.EventCertainty.UNDEFINED) /* Small hack to store one TP per grid cell for some event types TODO */ {
                     addTrackingPoint(event, track.getMmsi(),
                             new Date(trackingReport.getTimestamp()),
                             trackingReport.getPosition(),

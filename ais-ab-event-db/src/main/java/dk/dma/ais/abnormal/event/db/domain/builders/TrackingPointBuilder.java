@@ -73,6 +73,12 @@ public class TrackingPointBuilder {
         return this;
     }
 
+    public BehaviourBuilder behaviour() {
+        BehaviourBuilder newBehaviourBuilder = new BehaviourBuilder(this.behaviourBuilder.eventBuilder);
+        behaviourBuilder.eventBuilder.getEvent().addBehaviour(newBehaviourBuilder.getBehaviour());
+        return newBehaviourBuilder;
+    }
+
     public Event getEvent() {
         return this.behaviourBuilder.eventBuilder.getEvent();
     }

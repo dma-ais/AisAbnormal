@@ -17,6 +17,7 @@
 package dk.dma.ais.abnormal.analyzer.analysis;
 
 import com.google.common.eventbus.Subscribe;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.analyzer.helpers.CoordinateTransformer;
@@ -25,6 +26,8 @@ import dk.dma.ais.abnormal.analyzer.helpers.SafetyZone;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.CloseEncounterEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
+import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
+import dk.dma.ais.abnormal.event.db.domain.builders.CloseEncounterEventBuilder;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingReport;
 import dk.dma.ais.abnormal.tracker.TrackingService;
@@ -40,7 +43,6 @@ import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.max;
@@ -82,7 +84,7 @@ public class CloseEncounterAnalysis extends Analysis {
     /**
      * Executor to perform the actual work.
      */
-    private Executor executor = Executors.newSingleThreadExecutor();
+    private Executor executor = MoreExecutors.sameThreadExecutor(); // Executors.newSingleThreadExecutor();
 
     @Inject
     public CloseEncounterAnalysis(AppStatisticsService statisticsService, TrackingService trackingService, EventRepository eventRepository) {
@@ -123,18 +125,17 @@ public class CloseEncounterAnalysis extends Analysis {
 
     void analyseCloseEncounter(Track track1, Track track2) {
         //  filterOutPreviouslyCompared(track);
-      //  foreach overlappingEllipse(raiseOrMaintainAbnormalEvent());
-        if (! isTrackPairAnalyzed(track1, track2)) {
-            SafetyZone safetyZone1 = computeSafetyZone(track1, track2);
-            SafetyZone safetyZone2 = computeSafetyZone(track2, track1);
+        if (track1.getSpeedOverGround() > 5.0 && ! isTrackPairAnalyzed(track1, track2)) {
+            SafetyZone safetyZone1 = computeSafetyZone(track1.getPosition(), track1, track2);
+            SafetyZone safetyZone2 = computeSafetyZone(track1.getPosition(), track2, track1);
             if (safetyZone1 != null && safetyZone2 != null && safetyZone1.intersects(safetyZone2)) {
-                raiseOrMaintainAbnormalEvent(CloseEncounterEvent.class, track1);
+                raiseOrMaintainAbnormalEvent(CloseEncounterEvent.class, track1, track2);
             } else {
                 lowerExistingAbnormalEventIfExists(CloseEncounterEvent.class, track1);
             }
             markTrackPairAnalyzed(track1, track2);
         } else {
-            LOG.info("PREVIOUSLY COMPARED " + track1.getMmsi() + " AGAINST " + track2.getMmsi());
+            LOG.debug("PREVIOUSLY COMPARED " + track1.getMmsi() + " AGAINST " + track2.getMmsi());
         }
     }
 
@@ -166,7 +167,7 @@ public class CloseEncounterAnalysis extends Analysis {
      * @param otherTrack
      * @return The safety zone for the track.
      */
-    SafetyZone computeSafetyZone(Track track, Track otherTrack) {
+    SafetyZone computeSafetyZone(Position cartesianCenter, Track track, Track otherTrack) {
         // Retrieve and validate required input variables
         Float   cogBoxed = track.getCourseOverGround();
         Integer loaBoxed = (Integer) track.getProperty(Track.VESSEL_LENGTH);
@@ -175,27 +176,27 @@ public class CloseEncounterAnalysis extends Analysis {
         Integer dimStarboardBoxed = (Integer) track.getProperty(Track.VESSEL_DIM_STARBOARD);
 
         if (cogBoxed == null) {
-            LOG.warn("MMSI " + track.getMmsi() + ": Cannot compute safety zone: No cog.");
+            LOG.debug("MMSI " + track.getMmsi() + ": Cannot compute safety zone: No cog.");
             return null;
         }
 
         if (loaBoxed == null) {
-            LOG.warn("MMSI " + track.getMmsi() + ": Cannot compute safety zone: No loa.");
+            LOG.debug("MMSI " + track.getMmsi() + ": Cannot compute safety zone: No loa.");
             return null;
         }
 
         if (beamBoxed == null) {
-            LOG.warn("MMSI " + track.getMmsi() + ": Cannot compute safety zone: No beam.");
+            LOG.debug("MMSI " + track.getMmsi() + ": Cannot compute safety zone: No beam.");
             return null;
         }
 
         if (dimSternBoxed == null) {
-            LOG.warn("MMSI " + track.getMmsi() + ": Cannot compute safety zone: No stern dimension.");
+            LOG.debug("MMSI " + track.getMmsi() + ": Cannot compute safety zone: No stern dimension.");
             return null;
         }
 
         if (dimStarboardBoxed == null) {
-            LOG.warn("MMSI " + track.getMmsi() + ": Cannot compute safety zone: No starboard dimension.");
+            LOG.debug("MMSI " + track.getMmsi() + ": Cannot compute safety zone: No starboard dimension.");
             return null;
         }
 
@@ -218,12 +219,14 @@ public class CloseEncounterAnalysis extends Analysis {
         final double thetaDeg = compass2cartesian(cog);
 
         // Transform latitude/longitude to cartesian coordinates
-        final double latitude = track.getPosition().getLatitude();
-        final double longitude = track.getPosition().getLongitude();
+        final double centerLatitude = cartesianCenter.getLatitude();
+        final double centerLongitude = cartesianCenter.getLongitude();
+        final CoordinateTransformer coordinateTransformer = new CoordinateTransformer(centerLongitude, centerLatitude);
 
-        final CoordinateTransformer coordinateTransformer = new CoordinateTransformer(longitude, latitude);
-        final double x = coordinateTransformer.lon2x(longitude, latitude);
-        final double y = coordinateTransformer.lat2y(longitude, latitude);
+        final double trackLatitude = track.getPosition().getLatitude();
+        final double trackLongitude = track.getPosition().getLongitude();
+        final double x = coordinateTransformer.lon2x(trackLongitude, trackLatitude);
+        final double y = coordinateTransformer.lat2y(trackLongitude, trackLatitude);
 
         // Compute center of safety zone
         final Point pt0 = new Point(x, y);
@@ -289,9 +292,59 @@ public class CloseEncounterAnalysis extends Analysis {
     }
 
     @Override
-    protected Event buildEvent(Track track) {
+    protected Event buildEvent(Track primaryTrack, Track... otherTracks) {
+        if (otherTracks == null) {
+            throw new IllegalArgumentException("otherTracks cannot be null.");
+        }
+        if (otherTracks.length != 1) {
+            throw new IllegalArgumentException("otherTracks.length must be exactly 1, not " + otherTracks.length + ".");
+        }
+        final Track secondaryTrack = otherTracks[0];
+
         statisticsService.incAnalysisStatistics(analysisName, "Events raised");
-        return null;
+        LOG.info(new Date(primaryTrack.getPositionReportTimestamp()) + ": Detected CloseEncounterEvent involving mmsi " + primaryTrack.getMmsi());
+
+        final String desc = String.format("Close encounter");
+
+        Event event =
+            CloseEncounterEventBuilder.CloseEncounterEvent()
+                    .description(desc)
+                    .state(Event.State.ONGOING)
+                    .startTime(new Date(primaryTrack.getPositionReportTimestamp()))
+                    .behaviour()
+                        .vessel()
+                            .mmsi(primaryTrack.getMmsi())
+                            .imo((Integer) primaryTrack.getProperty(Track.IMO))
+                            .callsign((String) primaryTrack.getProperty(Track.CALLSIGN))
+                            .name((String) primaryTrack.getProperty(Track.SHIP_NAME))
+                        .trackingPoint()
+                            .timestamp(new Date(primaryTrack.getPositionReportTimestamp()))
+                            .positionInterpolated(primaryTrack.getPositionReport().isInterpolated())
+                            .eventCertainty(TrackingPoint.EventCertainty.RAISED)
+                            .speedOverGround(primaryTrack.getSpeedOverGround())
+                            .courseOverGround(primaryTrack.getCourseOverGround())
+                            .latitude(primaryTrack.getPosition().getLatitude())
+                            .longitude(primaryTrack.getPosition().getLongitude())
+                    .behaviour()
+                        .vessel()
+                            .mmsi(secondaryTrack.getMmsi())
+                            .imo((Integer) secondaryTrack.getProperty(Track.IMO))
+                            .callsign((String) secondaryTrack.getProperty(Track.CALLSIGN))
+                            .name((String) secondaryTrack.getProperty(Track.SHIP_NAME))
+                        .trackingPoint()
+                            .timestamp(new Date(secondaryTrack.getPositionReportTimestamp()))
+                            .positionInterpolated(secondaryTrack.getPositionReport().isInterpolated())
+                            .eventCertainty(TrackingPoint.EventCertainty.RAISED)
+                            .speedOverGround(secondaryTrack.getSpeedOverGround())
+                            .courseOverGround(secondaryTrack.getCourseOverGround())
+                            .latitude(secondaryTrack.getPosition().getLatitude())
+                            .longitude(secondaryTrack.getPosition().getLongitude())
+                .getEvent();
+
+        addPreviousTrackingPoints(event, primaryTrack);
+        addPreviousTrackingPoints(event, secondaryTrack);
+
+        return event;
     }
 
 }

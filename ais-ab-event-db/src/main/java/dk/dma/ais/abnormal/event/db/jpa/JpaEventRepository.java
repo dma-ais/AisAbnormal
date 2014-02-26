@@ -117,7 +117,7 @@ public class JpaEventRepository implements EventRepository {
                 hql.append("SELECT DISTINCT e FROM Event e LEFT JOIN e.behaviours AS b LEFT JOIN b.trackingPoints AS tp WHERE latitude<:north AND latitude>:south AND longitude<:east AND longitude>:west AND ");
                 usesArea = true;
             } else {
-                hql.append("SELECT e FROM Event e LEFT JOIN e.behaviours AS b WHERE ");
+                hql.append("SELECT DISTINCT e FROM Event e LEFT JOIN e.behaviours AS b WHERE ");
             }
 
             // from

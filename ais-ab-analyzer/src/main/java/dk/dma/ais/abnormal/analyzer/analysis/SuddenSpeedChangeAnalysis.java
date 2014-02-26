@@ -120,7 +120,11 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
     }
 
     @Override
-    protected Event buildEvent(Track track) {
+    protected Event buildEvent(Track track, Track... otherTracks) {
+        if (otherTracks != null && otherTracks.length > 0) {
+            throw new IllegalArgumentException("otherTracks not supported.");
+        }
+
         Date timestamp = new Date(track.getPositionReportTimestamp());
         Integer mmsi = track.getMmsi();
         Integer imo = (Integer) track.getProperty(Track.IMO);
