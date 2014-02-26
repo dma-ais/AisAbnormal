@@ -32,6 +32,7 @@ import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingReport;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.TimeEvent;
+import dk.dma.ais.abnormal.util.Categorizer;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import net.jcip.annotations.NotThreadSafe;
@@ -43,10 +44,10 @@ import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Executor;
-import java.util.stream.Collectors;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * This analysis manages events where two vessels have a close encounter and therefore
@@ -74,7 +75,7 @@ public class CloseEncounterAnalysis extends Analysis {
     /**
      * Minimum no. of msecs between runs of this analysis.
      */
-    private final static int ANALYS_PERIOD_MILLIS = 5 * 60 * 1000;
+    private final static int ANALYSIS_PERIOD_MILLIS = 5 * 60 * 1000;
 
     /**
      * The time when the analysis should next be run.
@@ -102,25 +103,43 @@ public class CloseEncounterAnalysis extends Analysis {
 
         if (nextRunTime.before(now)) {
             executor.execute(() -> performAnalysis());
-            nextRunTime = new Date(now.getTime() + ANALYS_PERIOD_MILLIS);
+            nextRunTime = new Date(now.getTime() + ANALYSIS_PERIOD_MILLIS);
             LOG.debug("nextRunTime: " + nextRunTime);
         }
     }
 
     private void performAnalysis() {
         LOG.debug("Starting " + analysisName);
+        final long systemTimeMillisBeforeAnalysis = System.currentTimeMillis();
 
+        // Get the tracks to analyse
         Set<Track> tracks = getTrackingService().cloneTracks();
-        tracks.forEach(t -> analyseCloseEncounters(tracks, t));
 
+        // If a work/support ship is involved then do not register.
+        final Set<Track> filteredTracks = tracks.stream()
+                .filter(t -> !isSupportVessel(t))
+                .collect(toSet());
+
+        // Analyse close encounters
+        filteredTracks.forEach(t -> analyseCloseEncounters(filteredTracks, t));
+
+        final long systemTimeMillisAfterAnalysis = System.currentTimeMillis();
         statisticsService.incAnalysisStatistics(analysisName, "Analyses performed");
-        LOG.debug("Finished " + analysisName);
+        LOG.info(analysisName + " of " + tracks.size() + " tracks completed in " + (systemTimeMillisAfterAnalysis - systemTimeMillisBeforeAnalysis) + " msecs.");
     }
 
     private void analyseCloseEncounters(Set<Track> allTracks, Track track) {
         clearTrackPairsAnalyzed();
         Set<Track> nearByTracks = findNearByTracks(allTracks, track, 60000, 1852);
-        nearByTracks.forEach(nearByTrack -> analyseCloseEncounter(track, nearByTrack));
+
+        nearByTracks.forEach(nearByTrack -> {
+            if (isFishingVessel(track) && isFishingVessel(nearByTrack)) { return; }
+            if (isUndefinedVessel(track) && isUndefinedVessel(nearByTrack)) { return; }
+            if (isSupportVessel(track) || isSupportVessel(nearByTrack)) { return; };
+            if (isSlowVessel(track) && isSlowVessel(nearByTrack)) { return; };
+
+            analyseCloseEncounter(track, nearByTrack);
+        });
     }
 
     void analyseCloseEncounter(Track track1, Track track2) {
@@ -285,7 +304,7 @@ public class CloseEncounterAnalysis extends Analysis {
                     t.getPositionReportTimestamp() < positionReport.getTimestamp() + maxTimestampDeviationMillis &&
                     t.getPosition().distanceTo(track.getPosition(), CoordinateSystem.CARTESIAN) < maxDistanceDeviationMeters
 
-            ).collect(Collectors.toSet());
+            ).collect(toSet());
         }
 
         return nearbyTracks;
@@ -345,6 +364,25 @@ public class CloseEncounterAnalysis extends Analysis {
         addPreviousTrackingPoints(event, secondaryTrack);
 
         return event;
+    }
+
+    private static boolean isSupportVessel(Track track) {
+        Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
+        return shipType != null && Categorizer.mapShipTypeToCategory(shipType) == 4;
+    }
+
+    private static boolean isFishingVessel(Track track) {
+        Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
+        return shipType != null && Categorizer.mapShipTypeToCategory(shipType) == 5;
+    }
+
+    private static boolean isUndefinedVessel(Track track) {
+        Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
+        return shipType != null && Categorizer.mapShipTypeToCategory(shipType) == 8;
+    }
+
+    private static boolean isSlowVessel(Track track) {
+        return track.getSpeedOverGround() < 3.0;
     }
 
 }
