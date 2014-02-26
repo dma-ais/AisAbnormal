@@ -23,7 +23,7 @@ var vesselModule = {
 
         if (mapModule.getVesselLayer().getFeatureByFid("event-" + event.id) == null)  {
             vesselModule.addEventBox(event, extent);
-            vesselModule.addBehavior(event);
+            vesselModule.addBehaviors(event);
         } else {
             console.log("Event id " + event.id + " already added to map.");
         }
@@ -75,56 +75,17 @@ var vesselModule = {
         vesselModule.addEventBoxLabel(event);
     },
 
-    addBehavior: function(event) {
-        var behaviour = event.behaviours[0];
-        var trackingPoints = behaviour.trackingPoints;
-        var vessel = behaviour.vessel;
+    addBehaviors: function(event) {
+        var behaviours = event.behaviours;
+        $.each(behaviours, function (b, behaviour) {
+            var trackingPoints = behaviour.trackingPoints;
+            var vessel = behaviour.vessel;
 
-        // Track history
-        var points = new Array();
-        $.each(trackingPoints, function (i, trackingPoint) {
-            var point = new OpenLayers.Geometry.Point(trackingPoint.longitude, trackingPoint.latitude);
-            point.transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator);
-            points.push(point);
-        });
-        var trackHistory = new OpenLayers.Geometry.LineString(points);
-
-        var historyStyle = {
-            strokeColor: 'red',
-            strokeOpacity: 1,
-            strokeWidth: 2
-        };
-
-        var trackHistoryFeature = new OpenLayers.Feature.Vector(trackHistory, null, historyStyle);
-        mapModule.getVesselLayer().addFeatures([trackHistoryFeature]);
-
-        // Tracking point markers
-        $.each(trackingPoints, function (i, trackingPoint) {
-            var point = new OpenLayers.Geometry.Point(trackingPoint.longitude, trackingPoint.latitude);
-            point.transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator);
-            var markerStyle = { strokeColor: 'orange', strokeWidth: 2, fillOpacity: 1.0, pointRadius: 3 };
-            if (trackingPoint.positionInterpolated == true) {
-                markerStyle.strokeColor = 'grey';
-            }
-            if (trackingPoint.eventCertainty == 'RAISED') {
-                markerStyle.fillColor = 'red';
-            } else if (trackingPoint.eventCertainty == 'UNCERTAIN') {
-                markerStyle.fillColor = 'yellow';
-            } else if (trackingPoint.eventCertainty == 'LOWERED') {
-                markerStyle.fillColor = 'green';
-            } else {
-                markerStyle.fillColor = 'blue';
-            }
-            var markerFeature = new OpenLayers.Feature.Vector(point, {type: "circle"}, markerStyle);
-            markerFeature.fid = 'trackingPoint-'+event.id+'-'+trackingPoint.id;
-            mapModule.getVesselLayer().addFeatures([markerFeature]);
-        });
-
-        // Track symbol
-        var trackingPoint = trackingPoints[trackingPoints.length - 1];
-        var trackSymbolFeature = new OpenLayers.Feature.Vector(
-            new OpenLayers.Geometry.Point(
-                trackingPoint.longitude, trackingPoint.latitude).transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator),
+            // Track symbol
+            var trackingPoint = trackingPoints[trackingPoints.length - 1];
+            var trackSymbolFeature = new OpenLayers.Feature.Vector(
+                new OpenLayers.Geometry.Point(
+                    trackingPoint.longitude, trackingPoint.latitude).transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator),
                 {
                     name: vessel.name,
                     callsign: vessel.callsign,
@@ -139,14 +100,55 @@ var vesselModule = {
                     graphicYOffset:-5,
                     rotation: trackingPoint.courseOverGround - 90
                 }
-        );
-        trackSymbolFeature.fid = 'trackSymbol-'+event.id+'-'+vessel.mmsi;
-        mapModule.getVesselLayer().addFeatures([trackSymbolFeature]);
+            );
+            trackSymbolFeature.fid = 'trackSymbol-'+event.id+'-'+vessel.mmsi;
+            mapModule.getVesselLayer().addFeatures([trackSymbolFeature]);
 
-        // Add user output (labels, tooltips, etc.)
-        vesselModule.addTrackSymbolTooltip(event, behaviour.vessel);
-        $.each(trackingPoints, function (i, trackingPoint) {
-            vesselModule.addTrackingPointTooltip(event, trackingPoint);
+            // Track history
+            var points = new Array();
+            $.each(trackingPoints, function (i, trackingPoint) {
+                var point = new OpenLayers.Geometry.Point(trackingPoint.longitude, trackingPoint.latitude);
+                point.transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator);
+                points.push(point);
+            });
+            var trackHistory = new OpenLayers.Geometry.LineString(points);
+
+            var historyStyle = {
+                strokeColor: 'red',
+                strokeOpacity: 1,
+                strokeWidth: 2
+            };
+
+            var trackHistoryFeature = new OpenLayers.Feature.Vector(trackHistory, null, historyStyle);
+            mapModule.getVesselLayer().addFeatures([trackHistoryFeature]);
+
+            // Tracking point markers
+            $.each(trackingPoints, function (i, trackingPoint) {
+                var point = new OpenLayers.Geometry.Point(trackingPoint.longitude, trackingPoint.latitude);
+                point.transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator);
+                var markerStyle = { strokeColor: 'orange', strokeWidth: 2, fillOpacity: 1.0, pointRadius: 3 };
+                if (trackingPoint.positionInterpolated == true) {
+                    markerStyle.strokeColor = 'grey';
+                }
+                if (trackingPoint.eventCertainty == 'RAISED') {
+                    markerStyle.fillColor = 'red';
+                } else if (trackingPoint.eventCertainty == 'UNCERTAIN') {
+                    markerStyle.fillColor = 'yellow';
+                } else if (trackingPoint.eventCertainty == 'LOWERED') {
+                    markerStyle.fillColor = 'green';
+                } else {
+                    markerStyle.fillColor = 'blue';
+                }
+                var markerFeature = new OpenLayers.Feature.Vector(point, {type: "circle"}, markerStyle);
+                markerFeature.fid = 'trackingPoint-'+event.id+'-'+trackingPoint.id;
+                mapModule.getVesselLayer().addFeatures([markerFeature]);
+            });
+
+            // Add user output (labels, tooltips, etc.)
+            vesselModule.addTrackSymbolTooltip(event, behaviour.vessel);
+            $.each(trackingPoints, function (i, trackingPoint) {
+                vesselModule.addTrackingPointTooltip(event, trackingPoint);
+            });
         });
     },
 
