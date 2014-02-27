@@ -305,11 +305,19 @@ public class CloseEncounterAnalysis extends Analysis {
         String secondaryShipName = (String) secondaryTrack.getProperty(Track.SHIP_NAME);
         secondaryShipName = AisDataHelper.trimAisString(secondaryShipName);
 
-        short primaryShipTypeCategory = Categorizer.mapShipTypeToCategory((Integer) primaryTrack.getProperty(Track.SHIP_TYPE));
-        String primaryShipType = Categorizer.mapShipTypeCategoryToString(primaryShipTypeCategory);
+        String primaryShipType = "?";
+        Integer primaryShipTypeBoxed = (Integer) primaryTrack.getProperty(Track.SHIP_TYPE);
+        if (primaryShipTypeBoxed != null) {
+            short primaryShipTypeCategory = Categorizer.mapShipTypeToCategory(primaryShipTypeBoxed);
+            primaryShipType = Categorizer.mapShipTypeCategoryToString(primaryShipTypeCategory);
+        }
 
-        short secondaryShipTypeCategory = Categorizer.mapShipTypeToCategory((Integer) secondaryTrack.getProperty(Track.SHIP_TYPE));
-        String secondaryShipType = Categorizer.mapShipTypeCategoryToString(secondaryShipTypeCategory);
+        String secondaryShipType = "?";
+        Integer secondaryShipTypeBoxed = (Integer) secondaryTrack.getProperty(Track.SHIP_TYPE);
+        if (secondaryShipTypeBoxed != null) {
+            short secondaryShipTypeCategory = Categorizer.mapShipTypeToCategory(secondaryShipTypeBoxed);
+            secondaryShipType = Categorizer.mapShipTypeCategoryToString(secondaryShipTypeCategory);
+        }
 
         StringBuffer description = new StringBuffer();
         description.append("Close encounter between ");
