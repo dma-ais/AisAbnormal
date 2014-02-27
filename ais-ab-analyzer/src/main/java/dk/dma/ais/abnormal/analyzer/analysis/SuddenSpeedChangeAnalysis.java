@@ -42,7 +42,7 @@ import java.util.Map;
 /**
  * This analysis manages events where the a sudden decreasing speed change occurs.
  * A sudden decreasing speed change is defined as a a speed change going from more
- * than 8 knots to less than 1 knot in less than 15 seconds. This analysis is not
+ * than 9 knots to less than 1 knot in less than 60 seconds. This analysis is not
  * based on previous observations (feature data).
  */
 public class SuddenSpeedChangeAnalysis extends Analysis {
@@ -52,6 +52,10 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
     }
 
     private final AppStatisticsService statisticsService;
+
+    private final float speedHighMark = 9.0f;
+    private final float speedLowMark = 1.0f;
+    private final int suddenTimeSecs = 60;
 
     private final Map<Integer,TrackingPointData> tracks;
     private final String analysisName;
@@ -93,27 +97,20 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
 
     private void performAnalysis(Track track, float sog) {
         final int mmsi = track.getMmsi();
-        TrackingPointData trackingPointData = tracks.get(mmsi);
+        final long timestamp = track.getPositionReportTimestamp();
 
-        if (sog >= 8.0) {
-            final long timestamp = track.getPositionReportTimestamp();
-            if (trackingPointData == null) {
-                trackingPointData = new TrackingPointData(timestamp, sog, track.getCourseOverGround(), track.getPositionReportIsInterpolated(), track.getPosition());
-                tracks.put(mmsi, trackingPointData);
-            }
-        } else if (sog <= 1.0) {
-            final long timestamp = track.getPositionReportTimestamp();
+        if (sog >= speedHighMark) {
+            TrackingPointData trackingPointData = new TrackingPointData(timestamp, sog, track.getCourseOverGround(), track.getPositionReportIsInterpolated(), track.getPosition());
+            tracks.put(mmsi, trackingPointData);
+        } else if (sog <= speedLowMark) {
+            TrackingPointData trackingPointData = tracks.get(mmsi);
             if (trackingPointData != null) {
                 long prevTimestamp = trackingPointData.getTimestamp();
 
                 int deltaSecs = (int) ((timestamp - prevTimestamp) / 1000);
-                if (deltaSecs <= 15 ) {
+                if (deltaSecs <= suddenTimeSecs ) {
                     raiseAndLowerSuddenSpeedChangeEvent(track);
                 }
-                tracks.remove(mmsi);
-            }
-        } else {
-            if (trackingPointData != null) {
                 tracks.remove(mmsi);
             }
         }

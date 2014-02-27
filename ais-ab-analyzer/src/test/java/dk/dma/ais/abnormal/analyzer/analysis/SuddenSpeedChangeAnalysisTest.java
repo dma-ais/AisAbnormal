@@ -101,6 +101,112 @@ public class SuddenSpeedChangeAnalysisTest {
     }
 
     @Test
+    public void eventIsRaisedForSuddenSpeedChangeSpanningSeveralMessages() {
+        // Create object under test
+        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(statisticsService, trackingService, eventRepository);
+
+        // Perform test - none of the required data are there
+        final ArgumentCaptor<SuddenSpeedChangeEvent> eventCaptor = ArgumentCaptor.forClass(SuddenSpeedChangeEvent.class);
+
+        context.checking(new Expectations() {{
+            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
+            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
+            oneOf(trackingService).registerSubscriber(analysis);
+            ignoring(eventRepository).findOngoingEventByVessel(123456, SuddenSpeedChangeEvent.class);
+            never(eventRepository).save(with(eventCaptor.getMatcher()));
+        }});
+        analysis.start();
+
+        int deltaSecs = 10;
+        track.setProperty(Track.SHIP_TYPE, 11);
+
+        /* Grounding of 314234000 on Jul 03 2009 - 20:44:18 - 20:45:18 */
+
+        track.updatePosition(TrackingReport.create(track.getPositionReportTimestamp() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 13.9f, false));
+        context.checking(new Expectations() {{
+            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
+            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
+            never(trackingService).registerSubscriber(analysis);
+            ignoring(eventRepository).findOngoingEventByVessel(123456, SuddenSpeedChangeEvent.class);
+            never(eventRepository).save(with(eventCaptor.getMatcher()));
+        }});
+        analysis.onSpeedOverGroundUpdated(new PositionChangedEvent(track, null));
+        context.assertIsSatisfied();
+
+        track.updatePosition(TrackingReport.create(track.getPositionReportTimestamp() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 13.3f, false));
+        context.checking(new Expectations() {{
+            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
+            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
+            never(trackingService).registerSubscriber(analysis);
+            ignoring(eventRepository).findOngoingEventByVessel(123456, SuddenSpeedChangeEvent.class);
+            never(eventRepository).save(with(eventCaptor.getMatcher()));
+        }});
+        analysis.onSpeedOverGroundUpdated(new PositionChangedEvent(track, null));
+        context.assertIsSatisfied();
+
+        track.updatePosition(TrackingReport.create(track.getPositionReportTimestamp() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 11.7f, false));
+        context.checking(new Expectations() {{
+            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
+            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
+            never(trackingService).registerSubscriber(analysis);
+            ignoring(eventRepository).findOngoingEventByVessel(123456, SuddenSpeedChangeEvent.class);
+            never(eventRepository).save(with(eventCaptor.getMatcher()));
+        }});
+        analysis.onSpeedOverGroundUpdated(new PositionChangedEvent(track, null));
+        context.assertIsSatisfied();
+
+        track.updatePosition(TrackingReport.create(track.getPositionReportTimestamp() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 8.3f, false));
+        context.checking(new Expectations() {{
+            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
+            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
+            never(trackingService).registerSubscriber(analysis);
+            ignoring(eventRepository).findOngoingEventByVessel(123456, SuddenSpeedChangeEvent.class);
+            never(eventRepository).save(with(eventCaptor.getMatcher()));
+        }});
+        analysis.onSpeedOverGroundUpdated(new PositionChangedEvent(track, null));
+        context.assertIsSatisfied();
+
+        track.updatePosition(TrackingReport.create(track.getPositionReportTimestamp() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 5.0f, false));
+        context.checking(new Expectations() {{
+            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
+            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
+            never(trackingService).registerSubscriber(analysis);
+            ignoring(eventRepository).findOngoingEventByVessel(123456, SuddenSpeedChangeEvent.class);
+            never(eventRepository).save(with(eventCaptor.getMatcher()));
+        }});
+        analysis.onSpeedOverGroundUpdated(new PositionChangedEvent(track, null));
+        context.assertIsSatisfied();
+
+        track.updatePosition(TrackingReport.create(track.getPositionReportTimestamp() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 1.9f, false));
+        context.checking(new Expectations() {{
+            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
+            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
+            never(trackingService).registerSubscriber(analysis);
+            ignoring(eventRepository).findOngoingEventByVessel(123456, SuddenSpeedChangeEvent.class);
+            never(eventRepository).save(with(eventCaptor.getMatcher()));
+        }});
+        analysis.onSpeedOverGroundUpdated(new PositionChangedEvent(track, null));
+        context.assertIsSatisfied();
+
+        track.updatePosition(TrackingReport.create(track.getPositionReportTimestamp() + deltaSecs * 1000, Position.create(56, 12), 45.0f,  0.0f, false));
+        context.checking(new Expectations() {{
+            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
+            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
+            never(trackingService).registerSubscriber(analysis);
+            ignoring(eventRepository).findOngoingEventByVessel(123456, SuddenSpeedChangeEvent.class);
+            oneOf(eventRepository).save(with(eventCaptor.getMatcher()));
+        }});
+        analysis.onSpeedOverGroundUpdated(new PositionChangedEvent(track, null));
+        context.assertIsSatisfied();
+
+        SuddenSpeedChangeEvent capturedEvent = eventCaptor.getCapturedObject();
+        assertEquals("SuddenSpeedChangeEvent", capturedEvent.getEventType());
+        assertEquals(123456, capturedEvent.getBehaviour(track.getMmsi()).getVessel().getMmsi());
+        assertTrue(capturedEvent.getStartTime().before(capturedEvent.getEndTime()));
+        assertEquals(2, capturedEvent.getBehaviour(track.getMmsi()).getTrackingPoints().size());
+    }
+
+    @Test
     public void noEventIsRaisedForSlowSpeedChange() {
         // Create object under test
         final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(statisticsService, trackingService, eventRepository);
