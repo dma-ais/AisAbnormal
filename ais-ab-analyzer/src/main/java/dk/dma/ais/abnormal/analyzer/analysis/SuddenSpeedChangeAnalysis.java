@@ -133,9 +133,12 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
         Boolean interpolated = track.getPositionReportIsInterpolated();
         Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
 
-        short shipTypeCategory = Categorizer.mapShipTypeToCategory(shipType);
-        String shipTypeAsString = Categorizer.mapShipTypeCategoryToString(shipTypeCategory);
-        shipTypeAsString = shipTypeAsString.substring(0, 1).toUpperCase() + shipTypeAsString.substring(1);
+        String shipTypeAsString = "?";
+        if (shipType != null) {
+            short shipTypeCategory = Categorizer.mapShipTypeToCategory(shipType);
+            shipTypeAsString = Categorizer.mapShipTypeCategoryToString(shipTypeCategory);
+            shipTypeAsString = shipTypeAsString.substring(0, 1).toUpperCase() + shipTypeAsString.substring(1);
+        }
 
         TrackingPointData prevTrackingPoint = tracks.get(mmsi);
         Date prevTimestamp = new Date(prevTrackingPoint.getTimestamp());

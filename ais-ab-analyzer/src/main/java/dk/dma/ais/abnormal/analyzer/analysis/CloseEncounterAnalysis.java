@@ -32,6 +32,7 @@ import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingReport;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.TimeEvent;
+import dk.dma.ais.abnormal.util.AisDataHelper;
 import dk.dma.ais.abnormal.util.Categorizer;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
@@ -298,14 +299,31 @@ public class CloseEncounterAnalysis extends Analysis {
         }
         final Track secondaryTrack = otherTracks[0];
 
-        statisticsService.incAnalysisStatistics(analysisName, "Events raised");
-        LOG.info(new Date(primaryTrack.getPositionReportTimestamp()) + ": Detected CloseEncounterEvent involving mmsi " + primaryTrack.getMmsi());
+        String primaryShipName = (String) primaryTrack.getProperty(Track.SHIP_NAME);
+        primaryShipName = AisDataHelper.trimAisString(primaryShipName);
 
-        final String desc = String.format("Close encounter");
+        String secondaryShipName = (String) secondaryTrack.getProperty(Track.SHIP_NAME);
+        secondaryShipName = AisDataHelper.trimAisString(secondaryShipName);
+
+        short primaryShipTypeCategory = Categorizer.mapShipTypeToCategory((Integer) primaryTrack.getProperty(Track.SHIP_TYPE));
+        String primaryShipType = Categorizer.mapShipTypeCategoryToString(primaryShipTypeCategory);
+
+        short secondaryShipTypeCategory = Categorizer.mapShipTypeToCategory((Integer) secondaryTrack.getProperty(Track.SHIP_TYPE));
+        String secondaryShipType = Categorizer.mapShipTypeCategoryToString(secondaryShipTypeCategory);
+
+        StringBuffer description = new StringBuffer();
+        description.append("Close encounter between ");
+        description.append(primaryShipName);
+        description.append(" (" + primaryShipType + ") and ");
+        description.append(secondaryShipName);
+        description.append(" (" + secondaryShipType + "). ");
+
+        statisticsService.incAnalysisStatistics(analysisName, "Events raised");
+        LOG.info(new Date(primaryTrack.getPositionReportTimestamp()) + ": Detected CloseEncounterEvent: " + description.toString());
 
         Event event =
             CloseEncounterEventBuilder.CloseEncounterEvent()
-                    .description(desc)
+                    .description(description.toString())
                     .state(Event.State.ONGOING)
                     .startTime(new Date(primaryTrack.getPositionReportTimestamp()))
                     .behaviour()

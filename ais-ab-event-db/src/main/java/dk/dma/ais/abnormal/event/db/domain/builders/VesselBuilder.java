@@ -16,8 +16,8 @@
 
 package dk.dma.ais.abnormal.event.db.domain.builders;
 
-import com.google.common.base.Strings;
 import dk.dma.ais.abnormal.event.db.domain.Vessel;
+import dk.dma.ais.abnormal.util.AisDataHelper;
 
 public class VesselBuilder {
 
@@ -38,12 +38,12 @@ public class VesselBuilder {
     }
 
     public BehaviourBuilder name(String name) {
-        vessel.setName(trimAisString(name));
+        vessel.setName(AisDataHelper.trimAisString(name));
         return behaviourBuilder;
     }
 
     public VesselBuilder callsign(String callsign) {
-        vessel.setCallsign(trimAisString(callsign));
+        vessel.setCallsign(AisDataHelper.trimAisString(callsign));
         return this;
     }
 
@@ -61,10 +61,4 @@ public class VesselBuilder {
         return vessel;
     }
 
-    private static String trimAisString(String name) {
-        if (!Strings.isNullOrEmpty(name)) {
-            name = name.replace('@', ' ').trim();
-        }
-        return name;
-    }
 }
