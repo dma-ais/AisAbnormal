@@ -215,18 +215,19 @@ public class SuddenSpeedChangeAnalysisTest {
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
             ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
+            never(eventRepository).findOngoingEventByVessel(123456, SuddenSpeedChangeEvent.class);
             oneOf(trackingService).registerSubscriber(analysis);
             never(eventRepository).save(with(any(Event.class)));
         }});
         analysis.start();
 
-        int deltaSecs = 16;
+        int deltaSecs = 61;
 
         PositionChangedEvent event = new PositionChangedEvent(track, null);
-        track.updatePosition(TrackingReport.create(track.getPositionReportTimestamp() + (deltaSecs + 0) * 1000, Position.create(56, 12), 45.0f, 12.2f, false));
+        track.updatePosition(TrackingReport.create(track.getPositionReportTimestamp() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 12.2f, false));
         analysis.onSpeedOverGroundUpdated(event);
 
-        track.updatePosition(TrackingReport.create(track.getPositionReportTimestamp() + (deltaSecs + 1) * 2000, Position.create(56, 12), 45.0f, 0.1f, false));
+        track.updatePosition(TrackingReport.create(track.getPositionReportTimestamp() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 0.1f, false));
         analysis.onSpeedOverGroundUpdated(event);
 
         context.assertIsSatisfied();
