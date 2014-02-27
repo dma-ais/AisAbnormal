@@ -231,7 +231,7 @@ public class CloseEncounterAnalysis extends Analysis {
         final double xc = -safetyEllipseBehind*v+0.5*l1;
 
         // Compute direction of half axis alpha
-        final double thetaDeg = compass2cartesian(cog);
+        final double thetaDeg = CoordinateTransformer.compass2cartesian(cog);
 
         // Transform latitude/longitude to cartesian coordinates
         final double centerLatitude = cartesianCenter.getLatitude();
@@ -255,22 +255,6 @@ public class CloseEncounterAnalysis extends Analysis {
         final double beta = beam * b1 / 2.0;
 
         return new SafetyZone(pt1.getX(), pt1.getY(), alpha, beta, thetaDeg);
-    }
-
-    /**
-     * Converts a compass heading to a cartesian angle
-     * @param a
-     * @return
-     */
-    private static double compass2cartesian(double a) {
-        double cartesianAngle;
-
-        if ((a >= 0.0) && (a <= 90.0)) {
-            cartesianAngle = 90.0 - a;
-        } else {
-            cartesianAngle = 450.0 - a;
-        }
-        return cartesianAngle;
     }
 
     /**

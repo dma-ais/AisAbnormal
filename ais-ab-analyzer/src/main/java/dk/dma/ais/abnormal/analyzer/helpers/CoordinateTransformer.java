@@ -25,10 +25,17 @@ import static java.lang.StrictMath.toDegrees;
 import static java.lang.StrictMath.toRadians;
 
 /**
- * Inserts a plane in a point(lon0,lat0) somewhere on the earth. Earth is here a perfect sphere
+ * Miscellaneous helper functions to transform point coordinates between geodetic
+ * representation (in degrees latitude, longitude) to cartesian representation in (x,y).
+ *
+ * Some of the functions require the class to be instantiated and configured with a
+ * plane touching the Earth in a point(lon0,lat0) somewhere. Earth is here a perfect sphere
  * It is then possible to use 2d geometry within some km of the central point.
+ *
+ * Other functions are static and can be used without instantiating and configuring the
+ * class for use near a specific point.
  */
-public class CoordinateTransformer {
+public final class CoordinateTransformer {
     /**
      * Earth radius in metres
      */
@@ -59,6 +66,24 @@ public class CoordinateTransformer {
         this.lat0 = centralLatitude;
         this.lon0Rad = toRadians(centralLongitude);
         this.lat0Rad = toRadians(centralLatitude);
+    }
+
+    /**
+     * Converts a compass heading (0-360 degrees, 0 north) to a
+     * cartesian angle (0-360, 0 along x-axis).
+     *
+     * @param a
+     * @return
+     */
+    public static double compass2cartesian(double a) {
+        double cartesianAngle;
+
+        if ((a >= 0.0) && (a <= 90.0)) {
+            cartesianAngle = 90.0 - a;
+        } else {
+            cartesianAngle = 450.0 - a;
+        }
+        return cartesianAngle;
     }
 
     public double lon2x(double lon, double lat)
