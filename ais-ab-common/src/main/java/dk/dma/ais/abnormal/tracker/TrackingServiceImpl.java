@@ -48,6 +48,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -76,6 +77,11 @@ public class TrackingServiceImpl implements TrackingService {
     static final int INTERPOLATION_TIME_STEP_MILLIS = 10000;
 
     /**
+     * A set of mmsi no.'s for which to output detailed debugging/observation data.
+     */
+    private final Set<Integer> mmsiToObserve = new TreeSet<>();
+
+    /**
      * A simple counter which is used to reduce CPU load by only performing more complicated
      * calculations when this markTrigger has reached certain values.
      */
@@ -101,6 +107,7 @@ public class TrackingServiceImpl implements TrackingService {
         eventBus.register(this);
         this.grid = grid;
         this.statisticsService = statisticsService;
+        //mmsiToObserve.add(1234);
     }
 
     /**
@@ -110,7 +117,11 @@ public class TrackingServiceImpl implements TrackingService {
     public void update(Date timestamp, AisMessage aisMessage) {
         final AisTargetType targetType = aisMessage.getTargetType();
 
-        int mmsi = aisMessage.getUserId();
+        final int mmsi = aisMessage.getUserId();
+
+        if (mmsiToObserve.contains(mmsi)) {
+            outputMessageSummary(timestamp, aisMessage);
+        }
 
         if (targetType == AisTargetType.A || targetType == AisTargetType.B) {
             Track track = getOrCreateTrack(mmsi);
@@ -171,6 +182,14 @@ public class TrackingServiceImpl implements TrackingService {
         }
 
         mark(timestamp);
+    }
+
+    private static void outputMessageSummary(Date timestamp, AisMessage aisMessage) {
+        //LOG.info(timestamp + ": " + aisMessage.toString());
+        if (aisMessage instanceof IVesselPositionMessage) {
+            IVesselPositionMessage positionMessage = (IVesselPositionMessage) aisMessage;
+            System.out.println(timestamp + ": " + aisMessage.getUserId() + ": " + positionMessage.getSog() / 10.0 + " kts");
+        }
     }
 
     private void interpolatePositions(Track track, Long currentUpdate, IPositionMessage positionMessage) {
