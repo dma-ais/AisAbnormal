@@ -112,16 +112,10 @@ public class CloseEncounterAnalysis extends Analysis {
         LOG.debug("Starting " + analysisName);
         final long systemTimeMillisBeforeAnalysis = System.currentTimeMillis();
 
-        // Get the tracks to analyse
         Set<Track> tracks = getTrackingService().cloneTracks();
-
-        // If a work/support ship is involved then do not register.
-        final Set<Track> filteredTracks = tracks.stream()
-                .filter(t -> !isSupportVessel(t))
-                .collect(toSet());
-
-        // Analyse close encounters
-        filteredTracks.forEach(t -> analyseCloseEncounters(filteredTracks, t));
+        tracks.forEach(
+                t -> analyseCloseEncounters(tracks, t)
+        );
 
         final long systemTimeMillisAfterAnalysis = System.currentTimeMillis();
         statisticsService.incAnalysisStatistics(analysisName, "Analyses performed");
@@ -132,14 +126,16 @@ public class CloseEncounterAnalysis extends Analysis {
         clearTrackPairsAnalyzed();
         Set<Track> nearByTracks = findNearByTracks(allTracks, track, 60000, 1852);
 
-        nearByTracks.forEach(nearByTrack -> {
-            if (isFishingVessel(track) && isFishingVessel(nearByTrack)) { return; }
-            if (isUndefinedVessel(track) && isUndefinedVessel(nearByTrack)) { return; }
-            if (isSupportVessel(track) || isSupportVessel(nearByTrack)) { return; };
-            if (isSlowVessel(track) && isSlowVessel(nearByTrack)) { return; };
+        if (! isSupportVessel(track)) {
+            nearByTracks.forEach(nearByTrack -> {
+                if (isFishingVessel(track) && isFishingVessel(nearByTrack)) { return; }
+                if (isUndefinedVessel(track) && isUndefinedVessel(nearByTrack)) { return; }
+                if (isSupportVessel(nearByTrack)) { return; };
+                if (isSlowVessel(track) && isSlowVessel(nearByTrack)) { return; };
 
-            analyseCloseEncounter(track, nearByTrack);
-        });
+                analyseCloseEncounter(track, nearByTrack);
+            });
+        }
     }
 
     void analyseCloseEncounter(Track track1, Track track2) {
@@ -278,32 +274,30 @@ public class CloseEncounterAnalysis extends Analysis {
     }
 
     /**
-     * In the set of tracks: find the tracks which are near to the track - with 'near'
+     * In the set of candidateTracks: find the candidateTracks which are near to the nearToTrack - with 'near'
      * defined as
      *
-     * - last reported position timestamp within +/- 1 minute of track's
-     * - last reported position within 1 nm of track
+     * - last reported position timestamp within +/- 1 minute of nearToTrack's
+     * - last reported position within 1 nm of nearToTrack
      *
-     * @param tracks the set of candidate tracks to search among.
-     * @param track the track to find other near-by tracks for.
-     * @return the set of nearby tracks
+     * @param candidateTracks the set of candidate candidateTracks to search among.
+     * @param nearToTrack the nearToTrack to find other near-by candidateTracks for.
+     * @return the set of nearby candidateTracks
      */
-    Set<Track> findNearByTracks(Set<Track> tracks, Track track, int maxTimestampDeviationMillis, int maxDistanceDeviationMeters) {
+    Set<Track> findNearByTracks(Set<Track> candidateTracks, Track nearToTrack, int maxTimestampDeviationMillis, int maxDistanceDeviationMeters) {
         Set<Track> nearbyTracks = Collections.EMPTY_SET;
 
-        TrackingReport positionReport = track.getPositionReport();
+        TrackingReport positionReport = nearToTrack.getPositionReport();
 
         if (positionReport != null) {
-            long timestamp = positionReport.getTimestamp();
-            Position position = positionReport.getPosition();
+            final long timestamp = positionReport.getTimestamp();
 
-            nearbyTracks = tracks.stream().filter(t ->
-                    t.getMmsi() != track.getMmsi() &&
-                    t.getPositionReportTimestamp() != null &&
-                    t.getPositionReportTimestamp() > positionReport.getTimestamp() - maxTimestampDeviationMillis &&
-                    t.getPositionReportTimestamp() < positionReport.getTimestamp() + maxTimestampDeviationMillis &&
-                    t.getPosition().distanceTo(track.getPosition(), CoordinateSystem.CARTESIAN) < maxDistanceDeviationMeters
-
+            nearbyTracks = candidateTracks.stream().filter(candidateTrack ->
+                    candidateTrack.getMmsi() != nearToTrack.getMmsi() &&
+                    candidateTrack.getPositionReportTimestamp() != null &&
+                    candidateTrack.getPositionReportTimestamp() > timestamp - maxTimestampDeviationMillis &&
+                    candidateTrack.getPositionReportTimestamp() < timestamp + maxTimestampDeviationMillis &&
+                    candidateTrack.getPosition().distanceTo(nearToTrack.getPosition(), CoordinateSystem.CARTESIAN) < maxDistanceDeviationMeters
             ).collect(toSet());
         }
 
