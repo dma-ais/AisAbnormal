@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 
+import static java.lang.System.exit;
+
 /**
  * AIS Abnormal event analyzer
  */
@@ -65,35 +67,12 @@ public class AbnormalAnalyzerApp extends AbstractDaemon {
         statisticsService.start();
 
         reader.registerPacketHandler(packetHandler);
+        LOG.info("Starting AisDirectoryReader thread.");
         reader.start();
+        LOG.info("Joining AisDirectoryReader thread.");
         reader.join();
+        LOG.info("AisDirectoryReader thread finished.");
 
-
-        /*
-        Grid grid = getInjector().getInstance(Grid.class);
-
-        packetHandler = packetHandlerFactory.create(userArguments.isMultiThreaded());
-        // Write dataset metadata before we start
-        DatasetMetaData metadata = new DatasetMetaData(grid.getResolution(), userArguments.getDownSampling());
-        featureDataRepository.putMetaData(metadata);
-
-        reader.registerPacketHandler(packetHandler);
-        reader.start();
-        reader.join();
-
-        executorService.shutdown();
-        boolean shutdown;
-        do {
-            LOG.debug("Waiting for worker tasks to complete.");
-            shutdown = executorService.awaitTermination(1, TimeUnit.MINUTES);
-        } while(!shutdown);
-        LOG.info("All worker tasks completed.");
-
-        statisticsService.dumpStatistics();
-
-        featureDataRepository.close();
-        statisticsService.stop();
-        */
     }
 
     @Override
@@ -114,7 +93,7 @@ public class AbnormalAnalyzerApp extends AbstractDaemon {
             @Override
             public void uncaughtException(Thread t, Throwable e) {
                 LOG.error("Uncaught exception in thread " + t.getClass().getCanonicalName() + ": " + e.getMessage(), e);
-                System.exit(-1);
+                exit(-1);
             }
         });
 
@@ -158,10 +137,15 @@ public class AbnormalAnalyzerApp extends AbstractDaemon {
             AbnormalAnalyzerApp.setInjector(injector);
             try {
                 AbnormalAnalyzerApp app = injector.getInstance(AbnormalAnalyzerApp.class);
+                LOG.info("Executing application.");
                 app.execute(new String[]{} /* no cmd args - we handled them already */);
+                LOG.info("Completed executing application.");
             } catch (Exception e) {
+                e.printStackTrace(System.err);
                 LOG.error(e.getMessage());
             }
         }
+
+        exit(0);
     }
 }
