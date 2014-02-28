@@ -17,7 +17,7 @@ package dk.dma.ais.abnormal.analyzer.analysis;
 
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.analyzer.behaviour.EventCertainty;
-import dk.dma.ais.abnormal.analyzer.helpers.SafetyZone;
+import dk.dma.ais.abnormal.analyzer.helpers.Zone;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.Behaviour;
 import dk.dma.ais.abnormal.event.db.domain.CloseEncounterEvent;
@@ -86,13 +86,13 @@ public class CloseEncounterAnalysisTest {
         closeTrack.setProperty(Track.VESSEL_BEAM, 17);
         closeTrack.setProperty(Track.VESSEL_DIM_STERN, 18);
         closeTrack.setProperty(Track.VESSEL_DIM_STARBOARD, 9);
-        closeTrack.updatePosition(TrackingReport.create(timestamp - 40000, Position.create(56.100, 12.001), 180.0f, 10.0f, false));
-        closeTrack.updatePosition(TrackingReport.create(timestamp - 30000, Position.create(56.080, 12.001), 180.0f, 10.0f, false));
-        closeTrack.updatePosition(TrackingReport.create(timestamp - 20000, Position.create(56.060, 12.001), 180.0f, 10.0f, false));
-        closeTrack.updatePosition(TrackingReport.create(timestamp - 10000, Position.create(56.040, 12.001), 180.0f, 10.0f, false));
-        closeTrack.updatePosition(TrackingReport.create(timestamp,         Position.create(56.001, 12.001), 180.0f, 10.0f, false));
+        closeTrack.updatePosition(TrackingReport.create(timestamp - 40000, Position.create(56.1000, 12.0010), 180.0f, 10.0f, false));
+        closeTrack.updatePosition(TrackingReport.create(timestamp - 30000, Position.create(56.0800, 12.0010), 180.0f, 10.0f, false));
+        closeTrack.updatePosition(TrackingReport.create(timestamp - 20000, Position.create(56.0600, 12.0010), 180.0f, 10.0f, false));
+        closeTrack.updatePosition(TrackingReport.create(timestamp - 10000, Position.create(56.0400, 12.0010), 180.0f, 10.0f, false));
+        closeTrack.updatePosition(TrackingReport.create(timestamp,         Position.create(56.0001, 12.0000), 180.0f, 10.0f, false));
         closeTrack.getTrackingReports().forEach( tr -> { tr.setProperty("event-certainty-CloseEncounterEvent", EventCertainty.LOWERED);});
-        assertTrue(closeTrack.getPosition().equals(Position.create(56.001, 12.001)));
+        assertTrue(closeTrack.getPosition().equals(Position.create(56.0001, 12.0000)));
         assertTrue(track.getPosition().distanceTo(closeTrack.getPosition(), CoordinateSystem.CARTESIAN) < 200);
 
         distantTrack = new Track(101);
@@ -172,10 +172,10 @@ public class CloseEncounterAnalysisTest {
         track.setProperty(Track.VESSEL_DIM_STARBOARD, 0);
         track.updatePosition(TrackingReport.create(1000L, Position.create(56, 12), 90.0f, 0.0f, false));
 
-        SafetyZone safetyZone = analysis.computeSafetyZone(track.getPosition(), track, track);
+        Zone zone = analysis.computeSafetyZone(track.getPosition(), track, track);
 
-        assertEquals(0.0, safetyZone.getX(), 1e-6);
-        assertEquals(0.0, safetyZone.getY(), 1e-6);
+        assertEquals(0.0, zone.getX(), 1e-6);
+        assertEquals(0.0, zone.getY(), 1e-6);
     }
 
     @Test
@@ -187,10 +187,10 @@ public class CloseEncounterAnalysisTest {
         track.setProperty(Track.VESSEL_DIM_STARBOARD, 10);
         track.updatePosition(TrackingReport.create(1000L, Position.create(56, 12), 90.0f, 0.0f, false));
 
-        SafetyZone safetyZone = analysis.computeSafetyZone(track.getPosition(), track, track);
+        Zone zone = analysis.computeSafetyZone(track.getPosition(), track, track);
 
-        assertEquals(100.0, safetyZone.getX(), 1e-6);
-        assertEquals(0.0, safetyZone.getY(), 1e-6);
+        assertEquals(100.0, zone.getX(), 1e-6);
+        assertEquals(0.0, zone.getY(), 1e-6);
     }
 
     @Test
@@ -202,10 +202,10 @@ public class CloseEncounterAnalysisTest {
         track.setProperty(Track.VESSEL_DIM_STARBOARD, 10);
         track.updatePosition(TrackingReport.create(1000L, Position.create(56, 12), 0.0f, 0.0f, false));
 
-        SafetyZone safetyZone = analysis.computeSafetyZone(track.getPosition(), track, track);
+        Zone zone = analysis.computeSafetyZone(track.getPosition(), track, track);
 
-        assertEquals(0.0, safetyZone.getX(), 1e-6);
-        assertEquals(100.0, safetyZone.getY(), 1e-6);
+        assertEquals(0.0, zone.getX(), 1e-6);
+        assertEquals(100.0, zone.getY(), 1e-6);
     }
 
     @Test
@@ -217,14 +217,14 @@ public class CloseEncounterAnalysisTest {
         track.setProperty(Track.VESSEL_DIM_STARBOARD, 10);
         track.updatePosition(TrackingReport.create(1000L, Position.create(56, 12), 90.0f, 0.0f, false));
 
-        SafetyZone safetyZone = analysis.computeSafetyZone(track.getPosition(), track, track);
+        Zone zone = analysis.computeSafetyZone(track.getPosition(), track, track);
 
         /* Checking in cartesian coordinates */
-        assertEquals(100.0, safetyZone.getX(),        1e-6);
-        assertEquals(  0.0, safetyZone.getY(),        1e-6);
-        assertEquals(200.0, safetyZone.getAlpha(),    1e-6);
-        assertEquals( 50.0, safetyZone.getBeta(),     1e-6);
-        assertEquals(  0.0, safetyZone.getThetaDeg(), 1e-6);
+        assertEquals(100.0, zone.getX(),        1e-6);
+        assertEquals(  0.0, zone.getY(),        1e-6);
+        assertEquals(200.0, zone.getAlpha(),    1e-6);
+        assertEquals( 50.0, zone.getBeta(),     1e-6);
+        assertEquals(  0.0, zone.getThetaDeg(), 1e-6);
     }
 
     @Test
@@ -236,26 +236,26 @@ public class CloseEncounterAnalysisTest {
         track.setProperty(Track.VESSEL_DIM_STARBOARD, 10);
         track.updatePosition(TrackingReport.create(1000L, Position.create(56, 12), 0.0f, 0.0f, false));
 
-        SafetyZone safetyZone1 = analysis.computeSafetyZone(Position.create(57, 12), track, track);
-        assertEquals(0.0, safetyZone1.getX(), 1e-6);
-        assertEquals(-110849.07380140232, safetyZone1.getY(), 1e-6);
+        Zone zone1 = analysis.computeSafetyZone(Position.create(57, 12), track, track);
+        assertEquals(0.0, zone1.getX(), 1e-6);
+        assertEquals(-110849.07380140232, zone1.getY(), 1e-6);
 
-        SafetyZone safetyZone2 = analysis.computeSafetyZone(Position.create(56, 13), track, track);
-        assertEquals(-62038.68737595969, safetyZone2.getX(), 1e-6);
-        assertEquals(548.8437792803036, safetyZone2.getY(), 1e-6);
+        Zone zone2 = analysis.computeSafetyZone(Position.create(56, 13), track, track);
+        assertEquals(-62038.68737595969, zone2.getX(), 1e-6);
+        assertEquals(548.8437792803036, zone2.getY(), 1e-6);
     }
 
     @Test
     public void testComputeSafetyZone1() {
         track.updatePosition(TrackingReport.create(1000L, Position.create(56, 12), 90.0f, 10.0f, false));
 
-        SafetyZone safetyZone = analysis.computeSafetyZone(track.getPosition(), track, track);
+        Zone zone = analysis.computeSafetyZone(track.getPosition(), track, track);
 
-        assertEquals(120.0, safetyZone.getX(), 1e-6);
-        assertEquals(-0.5, safetyZone.getY(), 1e-6);
-        assertEquals(37.5, safetyZone.getBeta(), 1e-6);
-        assertEquals(200.0, safetyZone.getAlpha(), 1e-6);
-        assertEquals(0.0, safetyZone.getThetaDeg(), 1e-6);
+        assertEquals(120.0, zone.getX(), 1e-6);
+        assertEquals(-0.5, zone.getY(), 1e-6);
+        assertEquals(37.5, zone.getBeta(), 1e-6);
+        assertEquals(200.0, zone.getAlpha(), 1e-6);
+        assertEquals(0.0, zone.getThetaDeg(), 1e-6);
     }
 
     @Test
@@ -273,7 +273,7 @@ public class CloseEncounterAnalysisTest {
         otherTrack.setProperty(Track.VESSEL_DIM_STERN, 30);
         otherTrack.setProperty(Track.VESSEL_DIM_STARBOARD, 7);
 
-        SafetyZone safetyZone = analysis.computeSafetyZone(track.getPosition(), track, otherTrack);
+        Zone safetyZone = analysis.computeSafetyZone(track.getPosition(), track, otherTrack);
 
         assertEquals(120.0, safetyZone.getX(), 1e-6);
         assertEquals(-0.5, safetyZone.getY(), 1e-6);

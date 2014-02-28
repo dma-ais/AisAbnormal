@@ -22,7 +22,7 @@ import com.google.inject.Inject;
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.analyzer.helpers.CoordinateTransformer;
 import dk.dma.ais.abnormal.analyzer.helpers.Point;
-import dk.dma.ais.abnormal.analyzer.helpers.SafetyZone;
+import dk.dma.ais.abnormal.analyzer.helpers.Zone;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.CloseEncounterEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
@@ -142,9 +142,9 @@ public class CloseEncounterAnalysis extends Analysis {
     void analyseCloseEncounter(Track track1, Track track2) {
         //  filterOutPreviouslyCompared(track);
         if (track1.getSpeedOverGround() > 5.0 && ! isTrackPairAnalyzed(track1, track2)) {
-            SafetyZone safetyZone1 = computeSafetyZone(track1.getPosition(), track1, track2);
-            SafetyZone safetyZone2 = computeSafetyZone(track1.getPosition(), track2, track1);
-            if (safetyZone1 != null && safetyZone2 != null && safetyZone1.intersects(safetyZone2)) {
+            Zone safetyZoneTrack1 = computeSafetyZone(track1.getPosition(), track1, track2);
+            Zone extentTrack2 = computeVesselExtent(track1.getPosition(), track2);
+            if (safetyZoneTrack1 != null && extentTrack2 != null && safetyZoneTrack1.intersects(extentTrack2)) {
                 raiseOrMaintainAbnormalEvent(CloseEncounterEvent.class, track1, track2);
             } else {
                 lowerExistingAbnormalEventIfExists(CloseEncounterEvent.class, track1);
@@ -177,13 +177,48 @@ public class CloseEncounterAnalysis extends Analysis {
         return trackPairsAnalyzed.contains(trackPairKey);
     }
 
+
     /**
-     * Compute the safety zone for track in the context of otherTrack.
+     * Compute the an elliptic zone which roughly corresponds to the vessel's physical extent.
+     * @param cartesianCenter
+     * @param track
+     * @return
+     */
+    Zone computeVesselExtent(Position cartesianCenter, Track track) {
+        return computeZone(cartesianCenter, track, 1.0, 1.0, 0.5);
+    }
+
+    /**
+     * Compute the safety zone of track. This is roughly equivalent to the elliptic area around the vessel
+     * which its navigator would observe for safety reasons to avoid imminent collisions.
+     *
+     * @param cartesianCenter
      * @param track
      * @param otherTrack
+     * @return
+     */
+    Zone computeSafetyZone(Position cartesianCenter, Track track, Track otherTrack) {
+        final double safetyEllipseLength = 4;
+        final double safetyEllipseBreadth = 5;
+        final double safetyEllipseBehind = 0.5;   // = behindLength ???
+        final double v = 1.0;
+        final double l1 = max(safetyEllipseLength * v, 1.0 + safetyEllipseBehind*v*2.0);
+        final double b1 = max(safetyEllipseBreadth * v, 1.5);
+        final double xc = -safetyEllipseBehind * v + 0.5*l1;
+
+        return computeZone(cartesianCenter, track, l1, b1, xc);
+    }
+
+    /**
+     * Compute an elliptic zone around a track.
+     * @param cartesianCenter
+     * @param track
+     * @param l1
+     * @param b1
+     * @param xc
      * @return The safety zone for the track.
      */
-    SafetyZone computeSafetyZone(Position cartesianCenter, Track track, Track otherTrack) {
+    private Zone computeZone(Position cartesianCenter, Track track, double l1, double b1, double xc) {
         // Retrieve and validate required input variables
         Float   cogBoxed = track.getCourseOverGround();
         Integer loaBoxed = (Integer) track.getProperty(Track.VESSEL_LENGTH);
@@ -222,15 +257,6 @@ public class CloseEncounterAnalysis extends Analysis {
         final double dimStern = dimSternBoxed;
         final double dimStarboard = dimStarboardBoxed;
 
-        // Setup configurable input constants
-        final double safetyEllipseLength = 4;
-        final double safetyEllipseBreadth = 5;
-        final double safetyEllipseBehind = 0.5;   // = behindLength ???
-        final double v = 1.0;
-        final double l1 = max(safetyEllipseLength * v, 1.0 + safetyEllipseBehind*v*2.0);
-        final double b1 = max(safetyEllipseBreadth * v, 1.5);
-        final double xc = -safetyEllipseBehind*v+0.5*l1;
-
         // Compute direction of half axis alpha
         final double thetaDeg = CoordinateTransformer.compass2cartesian(cog);
 
@@ -255,7 +281,7 @@ public class CloseEncounterAnalysis extends Analysis {
         // Compute length of half axis beta
         final double beta = beam * b1 / 2.0;
 
-        return new SafetyZone(pt1.getX(), pt1.getY(), alpha, beta, thetaDeg);
+        return new Zone(pt1.getX(), pt1.getY(), alpha, beta, thetaDeg);
     }
 
     /**

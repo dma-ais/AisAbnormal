@@ -25,7 +25,7 @@ import static java.lang.StrictMath.toRadians;
  * This class holds the defining parameters for the safety zone surrounding a vessel.
  * All values are Cartesian (x,y).
  */
-public final class SafetyZone {
+public final class Zone {
     /**
      * X coordinate of center.
      */
@@ -47,7 +47,7 @@ public final class SafetyZone {
      */
     private final double thetaDeg;
 
-    public SafetyZone(double x, double y, double alpha, double beta, double thetaDeg) {
+    public Zone(double x, double y, double alpha, double beta, double thetaDeg) {
         this.x = x;
         this.y = y;
         this.alpha = alpha;
@@ -78,18 +78,18 @@ public final class SafetyZone {
     /**
      * Returns true if two safety zones intersect.
      *
-     * @param otherSafetyZone the other safety zone.
+     * @param otherZone the other safety zone.
      * @return
      */
-    public boolean intersects(SafetyZone otherSafetyZone) {
+    public boolean intersects(Zone otherZone) {
         final double h1x = cos(toRadians(thetaDeg));
         final double h1y = sin(toRadians(thetaDeg));
 
-        final double h2x = cos(toRadians(otherSafetyZone.thetaDeg));
-        final double h2y = sin(toRadians(otherSafetyZone.thetaDeg));
+        final double h2x = cos(toRadians(otherZone.thetaDeg));
+        final double h2y = sin(toRadians(otherZone.thetaDeg));
 
-        final double vx = otherSafetyZone.x - x;
-        final double vy = otherSafetyZone.y - y;
+        final double vx = otherZone.x - x;
+        final double vy = otherZone.y - y;
 
         final double d = sqrt(vx * vx + vy * vy);
 
@@ -103,7 +103,7 @@ public final class SafetyZone {
             final double d1 = sqrt((alpha * alpha * beta * beta) / (alpha * alpha * sinb1 * sinb1 + beta * beta * cosb1 * cosb1));
             final double cosb2 = (h2x * vx + h2y * vy) / (sqrt(h2x * h2x + h2y * h2y) * d);
             final double sinb2 = (h2x * vy - h2y * vx) / (sqrt(h2x * h2x + h2y * h2y) * d);
-            final double d2 = sqrt((otherSafetyZone.alpha * otherSafetyZone.alpha * otherSafetyZone.beta * otherSafetyZone.beta) / (otherSafetyZone.alpha * otherSafetyZone.alpha * sinb2 * sinb2 + otherSafetyZone.beta * otherSafetyZone.beta * cosb2 * cosb2));
+            final double d2 = sqrt((otherZone.alpha * otherZone.alpha * otherZone.beta * otherZone.beta) / (otherZone.alpha * otherZone.alpha * sinb2 * sinb2 + otherZone.beta * otherZone.beta * cosb2 * cosb2));
             if (d - d1 - d2 < 0.0)
                 intersects = true;
             else
