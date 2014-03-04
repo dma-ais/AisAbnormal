@@ -20,9 +20,9 @@ import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
-import dk.dma.ais.abnormal.analyzer.helpers.CoordinateTransformer;
-import dk.dma.ais.abnormal.analyzer.helpers.Point;
-import dk.dma.ais.abnormal.analyzer.helpers.Zone;
+import dk.dma.ais.abnormal.analyzer.geometry.Point;
+import dk.dma.ais.abnormal.analyzer.geometry.Zone;
+import dk.dma.ais.abnormal.coordinates.CoordinateTransformer;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.CloseEncounterEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
@@ -125,9 +125,8 @@ public class CloseEncounterAnalysis extends Analysis {
 
     private void analyseCloseEncounters(Set<Track> allTracks, Track track) {
         clearTrackPairsAnalyzed();
-        Set<Track> nearByTracks = findNearByTracks(allTracks, track, 60000, 1852);
-
         if (! isSupportVessel(track)) {
+            Set<Track> nearByTracks = findNearByTracks(allTracks, track, 60000, 1852);
             nearByTracks.forEach(nearByTrack -> {
                 if (isFishingVessel(track) && isFishingVessel(nearByTrack)) { return; }
                 if (isUndefinedVessel(track) && isUndefinedVessel(nearByTrack)) { return; }
@@ -140,10 +139,17 @@ public class CloseEncounterAnalysis extends Analysis {
     }
 
     void analyseCloseEncounter(Track track1, Track track2) {
-        //  filterOutPreviouslyCompared(track);
         if (track1.getSpeedOverGround() > 5.0 && ! isTrackPairAnalyzed(track1, track2)) {
+
+            if (track1.getPositionReportTimestamp() < track2.getPositionReportTimestamp()) {
+                track1.predict(track2.getPositionReportTimestamp());
+            } else if (track2.getPositionReportTimestamp() < track1.getPositionReportTimestamp()) {
+                track2.predict(track1.getPositionReportTimestamp());
+            }
+
             Zone safetyZoneTrack1 = computeSafetyZone(track1.getPosition(), track1, track2);
             Zone extentTrack2 = computeVesselExtent(track1.getPosition(), track2);
+
             if (safetyZoneTrack1 != null && extentTrack2 != null && safetyZoneTrack1.intersects(extentTrack2)) {
                 track1.setProperty(Track.SAFETY_ZONE, safetyZoneTrack1);
                 track2.setProperty(Track.EXTENT, extentTrack2);
@@ -151,6 +157,7 @@ public class CloseEncounterAnalysis extends Analysis {
             } else {
                 lowerExistingAbnormalEventIfExists(CloseEncounterEvent.class, track1);
             }
+
             markTrackPairAnalyzed(track1, track2);
         } else {
             LOG.debug("PREVIOUSLY COMPARED " + track1.getMmsi() + " AGAINST " + track2.getMmsi());
@@ -371,12 +378,14 @@ public class CloseEncounterAnalysis extends Analysis {
         Event event =
             CloseEncounterEventBuilder.CloseEncounterEvent()
                     .safetyZoneOfPrimaryVessel()
+                        .targetTimestamp(new Date(primaryTrack.getPositionReportTimestamp()))
                         .centerLatitude(primaryTrackLatitude)
                         .centerLongitude(primaryTrackLongitude)
                         .majorAxisHeading(primaryTracksafetyZone.getMajorAxisGeodeticHeading())
                         .majorSemiAxisLength(primaryTracksafetyZone.getAlpha())
                         .minorSemiAxisLength(primaryTracksafetyZone.getBeta())
                     .extentOfSecondaryVessel()
+                        .targetTimestamp(new Date(secondaryTrack.getPositionReportTimestamp()))
                         .centerLatitude(secondaryTrackLatitude)
                         .centerLongitude(secondaryTrackLongitude)
                         .majorAxisHeading(secondaryTrackExtent.getMajorAxisGeodeticHeading())

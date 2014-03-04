@@ -14,7 +14,7 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package dk.dma.ais.abnormal.analyzer.helpers;
+package dk.dma.ais.abnormal.analyzer.geometry;
 
 import net.jcip.annotations.Immutable;
 

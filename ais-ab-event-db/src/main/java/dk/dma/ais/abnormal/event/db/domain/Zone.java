@@ -21,6 +21,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 /**
  * The defining parameters of an oval.
@@ -31,6 +32,9 @@ public class Zone  {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
+
+    @NotNull
+    private Date targetTimestamp;
 
     @NotNull
     private Double centerLatitude;
@@ -48,6 +52,10 @@ public class Zone  {
     private Double minorSemiAxisLength;
 
     public Zone() {
+    }
+
+    public void setTargetTimestamp(Date targetTimestamp) {
+        this.targetTimestamp = targetTimestamp;
     }
 
     public void setCenterLatitude(Double centerLatitude) {
@@ -72,6 +80,10 @@ public class Zone  {
 
     public long getId() {
         return id;
+    }
+
+    public Date getTargetTimestamp() {
+        return targetTimestamp;
     }
 
     public Double getCenterLatitude() {

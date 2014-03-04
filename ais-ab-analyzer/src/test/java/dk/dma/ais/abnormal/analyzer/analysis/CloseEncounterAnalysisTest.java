@@ -17,7 +17,7 @@ package dk.dma.ais.abnormal.analyzer.analysis;
 
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.analyzer.behaviour.EventCertainty;
-import dk.dma.ais.abnormal.analyzer.helpers.Zone;
+import dk.dma.ais.abnormal.analyzer.geometry.Zone;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.Behaviour;
 import dk.dma.ais.abnormal.event.db.domain.CloseEncounterEvent;

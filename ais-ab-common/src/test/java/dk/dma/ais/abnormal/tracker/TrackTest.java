@@ -106,4 +106,40 @@ public class TrackTest {
         long oldestKept = new GregorianCalendar(2014, 02, 11, 12, 50-track.MAX_AGE_POSITION_REPORTS_MINUTES, 00).getTimeInMillis();
         trackingReports.forEach(p -> assertTrue(p.getTimestamp() >=  oldestKept));
     }
+
+    @Test
+    public void testPredictEast() {
+        track.updatePosition(TrackingReport.create(new GregorianCalendar(2014, 02, 11, 12, 32, 00).getTimeInMillis(), Position.create(56.00, 12.00), 90.0f, 1.0f, false));
+        track.predict(new GregorianCalendar(2014, 02, 11, 12, 33, 00).getTimeInMillis());
+        assertEquals(56.000000, track.getPosition().getLatitude(), 1e-6);
+        assertEquals(12.000496, track.getPosition().getLongitude(), 1e-6);
+        assertEquals(new GregorianCalendar(2014, 02, 11, 12, 33, 00).getTimeInMillis(), track.getPositionReportTimestamp(), 1e-10);
+    }
+
+    @Test
+    public void testPredictNorth() {
+        track.updatePosition(TrackingReport.create(new GregorianCalendar(2014, 02, 11, 12, 32, 00).getTimeInMillis(), Position.create(56.00, 12.00), 0.0f, 1.0f, false));
+        track.predict(new GregorianCalendar(2014, 02, 11, 12, 33, 00).getTimeInMillis());
+        assertEquals(56.000277, track.getPosition().getLatitude(), 1e-6);
+        assertEquals(12.000000, track.getPosition().getLongitude(), 1e-6);
+        assertEquals(new GregorianCalendar(2014, 02, 11, 12, 33, 00).getTimeInMillis(), track.getPositionReportTimestamp(), 1e-10);
+    }
+
+    @Test
+    public void testPredictLongAndFastNE() {
+        track.updatePosition(TrackingReport.create(new GregorianCalendar(2014, 02, 11, 12, 32, 00).getTimeInMillis(), Position.create(56.00, 12.00), 45.0f, 20.0f, false));
+        track.predict(new GregorianCalendar(2014, 02, 11, 12, 42, 00).getTimeInMillis());
+        assertEquals(56.039237, track.getPosition().getLatitude(), 1e-6);
+        assertEquals(12.070274, track.getPosition().getLongitude(), 1e-6);
+        assertEquals(new GregorianCalendar(2014, 02, 11, 12, 42, 00).getTimeInMillis(), track.getPositionReportTimestamp(), 1e-10);
+    }
+
+    @Test
+    public void testPredictLongAndFastSW() {
+        track.updatePosition(TrackingReport.create(new GregorianCalendar(2014, 02, 11, 12, 32, 00).getTimeInMillis(), Position.create(56.00, 12.00), 180.0f+45.0f, 20.0f, false));
+        track.predict(new GregorianCalendar(2014, 02, 11, 12, 42, 00).getTimeInMillis());
+        assertEquals(55.960722, track.getPosition().getLatitude(), 1e-6);
+        assertEquals(11.929867, track.getPosition().getLongitude(), 1e-6);
+        assertEquals(new GregorianCalendar(2014, 02, 11, 12, 42, 00).getTimeInMillis(), track.getPositionReportTimestamp(), 1e-10);
+    }
 }

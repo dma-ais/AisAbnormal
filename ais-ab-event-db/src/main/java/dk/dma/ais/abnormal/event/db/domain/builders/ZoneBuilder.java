@@ -18,6 +18,8 @@ package dk.dma.ais.abnormal.event.db.domain.builders;
 
 import dk.dma.ais.abnormal.event.db.domain.Zone;
 
+import java.util.Date;
+
 public class ZoneBuilder {
 
     Zone zone;
@@ -30,6 +32,11 @@ public class ZoneBuilder {
 
     public Zone getZone() {
         return zone;
+    }
+
+    public ZoneBuilder targetTimestamp(Date targetTimestamp) {
+        zone.setTargetTimestamp(targetTimestamp);
+        return this;
     }
 
     public ZoneBuilder centerLatitude(double centerLatitude) {

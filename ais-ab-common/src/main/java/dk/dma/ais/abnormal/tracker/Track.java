@@ -18,6 +18,7 @@ package dk.dma.ais.abnormal.tracker;
 
 import com.google.common.collect.ImmutableList;
 import com.rits.cloning.Cloner;
+import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import net.jcip.annotations.NotThreadSafe;
 
@@ -231,6 +232,36 @@ public final class Track implements Cloneable {
                 .filter(p -> p.getTimestamp() >= oldestKept)
                 .collect(Collectors.toCollection(treeSetSupplier));
             }
+        }
+    }
+
+    /**
+     * Predict this track's position forward to time atTime.
+     * @param atTime timestamp in milliseconds since the Epoch
+     */
+    public void predict(long atTime) {
+        long now = getPositionReportTimestamp();
+
+        if (atTime > now) {
+            Position currentPosition = getPosition();
+            Float cog = getCourseOverGround();
+            Float sog = getSpeedOverGround();
+
+            if (currentPosition != null && cog != null && sog != null) {
+                long deltaMillis = atTime - now;
+                float deltaSeconds = deltaMillis / 1000;
+                float deltaMinutes = deltaSeconds / 60;
+                float deltaHours = deltaMinutes / 60;
+                float distanceNauticalMiles = sog * deltaHours;
+                float distanceMeters = distanceNauticalMiles * 1852;
+                Position predictedPosition = CoordinateSystem.CARTESIAN.pointOnBearing(currentPosition, distanceMeters, cog);
+
+                updatePosition(TrackingReport.create(atTime, predictedPosition, cog, sog, true /* TODO mark predicted instead of interpolated */));
+            } else {
+                throw new IllegalStateException("No enough data to predict future position.");
+            }
+        } else {
+            throw new IllegalArgumentException("atTime should be ahead of track's last known position.");
         }
     }
 
