@@ -76,7 +76,7 @@ public class CloseEncounterAnalysis extends Analysis {
     /**
      * Minimum no. of msecs between runs of this analysis.
      */
-    private final static int ANALYSIS_PERIOD_MILLIS = 5 * 60 * 1000;
+    private final static int ANALYSIS_PERIOD_MILLIS = 30 * 1000;
 
     /**
      * The time when the analysis should next be run.
