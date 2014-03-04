@@ -17,3 +17,4 @@ The run the application:
 * On Windows
     * Execute `run-webapp.bat`.
 
+Once the web application is running it can be reached from a browser via http://localhost:8080/abnormal.
