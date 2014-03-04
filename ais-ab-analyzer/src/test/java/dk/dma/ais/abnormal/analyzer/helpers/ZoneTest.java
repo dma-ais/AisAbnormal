@@ -24,7 +24,7 @@ public class ZoneTest {
 
     @Test
     public void testIntersectsSame() {
-        Zone zone1 = new Zone(0.0f, 0.0f, 5.0, 2.5f, 0.0f);
+        Zone zone1 = new Zone(null, 0.0f, 0.0f, 5.0, 2.5f, 0.0f);
         Zone zone2 = zone1;
 
         assertTrue(zone1.intersects(zone2));
@@ -33,8 +33,8 @@ public class ZoneTest {
 
     @Test
     public void testIntersectsNot() {
-        Zone zone1 = new Zone( 0.0f, 0.0f, 5.0, 2.5f, 0.0f);
-        Zone zone2 = new Zone(10.0f, 0.0f, 4.0, 2.5f, 0.0f);
+        Zone zone1 = new Zone(null,  0.0f, 0.0f, 5.0, 2.5f, 0.0f);
+        Zone zone2 = new Zone(null, 10.0f, 0.0f, 4.0, 2.5f, 0.0f);
 
         assertFalse(zone1.intersects(zone2));
         assertFalse(zone2.intersects(zone1));
@@ -42,8 +42,8 @@ public class ZoneTest {
 
     @Test
     public void testIntersects() {
-        Zone zone1 = new Zone( 2.0f, 0.0f, 5.0, 2.5f, 0.0f);
-        Zone zone2 = new Zone(10.0f, 0.0f, 4.0, 2.5f, 0.0f);
+        Zone zone1 = new Zone(null,  2.0f, 0.0f, 5.0, 2.5f, 0.0f);
+        Zone zone2 = new Zone(null, 10.0f, 0.0f, 4.0, 2.5f, 0.0f);
 
         assertTrue(zone1.intersects(zone2));
         assertTrue(zone2.intersects(zone1));
@@ -51,8 +51,8 @@ public class ZoneTest {
 
     @Test
     public void testIntersectsExcel1() {
-        Zone zone1 = new Zone( 0.0f,  0.0f, 100.0f,  40.0f,  45.0f);
-        Zone zone2 = new Zone(90.0f, 30.0f,  50.0f,  25.0f, 150.0f);
+        Zone zone1 = new Zone(null,  0.0f,  0.0f, 100.0f,  40.0f,  45.0f);
+        Zone zone2 = new Zone(null, 90.0f, 30.0f,  50.0f,  25.0f, 150.0f);
 
         assertTrue(zone1.intersects(zone2));
         assertTrue(zone2.intersects(zone1));
@@ -60,8 +60,8 @@ public class ZoneTest {
 
     @Test
     public void testIntersectsExcel2() {
-        Zone zone1 = new Zone( 0.0f,  0.0f, 100.0f,  40.0f,  45.0f);
-        Zone zone2 = new Zone(80.0f, 30.0f,  50.0f,  25.0f, 150.0f);
+        Zone zone1 = new Zone(null,  0.0f,  0.0f, 100.0f,  40.0f,  45.0f);
+        Zone zone2 = new Zone(null, 80.0f, 30.0f,  50.0f,  25.0f, 150.0f);
 
         assertTrue(zone1.intersects(zone2));
         assertTrue(zone2.intersects(zone1));
@@ -69,8 +69,8 @@ public class ZoneTest {
 
     @Test
     public void testIntersectsExcel3() {
-        Zone zone1 = new Zone( 0.0f,  0.0f, 100.0f,  40.0f,  62.0f);
-        Zone zone2 = new Zone(118.0,  0.0f, 100.0f,  50.0f,  30.0f);
+        Zone zone1 = new Zone(null,  0.0f,  0.0f, 100.0f,  40.0f,  62.0f);
+        Zone zone2 = new Zone(null, 118.0,  0.0f, 100.0f,  50.0f,  30.0f);
 
         assertTrue(zone1.intersects(zone2));
         assertTrue(zone2.intersects(zone1));
@@ -78,8 +78,8 @@ public class ZoneTest {
 
     @Test
     public void testIntersectsExcel1Not() {
-        Zone zone1 = new Zone(  0.0f,  0.0f, 100.0f,  40.0f,  45.0f);
-        Zone zone2 = new Zone(130.0f, 30.0f,  50.0f,  25.0f, 150.0f);
+        Zone zone1 = new Zone(null,   0.0f,  0.0f, 100.0f,  40.0f,  45.0f);
+        Zone zone2 = new Zone(null, 130.0f, 30.0f,  50.0f,  25.0f, 150.0f);
 
         assertFalse(zone1.intersects(zone2));
         assertFalse(zone2.intersects(zone1));

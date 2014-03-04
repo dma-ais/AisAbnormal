@@ -332,6 +332,7 @@ var mapModule = {
         var vesselLayer = new OpenLayers.Layer.Vector("DMA vessel layer", {
             style: layerStyle,
             renderers: renderer,
+            rendererOptions: {zIndexing: true},
             eventListeners: this.vesselLayerFeatureListeners
         });
 

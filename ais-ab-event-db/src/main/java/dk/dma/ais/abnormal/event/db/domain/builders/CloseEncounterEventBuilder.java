@@ -38,4 +38,15 @@ public class CloseEncounterEventBuilder extends EventBuilder {
         return event;
     }
 
+    public ZoneBuilder safetyZoneOfPrimaryVessel() {
+        ZoneBuilder builder = new ZoneBuilder(this);
+        event.setSafetyZoneOfPrimaryVessel(builder.getZone());
+        return builder;
+    }
+
+    public ZoneBuilder extentOfSecondaryVessel() {
+        ZoneBuilder builder = new ZoneBuilder(this);
+        event.setExtentOfSecondaryVessel(builder.getZone());
+        return builder;
+    }
 }

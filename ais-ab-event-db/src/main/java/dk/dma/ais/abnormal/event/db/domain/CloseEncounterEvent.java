@@ -16,13 +16,39 @@
 
 package dk.dma.ais.abnormal.event.db.domain;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.OneToOne;
 
 /**
- * An event
+ * A Close encounter event.
  */
 @Entity
 public class CloseEncounterEvent extends Event {
+
+    @OneToOne(optional = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Zone safetyZoneOfPrimaryVessel;
+
+    @OneToOne(optional = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Zone extentOfSecondaryVessel;
+
     public CloseEncounterEvent() {
+    }
+
+    public Zone getSafetyZoneOfPrimaryVessel() {
+        return safetyZoneOfPrimaryVessel;
+    }
+
+    public Zone getExtentOfSecondaryVessel() {
+        return extentOfSecondaryVessel;
+    }
+
+    public void setSafetyZoneOfPrimaryVessel(Zone safetyZoneOfPrimaryVessel) {
+        this.safetyZoneOfPrimaryVessel = safetyZoneOfPrimaryVessel;
+    }
+
+    public void setExtentOfSecondaryVessel(Zone extentOfSecondaryVessel) {
+        this.extentOfSecondaryVessel = extentOfSecondaryVessel;
     }
 }

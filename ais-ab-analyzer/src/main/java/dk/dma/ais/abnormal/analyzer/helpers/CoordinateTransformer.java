@@ -86,6 +86,16 @@ public final class CoordinateTransformer {
         return cartesianAngle;
     }
 
+    /**
+     * The opposite transformation of compass2cartesian.
+     *
+     * @param a
+     * @return
+     */
+    public static double cartesian2compass(double a) {
+        return compass2cartesian(a);
+    }
+
     public double lon2x(double lon, double lat)
     {
         double lonRad = toRadians(lon);

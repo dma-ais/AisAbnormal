@@ -16,6 +16,8 @@
 
 package dk.dma.ais.abnormal.analyzer.helpers;
 
+import dk.dma.enav.model.geometry.Position;
+
 import static java.lang.StrictMath.cos;
 import static java.lang.StrictMath.sin;
 import static java.lang.StrictMath.sqrt;
@@ -26,6 +28,10 @@ import static java.lang.StrictMath.toRadians;
  * All values are Cartesian (x,y).
  */
 public final class Zone {
+    /**
+     * The geodetic point on Earth corresponding to (x,y) = (0,0)
+     */
+    private final Position geodeticReference;
     /**
      * X coordinate of center.
      */
@@ -47,12 +53,17 @@ public final class Zone {
      */
     private final double thetaDeg;
 
-    public Zone(double x, double y, double alpha, double beta, double thetaDeg) {
+    public Zone(Position geodeticReference, double x, double y, double alpha, double beta, double thetaDeg) {
+        this.geodeticReference = geodeticReference;
         this.x = x;
         this.y = y;
         this.alpha = alpha;
         this.beta = beta;
         this.thetaDeg = thetaDeg;
+    }
+
+    public Position getGeodeticReference() {
+        return geodeticReference;
     }
 
     public double getX() {
@@ -112,5 +123,9 @@ public final class Zone {
         }
 
         return intersects;
+    }
+
+    public double getMajorAxisGeodeticHeading() {
+        return CoordinateTransformer.cartesian2compass(thetaDeg);
     }
 }

@@ -120,7 +120,7 @@ public class CloseEncounterAnalysis extends Analysis {
 
         final long systemTimeMillisAfterAnalysis = System.currentTimeMillis();
         statisticsService.incAnalysisStatistics(analysisName, "Analyses performed");
-        LOG.info(analysisName + " of " + tracks.size() + " tracks completed in " + (systemTimeMillisAfterAnalysis - systemTimeMillisBeforeAnalysis) + " msecs.");
+        LOG.debug(analysisName + " of " + tracks.size() + " tracks completed in " + (systemTimeMillisAfterAnalysis - systemTimeMillisBeforeAnalysis) + " msecs.");
     }
 
     private void analyseCloseEncounters(Set<Track> allTracks, Track track) {
@@ -145,6 +145,8 @@ public class CloseEncounterAnalysis extends Analysis {
             Zone safetyZoneTrack1 = computeSafetyZone(track1.getPosition(), track1, track2);
             Zone extentTrack2 = computeVesselExtent(track1.getPosition(), track2);
             if (safetyZoneTrack1 != null && extentTrack2 != null && safetyZoneTrack1.intersects(extentTrack2)) {
+                track1.setProperty(Track.SAFETY_ZONE, safetyZoneTrack1);
+                track2.setProperty(Track.EXTENT, extentTrack2);
                 raiseOrMaintainAbnormalEvent(CloseEncounterEvent.class, track1, track2);
             } else {
                 lowerExistingAbnormalEventIfExists(CloseEncounterEvent.class, track1);
@@ -211,14 +213,14 @@ public class CloseEncounterAnalysis extends Analysis {
 
     /**
      * Compute an elliptic zone around a track.
-     * @param cartesianCenter
+     * @param geodeticReference
      * @param track
      * @param l1
      * @param b1
      * @param xc
      * @return The safety zone for the track.
      */
-    private Zone computeZone(Position cartesianCenter, Track track, double l1, double b1, double xc) {
+    private Zone computeZone(Position geodeticReference, Track track, double l1, double b1, double xc) {
         // Retrieve and validate required input variables
         Float   cogBoxed = track.getCourseOverGround();
         Integer loaBoxed = (Integer) track.getProperty(Track.VESSEL_LENGTH);
@@ -261,8 +263,8 @@ public class CloseEncounterAnalysis extends Analysis {
         final double thetaDeg = CoordinateTransformer.compass2cartesian(cog);
 
         // Transform latitude/longitude to cartesian coordinates
-        final double centerLatitude = cartesianCenter.getLatitude();
-        final double centerLongitude = cartesianCenter.getLongitude();
+        final double centerLatitude = geodeticReference.getLatitude();
+        final double centerLongitude = geodeticReference.getLongitude();
         final CoordinateTransformer coordinateTransformer = new CoordinateTransformer(centerLongitude, centerLatitude);
 
         final double trackLatitude = track.getPosition().getLatitude();
@@ -281,7 +283,7 @@ public class CloseEncounterAnalysis extends Analysis {
         // Compute length of half axis beta
         final double beta = beam * b1 / 2.0;
 
-        return new Zone(pt1.getX(), pt1.getY(), alpha, beta, thetaDeg);
+        return new Zone(geodeticReference, pt1.getX(), pt1.getY(), alpha, beta, thetaDeg);
     }
 
     /**
@@ -352,11 +354,34 @@ public class CloseEncounterAnalysis extends Analysis {
         description.append(secondaryShipName);
         description.append(" (" + secondaryShipType + "). ");
 
+        Zone primaryTracksafetyZone = (Zone) primaryTrack.getProperty(Track.SAFETY_ZONE);
+        Zone secondaryTrackExtent = (Zone) secondaryTrack.getProperty(Track.EXTENT);
+
+        CoordinateTransformer coordinateTransformer = new CoordinateTransformer(primaryTracksafetyZone.getGeodeticReference().getLongitude(), primaryTracksafetyZone.getGeodeticReference().getLatitude());
+        double primaryTrackLatitude = coordinateTransformer.y2Lat(primaryTracksafetyZone.getX(), primaryTracksafetyZone.getY());
+        double primaryTrackLongitude = coordinateTransformer.x2Lon(primaryTracksafetyZone.getX(), primaryTracksafetyZone.getY());
+        double secondaryTrackLatitude = coordinateTransformer.y2Lat(secondaryTrackExtent.getX(), secondaryTrackExtent.getY());
+        double secondaryTrackLongitude = coordinateTransformer.x2Lon(secondaryTrackExtent.getX(), secondaryTrackExtent.getY());
+
         statisticsService.incAnalysisStatistics(analysisName, "Events raised");
+
         LOG.info(new Date(primaryTrack.getPositionReportTimestamp()) + ": Detected CloseEncounterEvent: " + description.toString());
+
 
         Event event =
             CloseEncounterEventBuilder.CloseEncounterEvent()
+                    .safetyZoneOfPrimaryVessel()
+                        .centerLatitude(primaryTrackLatitude)
+                        .centerLongitude(primaryTrackLongitude)
+                        .majorAxisHeading(primaryTracksafetyZone.getMajorAxisGeodeticHeading())
+                        .majorSemiAxisLength(primaryTracksafetyZone.getAlpha())
+                        .minorSemiAxisLength(primaryTracksafetyZone.getBeta())
+                    .extentOfSecondaryVessel()
+                        .centerLatitude(secondaryTrackLatitude)
+                        .centerLongitude(secondaryTrackLongitude)
+                        .majorAxisHeading(secondaryTrackExtent.getMajorAxisGeodeticHeading())
+                        .majorSemiAxisLength(secondaryTrackExtent.getAlpha())
+                        .minorSemiAxisLength(secondaryTrackExtent.getBeta())
                     .description(description.toString())
                     .state(Event.State.ONGOING)
                     .startTime(new Date(primaryTrack.getPositionReportTimestamp()))

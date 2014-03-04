@@ -49,6 +49,7 @@ var vesselModule = {
             strokeWidth: 3,
             strokeDashstyle: "solid",
             strokeOpacity: 1.0,
+            graphicZIndex: 0,
             pointRadius: 6,
             pointerEvents: "visiblePainted",
             title: "Event",
@@ -81,6 +82,24 @@ var vesselModule = {
             var trackingPoints = behaviour.trackingPoints;
             var vessel = behaviour.vessel;
 
+            // Ellipses
+            if (event.safetyZoneOfPrimaryVessel) {
+                var latitude = event.safetyZoneOfPrimaryVessel.centerLatitude;
+                var longitude = event.safetyZoneOfPrimaryVessel.centerLongitude;
+                var semiMajorMeters = event.safetyZoneOfPrimaryVessel.majorSemiAxisLength;
+                var semiMinorMeters = event.safetyZoneOfPrimaryVessel.minorSemiAxisLength;
+                var majorAxisHeading = event.safetyZoneOfPrimaryVessel.majorAxisHeading;
+                vesselModule.addEllipse(latitude, longitude, semiMajorMeters, semiMinorMeters, majorAxisHeading, 2);
+            }
+            if (event.extentOfSecondaryVessel) {
+                var latitude = event.extentOfSecondaryVessel.centerLatitude;
+                var longitude = event.extentOfSecondaryVessel.centerLongitude;
+                var semiMajorMeters = event.extentOfSecondaryVessel.majorSemiAxisLength;
+                var semiMinorMeters = event.extentOfSecondaryVessel.minorSemiAxisLength;
+                var majorAxisHeading = event.extentOfSecondaryVessel.majorAxisHeading;
+                vesselModule.addEllipse(latitude, longitude, semiMajorMeters, semiMinorMeters, majorAxisHeading, 1);
+            }
+
             // Track symbol
             var trackingPoint = trackingPoints[trackingPoints.length - 1];
             var trackSymbolFeature = new OpenLayers.Feature.Vector(
@@ -98,9 +117,11 @@ var vesselModule = {
                     graphicWidth: 20,
                     graphicXOffset:-5,
                     graphicYOffset:-5,
+                    graphicZIndex: 2,
                     rotation: trackingPoint.courseOverGround - 90
                 }
             );
+            console.log("Track (" + trackingPoint.latitude + "," + trackingPoint.longitude + ")");
             trackSymbolFeature.fid = 'trackSymbol-'+event.id+'-'+vessel.mmsi;
             mapModule.getVesselLayer().addFeatures([trackSymbolFeature]);
 
@@ -126,7 +147,7 @@ var vesselModule = {
             $.each(trackingPoints, function (i, trackingPoint) {
                 var point = new OpenLayers.Geometry.Point(trackingPoint.longitude, trackingPoint.latitude);
                 point.transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator);
-                var markerStyle = { strokeColor: 'orange', strokeWidth: 2, fillOpacity: 1.0, pointRadius: 3 };
+                var markerStyle = { strokeColor: 'orange', strokeWidth: 2, fillOpacity: 1.0, pointRadius: 3, graphicZIndex: 3};
                 if (trackingPoint.positionInterpolated == true) {
                     markerStyle.strokeColor = 'grey';
                 }
@@ -220,6 +241,89 @@ var vesselModule = {
 
             trackSymbolFeature.style.title = tooltip;
         }
+    },
+
+    deg2RadConvFactor: 2.0 * Math.PI/360.0,
+    deg2rad: function(deg) {
+        return deg * vesselModule.deg2RadConvFactor;
+    },
+
+    calcLengthOfDegreeLatitudeInMeters: function(latitudeDegrees) {
+        // http://www.csgnetwork.com/degreelenllavcalc.html
+
+        // Convert latitude to radians
+        var lat = vesselModule.deg2rad(latitudeDegrees);
+
+        // Set up "Constants"
+        var m1 = 111132.92;		// latitude calculation term 1
+        var m2 = -559.82;		// latitude calculation term 2
+        var m3 = 1.175;			// latitude calculation term 3
+        var m4 = -0.0023;		// latitude calculation term 4
+
+        // Calculate the length of a degree of latitude in meters
+        var latlen = m1 + (m2 * Math.cos(2 * lat)) + (m3 * Math.cos(4 * lat)) + (m4 * Math.cos(6 * lat));
+
+        return latlen;
+    },
+
+    calcLengthOfDegreeLongitudeInMeters: function(latitudeDegrees) {
+        // http://www.csgnetwork.com/degreelenllavcalc.html
+
+        // Convert latitude to radians
+        var lat = vesselModule.deg2rad(latitudeDegrees);
+
+        // Set up "Constants"
+        var p1 = 111412.84;		// longitude calculation term 1
+        var p2 = -93.5;			// longitude calculation term 2
+        var p3 = 0.118;			// longitude calculation term 3
+
+        // Calculate the length of a degree of longitude in meters
+        var longlen = (p1 * Math.cos(lat)) + (p2 * Math.cos(3 * lat)) + (p3 * Math.cos(5 * lat));
+
+        return longlen;
+    },
+
+    addEllipse: function(latitude, longitude, semiMajorMeters, semiMinorMeters, rotation, lineThickness) {
+        var degreesPerMeterLatitude  = 1 / vesselModule.calcLengthOfDegreeLatitudeInMeters(latitude);
+        var degreesPerMeterLongitude = 1 / vesselModule.calcLengthOfDegreeLongitudeInMeters(latitude);
+
+        var semiMajorDegrees = semiMajorMeters * degreesPerMeterLatitude;    // = a
+        var semiMinorDegrees = semiMinorMeters * degreesPerMeterLongitude;   // = b
+
+        /*
+         *   Snippets for later improvements of drawing the ellipse:
+         */
+        /*
+            var originMeters = new OpenLayers.Geometry.Point(longitude, latitude).transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator);
+            var bboxMeters = new OpenLayers.Geometry.Point(originMeters.x + semiMajorMeters, originMeters.y + semiMinorMeters);
+            var bboxDegrees = bboxMeters.transform(mapModule.projectionSphericalMercator, mapModule.projectionWGS84);   // to degrees
+            a = bboxDegrees.x - longitude;
+            b = bboxDegrees.y - latitude;
+        */
+        /*
+             http://www.movable-type.co.uk/scripts/latlong.html
+            Formula:
+            φ2 = asin( sin(φ1)*cos(d/R) + cos(φ1)*sin(d/R)*cos(θ) )
+            λ2 = λ1 + atan2( sin(θ)*sin(d/R)*cos(φ1), cos(d/R)−sin(φ1)*sin(φ2) )
+            where	φ is latitude, λ is longitude, θ is the bearing (in radians, clockwise from north),
+                    d is the distance travelled, R is the earth’s radius (d/R is the angular distance, in radians)
+        */
+
+        var list = [];
+        for (var t = 0 * Math.PI; t < 2 * Math.PI; t += 0.01 ) {
+            var r = semiMajorDegrees*semiMinorDegrees / Math.sqrt(Math.pow(semiMinorDegrees*Math.cos(t), 2) + Math.pow(semiMajorDegrees*Math.sin(t), 2));
+            var x = latitude + r*Math.cos(t);
+            var y = longitude + r*Math.sin(t);
+            var p = new OpenLayers.Geometry.Point(y, x).transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator); // to display projection
+            list.push(p);
+        };
+
+        var linear_ring = new OpenLayers.Geometry.LinearRing(list);
+        var lineStyle = { strokeColor: 'white', strokeWidth: lineThickness, fillOpacity: 0.0, pointRadius: 1, graphicZIndex: 1};
+        var polygonFeature = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Polygon([linear_ring]), null, lineStyle);
+        var originPoint = new OpenLayers.Geometry.Point(longitude, latitude).transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator);
+        polygonFeature.geometry.rotate(360 - rotation, originPoint);
+        mapModule.getVesselLayer().addFeatures([polygonFeature])
     }
 
 };

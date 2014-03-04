@@ -55,6 +55,8 @@ public final class Track implements Cloneable {
     public static final String SHIP_NAME = "name";
     public static final String IMO = "imo";
     public static final String CALLSIGN = "callsign";
+    public static final String SAFETY_ZONE = "safetyZone";
+    public static final String EXTENT = "extent";
 
     private final int mmsi;
     private final Map<String, Object> properties = new HashMap<>(10);

@@ -24,6 +24,7 @@ import dk.dma.ais.abnormal.event.db.domain.SpeedOverGroundEvent;
 import dk.dma.ais.abnormal.event.db.domain.SuddenSpeedChangeEvent;
 import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
 import dk.dma.ais.abnormal.event.db.domain.Vessel;
+import dk.dma.ais.abnormal.event.db.domain.Zone;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -70,6 +71,7 @@ public final class JpaSessionFactoryFactory {
                 .addAnnotatedClass(ShipSizeOrTypeEvent.class)
                 .addAnnotatedClass(SuddenSpeedChangeEvent.class)
                 .addAnnotatedClass(CloseEncounterEvent.class)
+                .addAnnotatedClass(Zone.class)
                 .addAnnotatedClass(Vessel.class)
                 .addAnnotatedClass(Behaviour.class)
                 .addAnnotatedClass(TrackingPoint.class);
@@ -120,6 +122,7 @@ public final class JpaSessionFactoryFactory {
                 .addAnnotatedClass(ShipSizeOrTypeEvent.class)
                 .addAnnotatedClass(SuddenSpeedChangeEvent.class)
                 .addAnnotatedClass(CloseEncounterEvent.class)
+                .addAnnotatedClass(Zone.class)
                 .addAnnotatedClass(Vessel.class)
                 .addAnnotatedClass(Behaviour.class)
                 .addAnnotatedClass(TrackingPoint.class);
