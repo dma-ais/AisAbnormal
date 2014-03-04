@@ -30,6 +30,7 @@ import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.PositionChangedEvent;
 import dk.dma.ais.abnormal.tracker.events.TrackStaleEvent;
+import dk.dma.ais.abnormal.util.AisDataHelper;
 import dk.dma.ais.abnormal.util.Categorizer;
 import dk.dma.enav.model.geometry.Position;
 import org.slf4j.Logger;
@@ -126,7 +127,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
         Integer mmsi = track.getMmsi();
         Integer imo = (Integer) track.getProperty(Track.IMO);
         String callsign = (String) track.getProperty(Track.CALLSIGN);
-        String name = (String) track.getProperty(Track.SHIP_NAME);
+        String name = AisDataHelper.trimAisString((String) track.getProperty(Track.SHIP_NAME));
         Position position = track.getPosition();
         Float cog = track.getCourseOverGround();
         Float sog = track.getSpeedOverGround();
@@ -149,8 +150,10 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
 
         float deltaSecs = (float) ((timestamp.getTime() - prevTimestamp.getTime()) / 1000.0);
 
-        String desc = String.format("%s: From %.1f kts to %.1f kts in %.1f secs", shipTypeAsString, prevSog, sog, deltaSecs);
-        LOG.info(timestamp + ": Detected SuddenSpeedChangeEvent for mmsi " + mmsi + ": "+ desc + "." );
+        String desc = String.format("%s: From %.1f kts to %.1f kts in %.1f secs at %s", shipTypeAsString, prevSog, sog, deltaSecs, position.toString());
+
+        String logDesc = String.format("%s: %s: From %.1f kts to %.1f kts in %.1f secs at %s", shipTypeAsString, name, prevSog, sog, deltaSecs, position.toString());
+        LOG.info(timestamp + ": Detected SuddenSpeedChangeEvent for mmsi " + mmsi + ": "+ logDesc + "." );
 
         Event event =
             SuddenSpeedChangeEventBuilder.SuddenSpeedChangeEvent()
