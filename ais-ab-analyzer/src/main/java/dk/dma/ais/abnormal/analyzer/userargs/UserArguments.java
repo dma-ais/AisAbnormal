@@ -14,25 +14,18 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package dk.dma.ais.abnormal.analyzer;
+package dk.dma.ais.abnormal.analyzer.userargs;
 
 import com.beust.jcommander.Parameter;
 import com.google.common.base.Strings;
+
+import java.net.URL;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class UserArguments {
 
     @Parameter(names = "-help", help = true, description = "Print this help", hidden = true)
     protected boolean help;
-
-    @Parameter(names = "-inputDirectory", description = "Directory to scan for files to read", required = true)
-    private String inputDirectory = ".";
-
-    @Parameter(names = "-input", description = "Glob pattern for files to read. '.zip' and '.gz' files are decompressed automatically.", required = true)
-    private String inputFilenamePattern;
-
-    @Parameter(names = "-r", description = "Recursive directory scan")
-    private boolean recursive;
 
     @Parameter(names = "-featureData", description = "Name of file containing feature data statistics.", required = true)
     private String featureData;
@@ -64,8 +57,11 @@ public class UserArguments {
     @Parameter(names = "-eventDataDbFile", description = "Name of file to hold event data.", required = false)
     private String eventDataDbFile;
 
-    // -- AIS stream args
+    // -- AIS stream type choice
+    @Parameter(validateWith = AisDataSourceUrlValidator.class, converter = UrlConverter.class, names = "-aisDataSourceURL", description = "Uniform Resource Locator pointing to source of AIS data ('file://' and 'tcp://' protocols supported).", required = true)
+    private URL aisDataSourceURL;
 
+    // -- AIS stream args
     @Parameter(names = "-downsampling", description = "Downsampling period (in secs).")
     private Integer downSampling = 10;
 
@@ -79,16 +75,8 @@ public class UserArguments {
         return help;
     }
 
-    public String getInputDirectory() {
-        return inputDirectory;
-    }
-
-    public String getInputFilenamePattern() {
-        return inputFilenamePattern;
-    }
-
-    public boolean isRecursive() {
-        return recursive;
+    public URL getAisDataSourceURL() {
+        return aisDataSourceURL;
     }
 
     public String getFeatureData() {

@@ -20,6 +20,7 @@ import com.beust.jcommander.ParameterException;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import dk.dma.ais.abnormal.analyzer.userargs.UserArguments;
 import dk.dma.ais.abnormal.application.ApplicationSupport;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.commons.app.AbstractDaemon;
@@ -120,9 +121,7 @@ public class AbnormalAnalyzerApp extends AbstractDaemon {
         } else {
             Injector injector = Guice.createInjector(
                     new AbnormalAnalyzerAppModule(
-                            userArguments.getInputDirectory(),
-                            userArguments.getInputFilenamePattern(),
-                            userArguments.isRecursive(),
+                            userArguments.getAisDataSourceURL(),
                             userArguments.getFeatureData(),
                             userArguments.getEventDataDbFile(),
                             userArguments.getDownSampling(),

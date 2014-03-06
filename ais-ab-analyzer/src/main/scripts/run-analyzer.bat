@@ -6,6 +6,4 @@ ECHO Starting AIS Abnormal event analyzer application
   -eventDataRepositoryType h2^
   -eventDataDbFile events^
   -featureData stats-2013-06-dwn5-grid200^
-  -inputDirectory ../../../../../data/ais/aisdk/2013-06^
-  -input *.txt.gz
-
+  -aisDataSourceURL file://../../../../../data/ais/aisdk/2013-06/*.txt.gz

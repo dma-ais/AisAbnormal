@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Set;
 
 public final class AbnormalAnalyzerAppModule extends AbstractModule {
@@ -48,9 +49,7 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
 
-    private final String inputDirectory;
-    private final String inputFilenamePattern;
-    private final Boolean inputRecursive;
+    private final URL aisDataSourceUrl;
     private final String featureData;
     private final String pathToEventDatabase;
     private final Integer downSampling;
@@ -61,10 +60,8 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     private final String eventDataDbUsername;
     private final String eventDataDbPassword;
 
-    public AbnormalAnalyzerAppModule(String inputDirectory, String inputFilenamePattern, Boolean inputRecursive, String featureData, String eventDataDbFile, Integer downSampling, String eventRepositoryType, String eventDataDbHost, Integer eventDataDbPort, String eventDataDbName, String eventDataDbUsername, String eventDataDbPassword) {
-        this.inputDirectory = inputDirectory;
-        this.inputFilenamePattern = inputFilenamePattern;
-        this.inputRecursive = inputRecursive;
+    public AbnormalAnalyzerAppModule(URL aisDataSourceUrl, String featureData, String eventDataDbFile, Integer downSampling, String eventRepositoryType, String eventDataDbHost, Integer eventDataDbPort, String eventDataDbName, String eventDataDbUsername, String eventDataDbPassword) {
+        this.aisDataSourceUrl = aisDataSourceUrl;
         this.featureData = featureData;
         this.pathToEventDatabase = eventDataDbFile;
         this.downSampling = downSampling;
@@ -143,11 +140,33 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     @Singleton
     AisReader provideAisReader() {
         AisReader aisReader = null;
-        try {
-            aisReader = AisReaders.createDirectoryReader(inputDirectory, inputFilenamePattern, inputRecursive);
-            LOG.info("Created AisReader (" + aisReader + ").");
-        } catch (Exception e) {
-            LOG.error("Failed to create AisReader.", e);
+
+        String protocol = aisDataSourceUrl.getProtocol();
+        LOG.debug("AIS data source protocol: " + protocol);
+
+        if ("file".equalsIgnoreCase(protocol)) {
+            try {
+                File file = new File(aisDataSourceUrl.getPath());
+                String path = file.getParent();
+                String pattern = file.getName();
+                LOG.debug("AIS data source is file system - " + path + "/" + pattern);
+
+                aisReader = AisReaders.createDirectoryReader(path, pattern, true);
+                LOG.info("Created AisReader (" + aisReader + ").");
+            } catch (Exception e) {
+                LOG.error("Failed to create AisReader.", e);
+            }
+        } else if ("tcp".equalsIgnoreCase(protocol)) {
+            try {
+                String host = aisDataSourceUrl.getHost();
+                int port = aisDataSourceUrl.getPort();
+                LOG.debug("AIS data source is TCP - " + host + ":" + port);
+
+                aisReader = AisReaders.createReader(host, port);
+                LOG.info("Created AisReader (" + aisReader + ").");
+            } catch (Exception e) {
+                LOG.error("Failed to create AisReader.", e);
+            }
         }
         return aisReader;
     }

@@ -137,7 +137,7 @@ As an example: To launch the stat-builder where it reads AIS input from a compre
 named aisdump_dk.txt.gz, downsamples these messages by 10 seconds, uses a cell size of 200 metres for the grid
 system, and stores the output in a file called test-stats.feature - use this command line:
 
-    java -jar target/ais-ab-stat-builder-0.1-SNAPSHOT.jar -downsampling 10 -gridsize 200 -input data/ais/aisdump_dk.txt.gz -output data/stats/test-stats
+    java -jar target/ais-ab-stat-builder-0.1-SNAPSHOT.jar -downsampling 10 -gridsize 200 -inputDirectory /data/ais -input aisdump_dk.txt.gz -output /data/stats/test-stats
 
 ### Output ###
 The stat-builder produces two files: One with the extension .featureData
@@ -162,6 +162,9 @@ This will produce a helpful output like this:
 
     Usage: AbnormalAnalyzerApp [options]
       Options:
+      * -aisDataSourceURL
+           Uniform Resource Locator pointing to source of AIS data ('file://' and
+           'tcp://' protocols supported).
         -downsampling
            Downsampling period (in secs).
            Default: 10
@@ -181,26 +184,21 @@ This will produce a helpful output like this:
            Type of repository used to hold event data ('h2', 'pgsql').
       * -featureData
            Name of file containing feature data statistics.
-      * -input
-           Glob pattern for files to read. '.zip' and '.gz' files are decompressed
-           automatically.
-      * -inputDirectory
-           Directory to scan for files to read
-           Default: .
-        -r
-           Recursive directory scan
-           Default: false
 
 To start the analyzer reading an AIS stream from file aisdump.txt.gz, downsample these by 10 seconds,
 use the previosly generated test-stats statistical data, and store the results in an H2 database named
 'test-events' - use the following example command line:
 
-    $ java -jar target/ais-ab-analyzer-0.1-SNAPSHOT.jar -inputDirectory data/ais/ -input aisdump_dk.txt.gz -featureData data/features/test-stats -eventDataRepositoryType h2 -eventDataDbFile target/test-events
+    $ java -jar target/ais-ab-analyzer-0.1-SNAPSHOT.jar -aisDataSourceURL file:///data/ais/aisdump_dk.txt.gz -featureData /data/features/test-stats -eventDataRepositoryType h2 -eventDataDbFile /data/events/test-events
+
+It is also possible to connect the analyzer directly to an AIS data from a TCP/IP network source in line with this:
+
+    $ java -jar target/ais-ab-analyzer-0.1-SNAPSHOT.jar -aisDataSourceURL tcp://192.168.1.12:4001 -featureData /data/features/test-stats -eventDataRepositoryType h2 -eventDataDbFile /data/events/test-events
 
 ### Output ###
 The Analyzer, when configured to store to an H2 database, will produce an event database file like this:
 
-    $ ls -l target/
+    $ ls -l /data/events/
     -rw-r--r--+  1 tbsalling  staff     53248 21 Feb 10:34 test-events.h2.db
 
 This is a file, that contains the events and which can later be used with the webapp.
