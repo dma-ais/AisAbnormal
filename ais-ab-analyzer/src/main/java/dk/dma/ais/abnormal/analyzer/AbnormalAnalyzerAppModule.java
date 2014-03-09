@@ -24,10 +24,10 @@ import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManagerImpl;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.jpa.JpaEventRepository;
 import dk.dma.ais.abnormal.event.db.jpa.JpaSessionFactoryFactory;
-import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
+import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.DatasetMetaData;
-import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeFeatureData;
-import dk.dma.ais.abnormal.stat.db.mapdb.FeatureDataRepositoryMapDB;
+import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeStatisticData;
+import dk.dma.ais.abnormal.stat.db.mapdb.StatisticDataRepositoryMapDB;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.TrackingServiceImpl;
 import dk.dma.ais.filter.ReplayDownSampleFilter;
@@ -50,7 +50,7 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     }
 
     private final URL aisDataSourceUrl;
-    private final String featureData;
+    private final String statistics;
     private final String pathToEventDatabase;
     private final Integer downSampling;
     private final String eventRepositoryType;
@@ -60,9 +60,9 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     private final String eventDataDbUsername;
     private final String eventDataDbPassword;
 
-    public AbnormalAnalyzerAppModule(URL aisDataSourceUrl, String featureData, String eventDataDbFile, Integer downSampling, String eventRepositoryType, String eventDataDbHost, Integer eventDataDbPort, String eventDataDbName, String eventDataDbUsername, String eventDataDbPassword) {
+    public AbnormalAnalyzerAppModule(URL aisDataSourceUrl, String statistics, String eventDataDbFile, Integer downSampling, String eventRepositoryType, String eventDataDbHost, Integer eventDataDbPort, String eventDataDbName, String eventDataDbUsername, String eventDataDbPassword) {
         this.aisDataSourceUrl = aisDataSourceUrl;
-        this.featureData = featureData;
+        this.statistics = statistics;
         this.pathToEventDatabase = eventDataDbFile;
         this.downSampling = downSampling;
         this.eventRepositoryType = eventRepositoryType;
@@ -118,22 +118,22 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
 
     @Provides
     @Singleton
-    FeatureDataRepository provideFeatureDataRepository() {
-        FeatureDataRepository featureDataRepository = null;
+    StatisticDataRepository provideStatisticDataRepository() {
+        StatisticDataRepository statisticsRepository = null;
         try {
-            String featureDataFilename = featureData;
-            featureDataRepository = new FeatureDataRepositoryMapDB(featureDataFilename);
-            featureDataRepository.openForRead();
-            LOG.info("Opened feature set database with filename '" + featureDataFilename + "' for read.");
-            if (!isValidFeatureDataRepositoryFormat(featureDataRepository)) {
-                LOG.error("Feature data repository is invalid. Analyses will be unreliable!");
+            String statisticsFilename = statistics;
+            statisticsRepository = new StatisticDataRepositoryMapDB(statisticsFilename);
+            statisticsRepository.openForRead();
+            LOG.info("Opened statistic set database with filename '" + statisticsFilename + "' for read.");
+            if (!isValidStatisticDataRepositoryFormat(statisticsRepository)) {
+                LOG.error("Statistic data repository is invalid. Analyses will be unreliable!");
             } else {
-                LOG.info("Feature data repository is valid.");
+                LOG.info("Statistic data repository is valid.");
             }
         } catch (Exception e) {
-            LOG.error("Failed to create or open FeatureDataRepository.", e);
+            LOG.error("Failed to create or open StatisticDataRepository.", e);
         }
-        return featureDataRepository;
+        return statisticsRepository;
     }
 
     @Provides
@@ -176,8 +176,8 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     Grid provideGrid() {
         Grid grid = null;
         try {
-            FeatureDataRepository featureDataRepository = AbnormalAnalyzerApp.getInjector().getInstance(FeatureDataRepository.class);
-            DatasetMetaData metaData = featureDataRepository.getMetaData();
+            StatisticDataRepository statisticsRepository = AbnormalAnalyzerApp.getInjector().getInstance(StatisticDataRepository.class);
+            DatasetMetaData metaData = statisticsRepository.getMetaData();
             Double gridResolution = metaData.getGridResolution();
             grid = Grid.create(gridResolution);
             LOG.info("Created Grid with size " + grid.getSize() + " meters.");
@@ -187,27 +187,27 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
         return grid;
     }
 
-    private static boolean isValidFeatureDataRepositoryFormat(FeatureDataRepository featureDataRepository) {
+    private static boolean isValidStatisticDataRepositoryFormat(StatisticDataRepository statisticsRepository) {
         boolean valid = true;
 
         // TODO Check format version no.
 
-        // Ensure that all expected features are present in the feature file
-        boolean containsFeatureShipSizeAndTypeFeature = false;
-        Set<String> featureNames = featureDataRepository.getFeatureNames();
-        for (String featureName : featureNames) {
-            if ("ShipTypeAndSizeFeature".equals(featureName)) {
-                containsFeatureShipSizeAndTypeFeature = true;
+        // Ensure that all expected statistics are present in the statistic file
+        boolean containsStatisticShipSizeAndTypeStatistic = false;
+        Set<String> statisticNames = statisticsRepository.getStatisticNames();
+        for (String statisticName : statisticNames) {
+            if ("ShipTypeAndSizeStatistic".equals(statisticName)) {
+                containsStatisticShipSizeAndTypeStatistic = true;
             }
         }
 
-        if (!containsFeatureShipSizeAndTypeFeature) {
-            LOG.error("Feature data do not contain data for feature \"ShipTypeAndSizeFeature\"");
+        if (!containsStatisticShipSizeAndTypeStatistic) {
+            LOG.error("Statistic data do not contain data for statistic \"ShipTypeAndSizeStatistic\"");
             valid = false;
         }
 
-        // Check ShipTypeAndSizeFeature
-        ShipTypeAndSizeFeatureData shipSizeAndTypeFeature = (ShipTypeAndSizeFeatureData) featureDataRepository.getFeatureDataForRandomCell("ShipTypeAndSizeFeature");
+        // Check ShipTypeAndSizeStatistic
+        ShipTypeAndSizeStatisticData shipSizeAndTypeStatistic = (ShipTypeAndSizeStatisticData) statisticsRepository.getStatisticDataForRandomCell("ShipTypeAndSizeStatistic");
 
         return valid;
     }

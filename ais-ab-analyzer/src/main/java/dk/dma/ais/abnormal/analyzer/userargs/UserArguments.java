@@ -27,8 +27,8 @@ public class UserArguments {
     @Parameter(names = "-help", help = true, description = "Print this help", hidden = true)
     protected boolean help;
 
-    @Parameter(names = "-featureData", description = "Name of file containing feature data statistics.", required = true)
-    private String featureData;
+    @Parameter(names = "-statistics", description = "Name of file containing statistic data statistics.", required = true)
+    private String statistics;
 
     // -- Repository type choice
 
@@ -79,8 +79,8 @@ public class UserArguments {
         return aisDataSourceURL;
     }
 
-    public String getFeatureData() {
-        return featureData;
+    public String getStatisticData() {
+        return statistics;
     }
 
     public String getEventDataRepositoryType() {

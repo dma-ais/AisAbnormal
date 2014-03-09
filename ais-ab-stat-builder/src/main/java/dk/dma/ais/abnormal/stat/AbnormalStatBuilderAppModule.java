@@ -20,10 +20,10 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
-import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
-import dk.dma.ais.abnormal.stat.db.mapdb.FeatureDataRepositoryMapDB;
-import dk.dma.ais.abnormal.stat.features.CourseOverGroundFeature;
-import dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature;
+import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
+import dk.dma.ais.abnormal.stat.db.mapdb.StatisticDataRepositoryMapDB;
+import dk.dma.ais.abnormal.stat.statistics.CourseOverGroundStatistic;
+import dk.dma.ais.abnormal.stat.statistics.ShipTypeAndSizeStatistic;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.TrackingServiceImpl;
 import dk.dma.ais.concurrency.stripedexecutor.StripedExecutorService;
@@ -65,8 +65,8 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
         bind(AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
         bind(dk.dma.ais.abnormal.application.statistics.AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
         bind(TrackingService.class).to(TrackingServiceImpl.class).in(Singleton.class);
-        bind(ShipTypeAndSizeFeature.class);
-        bind(CourseOverGroundFeature.class);
+        bind(ShipTypeAndSizeStatistic.class);
+        bind(CourseOverGroundStatistic.class);
     }
 
     @Provides
@@ -96,16 +96,16 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
 
     @Provides
     @Singleton
-    FeatureDataRepository provideFeatureDataRepository() {
-        FeatureDataRepository featureDataRepository = null;
+    StatisticDataRepository provideStatisticDataRepository() {
+        StatisticDataRepository statisticsRepository = null;
         try {
-            featureDataRepository = new FeatureDataRepositoryMapDB(outputFilename);
-            featureDataRepository.openForWrite(true);
-            LOG.info("Opened feature set database with filename '" + outputFilename + "'.");
+            statisticsRepository = new StatisticDataRepositoryMapDB(outputFilename);
+            statisticsRepository.openForWrite(true);
+            LOG.info("Opened statistic set database with filename '" + outputFilename + "'.");
         } catch (Exception e) {
-            LOG.error("Failed to create FeatureDataRepository object", e);
+            LOG.error("Failed to create StatisticDataRepository object", e);
         }
-        return featureDataRepository;
+        return statisticsRepository;
     }
 
     @Provides

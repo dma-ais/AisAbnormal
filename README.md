@@ -135,17 +135,17 @@ The -mt option is currently experimental and may be subject to be removed.
 
 As an example: To launch the stat-builder where it reads AIS input from a compressed plain text file
 named aisdump_dk.txt.gz, downsamples these messages by 10 seconds, uses a cell size of 200 metres for the grid
-system, and stores the output in a file called test-stats.feature - use this command line:
+system, and stores the output in a file called test-stats.statistic - use this command line:
 
     java -jar target/ais-ab-stat-builder-0.1-SNAPSHOT.jar -downsampling 10 -gridsize 200 -inputDirectory /data/ais -input aisdump_dk.txt.gz -output /data/stats/test-stats
 
 ### Output ###
-The stat-builder produces two files: One with the extension .featureData
-and one with the extension .featureData.p:
+The stat-builder produces two files: One with the extension .statistics
+and one with the extension .statistics.p:
 
-    $ ls -l features/
-     -rw-r--r--+ 1 tbsalling  staff      131072 20 Feb 15:06 test-stats.featureData
-     -rw-r--r--+ 1 tbsalling  staff     6291456 20 Feb 15:06 test-stats.featureData.p
+    $ ls -l statistics/
+     -rw-r--r--+ 1 tbsalling  staff      131072 20 Feb 15:06 test-stats.statistics
+     -rw-r--r--+ 1 tbsalling  staff     6291456 20 Feb 15:06 test-stats.statistics.p
 
 It is important to keep these two files together and keep them together as a pair if moving or copying
 them around in the file system.
@@ -182,18 +182,18 @@ This will produce a helpful output like this:
            Username to connect to the event database RDBMS host.
       * -eventDataRepositoryType
            Type of repository used to hold event data ('h2', 'pgsql').
-      * -featureData
-           Name of file containing feature data statistics.
+      * -statistics
+           Name of file containing statistic data statistics.
 
 To start the analyzer reading an AIS stream from file aisdump.txt.gz, downsample these by 10 seconds,
 use the previosly generated test-stats statistical data, and store the results in an H2 database named
 'test-events' - use the following example command line:
 
-    $ java -jar target/ais-ab-analyzer-0.1-SNAPSHOT.jar -aisDataSourceURL file:///data/ais/aisdump_dk.txt.gz -featureData /data/features/test-stats -eventDataRepositoryType h2 -eventDataDbFile /data/events/test-events
+    $ java -jar target/ais-ab-analyzer-0.1-SNAPSHOT.jar -aisDataSourceURL file:///data/ais/aisdump_dk.txt.gz -statistics /data/statistics/test-stats -eventDataRepositoryType h2 -eventDataDbFile /data/events/test-events
 
 It is also possible to connect the analyzer directly to an AIS data from a TCP/IP network source in line with this:
 
-    $ java -jar target/ais-ab-analyzer-0.1-SNAPSHOT.jar -aisDataSourceURL tcp://192.168.1.12:4001 -featureData /data/features/test-stats -eventDataRepositoryType h2 -eventDataDbFile /data/events/test-events
+    $ java -jar target/ais-ab-analyzer-0.1-SNAPSHOT.jar -aisDataSourceURL tcp://192.168.1.12:4001 -statistics /data/statistics/test-stats -eventDataRepositoryType h2 -eventDataDbFile /data/events/test-events
 
 ### Output ###
 The Analyzer, when configured to store to an H2 database, will produce an event database file like this:
@@ -219,9 +219,9 @@ A normal startup of the analyzer produces output in line with this:
     10:32:45,592 INFO  main             AbnormalAnalyzerApp              AbnormalAnalyzerApp created (dk.dma.ais.abnormal.analyzer.AbnormalAnalyzerApp@4524411f).
     10:32:45,602 INFO  main             AbnormalAnalyzerAppModule        Created AisReader (Thread[Thread-1,5,main]).
     10:32:45,604 INFO  main             AppStatisticsServiceImpl         AppStatisticsServiceImpl created (dk.dma.ais.abnormal.analyzer.AppStatisticsServiceImpl@78186a70).
-    10:32:45,606 WARN  main             FeatureDataRepositoryMapDB       File IndreDKtilStat-200-10.featureData already exists!
-    10:32:45,674 INFO  main             AbnormalAnalyzerAppModule        Opened feature set database with filename '../../../data/features/IndreDKtilStat-200-10.featureData' for read.
-    10:32:45,694 INFO  main             AbnormalAnalyzerAppModule        Feature data repository is valid.
+    10:32:45,606 WARN  main             StatisticDataRepositoryMapDB       File IndreDKtilStat-200-10.statistics already exists!
+    10:32:45,674 INFO  main             AbnormalAnalyzerAppModule        Opened statistic set database with filename '../../../data/statistics/IndreDKtilStat-200-10.statistics' for read.
+    10:32:45,694 INFO  main             AbnormalAnalyzerAppModule        Statistic data repository is valid.
     10:32:45,696 INFO  main             AbnormalAnalyzerAppModule        Created Grid with size 200.0 meters.
     10:32:45,697 INFO  main             TrackingServiceImpl              TrackingServiceImpl created (dk.dma.ais.abnormal.tracker.TrackingServiceImpl@351d0846).
     10:32:45,780 INFO  main             AbnormalAnalyzerAppModule        Created ReplayDownSampleFilter with down sampling period of 10 secs.
@@ -287,7 +287,7 @@ Java middleware server. Instead, the web application can be started like this:
 
 This will produce a helpful output like this:
 
-    The following options are required: -featureData -eventDataRepositoryType
+    The following options are required: -statistics -eventDataRepositoryType
     Usage: ais-ab-web [options]
       Options:
         -eventDataDbFile
@@ -304,8 +304,8 @@ This will produce a helpful output like this:
            Username to connect to the event database RDBMS host.
       * -eventDataRepositoryType
            Type of repository used to hold event data ('h2', 'pgsql').
-      * -featureData
-           Filename of feature data file to read.
+      * -statistics
+           Filename of statistic data file to read.
         -port
            Port no. for listening to HTTP.
            Default: 8080
@@ -313,7 +313,7 @@ This will produce a helpful output like this:
 To launch the web application where it reads statistical data from the test-stats files, reads events from the
 test-events H2 file - and exposes the web application on port 8080, issue the following example command line:
 
-         java -jar target/ais-ab-web-0.1-SNAPSHOT.jar -featureData data/features/test-stats -eventDataRepositoryType h2 -eventDataDbFile data/events/test-events -port 8080
+         java -jar target/ais-ab-web-0.1-SNAPSHOT.jar -statistics data/statistics/test-stats -eventDataRepositoryType h2 -eventDataDbFile data/events/test-events -port 8080
 
 Once the web application has launched it can be accessed from a browser, e.g. locally, using this URL:
 

@@ -29,9 +29,9 @@ import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.CourseOverGroundEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
-import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
-import dk.dma.ais.abnormal.stat.db.data.CourseOverGroundFeatureData;
-import dk.dma.ais.abnormal.stat.db.data.FeatureData;
+import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
+import dk.dma.ais.abnormal.stat.db.data.CourseOverGroundStatisticData;
+import dk.dma.ais.abnormal.stat.db.data.StatisticData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
@@ -48,9 +48,9 @@ import static dk.dma.ais.abnormal.event.db.domain.builders.CourseOverGroundEvent
 /**
  * This analysis manages events where a vessel has an "abnormal" course over ground
  * relative to the previous observations for vessels in the same grid cell. Statistics
- * for previous observations are stored in the FeatureDataRepository.
+ * for previous observations are stored in the StatisticDataRepository.
  */
-public class CourseOverGroundAnalysis extends FeatureDataBasedAnalysis {
+public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
     private static final Logger LOG = LoggerFactory.getLogger(CourseOverGroundAnalysis.class);
     {
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
@@ -61,8 +61,8 @@ public class CourseOverGroundAnalysis extends FeatureDataBasedAnalysis {
     static final int TOTAL_SHIP_COUNT_THRESHOLD = 1000;
 
     @Inject
-    public CourseOverGroundAnalysis(AppStatisticsService statisticsService, FeatureDataRepository featureDataRepository, TrackingService trackingService, EventRepository eventRepository, BehaviourManager behaviourManager) {
-        super(eventRepository, featureDataRepository, trackingService, behaviourManager);
+    public CourseOverGroundAnalysis(AppStatisticsService statisticsService, StatisticDataRepository statisticsRepository, TrackingService trackingService, EventRepository eventRepository, BehaviourManager behaviourManager) {
+        super(eventRepository, statisticsRepository, trackingService, behaviourManager);
         this.statisticsService = statisticsService;
     }
 
@@ -157,12 +157,12 @@ public class CourseOverGroundAnalysis extends FeatureDataBasedAnalysis {
     boolean isAbnormalCourseOverGround(Long cellId, int shipTypeKey, int shipSizeKey, int courseOverGroundKey) {
         float pd = 1.0f;
 
-        FeatureData courseOverGroundFeatureData = getFeatureDataRepository().getFeatureData("CourseOverGroundFeature", cellId);
+        StatisticData courseOverGroundStatisticData = getStatisticDataRepository().getStatisticData("CourseOverGroundStatistic", cellId);
 
-        if (courseOverGroundFeatureData instanceof CourseOverGroundFeatureData) {
-            Integer totalCount  = ((CourseOverGroundFeatureData) courseOverGroundFeatureData).getSumFor(CourseOverGroundFeatureData.STAT_SHIP_COUNT);
+        if (courseOverGroundStatisticData instanceof CourseOverGroundStatisticData) {
+            Integer totalCount  = ((CourseOverGroundStatisticData) courseOverGroundStatisticData).getSumFor(CourseOverGroundStatisticData.STAT_SHIP_COUNT);
             if (totalCount > TOTAL_SHIP_COUNT_THRESHOLD) {
-                Integer shipCount = ((CourseOverGroundFeatureData) courseOverGroundFeatureData).getValue(shipTypeKey, shipSizeKey, courseOverGroundKey, CourseOverGroundFeatureData.STAT_SHIP_COUNT);
+                Integer shipCount = ((CourseOverGroundStatisticData) courseOverGroundStatisticData).getValue(shipTypeKey, shipSizeKey, courseOverGroundKey, CourseOverGroundStatisticData.STAT_SHIP_COUNT);
                 if (shipCount == null) {
                     shipCount = 0;
                 }

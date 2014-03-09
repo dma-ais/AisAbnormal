@@ -19,8 +19,8 @@ package dk.dma.ais.abnormal.analyzer.analysis;
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManager;
 import dk.dma.ais.abnormal.event.db.EventRepository;
-import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
-import dk.dma.ais.abnormal.stat.db.data.CourseOverGroundFeatureData;
+import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
+import dk.dma.ais.abnormal.stat.db.data.CourseOverGroundStatisticData;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
@@ -40,10 +40,10 @@ public class CourseOverGroundAnalysisTest {
 
     private TrackingService trackingService;
     private AppStatisticsService statisticsService;
-    private FeatureDataRepository featureDataRepository;
+    private StatisticDataRepository statisticsRepository;
     private EventRepository eventRepository;
     private BehaviourManager behaviourManager;
-    private CourseOverGroundFeatureData featureData;
+    private CourseOverGroundStatisticData statistics;
 
     @Before
     public void prepareTest() {
@@ -52,7 +52,7 @@ public class CourseOverGroundAnalysisTest {
         // Mock dependencies
         trackingService = context.mock(TrackingService.class);
         statisticsService = context.mock(AppStatisticsService.class);
-        featureDataRepository = context.mock(FeatureDataRepository.class);
+        statisticsRepository = context.mock(StatisticDataRepository.class);
         eventRepository = context.mock(EventRepository.class);
         behaviourManager = context.mock(BehaviourManager.class);
     }
@@ -62,25 +62,25 @@ public class CourseOverGroundAnalysisTest {
      */
     @Test
     public void neverAbnormalCOGWhenShipCountBelowThreshold() {
-        // Mock featureData table
-        featureData = CourseOverGroundFeatureData.create();
-        featureData.setValue((short) 0, (short) 0, (short) 0, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 1, (short) 0, (short) 1, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 1, (short) 1, (short) 1, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 1, (short) 2, (short) 0, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 0, (short) 0, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 4, (short) 0, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 4, (short) 1, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 975);
-        featureData.setValue((short) 2, (short) 4, (short) 2, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 3, (short) 1, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 3, (short) 2, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 3, (short) 3, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 3, (short) 4, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 3, (short) 5, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
+        // Mock statistics table
+        statistics = CourseOverGroundStatisticData.create();
+        statistics.setValue((short) 0, (short) 0, (short) 0, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 1, (short) 0, (short) 1, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 1, (short) 1, (short) 1, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 1, (short) 2, (short) 0, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 2, (short) 0, (short) 0, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 2, (short) 4, (short) 0, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 2, (short) 4, (short) 1, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 975);
+        statistics.setValue((short) 2, (short) 4, (short) 2, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 2, (short) 3, (short) 1, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 2, (short) 3, (short) 2, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 2, (short) 3, (short) 3, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 2, (short) 3, (short) 4, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 2, (short) 3, (short) 5, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
 
-        final int sum  = featureData.getSumFor(CourseOverGroundFeatureData.STAT_SHIP_COUNT);
-        final int n1    = featureData.getValue(2, 4, 1, CourseOverGroundFeatureData.STAT_SHIP_COUNT);
-        final int n2    = featureData.getValue(2, 4, 2, CourseOverGroundFeatureData.STAT_SHIP_COUNT);
+        final int sum  = statistics.getSumFor(CourseOverGroundStatisticData.STAT_SHIP_COUNT);
+        final int n1    = statistics.getValue(2, 4, 1, CourseOverGroundStatisticData.STAT_SHIP_COUNT);
+        final int n2    = statistics.getValue(2, 4, 2, CourseOverGroundStatisticData.STAT_SHIP_COUNT);
         assertTrue(sum < CourseOverGroundAnalysis.TOTAL_SHIP_COUNT_THRESHOLD);
         assertTrue((float) n1 / (float) sum > 0.01);
         assertTrue((float) n2 / (float) sum < 0.01);
@@ -88,17 +88,17 @@ public class CourseOverGroundAnalysisTest {
         context.checking(new Expectations() {{
             oneOf(behaviourManager).registerSubscriber(with(any(CourseOverGroundAnalysis.class)));
         }});
-        final CourseOverGroundAnalysis analysis = new CourseOverGroundAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository, behaviourManager);
+        final CourseOverGroundAnalysis analysis = new CourseOverGroundAnalysis(statisticsService, statisticsRepository, trackingService, eventRepository, behaviourManager);
 
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with("CourseOverGroundAnalysis"), with(any(String.class)));
-            oneOf(featureDataRepository).getFeatureData("CourseOverGroundFeature", 123456L); will(returnValue(featureData));
+            oneOf(statisticsRepository).getStatisticData("CourseOverGroundStatistic", 123456L); will(returnValue(statistics));
         }});
         assertFalse(analysis.isAbnormalCourseOverGround(123456L, 2, 4, 1));
 
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with("CourseOverGroundAnalysis"), with(any(String.class)));
-            oneOf(featureDataRepository).getFeatureData("CourseOverGroundFeature", 123456L); will(returnValue(featureData));
+            oneOf(statisticsRepository).getStatisticData("CourseOverGroundStatistic", 123456L); will(returnValue(statistics));
         }});
         assertFalse(analysis.isAbnormalCourseOverGround(123456L, 2, 4, 2));
     }
@@ -108,27 +108,27 @@ public class CourseOverGroundAnalysisTest {
      */
     @Test
     public void abnormalCOGWhenShipCountAboveThreshold() {
-        // Mock featureData table
-        featureData = CourseOverGroundFeatureData.create();
-        featureData.setValue((short) 0, (short) 0, (short) 0, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 1, (short) 0, (short) 1, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 1, (short) 1, (short) 1, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 1, (short) 2, (short) 0, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 0, (short) 0, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 4, (short) 0, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 4, (short) 1, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 4, (short) 2, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 3, (short) 0, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 3, (short) 1, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 3, (short) 2, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 3, (short) 3, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1);
-        featureData.setValue((short) 2, (short) 3, (short) 4, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 254);
-        featureData.setValue((short) 2, (short) 3, (short) 5, CourseOverGroundFeatureData.STAT_SHIP_COUNT, 1000);
+        // Mock statistics table
+        statistics = CourseOverGroundStatisticData.create();
+        statistics.setValue((short) 0, (short) 0, (short) 0, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 1, (short) 0, (short) 1, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 1, (short) 1, (short) 1, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 1, (short) 2, (short) 0, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 2, (short) 0, (short) 0, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 2, (short) 4, (short) 0, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 2, (short) 4, (short) 1, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 2, (short) 4, (short) 2, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 2, (short) 3, (short) 0, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 2, (short) 3, (short) 1, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 2, (short) 3, (short) 2, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 2, (short) 3, (short) 3, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1);
+        statistics.setValue((short) 2, (short) 3, (short) 4, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 254);
+        statistics.setValue((short) 2, (short) 3, (short) 5, CourseOverGroundStatisticData.STAT_SHIP_COUNT, 1000);
 
-        final int sum   = featureData.getSumFor(CourseOverGroundFeatureData.STAT_SHIP_COUNT);
-        final int n1    = featureData.getValue(2, 4, 1, CourseOverGroundFeatureData.STAT_SHIP_COUNT);
-        final int n2    = featureData.getValue(2, 3, 4, CourseOverGroundFeatureData.STAT_SHIP_COUNT);
-        final int n3    = featureData.getValue(2, 3, 5, CourseOverGroundFeatureData.STAT_SHIP_COUNT);
+        final int sum   = statistics.getSumFor(CourseOverGroundStatisticData.STAT_SHIP_COUNT);
+        final int n1    = statistics.getValue(2, 4, 1, CourseOverGroundStatisticData.STAT_SHIP_COUNT);
+        final int n2    = statistics.getValue(2, 3, 4, CourseOverGroundStatisticData.STAT_SHIP_COUNT);
+        final int n3    = statistics.getValue(2, 3, 5, CourseOverGroundStatisticData.STAT_SHIP_COUNT);
         final float pd1 = (float) n1 / (float) sum;
         final float pd2 = (float) n2 / (float) sum;
         final float pd3 = (float) n3 / (float) sum;
@@ -140,31 +140,31 @@ public class CourseOverGroundAnalysisTest {
         context.checking(new Expectations() {{
             oneOf(behaviourManager).registerSubscriber(with(any(CourseOverGroundAnalysis.class)));
         }});
-        final CourseOverGroundAnalysis analysis = new CourseOverGroundAnalysis(statisticsService, featureDataRepository, trackingService, eventRepository, behaviourManager);
+        final CourseOverGroundAnalysis analysis = new CourseOverGroundAnalysis(statisticsService, statisticsRepository, trackingService, eventRepository, behaviourManager);
 
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with("CourseOverGroundAnalysis"), with(any(String.class)));
-            oneOf(featureDataRepository).getFeatureData("CourseOverGroundFeature", 123456L); will(returnValue(featureData));
+            oneOf(statisticsRepository).getStatisticData("CourseOverGroundStatistic", 123456L); will(returnValue(statistics));
         }});
-        assertNotNull(featureData.getValue(2, 4, 0, CourseOverGroundFeatureData.STAT_SHIP_COUNT));
+        assertNotNull(statistics.getValue(2, 4, 0, CourseOverGroundStatisticData.STAT_SHIP_COUNT));
         assertTrue(analysis.isAbnormalCourseOverGround(123456L, 2, 4, 0));
 
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with("CourseOverGroundAnalysis"), with(any(String.class)));
-            oneOf(featureDataRepository).getFeatureData("CourseOverGroundFeature", 123456L); will(returnValue(featureData));
+            oneOf(statisticsRepository).getStatisticData("CourseOverGroundStatistic", 123456L); will(returnValue(statistics));
         }});
-        assertNull(featureData.getValue(2, 0, 2, CourseOverGroundFeatureData.STAT_SHIP_COUNT)); // null
+        assertNull(statistics.getValue(2, 0, 2, CourseOverGroundStatisticData.STAT_SHIP_COUNT)); // null
         assertTrue(analysis.isAbnormalCourseOverGround(123456L, 2, 0, 2));
 
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with("CourseOverGroundAnalysis"), with(any(String.class)));
-            oneOf(featureDataRepository).getFeatureData("CourseOverGroundFeature", 123456L); will(returnValue(featureData));
+            oneOf(statisticsRepository).getStatisticData("CourseOverGroundStatistic", 123456L); will(returnValue(statistics));
         }});
         assertFalse(analysis.isAbnormalCourseOverGround(123456L, 2, 3, 4));
 
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with("CourseOverGroundAnalysis"), with(any(String.class)));
-            oneOf(featureDataRepository).getFeatureData("CourseOverGroundFeature", 123456L); will(returnValue(featureData));
+            oneOf(statisticsRepository).getStatisticData("CourseOverGroundStatistic", 123456L); will(returnValue(statistics));
         }});
         assertFalse(analysis.isAbnormalCourseOverGround(123456L, 2, 3, 5));
     }

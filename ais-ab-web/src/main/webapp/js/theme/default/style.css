@@ -160,13 +160,13 @@ div.olControlMousePosition {
    background-position: -24px -24px;
 }
 
-div.olControlSaveFeaturesItemActive {
-    background-image: url(img/save_features_on.png);
+div.olControlSaveStatisticsItemActive {
+    background-image: url(img/save_statistics_on.png);
     background-repeat: no-repeat;
     background-position: 0 1px;
 }
-div.olControlSaveFeaturesItemInactive {
-    background-image: url(img/save_features_off.png);
+div.olControlSaveStatisticsItemInactive {
+    background-image: url(img/save_statistics_off.png);
     background-repeat: no-repeat;
     background-position: 0 1px;
 }
@@ -179,7 +179,7 @@ div.olControlSaveFeaturesItemInactive {
     font-size: 1px;
     filter: alpha(opacity=50);
 }
-.olHandlerBoxSelectFeature {
+.olHandlerBoxSelectStatistic {
     border: 2px solid blue;
     position: absolute;
     background-color: white;
@@ -296,10 +296,10 @@ div.olControlSaveFeaturesItemInactive {
 .olDrawBox {
     cursor: crosshair;
 }
-.olControlDragFeatureOver {
+.olControlDragStatisticOver {
     cursor: move;
 }
-.olControlDragFeatureActive.olControlDragFeatureOver.olDragDown {
+.olControlDragStatisticActive.olControlDragStatisticOver.olDragDown {
     cursor: -moz-grabbing;
 }
 
@@ -415,22 +415,22 @@ span.olGoogleAttribution.hybrid a, span.olGoogleAttribution.satellite a {
 .olControlNavToolbar .olControlZoomBoxItemActive  {
     background-position: -128px -24px;
 }
-.olControlEditingToolbar .olControlDrawFeaturePointItemInactive {
+.olControlEditingToolbar .olControlDrawStatisticPointItemInactive {
     background-position: -77px -1px;
 }
-.olControlEditingToolbar .olControlDrawFeaturePointItemActive {
+.olControlEditingToolbar .olControlDrawStatisticPointItemActive {
     background-position: -77px -24px;
 }
-.olControlEditingToolbar .olControlDrawFeaturePathItemInactive {
+.olControlEditingToolbar .olControlDrawStatisticPathItemInactive {
     background-position: -51px -1px;
 }
-.olControlEditingToolbar .olControlDrawFeaturePathItemActive {
+.olControlEditingToolbar .olControlDrawStatisticPathItemActive {
     background-position: -51px -24px;
 }
-.olControlEditingToolbar .olControlDrawFeaturePolygonItemInactive{
+.olControlEditingToolbar .olControlDrawStatisticPolygonItemInactive{
     background-position: -26px -1px;
 }
-.olControlEditingToolbar .olControlDrawFeaturePolygonItemActive {
+.olControlEditingToolbar .olControlDrawStatisticPolygonItemActive {
     background-position: -26px -24px;
 }
 

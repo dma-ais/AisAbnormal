@@ -20,9 +20,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
-import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
-import dk.dma.ais.abnormal.stat.db.mapdb.FeatureDataRepositoryMapDB;
-import dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature;
+import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
+import dk.dma.ais.abnormal.stat.db.mapdb.StatisticDataRepositoryMapDB;
+import dk.dma.ais.abnormal.stat.statistics.ShipTypeAndSizeStatistic;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.TrackingServiceImpl;
 import dk.dma.ais.concurrency.stripedexecutor.StripedExecutorService;
@@ -61,10 +61,10 @@ public class AbnormalStatBuilderAppTestModule extends AbstractModule {
         bind(AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
         bind(dk.dma.ais.abnormal.application.statistics.AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
         bind(TrackingService.class).to(TrackingServiceImpl.class).in(Singleton.class);
-        bind(ShipTypeAndSizeFeature.class);
+        bind(ShipTypeAndSizeStatistic.class);
 
         // Test stubs
-        // bind(FeatureDataRepository.class).to(FeatureDataRepositoryTestStub);
+        // bind(StatisticDataRepository.class).to(StatisticDataRepositoryTestStub);
     }
 
     @Provides
@@ -81,16 +81,16 @@ public class AbnormalStatBuilderAppTestModule extends AbstractModule {
 
     @Provides
     @Singleton
-    FeatureDataRepository provideFeatureDataRepository() {
-        FeatureDataRepository featureDataRepository = null;
+    StatisticDataRepository provideStatisticDataRepository() {
+        StatisticDataRepository statisticsRepository = null;
         try {
             LOG.info("Using dbFileName: " + outputFilename);
-            featureDataRepository = new FeatureDataRepositoryMapDB(outputFilename);
-            featureDataRepository.openForWrite(false);
+            statisticsRepository = new StatisticDataRepositoryMapDB(outputFilename);
+            statisticsRepository.openForWrite(false);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return featureDataRepository;
+        return statisticsRepository;
     }
 
     @Provides

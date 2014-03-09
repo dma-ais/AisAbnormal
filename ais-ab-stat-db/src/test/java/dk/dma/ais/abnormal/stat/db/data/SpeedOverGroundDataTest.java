@@ -22,7 +22,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class SpeedOverGroundDataTest extends FourKeyFeatureDataTest<SpeedOverGroundFeatureData> {
+public class SpeedOverGroundDataTest extends FourKeyStatisticDataTest<SpeedOverGroundStatisticData> {
 
     @Before
     public void initTest() {
@@ -31,22 +31,22 @@ public class SpeedOverGroundDataTest extends FourKeyFeatureDataTest<SpeedOverGro
         final int MAX_KEY_3 = Categorizer.NUM_SPEED_OVER_GROUND_CATEGORIES - 1; // 7(8)
         final int MAX_NUM_KEY_4 = 1;
 
-        featureData = new SpeedOverGroundFeatureData(MAX_KEY_1, MAX_KEY_2, MAX_KEY_3, MAX_NUM_KEY_4);
+        statistics = new SpeedOverGroundStatisticData(MAX_KEY_1, MAX_KEY_2, MAX_KEY_3, MAX_NUM_KEY_4);
     }
 
     @Test
     public void computeKey() {                                      
-        assertEquals( 0, featureData.computeMapKey( 0,  0,  0, SpeedOverGroundFeatureData.STAT_SHIP_COUNT));
-        assertEquals( 1, featureData.computeMapKey( 0,  0,  1, SpeedOverGroundFeatureData.STAT_SHIP_COUNT));
-        assertEquals( 7, featureData.computeMapKey( 0,  0, featureData.MAX_KEY_3, SpeedOverGroundFeatureData.STAT_SHIP_COUNT));
-        assertEquals( 8, featureData.computeMapKey( 0,  1,  0, SpeedOverGroundFeatureData.STAT_SHIP_COUNT));
-        assertEquals( 2*(featureData.MAX_KEY_3+1), featureData.computeMapKey( 0,  2,  0, SpeedOverGroundFeatureData.STAT_SHIP_COUNT));
-        assertEquals( 3*(featureData.MAX_KEY_3+1) + featureData.MAX_KEY_3, featureData.computeMapKey( 0,  3, featureData.MAX_KEY_3, SpeedOverGroundFeatureData.STAT_SHIP_COUNT));
-        assertEquals( 4*(featureData.MAX_KEY_3+1), featureData.computeMapKey( 0,  4,  0, SpeedOverGroundFeatureData.STAT_SHIP_COUNT));
-        assertEquals( (featureData.MAX_KEY_2+1)*(featureData.MAX_KEY_3+1), featureData.computeMapKey( 1,  0,  0, SpeedOverGroundFeatureData.STAT_SHIP_COUNT));
-        assertEquals( (featureData.MAX_KEY_2+1)*(featureData.MAX_KEY_3+1) + 1*(featureData.MAX_KEY_3+1), featureData.computeMapKey( 1,  1,  0, SpeedOverGroundFeatureData.STAT_SHIP_COUNT));
-        assertEquals( (featureData.MAX_KEY_2+1)*(featureData.MAX_KEY_3+1) + 1*(featureData.MAX_KEY_3+1) + 1, featureData.computeMapKey( 1,  1,  1, SpeedOverGroundFeatureData.STAT_SHIP_COUNT));
-        assertEquals( 2*(featureData.MAX_KEY_2+1)*(featureData.MAX_KEY_3+1) + 4*(featureData.MAX_KEY_3+1) + 3, featureData.computeMapKey( 2,  4,  3, SpeedOverGroundFeatureData.STAT_SHIP_COUNT));
+        assertEquals( 0, statistics.computeMapKey( 0,  0,  0, SpeedOverGroundStatisticData.STAT_SHIP_COUNT));
+        assertEquals( 1, statistics.computeMapKey( 0,  0,  1, SpeedOverGroundStatisticData.STAT_SHIP_COUNT));
+        assertEquals( 7, statistics.computeMapKey( 0,  0, statistics.MAX_KEY_3, SpeedOverGroundStatisticData.STAT_SHIP_COUNT));
+        assertEquals( 8, statistics.computeMapKey( 0,  1,  0, SpeedOverGroundStatisticData.STAT_SHIP_COUNT));
+        assertEquals( 2*(statistics.MAX_KEY_3+1), statistics.computeMapKey( 0,  2,  0, SpeedOverGroundStatisticData.STAT_SHIP_COUNT));
+        assertEquals( 3*(statistics.MAX_KEY_3+1) + statistics.MAX_KEY_3, statistics.computeMapKey( 0,  3, statistics.MAX_KEY_3, SpeedOverGroundStatisticData.STAT_SHIP_COUNT));
+        assertEquals( 4*(statistics.MAX_KEY_3+1), statistics.computeMapKey( 0,  4,  0, SpeedOverGroundStatisticData.STAT_SHIP_COUNT));
+        assertEquals( (statistics.MAX_KEY_2+1)*(statistics.MAX_KEY_3+1), statistics.computeMapKey( 1,  0,  0, SpeedOverGroundStatisticData.STAT_SHIP_COUNT));
+        assertEquals( (statistics.MAX_KEY_2+1)*(statistics.MAX_KEY_3+1) + 1*(statistics.MAX_KEY_3+1), statistics.computeMapKey( 1,  1,  0, SpeedOverGroundStatisticData.STAT_SHIP_COUNT));
+        assertEquals( (statistics.MAX_KEY_2+1)*(statistics.MAX_KEY_3+1) + 1*(statistics.MAX_KEY_3+1) + 1, statistics.computeMapKey( 1,  1,  1, SpeedOverGroundStatisticData.STAT_SHIP_COUNT));
+        assertEquals( 2*(statistics.MAX_KEY_2+1)*(statistics.MAX_KEY_3+1) + 4*(statistics.MAX_KEY_3+1) + 3, statistics.computeMapKey( 2,  4,  3, SpeedOverGroundStatisticData.STAT_SHIP_COUNT));
     }
 
 
@@ -57,12 +57,12 @@ public class SpeedOverGroundDataTest extends FourKeyFeatureDataTest<SpeedOverGro
         for (int key1 = 0; key1 < Categorizer.NUM_SHIP_TYPE_CATEGORIES; key1++) {
             for (int key2 = 0; key2 < Categorizer.NUM_SHIP_SIZE_CATEGORIES; key2++) {
                 for (int key3 = 0; key3 < Categorizer.NUM_SPEED_OVER_GROUND_CATEGORIES; key3++) {
-                    short key = featureData.computeMapKey(key1, key2, key3, SpeedOverGroundFeatureData.STAT_SHIP_COUNT);
+                    short key = statistics.computeMapKey(key1, key2, key3, SpeedOverGroundStatisticData.STAT_SHIP_COUNT);
                     System.out.println("key:" + key + " key1:" + key1 + " key2:" + key2 + " key3:" + key3);
                     assertEquals(expectedKey++, key);
-                    assertEquals(key1, featureData.extractKey1(key));
-                    assertEquals(key2, featureData.extractKey2(key));
-                    assertEquals(key3, featureData.extractKey3(key));
+                    assertEquals(key1, statistics.extractKey1(key));
+                    assertEquals(key2, statistics.extractKey2(key));
+                    assertEquals(key3, statistics.extractKey3(key));
                 }
             }
         }
@@ -70,18 +70,18 @@ public class SpeedOverGroundDataTest extends FourKeyFeatureDataTest<SpeedOverGro
 
     @Test
     public void extractKey4() {
-        assertEquals(0, featureData.extractKey4((short) 0));
-        assertEquals(0, featureData.extractKey4((short) 1));
-        assertEquals(0, featureData.extractKey4((short) 11));
-        assertEquals(0, featureData.extractKey4((short) 12));
-        assertEquals(0, featureData.extractKey4((short) 24));
-        assertEquals(0, featureData.extractKey4((short) 59));
-        assertEquals(0, featureData.extractKey4((short) 60));
-        assertEquals(0, featureData.extractKey4((short) 71));
-        assertEquals(0, featureData.extractKey4((short) 72));
-        assertEquals(0, featureData.extractKey4((short) 84));
-        assertEquals(0, featureData.extractKey4((short) 85));
-        assertEquals(0, featureData.extractKey4((short) 207));
+        assertEquals(0, statistics.extractKey4((short) 0));
+        assertEquals(0, statistics.extractKey4((short) 1));
+        assertEquals(0, statistics.extractKey4((short) 11));
+        assertEquals(0, statistics.extractKey4((short) 12));
+        assertEquals(0, statistics.extractKey4((short) 24));
+        assertEquals(0, statistics.extractKey4((short) 59));
+        assertEquals(0, statistics.extractKey4((short) 60));
+        assertEquals(0, statistics.extractKey4((short) 71));
+        assertEquals(0, statistics.extractKey4((short) 72));
+        assertEquals(0, statistics.extractKey4((short) 84));
+        assertEquals(0, statistics.extractKey4((short) 85));
+        assertEquals(0, statistics.extractKey4((short) 207));
     }
 
 }

@@ -22,7 +22,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class CourseOverGroundDataTest extends FourKeyFeatureDataTest<CourseOverGroundFeatureData> {
+public class CourseOverGroundDataTest extends FourKeyStatisticDataTest<CourseOverGroundStatisticData> {
 
     @Before
     public void initTest() {
@@ -31,7 +31,7 @@ public class CourseOverGroundDataTest extends FourKeyFeatureDataTest<CourseOverG
         final int MAX_KEY_3 = Categorizer.NUM_COURSE_OVER_GROUND_CATEGORIES - 1;  /* 1-12 -> 0..11 */
         final int MAX_NUM_KEY_4 = 1;
 
-        featureData = new CourseOverGroundFeatureData(MAX_KEY_1, MAX_KEY_2, MAX_KEY_3, MAX_NUM_KEY_4);
+        statistics = new CourseOverGroundStatisticData(MAX_KEY_1, MAX_KEY_2, MAX_KEY_3, MAX_NUM_KEY_4);
     }
 
     @Test
@@ -41,12 +41,12 @@ public class CourseOverGroundDataTest extends FourKeyFeatureDataTest<CourseOverG
         for (int key1 = 0; key1 < Categorizer.NUM_SHIP_TYPE_CATEGORIES; key1++) {
             for (int key2 = 0; key2 < Categorizer.NUM_SHIP_SIZE_CATEGORIES; key2++) {
                 for (int key3 = 0; key3 < Categorizer.NUM_COURSE_OVER_GROUND_CATEGORIES; key3++) {
-                    short key = featureData.computeMapKey(key1, key2, key3, CourseOverGroundFeatureData.STAT_SHIP_COUNT);
+                    short key = statistics.computeMapKey(key1, key2, key3, CourseOverGroundStatisticData.STAT_SHIP_COUNT);
                     System.out.println("key:" + key + " key1:" + key1 + " key2:" + key2 + " key3:" + key3);
                     assertEquals(expectedKey++, key);
-                    assertEquals(key1, featureData.extractKey1(key));
-                    assertEquals(key2, featureData.extractKey2(key));
-                    assertEquals(key3, featureData.extractKey3(key));
+                    assertEquals(key1, statistics.extractKey1(key));
+                    assertEquals(key2, statistics.extractKey2(key));
+                    assertEquals(key3, statistics.extractKey3(key));
                 }
             }
         }
@@ -54,18 +54,18 @@ public class CourseOverGroundDataTest extends FourKeyFeatureDataTest<CourseOverG
 
     @Test
     public void extractKey4() {
-        assertEquals(0, featureData.extractKey4((short) 0));
-        assertEquals(0, featureData.extractKey4((short) 1));
-        assertEquals(0, featureData.extractKey4((short) 11));
-        assertEquals(0, featureData.extractKey4((short) 12));
-        assertEquals(0, featureData.extractKey4((short) 24));
-        assertEquals(0, featureData.extractKey4((short) 59));
-        assertEquals(0, featureData.extractKey4((short) 60));
-        assertEquals(0, featureData.extractKey4((short) 71));
-        assertEquals(0, featureData.extractKey4((short) 72));
-        assertEquals(0, featureData.extractKey4((short) 84));
-        assertEquals(0, featureData.extractKey4((short) 85));
-        assertEquals(0, featureData.extractKey4((short) 207));
+        assertEquals(0, statistics.extractKey4((short) 0));
+        assertEquals(0, statistics.extractKey4((short) 1));
+        assertEquals(0, statistics.extractKey4((short) 11));
+        assertEquals(0, statistics.extractKey4((short) 12));
+        assertEquals(0, statistics.extractKey4((short) 24));
+        assertEquals(0, statistics.extractKey4((short) 59));
+        assertEquals(0, statistics.extractKey4((short) 60));
+        assertEquals(0, statistics.extractKey4((short) 71));
+        assertEquals(0, statistics.extractKey4((short) 72));
+        assertEquals(0, statistics.extractKey4((short) 84));
+        assertEquals(0, statistics.extractKey4((short) 85));
+        assertEquals(0, statistics.extractKey4((short) 207));
     }
 
 }

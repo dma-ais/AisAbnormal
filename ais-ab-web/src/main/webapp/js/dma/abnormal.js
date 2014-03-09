@@ -11,7 +11,7 @@ var dmaAbnormalApp = {
     init: function () {
         mapModule.init();
         eventModule.init();
-        featureModule.init();
+        statisticsModule.init();
         vesselModule.init();
         tickerModule.init();
     }

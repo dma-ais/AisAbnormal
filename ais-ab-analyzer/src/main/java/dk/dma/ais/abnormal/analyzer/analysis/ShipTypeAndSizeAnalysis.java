@@ -29,9 +29,9 @@ import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.ShipSizeOrTypeEvent;
 import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
-import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
-import dk.dma.ais.abnormal.stat.db.data.FeatureData;
-import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeFeatureData;
+import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
+import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeStatisticData;
+import dk.dma.ais.abnormal.stat.db.data.StatisticData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
@@ -49,9 +49,9 @@ import static dk.dma.ais.abnormal.event.db.domain.builders.ShipSizeOrTypeEventBu
  * This analysis manages events where the presence of a vessel of the given type
  * and size is "abnormal" for the current position (grid cell) relative to previous
  * observations for vessels in the same grid cell. Statistics for previous observations
- * are stored in the FeatureDataRepository.
+ * are stored in the StatisticDataRepository.
  */
-public class ShipTypeAndSizeAnalysis extends FeatureDataBasedAnalysis {
+public class ShipTypeAndSizeAnalysis extends StatisticBasedAnalysis {
     private static final Logger LOG = LoggerFactory.getLogger(ShipTypeAndSizeAnalysis.class);
     {
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
@@ -62,8 +62,8 @@ public class ShipTypeAndSizeAnalysis extends FeatureDataBasedAnalysis {
     private static final int TOTAL_COUNT_THRESHOLD = 1000;
 
     @Inject
-    public ShipTypeAndSizeAnalysis(AppStatisticsService statisticsService, FeatureDataRepository featureDataRepository, TrackingService trackingService, EventRepository eventRepository, BehaviourManager behaviourManager) {
-        super(eventRepository, featureDataRepository, trackingService, behaviourManager);
+    public ShipTypeAndSizeAnalysis(AppStatisticsService statisticsService, StatisticDataRepository statisticsRepository, TrackingService trackingService, EventRepository eventRepository, BehaviourManager behaviourManager) {
+        super(eventRepository, statisticsRepository, trackingService, behaviourManager);
         this.statisticsService = statisticsService;
     }
 
@@ -147,12 +147,12 @@ public class ShipTypeAndSizeAnalysis extends FeatureDataBasedAnalysis {
     boolean isAbnormalCellForShipTypeAndSize(Long cellId, int shipTypeKey, int shipSizeKey) {
         float pd = 1.0f;
 
-        FeatureData shipSizeAndTypeData = getFeatureDataRepository().getFeatureData("ShipTypeAndSizeFeature", cellId);
+        StatisticData shipSizeAndTypeData = getStatisticDataRepository().getStatisticData("ShipTypeAndSizeStatistic", cellId);
 
-        if (shipSizeAndTypeData instanceof ShipTypeAndSizeFeatureData) {
-            Integer totalCount  = ((ShipTypeAndSizeFeatureData) shipSizeAndTypeData).getSumFor("shipCount");
+        if (shipSizeAndTypeData instanceof ShipTypeAndSizeStatisticData) {
+            Integer totalCount  = ((ShipTypeAndSizeStatisticData) shipSizeAndTypeData).getSumFor("shipCount");
             if (totalCount > TOTAL_COUNT_THRESHOLD) {
-                Integer shipCount = ((ShipTypeAndSizeFeatureData) shipSizeAndTypeData).getValue(shipTypeKey, shipSizeKey, ShipTypeAndSizeFeatureData.STAT_SHIP_COUNT);
+                Integer shipCount = ((ShipTypeAndSizeStatisticData) shipSizeAndTypeData).getValue(shipTypeKey, shipSizeKey, ShipTypeAndSizeStatisticData.STAT_SHIP_COUNT);
                 if (shipCount == null) {
                     shipCount = 0;
                 }

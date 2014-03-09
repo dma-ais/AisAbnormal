@@ -44,7 +44,7 @@ import java.util.Map;
  * This analysis manages events where the a sudden decreasing speed change occurs.
  * A sudden decreasing speed change is defined as a a speed change going from more
  * than 9 knots to less than 1 knot in less than 60 seconds. This analysis is not
- * based on previous observations (feature data).
+ * based on previous observations (statistic data).
  */
 public class SuddenSpeedChangeAnalysis extends Analysis {
     private static final Logger LOG = LoggerFactory.getLogger(SuddenSpeedChangeAnalysis.class);

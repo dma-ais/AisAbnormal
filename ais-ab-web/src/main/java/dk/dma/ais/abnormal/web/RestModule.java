@@ -26,8 +26,8 @@ import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.jpa.JpaEventRepository;
 import dk.dma.ais.abnormal.event.db.jpa.JpaSessionFactoryFactory;
-import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
-import dk.dma.ais.abnormal.stat.db.mapdb.FeatureDataRepositoryMapDB;
+import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
+import dk.dma.ais.abnormal.stat.db.mapdb.StatisticDataRepositoryMapDB;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,16 +82,16 @@ public final class RestModule extends ServletModule {
 
     @Provides
     @Singleton
-    FeatureDataRepository provideFeatureDataRepository() {
-        FeatureDataRepository featureDataRepository = null;
+    StatisticDataRepository provideStatisticDataRepository() {
+        StatisticDataRepository statisticsRepository = null;
         try {
-            featureDataRepository = new FeatureDataRepositoryMapDB(repositoryFilename);
-            featureDataRepository.openForRead();
+            statisticsRepository = new StatisticDataRepositoryMapDB(repositoryFilename);
+            statisticsRepository.openForRead();
         } catch (Exception e) {
             LOG.error("Problems opening repository for read: " + repositoryFilename);
             LOG.error(e.getMessage(), e);
         }
-        return featureDataRepository;
+        return statisticsRepository;
     }
 
     @Provides

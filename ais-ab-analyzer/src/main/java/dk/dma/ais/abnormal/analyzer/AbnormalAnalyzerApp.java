@@ -122,7 +122,7 @@ public class AbnormalAnalyzerApp extends AbstractDaemon {
             Injector injector = Guice.createInjector(
                     new AbnormalAnalyzerAppModule(
                             userArguments.getAisDataSourceURL(),
-                            userArguments.getFeatureData(),
+                            userArguments.getStatisticData(),
                             userArguments.getEventDataDbFile(),
                             userArguments.getDownSampling(),
                             userArguments.getEventDataRepositoryType(),

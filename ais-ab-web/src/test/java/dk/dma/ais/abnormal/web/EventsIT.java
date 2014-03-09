@@ -69,12 +69,12 @@ public class EventsIT {
             System.out.println("ticker0=" + ticker0Element.getText());
             wait.until(ExpectedConditions.visibilityOf(ticker0Element));
             System.out.println("ticker0=" + ticker0Element.getText());
-            assertTrue(ticker0Element.getText().matches(".*HUDSONBORG.*"));
+            assertTrue(ticker0Element.getText().matches(".*HAMLET.*"));
 
             System.out.println("ticker1=" + ticker1Element.getText());
             wait.until(ExpectedConditions.visibilityOf(ticker1Element));
             System.out.println("ticker1=" + ticker1Element.getText());
-            assertTrue(ticker1Element.getText().matches(".*KLAVERBANK.*"));
+            assertTrue(ticker1Element.getText().matches(".*VESTA.*"));
 
             // Assert that event in ticker can be clicked
             ticker1Element.findElement(cssSelector("span.glyphicon")).click();
@@ -128,7 +128,7 @@ public class EventsIT {
         try {
             WebElement searchByOtherButton = browser.findElement(id("event-search-by-other"));
             searchByOtherButton.click();
-            assertNumberOfSearchResults(8);
+            assertNumberOfSearchResults(20);
         } catch (AssertionError e) {
             IntegrationTestHelper.takeScreenshot(browser, "error");
             throw e;
@@ -146,7 +146,7 @@ public class EventsIT {
             vesselNameCallsignImoField.sendKeys("L");
             WebElement searchByOtherButton = browser.findElement(id("event-search-by-other"));
             searchByOtherButton.click();
-            assertNumberOfSearchResults(4);
+            assertNumberOfSearchResults(12);
         } catch (AssertionError e) {
             IntegrationTestHelper.takeScreenshot(browser, "error");
             throw e;
@@ -161,7 +161,7 @@ public class EventsIT {
         canShowSearchByVesselName();
         try {
             // Click on search result
-            WebElement glyphIcon = browser.findElement(cssSelector("div.search-data span#result-7.glyphicon"));
+            WebElement glyphIcon = browser.findElement(cssSelector("div.search-data span#result-9.glyphicon"));
             glyphIcon.click();
 
             // Assert search modal closes
@@ -191,7 +191,7 @@ public class EventsIT {
 
             // Search event by vessel and display it on map
             navigateToSearchDialogAndSearchEventsByVessel();
-            WebElement icon = browser.findElement(By.cssSelector("span#result-4.glyphicon"));
+            WebElement icon = browser.findElement(By.cssSelector("span#result-9.glyphicon"));
             icon.click();
             WebElement close = browser.findElement(By.id("search-close"));
             close.click();
@@ -202,11 +202,11 @@ public class EventsIT {
             assertEquals(1, eventsShown.size());
             List<WebElement> elementShown = browser.findElements(By.cssSelector("table#events-shown tbody > tr td"));
             assertEquals(3, elementShown.size());
-            assertEquals("LEHMANN SOUND", elementShown.get(1).getText());
+            assertEquals("SEABASS", elementShown.get(1).getText());
 
             // Assert that showing same event again does not cause duplicate on list
             navigateToSearchDialogAndSearchEventsByVessel();
-            icon = browser.findElement(By.cssSelector("span#result-4.glyphicon"));
+            icon = browser.findElement(By.cssSelector("span#result-9.glyphicon"));
             icon.click();
             close = browser.findElement(By.id("search-close"));
             close.click();
@@ -216,11 +216,11 @@ public class EventsIT {
             assertEquals(1, eventsShown.size());
             elementShown = browser.findElements(By.cssSelector("table#events-shown tbody > tr td"));
             assertEquals(3, elementShown.size());
-            assertEquals("LEHMANN SOUND", elementShown.get(1).getText());
+            assertEquals("SEABASS", elementShown.get(1).getText());
 
             // Assert that adding another event shows up on list
             navigateToSearchDialogAndSearchEventsByVessel();
-            icon = browser.findElement(By.cssSelector("span#result-7.glyphicon"));
+            icon = browser.findElement(By.cssSelector("span#result-6.glyphicon"));
             icon.click();
             close = browser.findElement(By.id("search-close"));
             close.click();
@@ -253,7 +253,7 @@ public class EventsIT {
         vesselNameCallsignImoField.sendKeys("L");
         WebElement searchByOtherButton = browser.findElement(id("event-search-by-other"));
         searchByOtherButton.click();
-        assertNumberOfSearchResults(4);
+        assertNumberOfSearchResults(12);
     }
 
     private void assertNumberOfSearchResults(int expectedNumberOfSearchResults) {

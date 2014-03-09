@@ -37,34 +37,34 @@ public final class AppStatisticsServiceImpl extends dk.dma.ais.abnormal.applicat
     @Inject
     private StripedExecutorService executorService;
 
-    private Map<String, HashMap<String, Long>> allFeatureStatistics = new ConcurrentHashMap<>();
+    private Map<String, HashMap<String, Long>> allStatisticStatistics = new ConcurrentHashMap<>();
 
     public AppStatisticsServiceImpl() {
     }
 
     @Override
-    public void incFeatureStatistics(String featureName, String statisticsName) {
-        HashMap<String, Long> featureStatistics = (HashMap<String, Long>) this.allFeatureStatistics.get(featureName);
-        if (featureStatistics == null) {
-            featureStatistics = new HashMap<>();
-            this.allFeatureStatistics.put(featureName, featureStatistics);
+    public void incStatisticStatistics(String statisticName, String statisticsName) {
+        HashMap<String, Long> statisticStatistics = (HashMap<String, Long>) this.allStatisticStatistics.get(statisticName);
+        if (statisticStatistics == null) {
+            statisticStatistics = new HashMap<>();
+            this.allStatisticStatistics.put(statisticName, statisticStatistics);
         }
-        Long statistic = featureStatistics.get(statisticsName);
+        Long statistic = statisticStatistics.get(statisticsName);
         if (statistic == null) {
             statistic = 0L;
-            featureStatistics.put(statisticsName, statistic);
+            statisticStatistics.put(statisticsName, statistic);
         }
         statistic++;
-        featureStatistics.put(statisticsName, statistic);
+        statisticStatistics.put(statisticsName, statistic);
     }
 
     @Override
-    public Long getFeatureStatistics(String featureName, String statisticsName) {
-        HashMap<String, Long> featureStatistics = (HashMap<String, Long>) this.allFeatureStatistics.get(featureName);
-        if (featureStatistics == null) {
+    public Long getStatisticStatistics(String statisticName, String statisticsName) {
+        HashMap<String, Long> statisticStatistics = (HashMap<String, Long>) this.allStatisticStatistics.get(statisticName);
+        if (statisticStatistics == null) {
             return null;
         }
-        Long statistic = featureStatistics.get(statisticsName);
+        Long statistic = statisticStatistics.get(statisticsName);
         if (statistic == null) {
             return null;
         }
@@ -84,19 +84,19 @@ public final class AppStatisticsServiceImpl extends dk.dma.ais.abnormal.applicat
             LOG.info(String.format("%-30s %9d", "Queue size, thread " + queueSize.getKey(), queueSize.getValue()));
         }
 
-        LOG.info("==== Stat builder feature statistics (features) ====");
-        Set<String> featureNames = this.allFeatureStatistics.keySet();
-        for (String featureName : featureNames) {
-            LOG.info(String.format("%-30s %s", "Feature name", featureName));
+        LOG.info("==== Stat builder statistic statistics (statistics) ====");
+        Set<String> statisticNames = this.allStatisticStatistics.keySet();
+        for (String statisticName : statisticNames) {
+            LOG.info(String.format("%-30s %s", "TrackingEventListener name", statisticName));
 
-            HashMap<String, Long> featureStatistics = this.allFeatureStatistics.get(featureName);
-            Set<String> statisticsNames = featureStatistics.keySet();
+            HashMap<String, Long> statisticStatistics = this.allStatisticStatistics.get(statisticName);
+            Set<String> statisticsNames = statisticStatistics.keySet();
             for (String statisticsName : statisticsNames) {
-                Long statistics = featureStatistics.get(statisticsName);
+                Long statistics = statisticStatistics.get(statisticsName);
                 LOG.info(String.format("     %-25s %9d", statisticsName, statistics));
             }
 
         }
-        LOG.info("==== Stat builder feature statistics ====");
+        LOG.info("==== Stat builder statistic statistics ====");
     }
 }

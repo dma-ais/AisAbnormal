@@ -21,7 +21,7 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import dk.dma.ais.abnormal.application.ApplicationSupport;
-import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
+import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.DatasetMetaData;
 import dk.dma.ais.concurrency.stripedexecutor.StripedExecutorService;
 import dk.dma.ais.reader.AisReader;
@@ -59,7 +59,7 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
     private AisReader reader;
 
     @Inject
-    private FeatureDataRepository featureDataRepository;
+    private StatisticDataRepository statisticsRepository;
 
     @Inject
     private AppStatisticsService statisticsService;
@@ -82,7 +82,7 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
         packetHandler = packetHandlerFactory.create(userArguments.isMultiThreaded());
         // Write dataset metadata before we start
         DatasetMetaData metadata = new DatasetMetaData(grid.getResolution(), userArguments.getDownSampling());
-        featureDataRepository.putMetaData(metadata);
+        statisticsRepository.putMetaData(metadata);
         statisticsService.start();
         progressIndicator.start();
 
@@ -101,7 +101,7 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
 
         statisticsService.dumpStatistics();
 
-        featureDataRepository.close();
+        statisticsRepository.close();
         statisticsService.stop();
     }
     
@@ -165,7 +165,7 @@ public final class AbnormalStatBuilderApp extends AbstractDaemon {
             AbnormalStatBuilderApp.setInjector(injector);
             AbnormalStatBuilderApp app = injector.getInstance(AbnormalStatBuilderApp.class);
             app.execute(new String[]{} /* no cmd args - we handled them already */ );
-            // app.handler.printAllFeatureStatistics(System.out);
+            // app.handler.printAllStatisticStatistics(System.out);
         }
     }
 }

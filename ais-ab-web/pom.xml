@@ -149,8 +149,8 @@
                                 <exec executable="java" dir="${project.basedir}" spawn="true">
                                     <arg value="-jar"/>
                                     <arg value="target/ais-ab-web-0.1-SNAPSHOT.jar"/>
-                                    <arg value="-featureData"/>
-                                    <arg value="${project.basedir}/src/test/resources/features/aisdump_dk-grid200-down10"/>
+                                    <arg value="-statistics"/>
+                                    <arg value="${project.basedir}/src/test/resources/statistics/aisdump_dk-grid200-down10"/>
                                     <arg value="-eventDataRepositoryType"/>
                                     <arg value="h2"/>
                                     <arg value="-eventDataDbFile"/>

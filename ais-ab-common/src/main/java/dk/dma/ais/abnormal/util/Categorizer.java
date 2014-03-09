@@ -24,7 +24,7 @@ import java.util.TreeMap;
 /**
  * The Categorizer maps vessel properties into "categories"
  * (or "buckets") for use by those Analyses which require
- * categorized/bucketted feature data.
+ * categorized/bucketted statistic data.
  *
  * Numbering of categories starts from 0 (as this is consistent
  * with indexing used by e.g. ThreeKeyMap and FourKeyMap.

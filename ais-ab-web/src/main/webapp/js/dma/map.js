@@ -234,7 +234,7 @@ var mapModule = {
                 console.log("Turning on GridLayer.");
                 mapModule.showGridLayer();
             } else {
-                featureModule.loadCells();
+                statisticsModule.loadCells();
                 console.log("GridLayer is already visible.")
             }
         } else {
@@ -260,7 +260,7 @@ var mapModule = {
             mapModule.constructGridLayer();
         }
         // Load cells and data (required grid layer to be constructed)
-        featureModule.loadCells();
+        statisticsModule.loadCells();
         // Book-keeping
         mapModule.isGridLayerVisible = true;
     },
@@ -374,7 +374,7 @@ var mapModule = {
             var feature = e.feature;
             var cell = feature.data;
 
-            featureModule.userOutputShowCellData(cell);
+            statisticsModule.userOutputShowCellData(cell);
 
             return false;
         },

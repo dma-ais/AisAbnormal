@@ -1,5 +1,5 @@
 /**
- * This javascript module handles loading, processing, display and user interaction with feature data.
+ * This javascript module handles loading, processing, display and user interaction with statistic data.
  */
 
 var vesselModule = {
@@ -9,10 +9,10 @@ var vesselModule = {
 
     getAllEvents: function() {
         var events = [];
-        var features = mapModule.getVesselLayer().features;
-        $.each(features, function (i, feature) {
-            if (feature && feature.fid && feature.fid.match("^event-")) {
-                events.push(feature);
+        var statistics = mapModule.getVesselLayer().features;
+        $.each(statistics, function (i, statistic) {
+            if (statistic && statistic.fid && statistic.fid.match("^event-")) {
+                events.push(statistic);
             }
         });
         return events;
@@ -56,21 +56,21 @@ var vesselModule = {
             fillOpacity: 0.5
         };
         var eventBoxGeometry = new OpenLayers.Geometry.LinearRing(corners);
-        var eventBoxFeature = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Polygon([eventBoxGeometry]),
+        var eventBoxStatistic = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Polygon([eventBoxGeometry]),
             {
                 jsonEvent: event
             }, eventBoxStyle);
-        eventBoxFeature.fid = "event-" + event.id;
+        eventBoxStatistic.fid = "event-" + event.id;
 
         // Label
         var labelPointGeometry = new OpenLayers.Geometry.Point(extent.left, extent.top).transform(mapModule.projectionWGS84, mapModule.map.getProjectionObject());
         var labelStyle = {
         };
-        var labelFeature = new OpenLayers.Feature.Vector(labelPointGeometry, null, labelStyle);
-        labelFeature.fid='eventLabel-'+event.id;
+        var labelStatistic = new OpenLayers.Feature.Vector(labelPointGeometry, null, labelStyle);
+        labelStatistic.fid='eventLabel-'+event.id;
 
         // Add to layer
-        mapModule.getVesselLayer().addFeatures([eventBoxFeature, labelFeature]);
+        mapModule.getVesselLayer().addFeatures([eventBoxStatistic, labelStatistic]);
 
         // Add user output (labels, tooltips, etc.)
         vesselModule.addEventBoxLabel(event);
@@ -102,7 +102,7 @@ var vesselModule = {
 
             // Track symbol
             var trackingPoint = trackingPoints[trackingPoints.length - 1];
-            var trackSymbolFeature = new OpenLayers.Feature.Vector(
+            var trackSymbolStatistic = new OpenLayers.Feature.Vector(
                 new OpenLayers.Geometry.Point(
                     trackingPoint.longitude, trackingPoint.latitude).transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator),
                 {
@@ -122,8 +122,8 @@ var vesselModule = {
                 }
             );
             console.log("Track (" + trackingPoint.latitude + "," + trackingPoint.longitude + ")");
-            trackSymbolFeature.fid = 'trackSymbol-'+event.id+'-'+vessel.mmsi;
-            mapModule.getVesselLayer().addFeatures([trackSymbolFeature]);
+            trackSymbolStatistic.fid = 'trackSymbol-'+event.id+'-'+vessel.mmsi;
+            mapModule.getVesselLayer().addFeatures([trackSymbolStatistic]);
 
             // Track history
             var points = new Array();
@@ -140,8 +140,8 @@ var vesselModule = {
                 strokeWidth: 2
             };
 
-            var trackHistoryFeature = new OpenLayers.Feature.Vector(trackHistory, null, historyStyle);
-            mapModule.getVesselLayer().addFeatures([trackHistoryFeature]);
+            var trackHistoryStatistic = new OpenLayers.Feature.Vector(trackHistory, null, historyStyle);
+            mapModule.getVesselLayer().addFeatures([trackHistoryStatistic]);
 
             // Tracking point markers
             $.each(trackingPoints, function (i, trackingPoint) {
@@ -160,9 +160,9 @@ var vesselModule = {
                 } else {
                     markerStyle.fillColor = 'blue';
                 }
-                var markerFeature = new OpenLayers.Feature.Vector(point, {type: "circle"}, markerStyle);
-                markerFeature.fid = 'trackingPoint-'+event.id+'-'+trackingPoint.id;
-                mapModule.getVesselLayer().addFeatures([markerFeature]);
+                var markerStatistic = new OpenLayers.Feature.Vector(point, {type: "circle"}, markerStyle);
+                markerStatistic.fid = 'trackingPoint-'+event.id+'-'+trackingPoint.id;
+                mapModule.getVesselLayer().addFeatures([markerStatistic]);
             });
 
             // Add user output (labels, tooltips, etc.)
@@ -174,8 +174,8 @@ var vesselModule = {
     },
 
     addEventBoxLabel: function(event) {
-        var eventBoxLabelFeature = mapModule.getVesselLayer().getFeatureByFid('eventLabel-'+event.id);
-        if (eventBoxLabelFeature != null) {
+        var eventBoxLabelStatistic = mapModule.getVesselLayer().getFeatureByFid('eventLabel-'+event.id);
+        if (eventBoxLabelStatistic != null) {
             var eventType = eventModule.camelCaseToSentenceCase(event.eventType);
             var labelText = "Event " + event.id + ": " + eventType;
             labelText += "\n" + event.description;
@@ -183,7 +183,7 @@ var vesselModule = {
             if (event.endTime) {
                 labelText += "\nLowered: " + eventModule.formatTimestamp(event.endTime);
             }
-            eventBoxLabelFeature.style = {
+            eventBoxLabelStatistic.style = {
                 label: labelText,
                 labelAlign: "lt",
                 fontSize: "8pt",
@@ -195,9 +195,9 @@ var vesselModule = {
     },
 
     addTrackingPointTooltip: function(event, trackingPoint) {
-        var trackingPointFeature = mapModule.getVesselLayer().getFeatureByFid('trackingPoint-'+event.id+'-'+trackingPoint.id);
-        if (trackingPointFeature != null) {
-            trackingPointFeature.style.title =
+        var trackingPointStatistic = mapModule.getVesselLayer().getFeatureByFid('trackingPoint-'+event.id+'-'+trackingPoint.id);
+        if (trackingPointStatistic != null) {
+            trackingPointStatistic.style.title =
                 eventModule.formatTimestamp(trackingPoint.timestamp) + "\n"
                 + OpenLayers.Util.getFormattedLonLat(trackingPoint.latitude, 'lat', 'dms') + " "
                 + OpenLayers.Util.getFormattedLonLat(trackingPoint.longitude, 'lon', 'dms') + "\n"
@@ -209,8 +209,8 @@ var vesselModule = {
     },
 
     addTrackSymbolTooltip: function(event, vessel) {
-        var trackSymbolFeature = mapModule.getVesselLayer().getFeatureByFid('trackSymbol-'+event.id+'-'+vessel.mmsi);
-        if (trackSymbolFeature != null) {
+        var trackSymbolStatistic = mapModule.getVesselLayer().getFeatureByFid('trackSymbol-'+event.id+'-'+vessel.mmsi);
+        if (trackSymbolStatistic != null) {
             var tooltip = vessel.name
                 + "\n" + vessel.callsign
                 + "\nIMO " + vessel.imo
@@ -221,25 +221,25 @@ var vesselModule = {
 
             if (event.shipLength) {
                 var shipSizeBucket = parseInt(event.shipLength);
-                tooltip += "\nShip size: " + shipSizeBucket + " (" + featureModule.categories['size'][shipSizeBucket] + ")"
+                tooltip += "\nShip size: " + shipSizeBucket + " (" + statisticsModule.categories['size'][shipSizeBucket] + ")"
             }
 
             if (event.shipType) {
                 var shipTypeBucket = parseInt(event.shipType);
-                tooltip += "\nShip type: " + shipTypeBucket + " (" + featureModule.categories['type'][shipTypeBucket] + ")"
+                tooltip += "\nShip type: " + shipTypeBucket + " (" + statisticsModule.categories['type'][shipTypeBucket] + ")"
             }
 
             if (event.speedOverGround) {
                 var sogBucket = parseInt(event.speedOverGround);
-                tooltip += "\nSpeed: " + sogBucket + " (" + featureModule.categories['sog'][sogBucket] + ")"
+                tooltip += "\nSpeed: " + sogBucket + " (" + statisticsModule.categories['sog'][sogBucket] + ")"
             }
 
             if (event.courseOverGround) {
                 var cogBucket = parseInt(event.courseOverGround);
-                tooltip += "\nCourse: " + cogBucket + " (" + featureModule.categories['cog'][cogBucket] + ")"
+                tooltip += "\nCourse: " + cogBucket + " (" + statisticsModule.categories['cog'][cogBucket] + ")"
             }
 
-            trackSymbolFeature.style.title = tooltip;
+            trackSymbolStatistic.style.title = tooltip;
         }
     },
 
@@ -320,10 +320,10 @@ var vesselModule = {
 
         var linear_ring = new OpenLayers.Geometry.LinearRing(list);
         var lineStyle = { strokeColor: 'white', strokeWidth: lineThickness, fillOpacity: 0.0, pointRadius: 1, graphicZIndex: 1};
-        var polygonFeature = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Polygon([linear_ring]), null, lineStyle);
+        var polygonStatistic = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Polygon([linear_ring]), null, lineStyle);
         var originPoint = new OpenLayers.Geometry.Point(longitude, latitude).transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator);
-        polygonFeature.geometry.rotate(360 - rotation, originPoint);
-        mapModule.getVesselLayer().addFeatures([polygonFeature])
+        polygonStatistic.geometry.rotate(360 - rotation, originPoint);
+        mapModule.getVesselLayer().addFeatures([polygonStatistic])
     }
 
 };

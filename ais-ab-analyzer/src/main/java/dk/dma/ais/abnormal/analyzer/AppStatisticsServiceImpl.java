@@ -45,14 +45,14 @@ public class AppStatisticsServiceImpl extends dk.dma.ais.abnormal.application.st
         super.dumpStatistics();
 
         LOG.info("==== Abnormal analyzer statistics ====");
-        Set<String> featureNames = this.allAnalysisStatistics.keySet();
-        for (String featureName : featureNames) {
-            LOG.info(String.format("%-30s %s", "Feature name", featureName));
+        Set<String> statisticNames = this.allAnalysisStatistics.keySet();
+        for (String statisticName : statisticNames) {
+            LOG.info(String.format("%-30s %s", "Statistic name", statisticName));
 
-            HashMap<String, Long> featureStatistics = this.allAnalysisStatistics.get(featureName);
-            Set<String> statisticsNames = featureStatistics.keySet();
+            HashMap<String, Long> statisticStatistics = this.allAnalysisStatistics.get(statisticName);
+            Set<String> statisticsNames = statisticStatistics.keySet();
             for (String statisticsName : statisticsNames) {
-                Long statistics = featureStatistics.get(statisticsName);
+                Long statistics = statisticStatistics.get(statisticsName);
                 LOG.info(String.format("     %-25s %9d", statisticsName, statistics));
             }
 

@@ -27,8 +27,8 @@ public class UserArguments {
     @Parameter(names = "-port", description = "Port no. for listening to HTTP.")
     private int port = 8080;
 
-    @Parameter(names = "-featureData", description = "Filename of feature data file to read.", required = true)
-    private String pathToFeatureData;
+    @Parameter(names = "-statistics", description = "Filename of statistic data file to read.", required = true)
+    private String pathToStatisticData;
 
     // -- Repository type choice
 
@@ -69,8 +69,8 @@ public class UserArguments {
         return port;
     }
 
-    public String getPathToFeatureData() {
-        return pathToFeatureData;
+    public String getPathToStatisticData() {
+        return pathToStatisticData;
     }
 
     public String getEventDataRepositoryType() {

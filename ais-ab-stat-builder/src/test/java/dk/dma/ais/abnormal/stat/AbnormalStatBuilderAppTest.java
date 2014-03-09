@@ -19,7 +19,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
+import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
 import org.junit.Test;
 
 import java.io.File;
@@ -30,7 +30,7 @@ import static org.junit.Assert.assertNotNull;
 public class AbnormalStatBuilderAppTest {
 
     /*
-     * Test that the appStatistics bean injected in app and features is indeed the same instance.
+     * Test that the appStatistics bean injected in app and statistics is indeed the same instance.
      * If dependency injection is done wrong, different instances may be used.
      */
     @Test
@@ -55,7 +55,7 @@ public class AbnormalStatBuilderAppTest {
     }
 
     @Test
-    public void testFeatureStatistics() throws Exception {
+    public void testStatisticStatistics() throws Exception {
         File tempFile = File.createTempFile("ais-ab-stat-builder", "");
         String outputFilename = tempFile.getCanonicalPath();
         String inputDirectory = "src/test/resources";
@@ -70,7 +70,7 @@ public class AbnormalStatBuilderAppTest {
         app.execute(new String[]{});
 
         AppStatisticsService appStatistics = injector.getInstance(AppStatisticsService.class);
-        assertEquals((Long) 8L, appStatistics.getFeatureStatistics("ShipTypeAndSizeFeature", "Events processed"));
+        assertEquals((Long) 8L, appStatistics.getStatisticStatistics("ShipTypeAndSizeStatistic", "Events processed"));
     }
 
     @Test
@@ -90,12 +90,12 @@ public class AbnormalStatBuilderAppTest {
 
         // Repo is closed by app. Get a new one.
         Injector injector2 = Guice.createInjector(new AbnormalStatBuilderAppTestModule(tempFile.getCanonicalPath(), inputDirectory, inputFilenamePattern, false, 200.0));
-        FeatureDataRepository featureDataRepository = injector2.getInstance(FeatureDataRepository.class);
+        StatisticDataRepository statisticsRepository = injector2.getInstance(StatisticDataRepository.class);
 
-        assertNotNull(featureDataRepository.getMetaData());
-        assertEquals((Double) 0.0017966313162819712 /* res 200.0 */, featureDataRepository.getMetaData().getGridResolution(), 1e-10);
-        assertEquals((Integer) 60, featureDataRepository.getMetaData().getDownsampling());
-        assertEquals((Short) (short) 1, featureDataRepository.getMetaData().getFormatVersion());
+        assertNotNull(statisticsRepository.getMetaData());
+        assertEquals((Double) 0.0017966313162819712 /* res 200.0 */, statisticsRepository.getMetaData().getGridResolution(), 1e-10);
+        assertEquals((Integer) 60, statisticsRepository.getMetaData().getDownsampling());
+        assertEquals((Short) (short) 1, statisticsRepository.getMetaData().getFormatVersion());
     }
 
     private static UserArguments parseUserArguments(String[] args) {

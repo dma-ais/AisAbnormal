@@ -18,6 +18,6 @@ package dk.dma.ais.abnormal.stat;
 
 public interface AppStatisticsService extends dk.dma.ais.abnormal.application.statistics.AppStatisticsService {
     void setTrackCount(int trackCount);
-    void incFeatureStatistics(String featureName, String statisticsName);
-    Long getFeatureStatistics(String featureName, String statisticsName);
+    void incStatisticStatistics(String statisticName, String statisticsName);
+    Long getStatisticStatistics(String statisticName, String statisticsName);
 }

@@ -96,7 +96,7 @@ public class WebServer {
         context.addServlet(DefaultServlet.class, "/");
 
         // Enable Jersey debug output
-        context.setInitParameter("com.sun.jersey.config.feature.Trace", "true");
+        context.setInitParameter("com.sun.jersey.config.statistic.Trace", "true");
 
         // Little hack to satisfy OpenLayers URLs in DMA context
         RewritePatternRule openlayersRewriteRule = new RewritePatternRule();

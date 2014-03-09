@@ -68,13 +68,13 @@ public class AbnormalWebApp extends AbstractDaemon {
         }
 
         if (userArguments.isHelp()) {
-            jCommander = new JCommander(userArguments, new String[] { "-help", "-featureData", "" });
+            jCommander = new JCommander(userArguments, new String[] { "-help", "-statistics", "" });
             jCommander.setProgramName("ais-ab-web");
             jCommander.usage();
         } else {
             WebAppModule module = new WebAppModule(
                     userArguments.getPort(),
-                    userArguments.getPathToFeatureData(),
+                    userArguments.getPathToStatisticData(),
                     userArguments.getEventDataDbFile(),
                     userArguments.getEventDataRepositoryType(),
                     userArguments.getEventDataDbHost(),

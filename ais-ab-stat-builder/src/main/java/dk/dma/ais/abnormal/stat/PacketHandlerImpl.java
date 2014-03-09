@@ -19,10 +19,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
-import dk.dma.ais.abnormal.stat.features.CourseOverGroundFeature;
-import dk.dma.ais.abnormal.stat.features.Feature;
-import dk.dma.ais.abnormal.stat.features.ShipTypeAndSizeFeature;
-import dk.dma.ais.abnormal.stat.features.SpeedOverGroundFeature;
+import dk.dma.ais.abnormal.stat.statistics.CourseOverGroundStatistic;
+import dk.dma.ais.abnormal.stat.statistics.ShipTypeAndSizeStatistic;
+import dk.dma.ais.abnormal.stat.statistics.SpeedOverGroundStatistic;
+import dk.dma.ais.abnormal.stat.statistics.TrackingEventListener;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.concurrency.stripedexecutor.StripedExecutorService;
 import dk.dma.ais.filter.ReplayDownSampleFilter;
@@ -53,7 +53,7 @@ public class PacketHandlerImpl implements PacketHandler {
 
     private volatile boolean cancel;
 
-    private Set<Feature> features;
+    private Set<TrackingEventListener> statistics;
 
     private static final int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
 
@@ -68,7 +68,7 @@ public class PacketHandlerImpl implements PacketHandler {
         this.workerThreads = executorService;
         this.multiThreaded = multiThreaded;
 
-        initFeatures();
+        initStatistics();
     }
 
     @Override
@@ -146,18 +146,18 @@ public class PacketHandlerImpl implements PacketHandler {
         return statisticsService;
     }
 
-    private void initFeatures() {
+    private void initStatistics() {
         Injector injector = AbnormalStatBuilderApp.getInjector();
 
-        this.features = new ImmutableSet.Builder<Feature>()
-            .add(injector.getInstance(ShipTypeAndSizeFeature.class))
-            .add(injector.getInstance(CourseOverGroundFeature.class))
-            .add(injector.getInstance(SpeedOverGroundFeature.class))
+        this.statistics = new ImmutableSet.Builder<TrackingEventListener>()
+            .add(injector.getInstance(ShipTypeAndSizeStatistic.class))
+            .add(injector.getInstance(CourseOverGroundStatistic.class))
+            .add(injector.getInstance(SpeedOverGroundStatistic.class))
             .build();
 
-        Iterator<Feature> featureIterator = this.features.iterator();
-        while (featureIterator.hasNext()) {
-            featureIterator.next().start();
+        Iterator<TrackingEventListener> statisticIterator = this.statistics.iterator();
+        while (statisticIterator.hasNext()) {
+            statisticIterator.next().start();
         }
     }
 

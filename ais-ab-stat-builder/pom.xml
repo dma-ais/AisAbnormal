@@ -113,7 +113,7 @@
                         <argument>-downsampling</argument>
                         <argument>60</argument>
                         <argument>-output</argument>
-                        <argument>src/test/resources/ais-sample.featureData</argument>
+                        <argument>src/test/resources/ais-sample.statistics</argument>
                     </arguments>
                 </configuration>
             </plugin>

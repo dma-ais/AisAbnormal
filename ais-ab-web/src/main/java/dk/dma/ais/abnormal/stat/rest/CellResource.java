@@ -17,9 +17,9 @@ package dk.dma.ais.abnormal.stat.rest;
 
 import com.google.inject.Inject;
 import com.google.inject.servlet.RequestScoped;
-import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
-import dk.dma.ais.abnormal.stat.db.data.FeatureData;
-import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeFeatureData;
+import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
+import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeStatisticData;
+import dk.dma.ais.abnormal.stat.db.data.StatisticData;
 import dk.dma.ais.abnormal.util.Categorizer;
 import dk.dma.enav.model.geometry.Area;
 import dk.dma.enav.model.geometry.BoundingBox;
@@ -54,17 +54,17 @@ public class CellResource {
         LOG.debug(this.getClass().getSimpleName() + " created (" + this + " ).");
     }
 
-    private FeatureDataRepository featureDataRepository;
+    private StatisticDataRepository statisticsRepository;
 
     @Inject
-    public CellResource(FeatureDataRepository featureDataRepository) {
-        this.featureDataRepository = featureDataRepository;
+    public CellResource(StatisticDataRepository statisticsRepository) {
+        this.statisticsRepository = statisticsRepository;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public CellsWrapper getCellIdsWithinBoundaries(@QueryParam("north") Double north, @QueryParam("east") Double east, @QueryParam("south") Double south, @QueryParam("west") Double west) {
-        // http://localhost:8080/abnormal/featuredata/cell?north=55&east=11&south=54.91&west=10.91
+        // http://localhost:8080/abnormal/statisticdata/cell?north=55&east=11&south=54.91&west=10.91
         LOG.debug("Attempting get id's of cells inside boundary");
 
         if (north == null) {
@@ -92,8 +92,8 @@ public class CellResource {
       //      throw new IllegalArgumentException("'east' and 'west' parameters must be within 0.1. The current difference is " + (east - west));
         }
 
-        Double gridResolution = featureDataRepository.getMetaData().getGridResolution();
-        LOG.debug("Feature set uses grid resolution of " + gridResolution);
+        Double gridResolution = statisticsRepository.getMetaData().getGridResolution();
+        LOG.debug("Statistic set uses grid resolution of " + gridResolution);
 
         Grid grid = Grid.create(gridResolution);
         LOG.debug("Created grid with resolution " + gridResolution);
@@ -107,8 +107,8 @@ public class CellResource {
     }
 
     private Set<CellWrapper> loadCellsInArea(Grid grid, Area area) {
-        // These are the features stored in the data set
-        Set<String> featureNames = featureDataRepository.getFeatureNames();
+        // These are the statistics stored in the data set
+        Set<String> statisticNames = statisticsRepository.getStatisticNames();
 
         // Compute the cells contained inside the area
         LOG.debug("Computing which cells are in the area.");
@@ -118,26 +118,26 @@ public class CellResource {
         // Container to collect output data
         Set<CellWrapper> wrappedCells = new LinkedHashSet<>();
 
-        // Load feature data for cells inside the area
+        // Load statistic data for cells inside the area
         for (Cell cell : cells) {
-            ArrayList<FeatureData> featureDataArray = new ArrayList<>();
-            for (String featureName : featureNames) {
-                FeatureData featureData = featureDataRepository.getFeatureData(featureName, cell.getCellId());
-                if (featureData != null) {
-                    featureDataArray.add(featureData);
+            ArrayList<StatisticData> statisticsArray = new ArrayList<>();
+            for (String statisticName : statisticNames) {
+                StatisticData statistics = statisticsRepository.getStatisticData(statisticName, cell.getCellId());
+                if (statistics != null) {
+                    statisticsArray.add(statistics);
                 }
             }
 
             // Add the cell to the output only if its has statistical data
-            if (featureDataArray.size() > 0) {
+            if (statisticsArray.size() > 0) {
                 BoundingBox boundingBoxOfCell = grid.getBoundingBoxOfCell(cell);
-                CellWrapper wrappedCell = new CellWrapper(cell, boundingBoxOfCell, featureDataArray.toArray(new FeatureData[featureDataArray.size()]));
+                CellWrapper wrappedCell = new CellWrapper(cell, boundingBoxOfCell, statisticsArray.toArray(new StatisticData[statisticsArray.size()]));
                 // Add cell to output
                 wrappedCells.add(wrappedCell);
             }
         }
 
-        LOG.debug("There are " + wrappedCells.size() + " cells with feature data in the area");
+        LOG.debug("There are " + wrappedCells.size() + " cells with statistic data in the area");
         return wrappedCells;
     }
 
@@ -154,20 +154,20 @@ public class CellResource {
 
         for (double lon = 12.0; lon < 12.50; lon += 0.05) {
             for (double lat = 56.0; lat < 56.50; lat += 0.05) {
-                ShipTypeAndSizeFeatureData feature1Data = ShipTypeAndSizeFeatureData.create();
-                feature1Data.setValue((short) 1, (short) 1, "stat1", (Integer) 7);
+                ShipTypeAndSizeStatisticData statistic1Data = ShipTypeAndSizeStatisticData.create();
+                statistic1Data.setValue((short) 1, (short) 1, "stat1", (Integer) 7);
 
-                ShipTypeAndSizeFeatureData feature2Data = ShipTypeAndSizeFeatureData.create();
-                feature2Data.setValue((short) 1, (short) 1, "statA", (Integer) 9);
-                feature2Data.setValue((short) 1, (short) 2, "statA", (Integer) 8);
-                feature2Data.setValue((short) 2, (short) 1, "statA", (Integer) 7);
+                ShipTypeAndSizeStatisticData statistic2Data = ShipTypeAndSizeStatisticData.create();
+                statistic2Data.setValue((short) 1, (short) 1, "statA", (Integer) 9);
+                statistic2Data.setValue((short) 1, (short) 2, "statA", (Integer) 8);
+                statistic2Data.setValue((short) 2, (short) 1, "statA", (Integer) 7);
 
                 Position nw = Position.create(lat+0.02, lon-0.02);
                 Position se = Position.create(lat-0.02, lon+0.02);
                 BoundingBox boundingBoxOfCell = BoundingBox.create(nw, se, CoordinateSystem.CARTESIAN);
 
                 Cell cell = grid.getCell(lat, lon);
-                CellWrapper cellWrapper = new CellWrapper(cell, boundingBoxOfCell, feature1Data, feature2Data);
+                CellWrapper cellWrapper = new CellWrapper(cell, boundingBoxOfCell, statistic1Data, statistic2Data);
                 cells.add(cellWrapper);
             }
         }
@@ -207,7 +207,7 @@ public class CellResource {
     }
 
     /**
-     * Wrap some meta information with a set of cells and their feature data
+     * Wrap some meta information with a set of cells and their statistic data
      */
     private class CellsWrapper {
         private final Metadata metadata = new Metadata();
@@ -235,7 +235,7 @@ public class CellResource {
         private final double east;
         private final double south;
         private final double west;
-        private final Set<FeatureData> featureData;
+        private final Set<StatisticData> statistics;
 
         public long getCellId() {
             return cell.getCellId();
@@ -257,17 +257,17 @@ public class CellResource {
             return west;
         }
 
-        public Set<FeatureData> getFeatureData() {
-            return featureData;
+        public Set<StatisticData> getStatistics() {
+            return statistics;
         }
 
-        public CellWrapper(Cell cell, BoundingBox boundingBox, FeatureData... featureData) {
+        public CellWrapper(Cell cell, BoundingBox boundingBox, StatisticData... statistics) {
             this.cell = cell;
             this.north = boundingBox.getMaxLat();
             this.east = boundingBox.getMaxLon();
             this.south = boundingBox.getMinLat();
             this.west = boundingBox.getMinLon();
-            this.featureData = new HashSet<>(Arrays.asList(featureData));
+            this.statistics = new HashSet<>(Arrays.asList(statistics));
         }
     }
 }

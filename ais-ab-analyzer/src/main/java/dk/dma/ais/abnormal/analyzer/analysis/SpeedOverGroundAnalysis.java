@@ -29,9 +29,9 @@ import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.SpeedOverGroundEvent;
 import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
-import dk.dma.ais.abnormal.stat.db.FeatureDataRepository;
-import dk.dma.ais.abnormal.stat.db.data.FeatureData;
-import dk.dma.ais.abnormal.stat.db.data.SpeedOverGroundFeatureData;
+import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
+import dk.dma.ais.abnormal.stat.db.data.SpeedOverGroundStatisticData;
+import dk.dma.ais.abnormal.stat.db.data.StatisticData;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
@@ -48,9 +48,9 @@ import static dk.dma.ais.abnormal.event.db.domain.builders.SpeedOverGroundEventB
 /**
  * This analysis manages events where a vessel has an "abnormal" speed over ground
  * relative to the previous observations for vessels in the same grid cell. Statistics
- * for previous observations are stored in the FeatureDataRepository.
+ * for previous observations are stored in the StatisticDataRepository.
  */
-public class SpeedOverGroundAnalysis extends FeatureDataBasedAnalysis {
+public class SpeedOverGroundAnalysis extends StatisticBasedAnalysis {
     private static final Logger LOG = LoggerFactory.getLogger(SpeedOverGroundAnalysis.class);
     {
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
@@ -61,8 +61,8 @@ public class SpeedOverGroundAnalysis extends FeatureDataBasedAnalysis {
     static final int TOTAL_SHIP_COUNT_THRESHOLD = 1000;
 
     @Inject
-    public SpeedOverGroundAnalysis(AppStatisticsService statisticsService, FeatureDataRepository featureDataRepository, TrackingService trackingService, EventRepository eventRepository, BehaviourManager behaviourManager) {
-        super(eventRepository, featureDataRepository, trackingService, behaviourManager);
+    public SpeedOverGroundAnalysis(AppStatisticsService statisticsService, StatisticDataRepository statisticsRepository, TrackingService trackingService, EventRepository eventRepository, BehaviourManager behaviourManager) {
+        super(eventRepository, statisticsRepository, trackingService, behaviourManager);
         this.statisticsService = statisticsService;
     }
 
@@ -150,12 +150,12 @@ public class SpeedOverGroundAnalysis extends FeatureDataBasedAnalysis {
     boolean isAbnormalSpeedOverGround(Long cellId, int shipTypeKey, int shipSizeKey, int speedOverGroundKey) {
         float pd = 1.0f;
 
-        FeatureData speedOverGroundFeatureData = getFeatureDataRepository().getFeatureData("SpeedOverGroundFeature", cellId);
+        StatisticData speedOverGroundStatisticData = getStatisticDataRepository().getStatisticData("SpeedOverGroundStatistic", cellId);
 
-        if (speedOverGroundFeatureData instanceof SpeedOverGroundFeatureData) {
-            Integer totalCount  = ((SpeedOverGroundFeatureData) speedOverGroundFeatureData).getSumFor(SpeedOverGroundFeatureData.STAT_SHIP_COUNT);
+        if (speedOverGroundStatisticData instanceof SpeedOverGroundStatisticData) {
+            Integer totalCount  = ((SpeedOverGroundStatisticData) speedOverGroundStatisticData).getSumFor(SpeedOverGroundStatisticData.STAT_SHIP_COUNT);
             if (totalCount > TOTAL_SHIP_COUNT_THRESHOLD) {
-                Integer shipCount = ((SpeedOverGroundFeatureData) speedOverGroundFeatureData).getValue(shipTypeKey, shipSizeKey, speedOverGroundKey, SpeedOverGroundFeatureData.STAT_SHIP_COUNT);
+                Integer shipCount = ((SpeedOverGroundStatisticData) speedOverGroundStatisticData).getValue(shipTypeKey, shipSizeKey, speedOverGroundKey, SpeedOverGroundStatisticData.STAT_SHIP_COUNT);
                 if (shipCount == null) {
                     shipCount = 0;
                 }

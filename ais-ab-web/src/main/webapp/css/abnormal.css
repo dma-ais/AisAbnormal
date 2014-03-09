@@ -42,20 +42,20 @@ button {
     margin: 5px;
 }
 
-table#featureTable td {
+table#statisticTable td {
     text-align: right;
     vertical-align: baseline;
 }
 
-table#featureTable th {
+table#statisticTable th {
     text-align: right;
 }
 
-table#featureTable th:first-child {
+table#statisticTable th:first-child {
     text-align: left;
 }
 
-table#featureTable td:first-child {
+table#statisticTable td:first-child {
     text-align: center;
     font-weight: bold;
 }
