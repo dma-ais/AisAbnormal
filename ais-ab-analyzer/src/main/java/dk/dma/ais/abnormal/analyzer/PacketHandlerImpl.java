@@ -46,18 +46,19 @@ public class PacketHandlerImpl implements PacketHandler {
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
 
-    private AppStatisticsService statisticsService;
-    private TrackingService trackingService;
-    private ReplayDownSampleFilter downSampleFilter;
-
-    private Set<Analysis> analyses;
+    private final AppStatisticsService statisticsService;
+    private final TrackingService trackingService;
+    private final ReplayDownSampleFilter downSampleFilter;
+    private final Set<Analysis> analyses;
 
     @Inject
     public PacketHandlerImpl(AppStatisticsService statisticsService, TrackingService trackingService, ReplayDownSampleFilter downSampleFilter) {
         this.statisticsService = statisticsService;
         this.trackingService = trackingService;
         this.downSampleFilter = downSampleFilter;
-        initAnalyses();
+        this.analyses = initAnalyses();
+
+        this.analyses.forEach(analysis -> analysis.start());
     }
 
     public void accept(final AisPacket packet) {
@@ -85,29 +86,25 @@ public class PacketHandlerImpl implements PacketHandler {
         } else if (message instanceof AisMessage5) {
             statisticsService.incStatMsgCount();
         }
-
         doWork(packet.getTimestamp(), message);
     }
 
     private void doWork(Date timestamp, AisMessage message) {
         trackingService.update(timestamp, message);
-        //statisticsService.setTrackCount(trackingService.getNumberOfTracks());
     }
 
-    private void initAnalyses() {
+    private static Set<Analysis> initAnalyses() {
         Injector injector = AbnormalAnalyzerApp.getInjector();
 
-        this.analyses = new ImmutableSet.Builder<Analysis>()
-                .add(injector.getInstance(CourseOverGroundAnalysis.class))
-                .add(injector.getInstance(SpeedOverGroundAnalysis.class))
-                .add(injector.getInstance(ShipTypeAndSizeAnalysis.class))
-                .add(injector.getInstance(SuddenSpeedChangeAnalysis.class))
-                .add(injector.getInstance(CloseEncounterAnalysis.class))
-                .build();
+        Set<Analysis> analyses = new ImmutableSet.Builder<Analysis>()
+            .add(injector.getInstance(CourseOverGroundAnalysis.class))
+            .add(injector.getInstance(SpeedOverGroundAnalysis.class))
+            .add(injector.getInstance(ShipTypeAndSizeAnalysis.class))
+            .add(injector.getInstance(SuddenSpeedChangeAnalysis.class))
+            .add(injector.getInstance(CloseEncounterAnalysis.class))
+            .build();
 
-        for (Analysis analysis : analyses) {
-            analysis.start();
-        }
+        return analyses;
     }
 
 }
