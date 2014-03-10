@@ -474,8 +474,16 @@ public class TrackingServiceImpl implements TrackingService {
             List blacklistedMmsisConfig = configuration.getList("blacklist.mmsi");
             blacklistedMmsisConfig.forEach(
                 blacklistedMmsi -> {
-                    Integer blacklistedMmsiBoxed = Integer.valueOf(blacklistedMmsi.toString());
-                    blacklistedMmsis.add(blacklistedMmsiBoxed);
+                    try {
+                        Integer blacklistedMmsiBoxed = Integer.valueOf(blacklistedMmsi.toString());
+                        if (blacklistedMmsiBoxed > 0 && blacklistedMmsiBoxed < 1000000000) {
+                            blacklistedMmsis.add(blacklistedMmsiBoxed);
+                        } else if (blacklistedMmsiBoxed != -1) {
+                            LOG.warn("Black listed MMSI no. out of range: " + blacklistedMmsiBoxed + ".");
+                        }
+                    } catch (NumberFormatException e) {
+                        LOG.warn("Black listed MMSI no. \"" + blacklistedMmsi + "\" cannot be cast to integer.");
+                    }
                 }
             );
         } catch (ConversionException e) {
