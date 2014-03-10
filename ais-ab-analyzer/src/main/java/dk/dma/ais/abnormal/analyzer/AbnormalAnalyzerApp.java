@@ -140,8 +140,8 @@ public class AbnormalAnalyzerApp extends AbstractDaemon {
                 app.execute(new String[]{} /* no cmd args - we handled them already */);
                 LOG.info("Completed executing application.");
             } catch (Exception e) {
-                e.printStackTrace(System.err);
-                LOG.error(e.getMessage());
+                LOG.error(e.getMessage(), e);
+                exit(-1);
             }
         }
 
