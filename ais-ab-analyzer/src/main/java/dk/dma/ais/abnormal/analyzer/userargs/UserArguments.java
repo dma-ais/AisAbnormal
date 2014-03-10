@@ -27,7 +27,7 @@ public class UserArguments {
     @Parameter(names = "-help", help = true, description = "Print this help", hidden = true)
     protected boolean help;
 
-    @Parameter(names = "-statistics", description = "Name of file containing statistic data statistics.", required = true)
+    @Parameter(names = "-statistics", description = "Name of file containing statistics data.", required = true)
     private String statistics;
 
     // -- Repository type choice

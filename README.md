@@ -183,7 +183,7 @@ This will produce a helpful output like this:
       * -eventDataRepositoryType
            Type of repository used to hold event data ('h2', 'pgsql').
       * -statistics
-           Name of file containing statistic data statistics.
+           Name of file containing statistics data.
 
 To start the analyzer reading an AIS stream from file aisdump.txt.gz, downsample these by 10 seconds,
 use the previosly generated test-stats statistical data, and store the results in an H2 database named
