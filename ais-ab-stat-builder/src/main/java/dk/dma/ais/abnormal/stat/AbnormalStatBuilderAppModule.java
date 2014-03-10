@@ -33,6 +33,8 @@ import dk.dma.ais.reader.AisReaders;
 import dk.dma.enav.model.geometry.grid.Grid;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +88,16 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
     @Provides
     @Singleton
     Configuration provideConfiguration() {
-        return new BaseConfiguration();
+        Configuration configuration = null;
+        try {
+            PropertiesConfiguration configFile = new PropertiesConfiguration("stat-builder.properties") ;
+            configuration = configFile;
+            LOG.info("Loaded configuration file " + configFile.getFile().toString() + ".");
+        } catch (ConfigurationException e) {
+            configuration = new BaseConfiguration();
+            LOG.warn(e.getMessage() + ". Using blank configuration.");
+        }
+        return configuration;
     }
 
     @Provides
