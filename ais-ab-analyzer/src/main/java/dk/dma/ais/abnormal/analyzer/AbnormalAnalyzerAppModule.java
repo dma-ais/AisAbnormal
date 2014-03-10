@@ -34,6 +34,10 @@ import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
 import dk.dma.enav.model.geometry.grid.Grid;
+import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
@@ -81,6 +85,21 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
         bind(PacketHandler.class).to(PacketHandlerImpl.class).in(Singleton.class);
         bind(TrackingService.class).to(TrackingServiceImpl.class).in(Singleton.class);
         bind(BehaviourManager.class).to(BehaviourManagerImpl.class).in(Singleton.class);
+    }
+
+    @Provides
+    @Singleton
+    Configuration provideConfiguration() {
+        Configuration configuration = null;
+        try {
+            PropertiesConfiguration configFile = new PropertiesConfiguration("analyzer.properties") ;
+            configuration = configFile;
+            LOG.info("Loaded configuration file " + configFile.getFile().toString() + ".");
+        } catch (ConfigurationException e) {
+            configuration = new BaseConfiguration();
+            LOG.warn(e.getMessage() + ". Using blank configuration.");
+        }
+        return configuration;
     }
 
     @Provides

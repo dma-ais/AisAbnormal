@@ -40,6 +40,8 @@ import net.maritimecloud.util.SpeedUnit;
 import net.maritimecloud.util.geometry.PositionReader;
 import net.maritimecloud.util.geometry.PositionReaderSimulator;
 import net.maritimecloud.util.geometry.PositionTime;
+import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.junit.Test;
 
 import java.util.Date;
@@ -56,9 +58,12 @@ import static org.junit.Assert.assertTrue;
 
 public class TrackingServiceTest {
 
+    final static int MMSI = 12345678;
+
     final Grid grid = Grid.createSize(100);
     final AppStatisticsService statisticsService = new AppStatisticsServiceImpl();
-
+    final Configuration configuration = new BaseConfiguration();
+    
     /**
      * Test that grid cell change events are fired by the tracker when a simulated track is moving
      * north under the Great Belt bridge.
@@ -69,36 +74,11 @@ public class TrackingServiceTest {
     @Test
     public void testGridChangeEventsFired() {
         // Starting position in the center of cell 24686212289
-        Position startingPosition = Position.create((55.33714285714286 + 55.33624454148472) / 2, (11.039401122894573 + 11.040299438552713) / 2);
-        System.out.println("Starting position: " + startingPosition);
-        Cell startingCell = grid.getCell(startingPosition);
-        assertEquals(24686212289L, startingCell.getCellId());
-        dk.dma.ais.message.AisPosition aisStartingPosition = new AisPosition(startingPosition);
-
-        // Create initial static and voyage data message
-        Queue<AisMessage> messageQueue = new LinkedList<>();
-        AisMessage5 message5 = createAisMessage5();
-        messageQueue.add(message5);
-
-        // Create series of position reports for passing under the bridge (north-going)
-        AisMessage3 firstPositionMessage = createAisMessage3(aisStartingPosition);
-        messageQueue.add(firstPositionMessage);
-
-        Position prevGeoLocation = firstPositionMessage.getPos().getGeoLocation();
-        final double step = grid.getResolution();
-        for (int i = 0; i < 10; i++) {
-            AisMessage3 positionMessage = cloneAisMessage3(firstPositionMessage);
-            Position nextGeoLocation = Position.create(prevGeoLocation.getLatitude() + step, prevGeoLocation.getLongitude());
-            AisPosition nextPosition = new AisPosition(nextGeoLocation);
-            positionMessage.setPos(nextPosition);
-            System.out.println("Next position: " + nextGeoLocation);
-            messageQueue.add(positionMessage);
-            prevGeoLocation = positionMessage.getPos().getGeoLocation();
-        }
+        Queue<AisMessage> messageQueue = initQueueOfAisMessages(MMSI);
         final int expectedNumberOfCellChangeEvents = messageQueue.size() - 1 /* minus the static msg */;
 
         // Create object under test
-        final TrackingService tracker = new TrackingServiceImpl(grid, statisticsService);
+        final TrackingService tracker = new TrackingServiceImpl(configuration, grid, statisticsService);
 
         // Wire up test subscriber
         // (discussion: https://code.google.com/p/guava-libraries/issues/detail?id=875)
@@ -142,6 +122,75 @@ public class TrackingServiceTest {
 
         assertEquals(expectedNumberOfCellChangeEvents, testSubscriber.getNumberOfCellIdChangedEventsReceived());
         assertEquals(Integer.valueOf(1), tracker.getNumberOfTracks());
+    }
+
+    @Test
+    public void testGridChangeEventsAreNotFiredForBlackListedMMSIs() {
+        Queue<AisMessage> messageQueue = initQueueOfAisMessages(MMSI);
+        final int expectedNumberOfCellChangeEvents = messageQueue.size() - 1 /* minus the static msg */;
+
+        // Create object under test
+        Configuration configuration = new BaseConfiguration();
+        configuration.addProperty("blacklist.mmsi", new String[]{"1", String.valueOf(MMSI), "3"});
+        final TrackingService tracker = new TrackingServiceImpl(configuration, grid, statisticsService);
+
+        // Wire up test subscriber
+        // (discussion: https://code.google.com/p/guava-libraries/issues/detail?id=875)
+        TestSubscriber testSubscriber = new TestSubscriber();
+        tracker.registerSubscriber(testSubscriber);
+
+        // Play scenario through tracker
+        long firstTimestamp = System.currentTimeMillis();
+        int timeStep = 0;
+
+        // Run test scenario and assert results
+        assertEquals(Integer.valueOf(0), tracker.getNumberOfTracks());
+
+        while (!messageQueue.isEmpty()) {
+            AisMessage message = messageQueue.remove();
+            Date messageTimestamp = new Date(firstTimestamp + (timeStep++ * 10000)); // 10 secs between msgs
+            System.out.println(messageTimestamp + ": " + message);
+
+            tracker.update(messageTimestamp, message);
+
+            assertEquals(Integer.valueOf(0), tracker.getNumberOfTracks());
+            assertFalse(testSubscriber.isPositionChangedEventFired());
+            assertFalse(testSubscriber.isCellIdChangedEventFired());
+            assertEquals(0, testSubscriber.getNumberOfCellIdChangedEventsReceived());
+            assertEquals(0, testSubscriber.getNumberOfPositionChangedEventsReceived());
+            assertEquals(null, testSubscriber.currentPosition);
+        }
+    }
+
+    private Queue<AisMessage> initQueueOfAisMessages(int mmsi) {
+        // Starting position in the center of cell 24686212289
+        Position startingPosition = Position.create((55.33714285714286 + 55.33624454148472) / 2, (11.039401122894573 + 11.040299438552713) / 2);
+        System.out.println("Starting position: " + startingPosition);
+        Cell startingCell = grid.getCell(startingPosition);
+        assertEquals(24686212289L, startingCell.getCellId());
+        AisPosition aisStartingPosition = new AisPosition(startingPosition);
+
+        // Create initial static and voyage data message
+        Queue<AisMessage> messageQueue = new LinkedList<>();
+        AisMessage5 message5 = createAisMessage5(mmsi);
+        messageQueue.add(message5);
+
+        // Create series of position reports for passing under the bridge (north-going)
+        AisMessage3 firstPositionMessage = createAisMessage3(MMSI, aisStartingPosition);
+        messageQueue.add(firstPositionMessage);
+
+        Position prevGeoLocation = firstPositionMessage.getPos().getGeoLocation();
+        final double step = grid.getResolution();
+        for (int i = 0; i < 10; i++) {
+            AisMessage3 positionMessage = cloneAisMessage3(mmsi, firstPositionMessage);
+            Position nextGeoLocation = Position.create(prevGeoLocation.getLatitude() + step, prevGeoLocation.getLongitude());
+            AisPosition nextPosition = new AisPosition(nextGeoLocation);
+            positionMessage.setPos(nextPosition);
+            System.out.println("Next position: " + nextGeoLocation);
+            messageQueue.add(positionMessage);
+            prevGeoLocation = positionMessage.getPos().getGeoLocation();
+        }
+        return messageQueue;
     }
 
     /**
@@ -193,7 +242,7 @@ public class TrackingServiceTest {
         final Grid grid = Grid.createSize(200);
 
         // Create object under test
-        final TrackingService tracker = new TrackingServiceImpl(grid, statisticsService);
+        final TrackingService tracker = new TrackingServiceImpl(configuration, grid, statisticsService);
 
         // Wire up test subscriber
         // (discussion: https://code.google.com/p/guava-libraries/issues/detail?id=875)
@@ -535,17 +584,17 @@ public class TrackingServiceTest {
 
         // Create initial static and voyage data message
         Queue<AisMessage> messageQueue = new LinkedList<>();
-        AisMessage5 message5 = createAisMessage5();
+        AisMessage5 message5 = createAisMessage5(MMSI);
         messageQueue.add(message5);
 
         // Create series of position reports for passing under the bridge (north-going)
-        AisMessage3 firstPositionMessage = createAisMessage3(aisStartingPosition);
+        AisMessage3 firstPositionMessage = createAisMessage3(MMSI, aisStartingPosition);
         messageQueue.add(firstPositionMessage);
 
         Position prevGeoLocation = firstPositionMessage.getPos().getGeoLocation();
         final double step = grid.getResolution() / 25;
         for (int i = 0; i < 10; i++) {
-            AisMessage3 positionMessage = cloneAisMessage3(firstPositionMessage);
+            AisMessage3 positionMessage = cloneAisMessage3(MMSI, firstPositionMessage);
             Position nextGeoLocation = Position.create(prevGeoLocation.getLatitude() + step, prevGeoLocation.getLongitude());
             AisPosition nextPosition = new AisPosition(nextGeoLocation);
             positionMessage.setPos(nextPosition);
@@ -555,7 +604,7 @@ public class TrackingServiceTest {
         }
 
         // Create object under test
-        final TrackingService tracker = new TrackingServiceImpl(grid, statisticsService);
+        final TrackingService tracker = new TrackingServiceImpl(configuration, grid, statisticsService);
 
         // Wire up test subscriber
         // (discussion: https://code.google.com/p/guava-libraries/issues/detail?id=875)
@@ -589,7 +638,7 @@ public class TrackingServiceTest {
     @Test
     public void testTimeEventsFired() {
         // Create object under test
-        final TrackingService tracker = new TrackingServiceImpl(grid, statisticsService);
+        final TrackingService tracker = new TrackingServiceImpl(configuration, grid, statisticsService);
 
         // Wire up test subscriber
         // (discussion: https://code.google.com/p/guava-libraries/issues/detail?id=875)
@@ -623,12 +672,12 @@ public class TrackingServiceTest {
     @Test
     public void testTrackTimestampIsUpdatedOnUpdates() {
         // Create object under test
-        final TrackingServiceImpl tracker = new TrackingServiceImpl(grid, statisticsService);
+        final TrackingServiceImpl tracker = new TrackingServiceImpl(configuration, grid, statisticsService);
 
         // Prepare test data
         Position startingPosition = Position.create((55.33714285714286 + 55.33624454148472) / 2, (11.039401122894573 + 11.040299438552713) / 2);
         dk.dma.ais.message.AisPosition aisStartingPosition = new AisPosition(startingPosition);
-        AisMessage3 firstPositionMessage = createAisMessage3(aisStartingPosition);
+        AisMessage3 firstPositionMessage = createAisMessage3(MMSI, aisStartingPosition);
 
         Date firstTimestamp = new Date(System.currentTimeMillis());
 
@@ -740,7 +789,7 @@ public class TrackingServiceTest {
         final Grid grid = Grid.createSize(200);
 
         // Create object under test
-        final TrackingService tracker = new TrackingServiceImpl(grid, statisticsService);
+        final TrackingService tracker = new TrackingServiceImpl(configuration, grid, statisticsService);
 
         // Wire up test subscriber
         // (discussion: https://code.google.com/p/guava-libraries/issues/detail?id=875)
@@ -816,7 +865,7 @@ public class TrackingServiceTest {
     @Test
     public void testTrackIsInterpolatedEvenThoughStaticMessageIsBetweenToPositionUpdates() {
         // Create object under test
-        final TrackingServiceImpl tracker = new TrackingServiceImpl(grid, statisticsService);
+        final TrackingServiceImpl tracker = new TrackingServiceImpl(configuration, grid, statisticsService);
 
         // Wire up test subscriber
         // (discussion: https://code.google.com/p/guava-libraries/issues/detail?id=875)
@@ -832,9 +881,9 @@ public class TrackingServiceTest {
         Date t2 = new Date(currentTimeMillis + (TrackingServiceImpl.TRACK_INTERPOLATION_REQUIRED_SECS-1)*1*1000);
         Date t3 = new Date(currentTimeMillis + (TrackingServiceImpl.TRACK_INTERPOLATION_REQUIRED_SECS-1)*2*1000);
 
-        AisMessage messageSeq1 = createAisMessage3(p1);
-        AisMessage messageSeq2 = createAisMessage5();
-        AisMessage messageSeq3 = createAisMessage3(p3);
+        AisMessage messageSeq1 = createAisMessage3(MMSI, p1);
+        AisMessage messageSeq2 = createAisMessage5(MMSI);
+        AisMessage messageSeq3 = createAisMessage3(MMSI, p3);
 
         tracker.update(t1, messageSeq1);
         tracker.update(t2, messageSeq2);
@@ -866,12 +915,12 @@ public class TrackingServiceTest {
     @Test
     public void testCanProcessStaleTracks() {
         // Create object under test
-        final TrackingServiceImpl tracker = new TrackingServiceImpl(grid, statisticsService);
+        final TrackingServiceImpl tracker = new TrackingServiceImpl(configuration, grid, statisticsService);
 
         // Prepare test data
         Position startingPosition = Position.create((55.33714285714286 + 55.33624454148472) / 2, (11.039401122894573 + 11.040299438552713) / 2);
         dk.dma.ais.message.AisPosition aisPosition = new AisPosition(startingPosition);
-        AisMessage3 positionMessage = createAisMessage3(aisPosition);
+        AisMessage3 positionMessage = createAisMessage3(MMSI, aisPosition);
 
         Date t1 = new Date(System.currentTimeMillis());
         Date t2 = new Date(t1.getTime() + TrackingServiceImpl.TRACK_STALE_SECS*1000 + 60000);
@@ -885,16 +934,16 @@ public class TrackingServiceTest {
 
     private void testInterpolation(int secsBetweenMessages, int expectedNumberOfPositionChangeEvents) {
         // Create object under test
-        final TrackingServiceImpl tracker = new TrackingServiceImpl(grid,statisticsService);
+        final TrackingServiceImpl tracker = new TrackingServiceImpl(configuration, grid,statisticsService);
 
         // Prepare test data
         Position startingPosition = Position.create((55.33714285714286 + 55.33624454148472) / 2, (11.039401122894573 + 11.040299438552713) / 2);
         dk.dma.ais.message.AisPosition aisStartingPosition = new AisPosition(startingPosition);
-        AisMessage3 firstPositionMessage = createAisMessage3(aisStartingPosition);
+        AisMessage3 firstPositionMessage = createAisMessage3(MMSI, aisStartingPosition);
 
         Position secondPosition = Position.create((55.33714285714286 + 55.35624454148472) / 2, (11.038401122894573 + 10.890299438552713) / 2);
         dk.dma.ais.message.AisPosition aisSecondPosition = new AisPosition(secondPosition);
-        AisMessage3 secondPositionMessage = createAisMessage3(aisSecondPosition);
+        AisMessage3 secondPositionMessage = createAisMessage3(MMSI, aisSecondPosition);
 
         Date firstTimestamp = new Date(System.currentTimeMillis());
         Date secondTimestamp = new Date(System.currentTimeMillis() + secsBetweenMessages*1000);
@@ -918,8 +967,9 @@ public class TrackingServiceTest {
         assertEquals(secondPosition.getLongitude(), testSubscriber.getCurrentPosition().getLongitude(), 1e-6);
     }
 
-    private static AisMessage3 cloneAisMessage3(AisMessage3 msgToClone) {
+    private static AisMessage3 cloneAisMessage3(int mmsi, AisMessage3 msgToClone) {
         AisMessage3 message = new AisMessage3();
+        message.setUserId(mmsi);
         message.setCog(msgToClone.getCog());
         message.setNavStatus(msgToClone.getNavStatus());
         message.setRot(msgToClone.getRot());
@@ -927,18 +977,20 @@ public class TrackingServiceTest {
         return message;
     }
 
-    private static AisMessage3 createAisMessage3(AisPosition aisStartingPosition) {
-        AisMessage3 firstPositionMessage = new AisMessage3();
-        firstPositionMessage.setPos(aisStartingPosition);
-        firstPositionMessage.setCog(1);
-        firstPositionMessage.setNavStatus(0);
-        firstPositionMessage.setRot(0);
-        firstPositionMessage.setSog(10);
-        return firstPositionMessage;
+    private static AisMessage3 createAisMessage3(int mmsi, AisPosition aisStartingPosition) {
+        AisMessage3 positionMessage = new AisMessage3();
+        positionMessage.setUserId(mmsi);
+        positionMessage.setPos(aisStartingPosition);
+        positionMessage.setCog(1);
+        positionMessage.setNavStatus(0);
+        positionMessage.setRot(0);
+        positionMessage.setSog(10);
+        return positionMessage;
     }
 
-    private static AisMessage5 createAisMessage5() {
+    private static AisMessage5 createAisMessage5(int mmsi) {
         AisMessage5 message5 = new AisMessage5();
+        message5.setUserId(mmsi);
         message5.setDest("SKAGEN");
         message5.setCallsign("OY1234");
         message5.setImo(1234567);

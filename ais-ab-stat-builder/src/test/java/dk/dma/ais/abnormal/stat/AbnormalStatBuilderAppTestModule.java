@@ -29,6 +29,8 @@ import dk.dma.ais.concurrency.stripedexecutor.StripedExecutorService;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
 import dk.dma.enav.model.geometry.grid.Grid;
+import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +67,12 @@ public class AbnormalStatBuilderAppTestModule extends AbstractModule {
 
         // Test stubs
         // bind(StatisticDataRepository.class).to(StatisticDataRepositoryTestStub);
+    }
+
+    @Provides
+    @Singleton
+    Configuration provideConfiguration() {
+        return new BaseConfiguration();
     }
 
     @Provides

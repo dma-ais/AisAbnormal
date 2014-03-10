@@ -28,6 +28,7 @@ import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.TrackingServiceImpl;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.grid.Grid;
+import org.apache.commons.configuration.BaseConfiguration;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +47,7 @@ public class BehaviourManagerImplTest {
     public void setUp() {
         context = new JUnit4Mockery();
         AppStatisticsService statisticsService = context.mock(AppStatisticsService.class);
-        trackingService = new TrackingServiceImpl(Grid.createSize(200), statisticsService);
+        trackingService = new TrackingServiceImpl(new BaseConfiguration(), Grid.createSize(200), statisticsService);
         behaviourManager = new BehaviourManagerImpl(trackingService);
         track = new Track(12345678);
         track.updatePosition(TrackingReport.create(1234567890L, Position.create(56, 12), 45.0f, 10.1f, false));

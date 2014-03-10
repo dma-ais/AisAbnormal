@@ -31,6 +31,8 @@ import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
 import dk.dma.enav.model.geometry.grid.Grid;
+import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +81,12 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
             LOG.error("Failed to create ReplayDownSampleFilter object", e);
         }
         return filter;
+    }
+
+    @Provides
+    @Singleton
+    Configuration provideConfiguration() {
+        return new BaseConfiguration();
     }
 
     @Provides

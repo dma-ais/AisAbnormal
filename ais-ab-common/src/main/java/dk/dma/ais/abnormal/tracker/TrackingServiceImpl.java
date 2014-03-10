@@ -38,13 +38,17 @@ import dk.dma.enav.model.geometry.grid.Cell;
 import dk.dma.enav.model.geometry.grid.Grid;
 import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConversionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -77,6 +81,11 @@ public class TrackingServiceImpl implements TrackingService {
     static final int INTERPOLATION_TIME_STEP_MILLIS = 10000;
 
     /**
+     * A set of mmsi no.'s for which no messages are processed.
+     */
+    private final TreeSet<Integer> mmsiBlacklist;
+
+    /**
      * A set of mmsi no.'s for which to output detailed debugging/observation data.
      */
     private final Set<Integer> mmsiToObserve = new TreeSet<>();
@@ -102,11 +111,18 @@ public class TrackingServiceImpl implements TrackingService {
      */
     static final int TIME_EVENT_PERIOD_MILLIS = 60000;
 
+    /**
+     * Initialize the tracker with use of an external configuration; e.g. from a configuration file.
+     * @param configuration
+     * @param grid
+     * @param statisticsService
+     */
     @Inject
-    public TrackingServiceImpl(Grid grid, AppStatisticsService statisticsService) {
-        eventBus.register(this);
+    public TrackingServiceImpl(Configuration configuration, Grid grid, AppStatisticsService statisticsService) {
         this.grid = grid;
         this.statisticsService = statisticsService;
+        this.mmsiBlacklist = initVesselBlackList(configuration);
+        eventBus.register(this);
         //mmsiToObserve.add(1234);
     }
 
@@ -115,73 +131,74 @@ public class TrackingServiceImpl implements TrackingService {
      */
     @Override
     public void update(Date timestamp, AisMessage aisMessage) {
-        final AisTargetType targetType = aisMessage.getTargetType();
-
         final int mmsi = aisMessage.getUserId();
 
-        if (mmsiToObserve.contains(mmsi)) {
-            outputMessageSummary(timestamp, aisMessage);
-        }
-
-        if (targetType == AisTargetType.A || targetType == AisTargetType.B) {
-            Track track = getOrCreateTrack(mmsi);
-            Long currentUpdate = timestamp.getTime();
-
-            // Manage timestamps
-            Long lastAnyUpdate = (Long) track.getProperty(Track.TIMESTAMP_ANY_UPDATE);
-            if (lastAnyUpdate == null) {
-                lastAnyUpdate = 0L;
+        if (! isOnBlackList(mmsi)) {
+            if (isOnObservationList(mmsi)) {
+                outputMessageSummary(timestamp, aisMessage);
             }
 
-            Long lastPositionUpdate = track.getPositionReportTimestamp();
-            if (lastPositionUpdate == null) {
-                lastPositionUpdate = 0L;
-            }
+            final AisTargetType targetType = aisMessage.getTargetType();
+            if (targetType == AisTargetType.A || targetType == AisTargetType.B) {
+                Track track = getOrCreateTrack(mmsi);
+                Long currentUpdate = timestamp.getTime();
 
-            // Rebirth track if stale
-            if (isTrackStale(lastAnyUpdate, lastPositionUpdate, currentUpdate)) {
-                removeTrack(mmsi);
-                track = getOrCreateTrack(mmsi);
-                lastAnyUpdate = 0L;
-                lastPositionUpdate = 0L;
-            }
+                // Manage timestamps
+                Long lastAnyUpdate = (Long) track.getProperty(Track.TIMESTAMP_ANY_UPDATE);
+                if (lastAnyUpdate == null) {
+                    lastAnyUpdate = 0L;
+                }
 
-            // Perform track updates
-            if (currentUpdate >= lastAnyUpdate) {
-                if (aisMessage instanceof IVesselPositionMessage) {
-                    IVesselPositionMessage positionMessage = (IVesselPositionMessage) aisMessage;
-                    final boolean aisMessageHasValidPosition = positionMessage.getPos().getGeoLocation() != null;
-                    if (aisMessageHasValidPosition) {
-                        if (isInterpolationRequired(lastPositionUpdate, currentUpdate)) {
-                            interpolatePositions(track, currentUpdate, positionMessage);
-                        } else {
-                            updatePosition(track, currentUpdate, positionMessage);
+                Long lastPositionUpdate = track.getPositionReportTimestamp();
+                if (lastPositionUpdate == null) {
+                    lastPositionUpdate = 0L;
+                }
+
+                // Rebirth track if stale
+                if (isTrackStale(lastAnyUpdate, lastPositionUpdate, currentUpdate)) {
+                    removeTrack(mmsi);
+                    track = getOrCreateTrack(mmsi);
+                    lastAnyUpdate = 0L;
+                    lastPositionUpdate = 0L;
+                }
+
+                // Perform track updates
+                if (currentUpdate >= lastAnyUpdate) {
+                    if (aisMessage instanceof IVesselPositionMessage) {
+                        IVesselPositionMessage positionMessage = (IVesselPositionMessage) aisMessage;
+                        final boolean aisMessageHasValidPosition = positionMessage.getPos().getGeoLocation() != null;
+                        if (aisMessageHasValidPosition) {
+                            if (isInterpolationRequired(lastPositionUpdate, currentUpdate)) {
+                                interpolatePositions(track, currentUpdate, positionMessage);
+                            } else {
+                                updatePosition(track, currentUpdate, positionMessage);
+                            }
                         }
                     }
-                }
 
-                updateTimestamp(track, currentUpdate);
+                    updateTimestamp(track, currentUpdate);
 
-                if (aisMessage instanceof AisStaticCommon) {
-                    AisStaticCommon staticCommon = (AisStaticCommon) aisMessage;
-                    updateVesselName(track, staticCommon);
-                    updateCallsign(track, staticCommon);
-                    updateShipType(track, staticCommon);
-                    updateVesselDimensions(track, staticCommon);
-                }
+                    if (aisMessage instanceof AisStaticCommon) {
+                        AisStaticCommon staticCommon = (AisStaticCommon) aisMessage;
+                        updateVesselName(track, staticCommon);
+                        updateCallsign(track, staticCommon);
+                        updateShipType(track, staticCommon);
+                        updateVesselDimensions(track, staticCommon);
+                    }
 
-                if (aisMessage instanceof AisMessage5) {
-                    AisMessage5 aisMessage5 = (AisMessage5) aisMessage;
-                    updateImo(track, aisMessage5);
+                    if (aisMessage instanceof AisMessage5) {
+                        AisMessage5 aisMessage5 = (AisMessage5) aisMessage;
+                        updateImo(track, aisMessage5);
+                    }
+                } else {
+                    statisticsService.incOutOfSequenceMessages();
+                    Long timeDelta = lastAnyUpdate - currentUpdate;
+                    LOG.debug("Message of type " + aisMessage.getMsgId() + " ignored because it is out of sequence (delayed) by " + timeDelta + " msecs (mmsi " + mmsi + ")");
                 }
-            } else {
-                statisticsService.incOutOfSequenceMessages();
-                Long timeDelta = lastAnyUpdate - currentUpdate;
-                LOG.debug("Message of type " + aisMessage.getMsgId() + " ignored because it is out of sequence (delayed) by " + timeDelta + " msecs (mmsi " + mmsi + ")");
             }
-        }
 
-        mark(timestamp);
+            mark(timestamp);
+        }
     }
 
     private static void outputMessageSummary(Date timestamp, AisMessage aisMessage) {
@@ -426,6 +443,49 @@ public class TrackingServiceImpl implements TrackingService {
         }
 
         return n;
+    }
+
+    /**
+     * Check if this MMSI no. is on the list of vessels to be closely observed (for programming and debugging purposes).
+     * @param mmsi
+     * @return true if the MMSO is on the observation list; false if not.
+     */
+    private final boolean isOnObservationList(int mmsi) {
+        return mmsiToObserve.contains(mmsi);
+    }
+
+    /**
+     * Check if this MMSI no. corresponds to a black listed vessel.
+     * @param mmsi
+     * @return true if the MMSI is black listed; false otherwise.
+     */
+    private final boolean isOnBlackList(int mmsi) {
+        return mmsiBlacklist.contains(mmsi);
+    }
+
+    /**
+     * Initialize internal data structures required to accept/reject track updates based on black list mechanism.
+     * @param configuration
+     * @return
+     */
+    private static TreeSet<Integer> initVesselBlackList(Configuration configuration) {
+        TreeSet<Integer> blacklistedMmsis = new TreeSet<>();
+        try {
+            List blacklistedMmsisConfig = configuration.getList("blacklist.mmsi");
+            blacklistedMmsisConfig.forEach(
+                blacklistedMmsi -> {
+                    Integer blacklistedMmsiBoxed = Integer.valueOf(blacklistedMmsi.toString());
+                    blacklistedMmsis.add(blacklistedMmsiBoxed);
+                }
+            );
+        } catch (ConversionException e) {
+            LOG.warn(e.getMessage(), e);
+        }
+        if (blacklistedMmsis.size() > 0) {
+            LOG.info("The following " + blacklistedMmsis.size() + " MMSI numbers are black listed and will not be tracked.");
+            LOG.info(Arrays.toString(blacklistedMmsis.toArray()));
+        }
+        return blacklistedMmsis;
     }
 
     /**
