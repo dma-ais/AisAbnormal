@@ -137,7 +137,7 @@ public class StatisticDataRepositoryMapDB implements StatisticDataRepository {
         // at java.lang.System.arraycopy(Native Method)
         // at org.mapdb.BTreeKeySerializer.leadingValuePackRead(BTreeKeySerializer.java:189)
         // on read
-        // Seems like an unfinished statistic?
+        // Seems like an unfinished feature?
         // https://github.com/jankotek/MapDB/issues/208
 
         // Copy metadata to other database

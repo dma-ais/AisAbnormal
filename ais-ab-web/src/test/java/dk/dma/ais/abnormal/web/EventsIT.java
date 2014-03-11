@@ -69,12 +69,12 @@ public class EventsIT {
             System.out.println("ticker0=" + ticker0Element.getText());
             wait.until(ExpectedConditions.visibilityOf(ticker0Element));
             System.out.println("ticker0=" + ticker0Element.getText());
-            assertTrue(ticker0Element.getText().matches(".*HAMLET.*"));
+            assertTrue(ticker0Element.getText().matches(".*TYCHO BRAHE.*"));
 
             System.out.println("ticker1=" + ticker1Element.getText());
             wait.until(ExpectedConditions.visibilityOf(ticker1Element));
             System.out.println("ticker1=" + ticker1Element.getText());
-            assertTrue(ticker1Element.getText().matches(".*VESTA.*"));
+            assertTrue(ticker1Element.getText().matches(".*SILVERTARNAN.*"));
 
             // Assert that event in ticker can be clicked
             ticker1Element.findElement(cssSelector("span.glyphicon")).click();
