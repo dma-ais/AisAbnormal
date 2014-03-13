@@ -27,12 +27,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOError;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static java.nio.file.Files.move;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class StatisticDataRepositoryMapDB implements StatisticDataRepository {
 
@@ -395,23 +400,66 @@ public class StatisticDataRepositoryMapDB implements StatisticDataRepository {
     }
 
     private static DB openDiskDatabase(File dbFile, boolean readOnly) {
-        LOG.debug("Attempting to open database file \"" + dbFile.getAbsolutePath() + (readOnly ? "\" (for read only).":"(for read/write)."));
-        DB db = readOnly ?
-                DBMaker
-                        .newFileDB(dbFile)
-                        .transactionDisable()
-                        .closeOnJvmShutdown()
-                        .readOnly()
-                        .make()
-                :
-                DBMaker
-                        .newFileDB(dbFile)
-                        .transactionDisable()
-                        .cacheDisable()
-                        .closeOnJvmShutdown()
-                        .make();
+        DB db = null;
 
-        LOG.debug("Opened disk-based database (\"" + dbFile.getName()+ "\") for " + (readOnly ? "read only.":"read/write."));
+        if (readOnly) {
+            db = openDiskDatabaseForRead(dbFile);
+        } else {
+            try {
+                db = openDiskDatabaseForWrite(dbFile);
+            } catch (IOError e) {
+                LOG.error(e.getMessage(), e);
+                LOG.info("Trying to move away potentially corrupted file; then retrying to open database file for read/write.");
+                try {
+                    File dbFileP = new File(dbFile.getParent() + File.separator + dbFile.getName() + ".p");
+
+                    File dbFileCorrupt = new File(dbFile.getParent() + File.separator + dbFile.getName() + ".corrupt");
+                    File dbFilePCorrupt = new File(dbFileP.getParent() + File.separator + dbFileP.getName() + ".corrupt");
+
+                    LOG.info("Renaming file " + dbFile.getName() + " to " + dbFileCorrupt.getName());
+
+                    move(dbFile.toPath(), dbFileCorrupt.toPath(), REPLACE_EXISTING);
+                    move(dbFileP.toPath(), dbFilePCorrupt.toPath(), REPLACE_EXISTING);
+
+                    db = openDiskDatabaseForWrite(dbFile);
+                } catch (IOException e1) {
+                    LOG.error(e1.getMessage(), e1);
+                    LOG.info("Failed 2nd attempt to open " + dbFile.getName() + " for read/write.; proceeding ahead for best effort.");
+                }
+            }
+        }
+
+        return db;
+    }
+
+    private static DB openDiskDatabaseForRead(File dbFile) {
+        LOG.debug("Trying to open " + dbFile.getAbsolutePath() + " for read only.");
+
+        DB db;
+        db = DBMaker
+                .newFileDB(dbFile)
+                .transactionDisable()
+                .closeOnJvmShutdown()
+                .readOnly()
+                .make();
+
+        LOG.info("Opened disk-based database (\"" + dbFile.getName() + "\") for read only.");
+
+        return db;
+    }
+
+    private static DB openDiskDatabaseForWrite(File dbFile) {
+        LOG.debug("Trying to open " + dbFile.getAbsolutePath() + " for read/write.");
+
+        DB db;
+        db = DBMaker
+                .newFileDB(dbFile)
+                .transactionDisable()
+                .cacheDisable()
+                .closeOnJvmShutdown()
+                .make();
+
+        LOG.info("Opened disk-based database (\"" + dbFile.getName() + "\") for read/write.");
 
         return db;
     }
