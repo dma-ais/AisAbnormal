@@ -126,6 +126,11 @@ public class StatisticDataRepositoryMapDB implements StatisticDataRepository {
             LOG.info("Dump in-memory data to disk.");
             DB onDisk = openDiskDatabase(dbFile, false);
             copyToDatabase(onDisk);
+            /*
+            LOG.info("Compacting data file.");
+            onDisk.compact(); // necessary?
+            LOG.info("Completed compacting data file.");
+            */
             onDisk.commit();
             onDisk.close();
             LOG.info("Dump in-memory data to disk: Done.");
@@ -166,9 +171,6 @@ public class StatisticDataRepositoryMapDB implements StatisticDataRepository {
                 progressOutput(i++, estimatedTotalNumberOfCellsWithData);
             }
         }
-
-        // Apparently not necessary:
-        // toDatabase.compact();
     }
 
     /**
