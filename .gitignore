@@ -14,3 +14,7 @@ target
 # Maven
 ##################
 dependency-reduced-pom.xml
+
+# DB
+##################
+events.lock.db
