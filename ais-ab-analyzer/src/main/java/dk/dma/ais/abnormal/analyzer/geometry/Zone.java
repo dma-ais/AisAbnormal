@@ -16,7 +16,7 @@
 
 package dk.dma.ais.abnormal.analyzer.geometry;
 
-import dk.dma.ais.abnormal.coordinates.CoordinateTransformer;
+import dk.dma.ais.utils.coordinates.CoordinateConverter;
 import dk.dma.enav.model.geometry.Position;
 
 import static java.lang.StrictMath.cos;
@@ -127,6 +127,6 @@ public final class Zone {
     }
 
     public double getMajorAxisGeodeticHeading() {
-        return CoordinateTransformer.cartesian2compass(thetaDeg);
+        return CoordinateConverter.cartesian2compass(thetaDeg);
     }
 }

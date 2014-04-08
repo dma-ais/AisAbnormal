@@ -22,7 +22,6 @@ import com.google.inject.Inject;
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.analyzer.geometry.Point;
 import dk.dma.ais.abnormal.analyzer.geometry.Zone;
-import dk.dma.ais.abnormal.coordinates.CoordinateTransformer;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.CloseEncounterEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
@@ -34,6 +33,7 @@ import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.ais.abnormal.tracker.events.TimeEvent;
 import dk.dma.ais.abnormal.util.AisDataHelper;
 import dk.dma.ais.abnormal.util.Categorizer;
+import dk.dma.ais.utils.coordinates.CoordinateConverter;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import net.jcip.annotations.NotThreadSafe;
@@ -267,17 +267,17 @@ public class CloseEncounterAnalysis extends Analysis {
         final double dimStarboard = dimStarboardBoxed;
 
         // Compute direction of half axis alpha
-        final double thetaDeg = CoordinateTransformer.compass2cartesian(cog);
+        final double thetaDeg = CoordinateConverter.compass2cartesian(cog);
 
         // Transform latitude/longitude to cartesian coordinates
         final double centerLatitude = geodeticReference.getLatitude();
         final double centerLongitude = geodeticReference.getLongitude();
-        final CoordinateTransformer coordinateTransformer = new CoordinateTransformer(centerLongitude, centerLatitude);
+        final CoordinateConverter CoordinateConverter = new CoordinateConverter(centerLongitude, centerLatitude);
 
         final double trackLatitude = track.getPosition().getLatitude();
         final double trackLongitude = track.getPosition().getLongitude();
-        final double x = coordinateTransformer.lon2x(trackLongitude, trackLatitude);
-        final double y = coordinateTransformer.lat2y(trackLongitude, trackLatitude);
+        final double x = CoordinateConverter.lon2x(trackLongitude, trackLatitude);
+        final double y = CoordinateConverter.lat2y(trackLongitude, trackLatitude);
 
         // Compute center of safety zone
         final Point pt0 = new Point(x, y);
@@ -364,11 +364,11 @@ public class CloseEncounterAnalysis extends Analysis {
         Zone primaryTracksafetyZone = (Zone) primaryTrack.getProperty(Track.SAFETY_ZONE);
         Zone secondaryTrackExtent = (Zone) secondaryTrack.getProperty(Track.EXTENT);
 
-        CoordinateTransformer coordinateTransformer = new CoordinateTransformer(primaryTracksafetyZone.getGeodeticReference().getLongitude(), primaryTracksafetyZone.getGeodeticReference().getLatitude());
-        double primaryTrackLatitude = coordinateTransformer.y2Lat(primaryTracksafetyZone.getX(), primaryTracksafetyZone.getY());
-        double primaryTrackLongitude = coordinateTransformer.x2Lon(primaryTracksafetyZone.getX(), primaryTracksafetyZone.getY());
-        double secondaryTrackLatitude = coordinateTransformer.y2Lat(secondaryTrackExtent.getX(), secondaryTrackExtent.getY());
-        double secondaryTrackLongitude = coordinateTransformer.x2Lon(secondaryTrackExtent.getX(), secondaryTrackExtent.getY());
+        CoordinateConverter CoordinateConverter = new CoordinateConverter(primaryTracksafetyZone.getGeodeticReference().getLongitude(), primaryTracksafetyZone.getGeodeticReference().getLatitude());
+        double primaryTrackLatitude = CoordinateConverter.y2Lat(primaryTracksafetyZone.getX(), primaryTracksafetyZone.getY());
+        double primaryTrackLongitude = CoordinateConverter.x2Lon(primaryTracksafetyZone.getX(), primaryTracksafetyZone.getY());
+        double secondaryTrackLatitude = CoordinateConverter.y2Lat(secondaryTrackExtent.getX(), secondaryTrackExtent.getY());
+        double secondaryTrackLongitude = CoordinateConverter.x2Lon(secondaryTrackExtent.getX(), secondaryTrackExtent.getY());
 
         statisticsService.incAnalysisStatistics(analysisName, "Events raised");
 
