@@ -26,8 +26,9 @@ import dk.dma.ais.abnormal.event.db.domain.SuddenSpeedChangeEvent;
 import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
 import dk.dma.ais.abnormal.event.db.domain.builders.SuddenSpeedChangeEventBuilder;
 import dk.dma.ais.abnormal.event.db.domain.builders.TrackingPointBuilder;
+import dk.dma.ais.abnormal.tracker.InterpolatedTrackingReport;
 import dk.dma.ais.abnormal.tracker.Track;
-import dk.dma.ais.abnormal.tracker.TrackingService;
+import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.abnormal.tracker.events.PositionChangedEvent;
 import dk.dma.ais.abnormal.tracker.events.TrackStaleEvent;
 import dk.dma.ais.abnormal.util.AisDataHelper;
@@ -63,7 +64,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
     private int counter;
 
     @Inject
-    public SuddenSpeedChangeAnalysis(AppStatisticsService statisticsService, TrackingService trackingService, EventRepository eventRepository) {
+    public SuddenSpeedChangeAnalysis(AppStatisticsService statisticsService, Tracker trackingService, EventRepository eventRepository) {
         super(eventRepository, trackingService, null);
         this.statisticsService = statisticsService;
         this.tracks = new HashMap<>();
@@ -98,10 +99,10 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
 
     private void performAnalysis(Track track, float sog) {
         final int mmsi = track.getMmsi();
-        final long timestamp = track.getPositionReportTimestamp();
+        final long timestamp = track.getTimeOfLastPositionReport();
 
         if (sog >= speedHighMark) {
-            TrackingPointData trackingPointData = new TrackingPointData(timestamp, sog, track.getCourseOverGround(), track.getPositionReportIsInterpolated(), track.getPosition());
+            TrackingPointData trackingPointData = new TrackingPointData(timestamp, sog, track.getCourseOverGround(), track.getNewestTrackingReport() instanceof InterpolatedTrackingReport, track.getPosition());
             tracks.put(mmsi, trackingPointData);
         } else if (sog <= speedLowMark) {
             TrackingPointData trackingPointData = tracks.get(mmsi);
@@ -123,16 +124,16 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
             throw new IllegalArgumentException("otherTracks not supported.");
         }
 
-        Date timestamp = new Date(track.getPositionReportTimestamp());
+        Date timestamp = new Date(track.getTimeOfLastPositionReport());
         Integer mmsi = track.getMmsi();
-        Integer imo = (Integer) track.getProperty(Track.IMO);
-        String callsign = (String) track.getProperty(Track.CALLSIGN);
-        String name = AisDataHelper.trimAisString((String) track.getProperty(Track.SHIP_NAME));
+        Integer imo = track.getIMO();
+        String callsign = track.getCallsign();
+        String name = AisDataHelper.trimAisString(track.getShipName());
         Position position = track.getPosition();
         Float cog = track.getCourseOverGround();
         Float sog = track.getSpeedOverGround();
-        Boolean interpolated = track.getPositionReportIsInterpolated();
-        Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
+        Boolean interpolated = track.getNewestTrackingReport() instanceof InterpolatedTrackingReport;
+        Integer shipType = track.getShipType();
 
         String shipTypeAsString = "?";
         if (shipType != null) {

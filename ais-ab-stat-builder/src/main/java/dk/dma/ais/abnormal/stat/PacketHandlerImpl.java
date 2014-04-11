@@ -23,7 +23,7 @@ import dk.dma.ais.abnormal.stat.statistics.CourseOverGroundStatistic;
 import dk.dma.ais.abnormal.stat.statistics.ShipTypeAndSizeStatistic;
 import dk.dma.ais.abnormal.stat.statistics.SpeedOverGroundStatistic;
 import dk.dma.ais.abnormal.stat.statistics.TrackingEventListener;
-import dk.dma.ais.abnormal.tracker.TrackingService;
+import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.concurrency.stripedexecutor.StripedExecutorService;
 import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.message.AisMessage;
@@ -34,7 +34,6 @@ import eu.javaspecialists.tjsn.concurrency.StripedRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -46,7 +45,7 @@ public class PacketHandlerImpl implements PacketHandler {
     static final Logger LOG = LoggerFactory.getLogger(PacketHandler.class);
     
     private AppStatisticsService statisticsService; // = new AppStatisticsServiceImpl(1, TimeUnit.MINUTES);
-    private TrackingService trackingService;
+    private Tracker trackingService;
     private ReplayDownSampleFilter downSampleFilter;
     private StripedExecutorService workerThreads;
     private final boolean multiThreaded;
@@ -58,7 +57,7 @@ public class PacketHandlerImpl implements PacketHandler {
     private static final int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
 
     @Inject
-    public PacketHandlerImpl(AppStatisticsService statisticsService, TrackingService trackingService, ReplayDownSampleFilter downSampleFilter, StripedExecutorService executorService, @Assisted boolean multiThreaded) {
+    public PacketHandlerImpl(AppStatisticsService statisticsService, Tracker trackingService, ReplayDownSampleFilter downSampleFilter, StripedExecutorService executorService, @Assisted boolean multiThreaded) {
         LOG.debug("Detected " + NUMBER_OF_CORES + " CPU cores.");
         LOG.info("Creating " + (multiThreaded ? "multi threaded ":"single threaded ")+ "AIS packet handler.");
 
@@ -105,13 +104,11 @@ public class PacketHandlerImpl implements PacketHandler {
             statisticsService.incStatMsgCount();
         }
 
-        Date timestamp = packet.getTimestamp();
-
         if (multiThreaded) {
             Object stripe = assignStripe(message);
-            workerThreads.submit(new Task(message, timestamp, stripe));
+            workerThreads.submit(new Task(packet, stripe));
         } else {
-            doWork(timestamp, message);
+            doWork(packet);
         }
     }
 
@@ -130,8 +127,8 @@ public class PacketHandlerImpl implements PacketHandler {
         return Integer.valueOf(Math.abs(hash(message.getUserId())) % NUMBER_OF_CORES);
     }
 
-    private void doWork(Date timestamp, AisMessage message) {
-        trackingService.update(timestamp, message);
+    private void doWork(AisPacket p) {
+        trackingService.update(p);
         statisticsService.setTrackCount(trackingService.getNumberOfTracks());
     }
 
@@ -162,20 +159,18 @@ public class PacketHandlerImpl implements PacketHandler {
     }
 
     private final class Task implements StripedRunnable {
-        final Date timestamp;
-        final AisMessage message;
+        final AisPacket packet;
         final Object stripe;
 
-        public Task(AisMessage message, Date timestamp, Object stripe) {
-            this.message = message;
-            this.timestamp = timestamp;
+        public Task(AisPacket packet, Object stripe) {
+            this.packet = packet;
             this.stripe = stripe;
         }
 
         @Override
         public void run() {
             try {
-                doWork(timestamp, message);
+                doWork(packet);
             } catch(Throwable t) {
                 LOG.error(t.getMessage(), t);
             }

@@ -23,8 +23,8 @@ import com.google.inject.assistedinject.FactoryModuleBuilder;
 import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
 import dk.dma.ais.abnormal.stat.db.mapdb.StatisticDataRepositoryMapDB;
 import dk.dma.ais.abnormal.stat.statistics.ShipTypeAndSizeStatistic;
-import dk.dma.ais.abnormal.tracker.TrackingService;
-import dk.dma.ais.abnormal.tracker.TrackingServiceImpl;
+import dk.dma.ais.abnormal.tracker.EventEmittingTracker;
+import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.concurrency.stripedexecutor.StripedExecutorService;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
@@ -62,7 +62,7 @@ public class AbnormalStatBuilderAppTestModule extends AbstractModule {
         bind(AbnormalStatBuilderApp.class).in(Singleton.class);
         bind(AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
         bind(dk.dma.ais.abnormal.application.statistics.AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
-        bind(TrackingService.class).to(TrackingServiceImpl.class).in(Singleton.class);
+        bind(Tracker.class).to(EventEmittingTracker.class).in(Singleton.class);
         bind(ShipTypeAndSizeStatistic.class);
 
         // Test stubs

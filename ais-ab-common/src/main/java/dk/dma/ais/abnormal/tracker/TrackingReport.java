@@ -16,7 +16,6 @@
 
 package dk.dma.ais.abnormal.tracker;
 
-import com.rits.cloning.Cloner;
 import dk.dma.enav.model.geometry.Position;
 import net.jcip.annotations.NotThreadSafe;
 
@@ -24,26 +23,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 @NotThreadSafe
-public final class TrackingReport implements Cloneable {
-    private final long timestamp;
-    private final Position position;
-    private final Float courseOverGround;
-    private final Float speedOverGround;
-    private final boolean interpolated;
+public abstract class TrackingReport implements Cloneable {
 
-    private final Map<String, Object> properties = new HashMap<>(1);
-
-    public static TrackingReport create(long timestamp, Position position, Float courseOverGround, Float speedOverGround, boolean interpolated) {
-        return new TrackingReport(timestamp, position, courseOverGround, speedOverGround, interpolated);
-    }
-
-    private TrackingReport(long timestamp, Position position, Float courseOverGround, Float speedOverGround, boolean interpolated) {
-        this.timestamp = timestamp;
-        this.position = position;
-        this.speedOverGround = speedOverGround;
-        this.courseOverGround = courseOverGround;
-        this.interpolated = interpolated;
-    }
+    private final Map<String, Object> properties = new HashMap<>(2);
 
     public Object getProperty(String propertyName) {
         return properties.get(propertyName);
@@ -57,28 +39,10 @@ public final class TrackingReport implements Cloneable {
         properties.remove(propertyName);
     }
 
-    public long getTimestamp() {
-        return timestamp;
-    }
+    // ---
 
-    public Position getPosition() {
-        return position;
-    }
-
-    public Float getCourseOverGround() {
-        return courseOverGround;
-    }
-
-    public Float getSpeedOverGround() {
-        return speedOverGround;
-    }
-
-    public boolean isInterpolated() {
-        return interpolated;
-    }
-
-    @Override
-    public TrackingReport clone() {
-        return new Cloner().deepClone(this);
-    }
+    public abstract long getTimestamp();
+    public abstract Position getPosition();
+    public abstract float getCourseOverGround();
+    public abstract float getSpeedOverGround();
 }

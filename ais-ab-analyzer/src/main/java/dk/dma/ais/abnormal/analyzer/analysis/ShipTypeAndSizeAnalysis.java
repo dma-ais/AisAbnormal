@@ -32,8 +32,9 @@ import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
 import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeStatisticData;
 import dk.dma.ais.abnormal.stat.db.data.StatisticData;
+import dk.dma.ais.abnormal.tracker.InterpolatedTrackingReport;
 import dk.dma.ais.abnormal.tracker.Track;
-import dk.dma.ais.abnormal.tracker.TrackingService;
+import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
 import dk.dma.ais.abnormal.tracker.events.TrackStaleEvent;
 import dk.dma.ais.abnormal.util.Categorizer;
@@ -62,7 +63,7 @@ public class ShipTypeAndSizeAnalysis extends StatisticBasedAnalysis {
     private static final int TOTAL_COUNT_THRESHOLD = 1000;
 
     @Inject
-    public ShipTypeAndSizeAnalysis(AppStatisticsService statisticsService, StatisticDataRepository statisticsRepository, TrackingService trackingService, EventRepository eventRepository, BehaviourManager behaviourManager) {
+    public ShipTypeAndSizeAnalysis(AppStatisticsService statisticsService, StatisticDataRepository statisticsRepository, Tracker trackingService, EventRepository eventRepository, BehaviourManager behaviourManager) {
         super(eventRepository, statisticsRepository, trackingService, behaviourManager);
         this.statisticsService = statisticsService;
     }
@@ -74,8 +75,8 @@ public class ShipTypeAndSizeAnalysis extends StatisticBasedAnalysis {
 
         Track track = trackEvent.getTrack();
         Long cellId = (Long) track.getProperty(Track.CELL_ID);
-        Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
-        Integer shipLength = (Integer) track.getProperty(Track.VESSEL_LENGTH);
+        Integer shipType = track.getShipType();
+        Integer shipLength = track.getVesselLength();
 
         if (cellId == null) {
             // LOG.warn("cellId is unexpectedly null (mmsi " + mmsi + ")");
@@ -184,16 +185,16 @@ public class ShipTypeAndSizeAnalysis extends StatisticBasedAnalysis {
         }
 
         Integer mmsi = track.getMmsi();
-        Integer imo = (Integer) track.getProperty(Track.IMO);
-        String callsign = (String) track.getProperty(Track.CALLSIGN);
-        String name = (String) track.getProperty(Track.SHIP_NAME);
-        Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
-        Integer shipLength = (Integer) track.getProperty(Track.VESSEL_LENGTH);
-        Date positionTimestamp = new Date(track.getPositionReportTimestamp());
+        Integer imo = track.getIMO();
+        String callsign = track.getCallsign();
+        String name = track.getShipName();
+        Integer shipType = track.getShipType();
+        Integer shipLength = track.getVesselLength();
+        Date positionTimestamp = new Date(track.getTimeOfLastPositionReport());
         Position position = track.getPosition();
         Float cog = track.getCourseOverGround();
         Float sog = track.getSpeedOverGround();
-        Boolean interpolated = track.getPositionReportIsInterpolated();
+        Boolean interpolated = track.getNewestTrackingReport() instanceof InterpolatedTrackingReport;
 
         TrackingPoint.EventCertainty certainty = TrackingPoint.EventCertainty.UNDEFINED;
         EventCertainty eventCertainty = getBehaviourManager().getEventCertaintyAtCurrentPosition(ShipSizeOrTypeEvent.class, track);

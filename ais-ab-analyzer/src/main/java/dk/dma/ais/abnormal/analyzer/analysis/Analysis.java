@@ -24,9 +24,10 @@ import dk.dma.ais.abnormal.event.db.domain.CloseEncounterEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
 import dk.dma.ais.abnormal.event.db.domain.builders.TrackingPointBuilder;
+import dk.dma.ais.abnormal.tracker.InterpolatedTrackingReport;
 import dk.dma.ais.abnormal.tracker.Track;
+import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.abnormal.tracker.TrackingReport;
-import dk.dma.ais.abnormal.tracker.TrackingService;
 import dk.dma.enav.model.geometry.Position;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,10 +51,10 @@ public abstract class Analysis {
     private static final Logger LOG = LoggerFactory.getLogger(Analysis.class);
 
     private final EventRepository eventRepository;
-    private final TrackingService trackingService;
+    private final Tracker trackingService;
     private final BehaviourManager behaviourManager;
 
-    protected Analysis(EventRepository eventRepository, TrackingService trackingService, BehaviourManager behaviourManager) {
+    protected Analysis(EventRepository eventRepository, Tracker trackingService, BehaviourManager behaviourManager) {
         this.eventRepository = eventRepository;
         this.trackingService = trackingService;
         this.behaviourManager = behaviourManager;
@@ -93,7 +94,7 @@ public abstract class Analysis {
         Integer mmsi = track.getMmsi();
         Event ongoingEvent = eventRepository.findOngoingEventByVessel(mmsi, eventClass);
         if (ongoingEvent != null) {
-            Date timestamp = new Date((Long) track.getProperty(Track.TIMESTAMP_ANY_UPDATE));
+            Date timestamp = new Date(track.getTimeOfLastUpdate());
             ongoingEvent.setState(Event.State.PAST);
             ongoingEvent.setEndTime(timestamp);
             eventRepository.save(ongoingEvent);
@@ -113,11 +114,11 @@ public abstract class Analysis {
         Event event = eventRepository.findOngoingEventByVessel(mmsi, eventClass);
 
         if (event != null) {
-            Date positionTimestamp = new Date(primaryTrack.getPositionReportTimestamp());
+            Date positionTimestamp = new Date(primaryTrack.getTimeOfLastPositionReport());
             Position position = primaryTrack.getPosition();
             Float cog = primaryTrack.getCourseOverGround();
             Float sog = primaryTrack.getSpeedOverGround();
-            Boolean interpolated = primaryTrack.getPositionReportIsInterpolated();
+            boolean interpolated = primaryTrack.getNewestTrackingReport() instanceof InterpolatedTrackingReport;
 
             TrackingPoint.EventCertainty certainty = TrackingPoint.EventCertainty.UNDEFINED;
             if (behaviourManager != null) {
@@ -165,7 +166,7 @@ public abstract class Analysis {
         while (positionReportIterator.hasNext()) {
             TrackingReport trackingReport = positionReportIterator.next();
 
-            if (trackingReport.getTimestamp() < track.getPositionReportTimestamp() /* Do not add the last one - duplicate */) {
+            if (trackingReport.getTimestamp() < track.getTimeOfLastPositionReport() /* Do not add the last one - duplicate */) {
                 TrackingPoint.EventCertainty certainty = null;
 
                 String eventCertaintyKey = BehaviourManagerImpl.getEventCertaintyKey(event.getClass());
@@ -178,7 +179,7 @@ public abstract class Analysis {
                             trackingReport.getPosition(),
                             trackingReport.getCourseOverGround(),
                             trackingReport.getSpeedOverGround(),
-                            trackingReport.isInterpolated(),
+                            trackingReport instanceof InterpolatedTrackingReport,
                             eventCertainty);
                 }
             }
@@ -189,7 +190,7 @@ public abstract class Analysis {
         return eventRepository;
     }
 
-    protected TrackingService getTrackingService() {
+    protected Tracker getTrackingService() {
         return trackingService;
     }
 }

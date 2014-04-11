@@ -24,8 +24,8 @@ import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventMaintain;
 import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventRaise;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.tracker.Track;
+import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.abnormal.tracker.TrackingReport;
-import dk.dma.ais.abnormal.tracker.TrackingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,7 @@ public class BehaviourManagerImpl implements BehaviourManager {
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
 
-    TrackingService trackingService;
+    Tracker trackingService;
     EventBus eventBus = new EventBus();
 
     int line = 1;
@@ -62,7 +62,7 @@ public class BehaviourManagerImpl implements BehaviourManager {
     private static final String CERTAINTY_KEY_PREFIX = "event-certainty-";
 
     @Inject
-    public BehaviourManagerImpl(TrackingService trackingService) {
+    public BehaviourManagerImpl(Tracker trackingService) {
         this.trackingService = trackingService;
         eventBus.register(this);
     }
@@ -138,7 +138,7 @@ public class BehaviourManagerImpl implements BehaviourManager {
     public EventCertainty getEventCertaintyAtCurrentPosition(Class<? extends Event> eventClass, Track track) {
         EventCertainty eventCertainty = null;
 
-        TrackingReport trackingReport = track.getPositionReport();
+        TrackingReport trackingReport = track.getNewestTrackingReport();
         if (trackingReport != null) {
             String eventCertaintyKey = getEventCertaintyKey(eventClass);
             eventCertainty = (EventCertainty) trackingReport.getProperty(eventCertaintyKey);
@@ -282,7 +282,7 @@ public class BehaviourManagerImpl implements BehaviourManager {
      * @param track
      */
     private static void setEventCertaintyOnCurrentPositionReport(Class<? extends Event> eventClass, Track track) {
-        TrackingReport trackingReport = track.getPositionReport();
+        TrackingReport trackingReport = track.getNewestTrackingReport();
         if (trackingReport != null) {
             trackingReport.setProperty(getEventCertaintyKey(eventClass), getEventCertainty(eventClass, track));
         }

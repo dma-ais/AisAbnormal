@@ -21,7 +21,7 @@ import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManager;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.SpeedOverGroundStatisticData;
-import dk.dma.ais.abnormal.tracker.TrackingService;
+import dk.dma.ais.abnormal.tracker.Tracker;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
@@ -38,7 +38,7 @@ public class SpeedOverGroundAnalysisTest {
 
     private long testCellId = 24930669189L;
 
-    private TrackingService trackingService;
+    private Tracker trackingService;
     private AppStatisticsService statisticsService;
     private StatisticDataRepository statisticsRepository;
     private EventRepository eventRepository;
@@ -50,7 +50,7 @@ public class SpeedOverGroundAnalysisTest {
         context = new JUnit4Mockery();
 
         // Mock dependencies
-        trackingService = context.mock(TrackingService.class);
+        trackingService = context.mock(Tracker.class);
         statisticsService = context.mock(AppStatisticsService.class);
         statisticsRepository = context.mock(StatisticDataRepository.class);
         eventRepository = context.mock(EventRepository.class);

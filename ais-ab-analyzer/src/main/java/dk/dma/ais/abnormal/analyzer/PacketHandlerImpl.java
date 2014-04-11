@@ -24,7 +24,7 @@ import dk.dma.ais.abnormal.analyzer.analysis.CourseOverGroundAnalysis;
 import dk.dma.ais.abnormal.analyzer.analysis.ShipTypeAndSizeAnalysis;
 import dk.dma.ais.abnormal.analyzer.analysis.SpeedOverGroundAnalysis;
 import dk.dma.ais.abnormal.analyzer.analysis.SuddenSpeedChangeAnalysis;
-import dk.dma.ais.abnormal.tracker.TrackingService;
+import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisMessage5;
@@ -33,7 +33,6 @@ import dk.dma.ais.packet.AisPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
 import java.util.Set;
 
 /**
@@ -47,14 +46,14 @@ public class PacketHandlerImpl implements PacketHandler {
     }
 
     private final AppStatisticsService statisticsService;
-    private final TrackingService trackingService;
+    private final Tracker tracker;
     private final ReplayDownSampleFilter downSampleFilter;
     private final Set<Analysis> analyses;
 
     @Inject
-    public PacketHandlerImpl(AppStatisticsService statisticsService, TrackingService trackingService, ReplayDownSampleFilter downSampleFilter) {
+    public PacketHandlerImpl(AppStatisticsService statisticsService, Tracker tracker, ReplayDownSampleFilter downSampleFilter) {
         this.statisticsService = statisticsService;
-        this.trackingService = trackingService;
+        this.tracker = tracker;
         this.downSampleFilter = downSampleFilter;
         this.analyses = initAnalyses();
 
@@ -74,7 +73,7 @@ public class PacketHandlerImpl implements PacketHandler {
             LOG.debug(n + " packets passed through filter.");
         }
 
-        // Get AisMessage from packet or drop
+        // Unpack and validate AIS packet
         AisMessage message = packet.tryGetAisMessage();
         if (message == null) {
             return;
@@ -86,11 +85,12 @@ public class PacketHandlerImpl implements PacketHandler {
         } else if (message instanceof AisMessage5) {
             statisticsService.incStatMsgCount();
         }
-        doWork(packet.getTimestamp(), message);
+
+        doWork(packet);
     }
 
-    private void doWork(Date timestamp, AisMessage message) {
-        trackingService.update(timestamp, message);
+    private void doWork(AisPacket packet) {
+        tracker.update(packet);
     }
 
     private static Set<Analysis> initAnalyses() {

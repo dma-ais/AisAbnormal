@@ -16,38 +16,39 @@
 
 package dk.dma.ais.abnormal.tracker;
 
-import dk.dma.ais.message.AisMessage;
+import dk.dma.ais.packet.AisPacket;
 
-import java.util.Date;
 import java.util.Set;
 
 /**
- * A tracking service receives AisMessages and based on these it maintains a collection of all known tracks,
+ * A tracking service receives AisPackets and based on these it maintains a collection of all known tracks,
  * including their position, speed, course, etc.
  *
  * If a certain track has not received any updates for a while
  * it enteres status 'stale' and will receive no further updates. Instead a new track is created if more
- * AisMessages are received from the same vessel later on.
+ * AisPackets are received from the same vessel later on.
  *
- * The AisMesssages are assumed to arrive in timely order; i.e. by ever-increasing values of timestamp.
+ * The AisPackets are assumed to arrive in timely order; i.e. by ever-increasing values of timestamp.
  */
-public interface TrackingService {
+public interface Tracker {
 
     /**
-     * Update the tracker with a new aisMessage.
-     * @param timestamp time when the aisMessage was received.
-     * @param aisMessage the AIS message.
+     * Update the tracker with a new AisPacket.
+     * @param aisPacket the AIS packet.
      */
-    void update(Date timestamp, AisMessage aisMessage);
+    void update(AisPacket aisPacket);
 
     /**
      * Count and return the number of tracks current ACTIVE or STALE in the tracker.
      * @return the no. of tracks.
      */
-    Integer getNumberOfTracks();
+    int getNumberOfTracks();
 
     /**
      *  Register a subscriber to receive Events from the tracker.
+     *  The mechanism is based on Google's EventBus.
+     *
+     *  @see <a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/eventbus/EventBus.html">Google EventBus</a>
      */
     void registerSubscriber(Object subscriber);
 

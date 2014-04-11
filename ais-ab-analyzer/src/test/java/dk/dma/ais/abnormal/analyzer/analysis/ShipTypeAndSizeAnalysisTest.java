@@ -23,9 +23,10 @@ import dk.dma.ais.abnormal.event.db.domain.ShipSizeOrTypeEvent;
 import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeStatisticData;
 import dk.dma.ais.abnormal.tracker.Track;
-import dk.dma.ais.abnormal.tracker.TrackingReport;
-import dk.dma.ais.abnormal.tracker.TrackingService;
+import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
+import dk.dma.ais.abnormal.util.Categorizer;
+import dk.dma.ais.packet.AisPacket;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
 import dk.dma.enav.model.geometry.Position;
 import org.jmock.Expectations;
@@ -44,11 +45,18 @@ public class ShipTypeAndSizeAnalysisTest {
 
     private long testCellId = 24930669189L;
 
-    private TrackingService trackingService;
+    // GatehouseSourceTag [baseMmsi=2190067, country=DK, region=, timestamp=Thu Apr 10 15:30:29 CEST 2014]
+    // [msgId=5, repeat=0, userId=219000606, callsign=OWNM@@@, dest=BOEJDEN-FYNSHAV@@@@@, dimBow=12, dimPort=8, dimStarboard=4, dimStern=58, draught=30, dte=0, eta=67584, imo=8222824, name=FRIGG SYDFYEN@@@@@@@, posType=1, shipType=61, spare=0, version=0]
+    final AisPacket msg5 = AisPacket.from(
+        "$PGHP,1,2014,4,10,13,30,29,165,219,,2190067,1,28*22\r\n" +
+        "!BSVDM,2,1,1,A,53@ng7P1uN6PuLpl000I8TLN1=T@ITDp0000000u1Pr844@P07PSiBQ1,0*7B\r\n" +
+        "!BSVDM,2,2,1,A,CcAVCTj0EP00000,2*53");
+
+    private Tracker trackingService;
     private AppStatisticsService statisticsService;
     private StatisticDataRepository statisticsRepository;
     private EventRepository eventRepository;
-    private ShipTypeAndSizeStatisticData statistics;
+    private ShipTypeAndSizeStatisticData statistics1, statistics2;
     private BehaviourManager behaviourManager;
 
     @Before
@@ -56,35 +64,46 @@ public class ShipTypeAndSizeAnalysisTest {
         context = new JUnit4Mockery();
 
         // Mock dependencies
-        trackingService = context.mock(TrackingService.class);
+        trackingService = context.mock(Tracker.class);
         statisticsService = context.mock(AppStatisticsService.class);
         statisticsRepository = context.mock(StatisticDataRepository.class);
         eventRepository = context.mock(EventRepository.class);
         behaviourManager = context.mock(BehaviourManager.class);
 
         // Mock shipCount table
-        statistics = ShipTypeAndSizeStatisticData.create();
-        statistics.setValue((short) 2, (short) 0, "shipCount", 17);
-        statistics.setValue((short) 2, (short) 1, "shipCount", 2);
-        statistics.setValue((short) 2, (short) 2, "shipCount", 87);
-        statistics.setValue((short) 2, (short) 3, "shipCount", 618);
-        statistics.setValue((short) 3, (short) 2, "shipCount", 842);
-        statistics.setValue((short) 3, (short) 3, "shipCount", 954);
-        statistics.setValue((short) 4, (short) 2, "shipCount", 154);
-        statistics.setValue((short) 5, (short) 3, "shipCount", 34);
+        statistics1 = ShipTypeAndSizeStatisticData.create();
+        statistics1.setValue((short) 2, (short) 0, "shipCount", 17);
+        statistics1.setValue((short) 2, (short) 1, "shipCount", 87);
+        statistics1.setValue((short) 2, (short) 2, "shipCount", 2);
+        statistics1.setValue((short) 2, (short) 3, "shipCount", 618);
+        statistics1.setValue((short) 3, (short) 2, "shipCount", 842);
+        statistics1.setValue((short) 3, (short) 3, "shipCount", 954);
+        statistics1.setValue((short) 4, (short) 2, "shipCount", 154);
+        statistics1.setValue((short) 5, (short) 3, "shipCount", 34);
+
+        // Mock shipCount table
+        statistics2 = ShipTypeAndSizeStatisticData.create();
+        statistics2.setValue((short) 2, (short) 0, "shipCount", 17);
+        statistics2.setValue((short) 2, (short) 1, "shipCount", 87);
+        statistics2.setValue((short) 2, (short) 2, "shipCount", 2000);
+        statistics2.setValue((short) 2, (short) 3, "shipCount", 618);
+        statistics2.setValue((short) 3, (short) 2, "shipCount", 842);
+        statistics2.setValue((short) 3, (short) 3, "shipCount", 954);
+        statistics2.setValue((short) 4, (short) 2, "shipCount", 154);
+        statistics2.setValue((short) 5, (short) 3, "shipCount", 34);
     }
 
     @Test
     public void abnormalWhereNoShipCountStatistics() {
         // Assert that pre-conditions are as expected
-        assertNull(statistics.getValue((short) 1, (short) 1, "shipCount"));
+        assertNull(statistics1.getValue((short) 1, (short) 1, "shipCount"));
 
         // Setup expectations
         final ArgumentCaptor<Analysis> analysisCaptor = ArgumentCaptor.forClass(Analysis.class);
         context.checking(new Expectations() {{
             oneOf(behaviourManager).registerSubscriber(with(any(ShipTypeAndSizeAnalysis.class)));
             oneOf(trackingService).registerSubscriber(with(analysisCaptor.getMatcher()));
-            oneOf(statisticsRepository).getStatisticData("ShipTypeAndSizeStatistic", testCellId); will(returnValue(statistics));
+            oneOf(statisticsRepository).getStatisticData("ShipTypeAndSizeStatistic", testCellId); will(returnValue(statistics1));
             ignoring(statisticsService).incAnalysisStatistics(with(ShipTypeAndSizeAnalysis.class.getSimpleName()), with(any(String.class)));
         }});
 
@@ -104,8 +123,8 @@ public class ShipTypeAndSizeAnalysisTest {
     @Test
     public void abnormalWhereLowShipCountStatistics() {
         // Assert that pre-conditions are as expected
-        Integer totalCount = statistics.getSumFor("shipCount");
-        Integer count = statistics.getValue((short) 2, (short) 1, "shipCount");
+        Integer totalCount = statistics1.getSumFor("shipCount");
+        Integer count = statistics1.getValue((short) 2, (short) 2, "shipCount");
         float pd = (float) count / (float) totalCount;
         assertTrue(pd < 0.001);
 
@@ -114,7 +133,7 @@ public class ShipTypeAndSizeAnalysisTest {
         context.checking(new Expectations() {{
             oneOf(behaviourManager).registerSubscriber(with(any(ShipTypeAndSizeAnalysis.class)));
             oneOf(trackingService).registerSubscriber(with(analysisCaptor.getMatcher()));
-            oneOf(statisticsRepository).getStatisticData("ShipTypeAndSizeStatistic", testCellId); will(returnValue(statistics));
+            oneOf(statisticsRepository).getStatisticData("ShipTypeAndSizeStatistic", testCellId); will(returnValue(statistics1));
             ignoring(statisticsService).incAnalysisStatistics(with(ShipTypeAndSizeAnalysis.class.getSimpleName()), with(any(String.class)));
         }});
 
@@ -123,7 +142,7 @@ public class ShipTypeAndSizeAnalysisTest {
         analysis.start();
 
         // Perform test
-        boolean isAbnormalEvent = analysis.isAbnormalCellForShipTypeAndSize(testCellId, (short) 2, (short) 1);
+        boolean isAbnormalEvent = analysis.isAbnormalCellForShipTypeAndSize(testCellId, (short) 2, (short) 2);
 
         // Assert results
         context.assertIsSatisfied();
@@ -134,8 +153,8 @@ public class ShipTypeAndSizeAnalysisTest {
     @Test
     public void normalWhereHighShipCountStatistics() {
         // Assert that pre-conditions are as expected
-        Integer totalCount = statistics.getSumFor("shipCount");
-        Integer count = statistics.getValue((short) 2, (short) 3, "shipCount");
+        Integer totalCount = statistics1.getSumFor("shipCount");
+        Integer count = statistics1.getValue((short) 2, (short) 3, "shipCount");
         float pd = (float) count / (float) totalCount;
         assertTrue(pd > 0.001);
 
@@ -144,7 +163,7 @@ public class ShipTypeAndSizeAnalysisTest {
         context.checking(new Expectations() {{
             oneOf(behaviourManager).registerSubscriber(with(any(ShipTypeAndSizeAnalysis.class)));
             oneOf(trackingService).registerSubscriber(with(analysisCaptor.getMatcher()));
-            oneOf(statisticsRepository).getStatisticData("ShipTypeAndSizeStatistic", testCellId); will(returnValue(statistics));
+            oneOf(statisticsRepository).getStatisticData("ShipTypeAndSizeStatistic", testCellId); will(returnValue(statistics1));
             ignoring(statisticsService).incAnalysisStatistics(with(ShipTypeAndSizeAnalysis.class.getSimpleName()), with(any(String.class)));
         }});
 
@@ -168,7 +187,7 @@ public class ShipTypeAndSizeAnalysisTest {
     @Test
     public void testNoAnalysisDoneForInsufficientData() {
         // Create test data
-        Track track = new Track(123456);
+        Track track = new Track(219000606);
         CellChangedEvent event = new CellChangedEvent(track, null);
 
         // Create object under test
@@ -194,21 +213,13 @@ public class ShipTypeAndSizeAnalysisTest {
         analysis.onCellIdChanged(event);
         context.assertIsSatisfied();
 
-        // Repeat test - with ship type added
-        context.checking(new Expectations() {{
-            ignoring(statisticsService).incAnalysisStatistics(with(ShipTypeAndSizeAnalysis.class.getSimpleName()), with(any(String.class)));
-        }});
-        event.getTrack().setProperty(Track.SHIP_TYPE, 3);
-        analysis.onCellIdChanged(event);
-        context.assertIsSatisfied();
-
-        // Repeat test - with ship length added
+        // Repeat test - with ship type and length added
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with(ShipTypeAndSizeAnalysis.class.getSimpleName()), with(any(String.class)));
             oneOf(statisticsRepository).getStatisticData("ShipTypeAndSizeStatistic", 123L);
             oneOf(behaviourManager).normalBehaviourDetected(ShipSizeOrTypeEvent.class, track);
         }});
-        event.getTrack().setProperty(Track.VESSEL_LENGTH, 4);
+        track.update(msg5); // add shiptype and vessel length
         analysis.onCellIdChanged(event);
         context.assertIsSatisfied();
     }
@@ -219,13 +230,16 @@ public class ShipTypeAndSizeAnalysisTest {
     @Test
     public void testEventIsRaisedForAbnormalBehaviour() {
         // Create test data
-        Track track = new Track(123456);
+        Track track = new Track(219000606);
         track.setProperty(Track.CELL_ID, 123L);
-        track.setProperty(Track.SHIP_TYPE, 40);
-        track.setProperty(Track.VESSEL_LENGTH, 15);
+        track.update(msg5);
+
+        assertEquals(61, track.getShipType().intValue());
+        assertEquals(70, track.getVesselLength().intValue());
+        assertTrue(statistics1.getValue(Categorizer.mapShipTypeToCategory(track.getShipType()) - 1, Categorizer.mapShipLengthToCategory(track.getVesselLength()) - 1, "shipCount") < 3);
 
         // These are needed to create an event object in the database:
-        track.updatePosition(TrackingReport.create(1370589743L, Position.create(56, 12), 45.0f, 10.1f, false));
+        track.update(System.currentTimeMillis(), Position.create(56, 12), 45.0f, 10.1f);
 
         CellChangedEvent event = new CellChangedEvent(track, null);
 
@@ -239,7 +253,7 @@ public class ShipTypeAndSizeAnalysisTest {
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with(ShipTypeAndSizeAnalysis.class.getSimpleName()), with(any(String.class)));
             oneOf(trackingService).registerSubscriber(analysis);
-            oneOf(statisticsRepository).getStatisticData("ShipTypeAndSizeStatistic", 123L); will(returnValue(statistics));
+            oneOf(statisticsRepository).getStatisticData("ShipTypeAndSizeStatistic", 123L); will(returnValue(statistics1));
             oneOf(behaviourManager).abnormalBehaviourDetected(ShipSizeOrTypeEvent.class, track);
         }});
         analysis.start();
@@ -253,13 +267,16 @@ public class ShipTypeAndSizeAnalysisTest {
     @Test
     public void testNoEventIsRaisedForNormalBehaviour() {
         // Create test data
-        Track track = new Track(123456);
+        Track track = new Track(219000606);
         track.setProperty(Track.CELL_ID, 123L);
-        track.setProperty(Track.SHIP_TYPE, 40);
-        track.setProperty(Track.VESSEL_LENGTH, 150);
+        track.update(msg5);
+
+        assertEquals(61, track.getShipType().intValue());
+        assertEquals(70, track.getVesselLength().intValue());
+        assertTrue(statistics2.getValue(Categorizer.mapShipTypeToCategory(track.getShipType()) - 1, Categorizer.mapShipLengthToCategory(track.getVesselLength()) - 1, "shipCount") > 1000);
 
         // These are needed to create an event object in the database:
-        track.updatePosition(TrackingReport.create(1370589743L, Position.create(56, 12), 45.0f, 10.1f, false));
+        track.update(1370589743L, Position.create(56, 12), 45.0f, 10.1f);
 
         CellChangedEvent event = new CellChangedEvent(track, null);
 
@@ -273,7 +290,7 @@ public class ShipTypeAndSizeAnalysisTest {
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with(ShipTypeAndSizeAnalysis.class.getSimpleName()), with(any(String.class)));
             oneOf(trackingService).registerSubscriber(analysis);
-            oneOf(statisticsRepository).getStatisticData("ShipTypeAndSizeStatistic", 123L); will(returnValue(statistics));
+            oneOf(statisticsRepository).getStatisticData("ShipTypeAndSizeStatistic", 123L); will(returnValue(statistics2));
             oneOf(behaviourManager).normalBehaviourDetected(ShipSizeOrTypeEvent.class, track);
         }});
         analysis.start();

@@ -31,6 +31,7 @@ import dk.dma.ais.message.AisMessageException;
 import dk.dma.ais.message.AisPosition;
 import dk.dma.ais.message.AisPositionMessage;
 import dk.dma.ais.message.IPositionMessage;
+import dk.dma.ais.packet.AisPacket;
 import dk.dma.ais.sentence.SentenceException;
 import dk.dma.ais.sentence.Vdm;
 import dk.dma.enav.model.geometry.Position;
@@ -56,14 +57,52 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class TrackingServiceTest {
+public class EventEmittingTrackerTest {
 
     final static int MMSI = 12345678;
+
+    final String[] NMEA_TEST_STRINGS = {
+        // GatehouseSourceTag [baseMmsi=2190067, country=DK, region=, timestamp=Thu Apr 10 15:30:28 CEST 2014]
+        // [msgId=1, repeat=0, userId=219000606, cog=2010, navStatus=0, pos=(33024811,6011092) = (33024811,6011092), posAcc=1, raim=0, specialManIndicator=0, rot=0, sog=108, spare=0, syncState=1, trueHeading=200, utcSec=60, slotTimeout=6, subMessage=1063]
+        "$PGHP,1,2014,4,10,13,30,28,385,219,,2190067,1,12*26\r\n" +
+        "!BSVDM,1,1,,A,13@ng7P01dPeo6`OOc:onVAp0p@W,0*12",
+
+        // GatehouseSourceTag [baseMmsi=2190067, country=DK, region=, timestamp=Thu Apr 10 15:30:29 CEST 2014]
+        // [msgId=5, repeat=0, userId=219000606, callsign=OWNM@@@, dest=BOEJDEN-FYNSHAV@@@@@, dimBow=12, dimPort=8, dimStarboard=4, dimStern=58, draught=30, dte=0, eta=67584, imo=8222824, name=FRIGG SYDFYEN@@@@@@@, posType=1, shipType=61, spare=0, version=0]
+        "$PGHP,1,2014,4,10,13,30,29,165,219,,2190067,1,28*22\r\n" +
+        "!BSVDM,2,1,1,A,53@ng7P1uN6PuLpl000I8TLN1=T@ITDp0000000u1Pr844@P07PSiBQ1,0*7B\r\n" +
+        "!BSVDM,2,2,1,A,CcAVCTj0EP00000,2*53",
+
+        // GatehouseSourceTag [baseMmsi=2190067, country=DK, region=, timestamp=Thu Apr 10 15:30:38 CEST 2014]
+        // [msgId=1, repeat=0, userId=219000606, cog=2010, navStatus=0, pos=(33024530,6010902) = (33024530,6010902), posAcc=1, raim=0, specialManIndicator=0, rot=0, sog=108, spare=0, syncState=1, trueHeading=200, utcSec=60, slotTimeout=2, subMessage=1427]
+        "$PGHP,1,2014,4,10,13,30,38,88,219,,2190067,1,26*1E\r\n" +
+        "!BSVDM,1,1,,B,13@ng7P01dPeo0dOOb4WnVAp0`FC,0*26",
+
+        // GatehouseSourceTag [baseMmsi=2190075, country=DK, region=, timestamp=Thu Apr 10 15:30:49 CEST 2014]
+        // [msgId=1, repeat=0, userId=219000606, cog=2010, navStatus=0, pos=(33024198,6010667) = (33024198,6010667), posAcc=1, raim=0, specialManIndicator=0, rot=0, sog=108, spare=0, syncState=1, trueHeading=200, utcSec=60, slotTimeout=4, subMessage=1852]
+        "$PGHP,1,2014,4,10,13,30,49,429,219,,2190075,1,2D*56\r\n" +
+        "!BSVDM,1,1,,A,13@ng7P01dPenqFOO`iWnVAp0hLt,0*2D",
+
+        // GatehouseSourceTag [baseMmsi=2190067, country=DK, region=, timestamp=Thu Apr 10 15:30:59 CEST 2014]
+        // [msgId=1, repeat=0, userId=219000606, cog=2010, navStatus=0, pos=(33023918,6010471) = (33023918,6010471), posAcc=1, raim=0, specialManIndicator=0, rot=0, sog=108, spare=0, syncState=1, trueHeading=200, utcSec=60, slotTimeout=1, subMessage=12528]
+        "$PGHP,1,2014,4,10,13,30,59,428,219,,2190067,1,2D*55\r\n" +
+        "!BSVDM,1,1,,B,13@ng7P01dPenk>OOWcWnVAp0W3h,0*2D",
+
+        // GatehouseSourceTag [baseMmsi=2190067, country=DK, region=, timestamp=Thu Apr 10 15:31:09 CEST 2014]
+        // [msgId=1, repeat=0, userId=219000606, cog=2020, navStatus=0, pos=(33023639,6010274) = (33023639,6010274), posAcc=1, raim=0, specialManIndicator=0, rot=0, sog=108, spare=0, syncState=1, trueHeading=200, utcSec=60, slotTimeout=2, subMessage=348]
+        "$PGHP,1,2014,4,10,13,31,9,318,219,,2190067,1,4F*61\r\n" +
+        "!BSVDM,1,1,,A,13@ng7P01dPene4OOVUoq6Ap0`5L,0*4F",
+
+        // GatehouseSourceTag [baseMmsi=2190067, country=DK, region=, timestamp=Thu Apr 10 15:31:18 CEST 2014]
+        // [msgId=1, repeat=0, userId=219000606, cog=2010, navStatus=0, pos=(33023417,6010117) = (33023417,6010117), posAcc=1, raim=0, specialManIndicator=0, rot=0, sog=108, spare=0, syncState=1, trueHeading=199, utcSec=60, slotTimeout=0, subMessage=2263]
+        "$PGHP,1,2014,4,10,13,31,18,678,219,,2190067,1,03*23\r\n" +
+        "!BSVDM,1,1,,B,13@ng7P01dPen`:OOUfGnV?p0PSG,0*03"
+    };
 
     final Grid grid = Grid.createSize(100);
     final AppStatisticsService statisticsService = new AppStatisticsServiceImpl();
     final Configuration configuration = new BaseConfiguration();
-    
+
     /**
      * Test that grid cell change events are fired by the tracker when a simulated track is moving
      * north under the Great Belt bridge.
@@ -78,7 +117,7 @@ public class TrackingServiceTest {
         final int expectedNumberOfCellChangeEvents = messageQueue.size() - 1 /* minus the static msg */;
 
         // Create object under test
-        final TrackingService tracker = new TrackingServiceImpl(configuration, grid, statisticsService);
+        final EventEmittingTracker tracker = new EventEmittingTracker(configuration, grid, statisticsService);
 
         // Wire up test subscriber
         // (discussion: https://code.google.com/p/guava-libraries/issues/detail?id=875)
@@ -86,8 +125,7 @@ public class TrackingServiceTest {
         tracker.registerSubscriber(testSubscriber);
 
         // Set up our expectations
-        final long[] expectedSequenceOfCells =
-        {
+        final long[] expectedSequenceOfCells = {
                 24686212289L,
                 24686613039L,
                 24687013789L,
@@ -108,20 +146,20 @@ public class TrackingServiceTest {
         int timeStep = 0;
 
         // Run test scenario and assert results
-        assertEquals(Integer.valueOf(0), tracker.getNumberOfTracks());
+        assertEquals(0, tracker.getNumberOfTracks());
 
         while (!messageQueue.isEmpty()) {
             AisMessage message = messageQueue.remove();
             Date messageTimestamp = new Date(firstTimestamp + (timeStep++ * 10000)); // 10 secs between msgs
             System.out.println(messageTimestamp + ": " + message);
-            tracker.update(messageTimestamp, message);
+            tracker.update(messageTimestamp.getTime(), message);
             if (message instanceof IPositionMessage) {
                 assertEquals(expectedSequenceOfCells[nextExpectedCellId++], testSubscriber.getCurrentCellId());
             }
         }
 
         assertEquals(expectedNumberOfCellChangeEvents, testSubscriber.getNumberOfCellIdChangedEventsReceived());
-        assertEquals(Integer.valueOf(1), tracker.getNumberOfTracks());
+        assertEquals(1, tracker.getNumberOfTracks());
     }
 
     @Test
@@ -132,7 +170,7 @@ public class TrackingServiceTest {
         // Create object under test
         Configuration configuration = new BaseConfiguration();
         configuration.addProperty("blacklist.mmsi", new String[]{"1", String.valueOf(MMSI), "3"});
-        final TrackingService tracker = new TrackingServiceImpl(configuration, grid, statisticsService);
+        final EventEmittingTracker tracker = new EventEmittingTracker(configuration, grid, statisticsService);
 
         // Wire up test subscriber
         // (discussion: https://code.google.com/p/guava-libraries/issues/detail?id=875)
@@ -144,16 +182,16 @@ public class TrackingServiceTest {
         int timeStep = 0;
 
         // Run test scenario and assert results
-        assertEquals(Integer.valueOf(0), tracker.getNumberOfTracks());
+        assertEquals(0, tracker.getNumberOfTracks());
 
         while (!messageQueue.isEmpty()) {
             AisMessage message = messageQueue.remove();
             Date messageTimestamp = new Date(firstTimestamp + (timeStep++ * 10000)); // 10 secs between msgs
             System.out.println(messageTimestamp + ": " + message);
 
-            tracker.update(messageTimestamp, message);
+            tracker.update(messageTimestamp.getTime(), message);
 
-            assertEquals(Integer.valueOf(0), tracker.getNumberOfTracks());
+            assertEquals(0, tracker.getNumberOfTracks());
             assertFalse(testSubscriber.isPositionChangedEventFired());
             assertFalse(testSubscriber.isCellIdChangedEventFired());
             assertEquals(0, testSubscriber.getNumberOfCellIdChangedEventsReceived());
@@ -242,7 +280,7 @@ public class TrackingServiceTest {
         final Grid grid = Grid.createSize(200);
 
         // Create object under test
-        final TrackingService tracker = new TrackingServiceImpl(configuration, grid, statisticsService);
+        final EventEmittingTracker tracker = new EventEmittingTracker(configuration, grid, statisticsService);
 
         // Wire up test subscriber
         // (discussion: https://code.google.com/p/guava-libraries/issues/detail?id=875)
@@ -267,7 +305,7 @@ public class TrackingServiceTest {
             aisMessage5.setDimStarboard(3);
             aisMessage5.setDimStern(12);
             aisMessage5.setShipType(5);
-            tracker.update(timestamp, aisMessage5);
+            tracker.update(timestamp.getTime(), aisMessage5);
         }
 
         // Prepare position message
@@ -555,7 +593,7 @@ public class TrackingServiceTest {
             aisMessage3.setPos(aisPosition);
 
             testSubscriber.resetFiredStatus();
-            tracker.update(timestamp, aisMessage3);
+            tracker.update(newTimestamp, aisMessage3);
             System.out.println("---");
 
             assertTrue(testSubscriber.isPositionChangedEventFired());
@@ -604,7 +642,7 @@ public class TrackingServiceTest {
         }
 
         // Create object under test
-        final TrackingService tracker = new TrackingServiceImpl(configuration, grid, statisticsService);
+        final EventEmittingTracker tracker = new EventEmittingTracker(configuration, grid, statisticsService);
 
         // Wire up test subscriber
         // (discussion: https://code.google.com/p/guava-libraries/issues/detail?id=875)
@@ -616,20 +654,20 @@ public class TrackingServiceTest {
         int timeStep = 0;
 
         // Run test scenario and assert results
-        assertEquals(Integer.valueOf(0), tracker.getNumberOfTracks());
+        assertEquals(0, tracker.getNumberOfTracks());
 
         while (!messageQueue.isEmpty()) {
             AisMessage message = messageQueue.remove();
             Date messageTimestamp = new Date(firstTimestamp + (timeStep++ * 10000)); // 10 secs between msgs
             System.out.println(messageTimestamp + ": " + message);
-            tracker.update(messageTimestamp, message);
+            tracker.update(messageTimestamp.getTime(), message);
             if (message instanceof IPositionMessage) {
                 assertEquals(startingCell.getCellId(), testSubscriber.getCurrentCellId());
             }
         }
 
         assertEquals(1, testSubscriber.getNumberOfCellIdChangedEventsReceived());
-        assertEquals(Integer.valueOf(1), tracker.getNumberOfTracks());
+        assertEquals(1, tracker.getNumberOfTracks());
     }
 
     /**
@@ -638,7 +676,7 @@ public class TrackingServiceTest {
     @Test
     public void testTimeEventsFired() {
         // Create object under test
-        final TrackingService tracker = new TrackingServiceImpl(configuration, grid, statisticsService);
+        final EventEmittingTracker tracker = new EventEmittingTracker(configuration, grid, statisticsService);
 
         // Wire up test subscriber
         // (discussion: https://code.google.com/p/guava-libraries/issues/detail?id=875)
@@ -647,78 +685,55 @@ public class TrackingServiceTest {
 
         // Play events through tracker
         long firstTimestamp = System.currentTimeMillis();
-        int timeStep = TrackingServiceImpl.TIME_EVENT_PERIOD_MILLIS / 2 - 1;
+        int timeStep = EventEmittingTracker.TIME_EVENT_PERIOD_MILLIS / 2 - 1;
 
         assertEquals(0, testSubscriber.getNumberOfTimeEventsReceived());
-        tracker.update(new Date(firstTimestamp), new AisMessage24());
+        tracker.update(firstTimestamp, new AisMessage24());
         assertEquals(1, testSubscriber.getNumberOfTimeEventsReceived());
-        tracker.update(new Date(firstTimestamp + 1 * timeStep), new AisMessage24());
+        tracker.update(firstTimestamp + 1 * timeStep, new AisMessage24());
         assertEquals(1, testSubscriber.getNumberOfTimeEventsReceived());
-        tracker.update(new Date(firstTimestamp + 2 * timeStep), new AisMessage24());
+        tracker.update(firstTimestamp + 2 * timeStep, new AisMessage24());
         assertEquals(1, testSubscriber.getNumberOfTimeEventsReceived());
-        tracker.update(new Date(firstTimestamp + 3 * timeStep), new AisMessage24());
+        tracker.update(firstTimestamp + 3 * timeStep, new AisMessage24());
         assertEquals(2, testSubscriber.getNumberOfTimeEventsReceived());
-        tracker.update(new Date(firstTimestamp + 4 * timeStep), new AisMessage24());
+        tracker.update(firstTimestamp + 4 * timeStep, new AisMessage24());
         assertEquals(2, testSubscriber.getNumberOfTimeEventsReceived());
-        tracker.update(new Date(firstTimestamp + 5 * timeStep), new AisMessage24());
+        tracker.update(firstTimestamp + 5 * timeStep, new AisMessage24());
         assertEquals(2, testSubscriber.getNumberOfTimeEventsReceived());
-        tracker.update(new Date(firstTimestamp + 6 * timeStep), new AisMessage24());
+        tracker.update(firstTimestamp + 6 * timeStep, new AisMessage24());
         assertEquals(3, testSubscriber.getNumberOfTimeEventsReceived());
     }
 
     /**
-     *  Test that Track.setProperty(Track.TIMESTAMP_ANY_UPDATE, ...) is called on every update
+     *  Test that Track.getTimeOfLastUpdate is updated on every update
      */
     @Test
     public void testTrackTimestampIsUpdatedOnUpdates() {
+        AisPacket[] packets = new AisPacket[NMEA_TEST_STRINGS.length];
+        for (int i = 0; i < NMEA_TEST_STRINGS.length; i++) {
+            packets[i] = AisPacket.from(NMEA_TEST_STRINGS[i]);
+        }
+
         // Create object under test
-        final TrackingServiceImpl tracker = new TrackingServiceImpl(configuration, grid, statisticsService);
+        final EventEmittingTracker tracker = new EventEmittingTracker(configuration, grid, statisticsService);
 
-        // Prepare test data
-        Position startingPosition = Position.create((55.33714285714286 + 55.33624454148472) / 2, (11.039401122894573 + 11.040299438552713) / 2);
-        dk.dma.ais.message.AisPosition aisStartingPosition = new AisPosition(startingPosition);
-        AisMessage3 firstPositionMessage = createAisMessage3(MMSI, aisStartingPosition);
-
-        Date firstTimestamp = new Date(System.currentTimeMillis());
-
-        // Execute test
-        tracker.update(firstTimestamp, firstPositionMessage);
-
-        // Assert results
-        Set<Integer> keys = tracker.tracks.keySet();
-        assertNotNull(keys);
-        assertEquals(1, keys.size());
-        Integer key = keys.iterator().next();
-        assertNotNull(key);
-        Object trackTimestamp = tracker.tracks.get(key).getProperty(Track.TIMESTAMP_ANY_UPDATE);
-        assertTrue(trackTimestamp instanceof Long);
-        assertEquals(trackTimestamp, firstTimestamp.getTime());
-
-        // Update track with newer timestamp - then test again
-        Date secondTimestamp = new Date(firstTimestamp.getTime() + 600);
-        tracker.update(secondTimestamp, firstPositionMessage);
-
-        // Assert results
-        keys = tracker.tracks.keySet();
-        assertNotNull(keys);
-        assertEquals(1, keys.size());
-        key = keys.iterator().next();
-        assertNotNull(key);
-        trackTimestamp = tracker.tracks.get(key).getProperty(Track.TIMESTAMP_ANY_UPDATE);
-        assertTrue(trackTimestamp instanceof Long);
-        assertEquals(trackTimestamp, secondTimestamp.getTime());
+        for (AisPacket packet : packets) {
+            tracker.update(packet);
+            Track track = tracker.tracks.get(219000606);
+            assertEquals(packet.getBestTimestamp(), track.getTimeOfLastUpdate());
+        }
     }
 
     @Test
     public void testLinearInterpolation() {
-       assertEquals(1, TrackingServiceImpl.linearInterpolation(1, 1, 3, 3, 1), 1e-16);
-       assertEquals(3, TrackingServiceImpl.linearInterpolation(1, 1, 3, 3, 3), 1e-16);
+        assertEquals(1, EventEmittingTracker.linearInterpolation(1, 1, 3, 3, 1), 1e-16);
+        assertEquals(3, EventEmittingTracker.linearInterpolation(1, 1, 3, 3, 3), 1e-16);
 
-       assertEquals(2, TrackingServiceImpl.linearInterpolation(1, 1, 3, 3, 2), 1e-16);
-       assertEquals(10, TrackingServiceImpl.linearInterpolation(1, 1, 3, 3, 10), 1e-16);
+        assertEquals(2, EventEmittingTracker.linearInterpolation(1, 1, 3, 3, 2), 1e-16);
+        assertEquals(10, EventEmittingTracker.linearInterpolation(1, 1, 3, 3, 10), 1e-16);
 
-       assertEquals(2.5, TrackingServiceImpl.linearInterpolation(0, 0, 5, 10, 5), 1e-16);
-       assertEquals(4.5, TrackingServiceImpl.linearInterpolation(0, 0, 5, 10, 9), 1e-16);
+        assertEquals(2.5, EventEmittingTracker.linearInterpolation(0, 0, 5, 10, 5), 1e-16);
+        assertEquals(4.5, EventEmittingTracker.linearInterpolation(0, 0, 5, 10, 9), 1e-16);
     }
 
     @Test
@@ -731,24 +746,23 @@ public class TrackingServiceTest {
         Position p2 = Position.create(60, 15);
         long t2 = t1 + 50*1000;
 
-        Map<Long,Position> interpolatedPositions = TrackingServiceImpl.calculateInterpolatedPositions(p1, t1, p2, t2);
+        Map<Long,Position> interpolatedPositions = EventEmittingTracker.calculateInterpolatedPositions(p1, t1, p2, t2);
 
-        assertEquals(5, interpolatedPositions.size());
+        assertEquals(4, interpolatedPositions.size());
         Set<Long> interpolationTimestamps = interpolatedPositions.keySet();
 
         // Assert timestamps
-        assertEquals((Long) (t1 + (long) TrackingServiceImpl.INTERPOLATION_TIME_STEP_MILLIS), (Long) interpolationTimestamps.toArray()[0]);
-        assertEquals((Long) (t1 + (long) TrackingServiceImpl.INTERPOLATION_TIME_STEP_MILLIS*2), (Long) interpolationTimestamps.toArray()[1]);
-        assertEquals((Long) (t1 + (long) TrackingServiceImpl.INTERPOLATION_TIME_STEP_MILLIS*3), (Long) interpolationTimestamps.toArray()[2]);
-        assertEquals((Long) (t1 + (long) TrackingServiceImpl.INTERPOLATION_TIME_STEP_MILLIS*4), (Long) interpolationTimestamps.toArray()[3]);
-        assertEquals((Long) (t1 + (long) TrackingServiceImpl.INTERPOLATION_TIME_STEP_MILLIS * 5), (Long) interpolationTimestamps.toArray()[4]);
+        assertEquals((Long) (t1 + (long) EventEmittingTracker.INTERPOLATION_TIME_STEP_MILLIS), interpolationTimestamps.toArray()[0]);
+        assertEquals((Long) (t1 + (long) EventEmittingTracker.INTERPOLATION_TIME_STEP_MILLIS * 2), interpolationTimestamps.toArray()[1]);
+        assertEquals((Long) (t1 + (long) EventEmittingTracker.INTERPOLATION_TIME_STEP_MILLIS*3), interpolationTimestamps.toArray()[2]);
+        assertEquals((Long) (t1 + (long) EventEmittingTracker.INTERPOLATION_TIME_STEP_MILLIS * 4), interpolationTimestamps.toArray()[3]);
 
         // Assert positions
         assertEquals(Position.create(56, 11), interpolatedPositions.get(interpolationTimestamps.toArray()[0]));
         assertEquals(Position.create(57, 12), interpolatedPositions.get(interpolationTimestamps.toArray()[1]));
         assertEquals(Position.create(58, 13), interpolatedPositions.get(interpolationTimestamps.toArray()[2]));
         assertEquals(Position.create(59, 14), interpolatedPositions.get(interpolationTimestamps.toArray()[3]));
-        assertEquals(p2, interpolatedPositions.get(interpolationTimestamps.toArray()[4]));
+        // assertEquals(p2, interpolatedPositions.get(interpolationTimestamps.toArray()[4]));
     }
 
     /**
@@ -756,7 +770,7 @@ public class TrackingServiceTest {
      */
     @Test
     public void testTrackIsNotInterpolated() {
-        testInterpolation(TrackingServiceImpl.TRACK_INTERPOLATION_REQUIRED_SECS - 1, 2 /* initial + second */ );
+        testInterpolation(EventEmittingTracker.TRACK_INTERPOLATION_REQUIRED_SECS - 1, 2 /* initial + second */ );
     }
 
     /**
@@ -764,7 +778,57 @@ public class TrackingServiceTest {
      */
     @Test
     public void testTrackIsInterpolated() {
-        testInterpolation(TrackingServiceImpl.TRACK_INTERPOLATION_REQUIRED_SECS + 1, 5 /* initial + second + 3 interpolated */);
+        testInterpolation(EventEmittingTracker.TRACK_INTERPOLATION_REQUIRED_SECS + 1, 5 /* initial + second + 3 interpolated */);
+    }
+
+    @Test
+    public void testAisPacketsAreStored() {
+        AisPacket[] packets = new AisPacket[NMEA_TEST_STRINGS.length];
+        for (int i = 0; i < NMEA_TEST_STRINGS.length; i++) {
+            packets[i] = AisPacket.from(NMEA_TEST_STRINGS[i]);
+        }
+
+        final EventEmittingTracker tracker = new EventEmittingTracker(configuration, grid, statisticsService);
+
+        // Wire up test subscriber
+        // (discussion: https://code.google.com/p/guava-libraries/issues/detail?id=875)
+        TestPositionEventSubscriber testSubscriber = new TestPositionEventSubscriber();
+        tracker.registerSubscriber(testSubscriber);
+
+        for (AisPacket packet : packets) {
+            tracker.update(packet);
+        }
+
+        // Test that exactly one track is created
+        assertEquals(1, tracker.tracks.size());
+        Track track = tracker.tracks.get(219000606);
+        assertNotNull(track);
+
+        // Test tracking reports of this track
+        assertEquals(6, testSubscriber.getNumberOfPositionChangedEventsReceived());
+
+        // Test newest tracking report
+        TrackingReport newestTrackingReport = track.getNewestTrackingReport();
+        assertTrue(newestTrackingReport instanceof AisTrackingReport);
+        AisTrackingReport aisTrackingReport = (AisTrackingReport) newestTrackingReport;
+        assertEquals(1397136678678L, aisTrackingReport.getTimestamp());
+        assertEquals(Position.create(55.039028333333334, 10.016861666666667), aisTrackingReport.getPosition());
+        assertEquals(10.8, aisTrackingReport.getSpeedOverGround(), 1e-6);
+        assertEquals(201.0, aisTrackingReport.getCourseOverGround(), 1e-6);
+
+        // Test all raw AisPacket are stored with the track
+        List<TrackingReport> trackingReports = track.getTrackingReports();
+        assertEquals(6, trackingReports.size());
+        trackingReports.forEach( r -> assertTrue(r instanceof AisTrackingReport));
+        assertEquals(NMEA_TEST_STRINGS[0], ((AisTrackingReport) trackingReports.get(0)).getPacket().getStringMessage());
+        assertEquals(NMEA_TEST_STRINGS[2], ((AisTrackingReport) trackingReports.get(1)).getPacket().getStringMessage());
+        assertEquals(NMEA_TEST_STRINGS[3], ((AisTrackingReport) trackingReports.get(2)).getPacket().getStringMessage());
+        assertEquals(NMEA_TEST_STRINGS[4], ((AisTrackingReport) trackingReports.get(3)).getPacket().getStringMessage());
+        assertEquals(NMEA_TEST_STRINGS[5], ((AisTrackingReport) trackingReports.get(4)).getPacket().getStringMessage());
+        assertEquals(NMEA_TEST_STRINGS[6], ((AisTrackingReport) trackingReports.get(5)).getPacket().getStringMessage());
+
+        // Test the static
+        assertEquals(NMEA_TEST_STRINGS[1], track.getLastStaticReport().getStringMessage());
     }
 
     /**
@@ -772,78 +836,35 @@ public class TrackingServiceTest {
      */
     @Test
     public void testTrackingPositionsAreMarkedAsInterpolated() throws SentenceException, AisMessageException, SixbitException {
-        // Setup test data
-        final int speedKnots = 20;
+        AisPacket[] packets = new AisPacket[NMEA_TEST_STRINGS.length];
+        for (int i = 0; i < NMEA_TEST_STRINGS.length; i++) {
+            packets[i] = AisPacket.from(NMEA_TEST_STRINGS[i]);
+        }
 
-        final int timestampMillis = TrackingServiceImpl.TRACK_INTERPOLATION_REQUIRED_SECS * 1000 * 2;  /* Interpolation  kicks in */
+        final int n1 = 0;
+        final int n2 = 6;
 
-        PositionReaderSimulator simulator = new PositionReaderSimulator();
-        simulator.setSpeedFixed(speedKnots, SpeedUnit.KNOTS);
-        simulator.setTimeSourceFixedSlice(timestampMillis);
-
-        net.maritimecloud.util.geometry.Position southOfGreatBeltBridge = net.maritimecloud.util.geometry.Position.create(55.31889216347121, 11.04098609182333); // Cell 6169552395
-        net.maritimecloud.util.geometry.Position northOfGreatBeltBridge = net.maritimecloud.util.geometry.Position.create(55.37667465016155, 11.03926947805367); // Cell ?
-        PositionReader reader = simulator.forRoute(southOfGreatBeltBridge, northOfGreatBeltBridge);
+        assertTrue(packets[n2].getBestTimestamp() - packets[n1].getBestTimestamp() > EventEmittingTracker.TRACK_INTERPOLATION_REQUIRED_SECS * 1000);
 
         // Create or mock dependencies
         final Grid grid = Grid.createSize(200);
-
-        // Create object under test
-        final TrackingService tracker = new TrackingServiceImpl(configuration, grid, statisticsService);
+        final EventEmittingTracker tracker = new EventEmittingTracker(configuration, grid, statisticsService);
 
         // Wire up test subscriber
         // (discussion: https://code.google.com/p/guava-libraries/issues/detail?id=875)
         TestPositionEventSubscriber testSubscriber = new TestPositionEventSubscriber();
         tracker.registerSubscriber(testSubscriber);
-
-        // Prepare position message
-        Vdm vdm = new Vdm();
-        vdm.parse("!BSVDM,1,1,,A,339L2D0OhC0fW:lO5Sa:>8=J00s1,0*7E");
-
-        AisPositionMessage aisMessage3 = new AisMessage3(vdm);
-        aisMessage3.setCog(0);
-        aisMessage3.setSog(speedKnots);
-
-        dk.dma.enav.model.geometry.Position position;
-        Date timestamp = new Date(timestampMillis);
-
         testSubscriber.resetFiredStatus();
 
         // Insert first position update
-        PositionTime currentPosition = reader.getCurrentPosition();
-        long oldTimestamp = timestamp.getTime();
-        long newTimestamp = currentPosition.getTime();
-        assertEquals(oldTimestamp + timestampMillis, newTimestamp);
-        timestamp = new Date(newTimestamp);
-
-        position = dk.dma.enav.model.geometry.Position.create(currentPosition.getLatitude(), currentPosition.getLongitude());
-        AisPosition aisPosition = new AisPosition(position);
-        aisMessage3.setPos(aisPosition);
-
-        tracker.update(timestamp, aisMessage3);
-
+        tracker.update(packets[n1]);
         assertTrue(testSubscriber.isPositionChangedEventFired());
         assertEquals(1, testSubscriber.getNumberOfPositionChangedEventsReceived());
 
-        System.out.println("---");
-
         // Insert second position update
-        currentPosition = reader.getCurrentPosition();
-        oldTimestamp = timestamp.getTime();
-        newTimestamp = currentPosition.getTime();
-        assertEquals(oldTimestamp + timestampMillis, newTimestamp);
-        timestamp = new Date(newTimestamp);
-
-        position = dk.dma.enav.model.geometry.Position.create(currentPosition.getLatitude(), currentPosition.getLongitude());
-        aisPosition = new AisPosition(position);
-        aisMessage3.setPos(aisPosition);
-
-        tracker.update(timestamp, aisMessage3);
-
+        tracker.update(packets[n2]);
         assertTrue(testSubscriber.isPositionChangedEventFired());
         assertEquals(7, testSubscriber.getNumberOfPositionChangedEventsReceived());
-
-        System.out.println("---");
 
         // Assert results
         List<Boolean> positionTypes = testSubscriber.getPositionChangedEvents();
@@ -865,7 +886,7 @@ public class TrackingServiceTest {
     @Test
     public void testTrackIsInterpolatedEvenThoughStaticMessageIsBetweenToPositionUpdates() {
         // Create object under test
-        final TrackingServiceImpl tracker = new TrackingServiceImpl(configuration, grid, statisticsService);
+        final EventEmittingTracker tracker = new EventEmittingTracker(configuration, grid, statisticsService);
 
         // Wire up test subscriber
         // (discussion: https://code.google.com/p/guava-libraries/issues/detail?id=875)
@@ -878,44 +899,44 @@ public class TrackingServiceTest {
 
         long currentTimeMillis = System.currentTimeMillis();
         Date t1 = new Date(currentTimeMillis);
-        Date t2 = new Date(currentTimeMillis + (TrackingServiceImpl.TRACK_INTERPOLATION_REQUIRED_SECS-1)*1*1000);
-        Date t3 = new Date(currentTimeMillis + (TrackingServiceImpl.TRACK_INTERPOLATION_REQUIRED_SECS-1)*2*1000);
+        Date t2 = new Date(currentTimeMillis + (EventEmittingTracker.TRACK_INTERPOLATION_REQUIRED_SECS-1)*1*1000);
+        Date t3 = new Date(currentTimeMillis + (EventEmittingTracker.TRACK_INTERPOLATION_REQUIRED_SECS-1)*2*1000);
 
         AisMessage messageSeq1 = createAisMessage3(MMSI, p1);
         AisMessage messageSeq2 = createAisMessage5(MMSI);
         AisMessage messageSeq3 = createAisMessage3(MMSI, p3);
 
-        tracker.update(t1, messageSeq1);
-        tracker.update(t2, messageSeq2);
-        tracker.update(t3, messageSeq3);
+        tracker.update(t1.getTime(), messageSeq1);
+        tracker.update(t2.getTime(), messageSeq2);
+        tracker.update(t3.getTime(), messageSeq3);
 
         // Assert result
-        int expectedNumberOfPositionChangeEvents = 2 /* p1, p3 */+ /* interpolated */(int) ((t3.getTime() - t1.getTime())/ TrackingServiceImpl.INTERPOLATION_TIME_STEP_MILLIS);
-        assertEquals(expectedNumberOfPositionChangeEvents, testSubscriber.getNumberOfCellIdChangedEventsReceived());
+        int expectedNumberOfPositionChangeEvents = 2 /* p1, p3 */+ /* interpolated */(int) ((t3.getTime() - t1.getTime())/ EventEmittingTracker.INTERPOLATION_TIME_STEP_MILLIS);
+        assertEquals(expectedNumberOfPositionChangeEvents, testSubscriber.getNumberOfPositionChangedEventsReceived());
         assertEquals(Position.create(56, 11), testSubscriber.getCurrentPosition());
     }
 
     @Test
     public void testTrackIsStale() {
-        assertFalse(TrackingServiceImpl.isTrackStale(0, 0, TrackingServiceImpl.TRACK_STALE_SECS*1000 - 1));
-        assertFalse(TrackingServiceImpl.isTrackStale(0, 0, TrackingServiceImpl.TRACK_STALE_SECS*1000 + 1));
+        assertFalse(EventEmittingTracker.isTrackStale(0, 0, EventEmittingTracker.TRACK_STALE_SECS*1000 - 1));
+        assertFalse(EventEmittingTracker.isTrackStale(0, 0, EventEmittingTracker.TRACK_STALE_SECS*1000 + 1));
 
         long now = new Date(System.currentTimeMillis()).getTime();
 
-        assertFalse(TrackingServiceImpl.isTrackStale(now, now, now + TrackingServiceImpl.TRACK_STALE_SECS*1000 - 1));
-        assertTrue(TrackingServiceImpl.isTrackStale(now, now, now + TrackingServiceImpl.TRACK_STALE_SECS*1000 + 1));
+        assertFalse(EventEmittingTracker.isTrackStale(now, now, now + EventEmittingTracker.TRACK_STALE_SECS*1000 - 1));
+        assertTrue(EventEmittingTracker.isTrackStale(now, now, now + EventEmittingTracker.TRACK_STALE_SECS*1000 + 1));
 
-        assertFalse(TrackingServiceImpl.isTrackStale(1, now, now + TrackingServiceImpl.TRACK_STALE_SECS*1000 - 1));
-        assertTrue(TrackingServiceImpl.isTrackStale(1, now, now + TrackingServiceImpl.TRACK_STALE_SECS*1000 + 1));
+        assertFalse(EventEmittingTracker.isTrackStale(1, now, now + EventEmittingTracker.TRACK_STALE_SECS*1000 - 1));
+        assertTrue(EventEmittingTracker.isTrackStale(1, now, now + EventEmittingTracker.TRACK_STALE_SECS*1000 + 1));
 
-        assertFalse(TrackingServiceImpl.isTrackStale(now, 1, now + TrackingServiceImpl.TRACK_STALE_SECS*1000 - 1));
-        assertTrue(TrackingServiceImpl.isTrackStale(now, 1, now + TrackingServiceImpl.TRACK_STALE_SECS*1000 + 1));
+        assertFalse(EventEmittingTracker.isTrackStale(now, 1, now + EventEmittingTracker.TRACK_STALE_SECS*1000 - 1));
+        assertTrue(EventEmittingTracker.isTrackStale(now, 1, now + EventEmittingTracker.TRACK_STALE_SECS*1000 + 1));
     }
 
     @Test
     public void testCanProcessStaleTracks() {
         // Create object under test
-        final TrackingServiceImpl tracker = new TrackingServiceImpl(configuration, grid, statisticsService);
+        final EventEmittingTracker tracker = new EventEmittingTracker(configuration, grid, statisticsService);
 
         // Prepare test data
         Position startingPosition = Position.create((55.33714285714286 + 55.33624454148472) / 2, (11.039401122894573 + 11.040299438552713) / 2);
@@ -923,18 +944,18 @@ public class TrackingServiceTest {
         AisMessage3 positionMessage = createAisMessage3(MMSI, aisPosition);
 
         Date t1 = new Date(System.currentTimeMillis());
-        Date t2 = new Date(t1.getTime() + TrackingServiceImpl.TRACK_STALE_SECS*1000 + 60000);
+        Date t2 = new Date(t1.getTime() + EventEmittingTracker.TRACK_STALE_SECS*1000 + 60000);
 
         // Execute test where track goes stale
-        tracker.update(t1, positionMessage);
-        tracker.update(t2, positionMessage);
+        tracker.update(t1.getTime(), positionMessage);
+        tracker.update(t2.getTime(), positionMessage);
 
         // No exceptions are expected
     }
 
     private void testInterpolation(int secsBetweenMessages, int expectedNumberOfPositionChangeEvents) {
         // Create object under test
-        final TrackingServiceImpl tracker = new TrackingServiceImpl(configuration, grid,statisticsService);
+        final EventEmittingTracker tracker = new EventEmittingTracker(configuration, grid,statisticsService);
 
         // Prepare test data
         Position startingPosition = Position.create((55.33714285714286 + 55.33624454148472) / 2, (11.039401122894573 + 11.040299438552713) / 2);
@@ -957,11 +978,11 @@ public class TrackingServiceTest {
         tracker.registerSubscriber(testSubscriber);
 
         // Execute test
-        tracker.update(firstTimestamp, firstPositionMessage);
-        tracker.update(secondTimestamp, secondPositionMessage);
+        tracker.update(firstTimestamp.getTime(), firstPositionMessage);
+        tracker.update(secondTimestamp.getTime(), secondPositionMessage);
 
         // Assert result
-        assertEquals(expectedNumberOfPositionChangeEvents, testSubscriber.getNumberOfCellIdChangedEventsReceived());
+        assertEquals(expectedNumberOfPositionChangeEvents, testSubscriber.getNumberOfPositionChangedEventsReceived());
 
         assertEquals(secondPosition.getLatitude(), testSubscriber.getCurrentPosition().getLatitude(), 1e-6);
         assertEquals(secondPosition.getLongitude(), testSubscriber.getCurrentPosition().getLongitude(), 1e-6);
@@ -1039,15 +1060,15 @@ public class TrackingServiceTest {
             positionChangedEventFired = true;
 
             numberOfPositionChangedEventsReceived++;
-            currentPosition = event.getTrack().getPositionReport().getPosition();
+            currentPosition = event.getTrack().getNewestTrackingReport().getPosition();
             System.out.println("We are now in position: " + currentPosition);
             assertTrackTimestamps(event.getTrack());
         }
 
         private void assertTrackTimestamps(Track track) {
             // TIMESTAMP_ANY_UPDATE is never allowed to fall behind TIMESTAMP_POSITION_UPDATE
-            Long anyUpdate = getTimestampFromTrack(track, Track.TIMESTAMP_ANY_UPDATE);
-            Long posUpdate = track.getPositionReportTimestamp();
+            long anyUpdate = track.getTimeOfLastUpdate();
+            long posUpdate = track.getNewestTrackingReport().getTimestamp();
             assertTrue(anyUpdate >= posUpdate);
         }
 
@@ -1098,7 +1119,7 @@ public class TrackingServiceTest {
         @Subscribe
         public void onPositionChanged(PositionChangedEvent event) {
             System.out.println("PositionChangedEvent");
-            positionIsInterpolated.add(new Boolean((Boolean) event.getTrack().getPositionReport().isInterpolated()));
+            positionIsInterpolated.add(new Boolean(event.getTrack().getNewestTrackingReport() instanceof InterpolatedTrackingReport));
         }
 
         public int getNumberOfPositionChangedEventsReceived() {

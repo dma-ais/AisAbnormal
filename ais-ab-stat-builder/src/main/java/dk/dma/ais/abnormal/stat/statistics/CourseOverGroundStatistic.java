@@ -25,7 +25,7 @@ import dk.dma.ais.abnormal.stat.db.data.CourseOverGroundStatisticData;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeStatisticData;
 import dk.dma.ais.abnormal.stat.db.data.StatisticData;
 import dk.dma.ais.abnormal.tracker.Track;
-import dk.dma.ais.abnormal.tracker.TrackingService;
+import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
 import dk.dma.ais.abnormal.util.Categorizer;
 import org.slf4j.Logger;
@@ -42,14 +42,14 @@ public class CourseOverGroundStatistic implements TrackingEventListener {
 
     private final transient AppStatisticsService appStatisticsService;
     private final transient StatisticDataRepository statisticsRepository;
-    private final transient TrackingService trackingService;
+    private final transient Tracker trackingService;
 
     private final transient AtomicBoolean started = new AtomicBoolean(false);
 
     static final String STATISTIC_NAME = CourseOverGroundStatistic.class.getSimpleName();
 
     @Inject
-    public CourseOverGroundStatistic(AppStatisticsService appStatisticsService, TrackingService trackingService, StatisticDataRepository statisticsRepository) {
+    public CourseOverGroundStatistic(AppStatisticsService appStatisticsService, Tracker trackingService, StatisticDataRepository statisticsRepository) {
         this.appStatisticsService = appStatisticsService;
         this.trackingService = trackingService;
         this.statisticsRepository = statisticsRepository;
@@ -78,8 +78,8 @@ public class CourseOverGroundStatistic implements TrackingEventListener {
 
         if (sog != null && sog >= 2.0) {
             Long cellId = (Long) track.getProperty(Track.CELL_ID);
-            Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
-            Integer shipLength = (Integer) track.getProperty(Track.VESSEL_LENGTH);
+            Integer shipType = track.getShipType();
+            Integer shipLength = track.getVesselLength();
             Float cog = track.getCourseOverGround();
 
             if (isInputValid(cellId, shipType, shipLength, cog)) {

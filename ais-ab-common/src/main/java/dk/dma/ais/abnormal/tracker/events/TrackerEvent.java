@@ -17,7 +17,7 @@
 package dk.dma.ais.abnormal.tracker.events;
 
 /**
- * TrackerEvent is the base class of all event that can be emitted by the TrackingService.
+ * TrackerEvent is the base class of all event that can be emitted by the Tracker.
  */
 public abstract class TrackerEvent {
 }

@@ -27,12 +27,9 @@ import dk.dma.ais.abnormal.tracker.events.PositionChangedEvent;
 import dk.dma.ais.abnormal.tracker.events.TimeEvent;
 import dk.dma.ais.abnormal.tracker.events.TrackStaleEvent;
 import dk.dma.ais.message.AisMessage;
-import dk.dma.ais.message.AisMessage5;
-import dk.dma.ais.message.AisPosition;
-import dk.dma.ais.message.AisStaticCommon;
 import dk.dma.ais.message.AisTargetType;
-import dk.dma.ais.message.IPositionMessage;
 import dk.dma.ais.message.IVesselPositionMessage;
+import dk.dma.ais.packet.AisPacket;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.grid.Cell;
 import dk.dma.enav.model.geometry.grid.Grid;
@@ -47,7 +44,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,19 +51,27 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 
 /**
- * TrackingServiceImpl is a thread-safe implementation of the TrackingService interface.
+ * EventEmittingTracker is a tracker which receives a (potentially never-ending) series of AisPackets. It uses these
+ * to maintain in-memory a complete state of the "situation" (e.g. positions, speeds, static information,
+ * and historic movements) of the targets it has detected.
+ *
+ * The tracker will emit events to its subscribes when certain tracking related events occur. Examples of such
+ * events are cell changes (a target entered a new grid cell), position changes, track goes stale (has not been
+ * updated for a duration of time), heart beats (periodic time events).
+ *
  */
 @ThreadSafe
-public class TrackingServiceImpl implements TrackingService {
+public class EventEmittingTracker implements Tracker {
 
-    static final Logger LOG = LoggerFactory.getLogger(TrackingServiceImpl.class);
+    static final Logger LOG = LoggerFactory.getLogger(EventEmittingTracker.class);
     {
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
 
-    private EventBus eventBus = new EventBus();
+    private final EventBus eventBus = new EventBus();
     private final AppStatisticsService statisticsService;
 
     @GuardedBy("tracksLock")
@@ -118,99 +122,131 @@ public class TrackingServiceImpl implements TrackingService {
      * @param statisticsService
      */
     @Inject
-    public TrackingServiceImpl(Configuration configuration, Grid grid, AppStatisticsService statisticsService) {
+    public EventEmittingTracker(Configuration configuration, Grid grid, AppStatisticsService statisticsService) {
         this.grid = grid;
         this.statisticsService = statisticsService;
         this.mmsiBlacklist = initVesselBlackList(configuration);
-        eventBus.register(this);
-        //mmsiToObserve.add(1234);
+        eventBus.register(this); // to catch dead events
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void update(Date timestamp, AisMessage aisMessage) {
+    public void update(AisPacket packet) {
+        performUpdate(packet.getBestTimestamp(), packet.tryGetAisMessage(), track -> track.update(packet) );
+    }
+
+    void update(long timeOfCurrentUpdate, AisMessage aisMessage) {
+        performUpdate(timeOfCurrentUpdate, aisMessage, track -> track.update(timeOfCurrentUpdate, aisMessage) );
+    }
+
+    private void performUpdate(long timeOfCurrentUpdate, AisMessage aisMessage, Consumer<Track> trackUpdater) {
         final int mmsi = aisMessage.getUserId();
 
         if (! isOnBlackList(mmsi)) {
             if (isOnObservationList(mmsi)) {
-                outputMessageSummary(timestamp, aisMessage);
+                outputMessageSummary(aisMessage);
             }
 
             final AisTargetType targetType = aisMessage.getTargetType();
             if (targetType == AisTargetType.A || targetType == AisTargetType.B) {
                 Track track = getOrCreateTrack(mmsi);
-                Long currentUpdate = timestamp.getTime();
 
-                // Manage timestamps
-                Long lastAnyUpdate = (Long) track.getProperty(Track.TIMESTAMP_ANY_UPDATE);
-                if (lastAnyUpdate == null) {
-                    lastAnyUpdate = 0L;
-                }
-
-                Long lastPositionUpdate = track.getPositionReportTimestamp();
-                if (lastPositionUpdate == null) {
-                    lastPositionUpdate = 0L;
-                }
+                long timeOfLastUpdate = track.getTimeOfLastUpdate();
+                long timeOfLastPositionUpdate = track.getTimeOfLastPositionReport();
 
                 // Rebirth track if stale
-                if (isTrackStale(lastAnyUpdate, lastPositionUpdate, currentUpdate)) {
+                if (isTrackStale(timeOfLastUpdate, timeOfLastPositionUpdate, timeOfCurrentUpdate)) {
                     removeTrack(mmsi);
                     track = getOrCreateTrack(mmsi);
-                    lastAnyUpdate = 0L;
-                    lastPositionUpdate = 0L;
+                    timeOfLastUpdate = 0L;
+                    timeOfLastPositionUpdate = 0L;
                 }
 
-                // Perform track updates
-                if (currentUpdate >= lastAnyUpdate) {
-                    if (aisMessage instanceof IVesselPositionMessage) {
-                        IVesselPositionMessage positionMessage = (IVesselPositionMessage) aisMessage;
-                        final boolean aisMessageHasValidPosition = positionMessage.getPos().getGeoLocation() != null;
-                        if (aisMessageHasValidPosition) {
-                            if (isInterpolationRequired(lastPositionUpdate, currentUpdate)) {
-                                interpolatePositions(track, currentUpdate, positionMessage);
-                            } else {
-                                updatePosition(track, currentUpdate, positionMessage);
-                            }
+                if (aisMessage instanceof IVesselPositionMessage) {
+                    IVesselPositionMessage positionMessage = (IVesselPositionMessage) aisMessage;
+
+                    if (positionMessage.getPos().getGeoLocation() != null) {
+                        if (isInterpolationRequired(timeOfLastPositionUpdate, timeOfCurrentUpdate)) {
+                            interpolateTrackUpToNewMessage(track, timeOfCurrentUpdate, aisMessage);
                         }
-                    }
 
-                    updateTimestamp(track, currentUpdate);
-
-                    if (aisMessage instanceof AisStaticCommon) {
-                        AisStaticCommon staticCommon = (AisStaticCommon) aisMessage;
-                        updateVesselName(track, staticCommon);
-                        updateCallsign(track, staticCommon);
-                        updateShipType(track, staticCommon);
-                        updateVesselDimensions(track, staticCommon);
-                    }
-
-                    if (aisMessage instanceof AisMessage5) {
-                        AisMessage5 aisMessage5 = (AisMessage5) aisMessage;
-                        updateImo(track, aisMessage5);
+                        TrackingReport oldTrackingReport = track.getNewestTrackingReport();
+                        trackUpdater.accept(track);
+                        track.setProperty(Track.CELL_ID, grid.getCell(positionMessage.getPos().getGeoLocation()).getCellId());
+                        TrackingReport newTrackingReport = track.getNewestTrackingReport();
+                        firePositionRelatedEvents(track, oldTrackingReport, newTrackingReport);
                     }
                 } else {
-                    statisticsService.incOutOfSequenceMessages();
-                    Long timeDelta = lastAnyUpdate - currentUpdate;
-                    LOG.debug("Message of type " + aisMessage.getMsgId() + " ignored because it is out of sequence (delayed) by " + timeDelta + " msecs (mmsi " + mmsi + ")");
+                    trackUpdater.accept(track);
                 }
+            } else {
+                statisticsService.incOutOfSequenceMessages();
             }
+        }
 
-            mark(timestamp);
+        mark(new Date(timeOfCurrentUpdate));
+    }
+
+    private void firePositionRelatedEvents(Track track, TrackingReport oldTrackingReport, TrackingReport newTrackingReport) {
+        Position oldPosition = null;
+        Cell oldCell = null;
+        if (oldTrackingReport != null) {
+            oldPosition = oldTrackingReport.getPosition();
+            oldCell = grid.getCell(oldPosition);
+        }
+
+        Position newPosition = newTrackingReport.getPosition();
+        Cell newCell = grid.getCell(newPosition);
+
+        if (hasChanged(oldPosition, newPosition)) {
+            eventBus.post(new PositionChangedEvent(track, oldPosition));
+        }
+        if (hasChanged(oldCell, newCell)) {
+            eventBus.post(new CellChangedEvent(track, oldCell == null ? null : oldCell.getCellId()));
         }
     }
 
-    private static void outputMessageSummary(Date timestamp, AisMessage aisMessage) {
-        //LOG.info(timestamp + ": " + aisMessage.toString());
+    private static <T> boolean hasChanged(T oldValue, T newValue) {
+        boolean hasChanged;
+        if (oldValue == null) {
+            hasChanged = newValue != null;
+        } else {
+            hasChanged = !oldValue.equals(newValue);
+        }
+        return hasChanged;
+    }
+
+    private static void outputMessageSummary(AisMessage aisMessage) {
         if (aisMessage instanceof IVesselPositionMessage) {
             IVesselPositionMessage positionMessage = (IVesselPositionMessage) aisMessage;
-            System.out.println(timestamp + ": " + aisMessage.getUserId() + ": " + positionMessage.getSog() / 10.0 + " kts");
+            System.out.println(/*p.getBestTimestamp() + ": " + */ aisMessage.getUserId() + ": " + positionMessage.getSog() / 10.0 + " kts");
         }
     }
 
+    private void interpolateTrackUpToNewMessage(Track track, long timestamp, AisMessage message) {
+        if (! (message instanceof IVesselPositionMessage)) {
+            throw new IllegalArgumentException();
+        }
+        IVesselPositionMessage posMessage = (IVesselPositionMessage) message;
+
+        Position p1 = track.getPosition();
+        long t1 = track.getNewestTrackingReport().getTimestamp();
+        Position p2 = posMessage.getPos().getGeoLocation();
+        long t2 = timestamp;
+
+        Map<Long, Position> interpolatedPositions = calculateInterpolatedPositions(p1, t1, p2, t2);
+
+        interpolatedPositions.forEach((t, p) -> {
+            Position oldPosition = track.getPosition();
+            track.update(t, p, (float) (posMessage.getCog() / 10.0), (float) (posMessage.getSog() / 10.0));
+            eventBus.post(new PositionChangedEvent(track, oldPosition));
+        });
+    }
+                /*
     private void interpolatePositions(Track track, Long currentUpdate, IPositionMessage positionMessage) {
-        TrackingReport trackingReport = track.getPositionReport();
+        TrackingReport trackingReport = track.getNewestTrackingReport();
         Position p1 = trackingReport.getPosition();
         Float cog = trackingReport.getCourseOverGround();
         Float sog = trackingReport.getSpeedOverGround();
@@ -234,7 +270,19 @@ public class TrackingServiceImpl implements TrackingService {
 
         LOG.debug("Used " + interpolatedPositionEntries.size() + " interpolation points for track " + track.getMmsi());
     }
-
+            */
+    /**
+     * Calculate a map of <timestamp, Position>-pairs which are interpolated positions at regular, fixed time-intervals
+     * between the two positions p1 and p2 known at time t1 and t2 respectively.
+     *
+     * The set of interpolated positions contains positions up to - but not including - t2/p2.
+     *
+     * @param p1
+     * @param t1
+     * @param p2
+     * @param t2
+     * @return
+     */
     static final Map<Long, Position> calculateInterpolatedPositions(Position p1, long t1, Position p2, long t2) {
         TreeMap<Long, Position> interpolatedPositions = new TreeMap<>();
 
@@ -243,19 +291,18 @@ public class TrackingServiceImpl implements TrackingService {
             return interpolatedPositions;
         }
 
-        long t = t1 + INTERPOLATION_TIME_STEP_MILLIS;
-        for (; t < t2; t += INTERPOLATION_TIME_STEP_MILLIS) {
+        for (long t = t1 + INTERPOLATION_TIME_STEP_MILLIS; t < t2; t += INTERPOLATION_TIME_STEP_MILLIS) {
             Position interpolatedPosition = linearInterpolation(p1, t1, p2, t2, t);
             interpolatedPositions.put(t, interpolatedPosition);
         }
 
-        interpolatedPositions.put(t2, p2);
+        //interpolatedPositions.put(t2, p2);
 
         return interpolatedPositions;
     }
 
-    static final double linearInterpolation(double x1, long t1, double x2, long t2, long t) {
-        return x1 + (x2 - x1) / (t2 - t1) * (t - t1);
+    static final double linearInterpolation(double y1, long x1, double y2, long x2, long x) {
+        return y1 + (y2 - y1) / (x2 - x1) * (x - x1);
     }
 
     static final Position linearInterpolation(Position p1, long t1, Position p2, long t2, long t) {
@@ -273,14 +320,14 @@ public class TrackingServiceImpl implements TrackingService {
         return trackStale;
     }
 
-    private static boolean isInterpolationRequired(long lastPositionUpdate, long currentPositionUpdate) {
+    static boolean isInterpolationRequired(long lastPositionUpdate, long currentPositionUpdate) {
         boolean interpolationRequired = lastPositionUpdate > 0L && currentPositionUpdate - lastPositionUpdate >= TRACK_INTERPOLATION_REQUIRED_SECS * 1000L;
         if (interpolationRequired) {
             LOG.debug("Interpolation is required (" + currentPositionUpdate + ", " + lastPositionUpdate + ")");
         }
         return interpolationRequired;
     }
-
+                /*
     private void updateTimestamp(Track track, Long timestampMillis) {
         track.setProperty(Track.TIMESTAMP_ANY_UPDATE, timestampMillis);
     }
@@ -307,24 +354,24 @@ public class TrackingServiceImpl implements TrackingService {
         Position position = aisPosition.getGeoLocation();
 
         updatePosition(track, positionTimestamp, position, cog, sog, false);
-    }
-
+    }          */
+             /*
     private void updatePosition(Track track, long positionTimestamp, Position position, float cog, float sog, boolean positionIsInterpolated) {
-        track.setProperty(Track.TIMESTAMP_ANY_UPDATE, Long.valueOf(positionTimestamp));
+       // track.setProperty(Track.TIMESTAMP_ANY_UPDATE, Long.valueOf(positionTimestamp));
 
         performUpdatePosition(track, positionTimestamp, position, cog, sog, positionIsInterpolated);
         performUpdateCellId(track, position);
-    }
-
+    }          */
+                    /*
     private void performUpdatePosition(Track track, long positionTimestamp, Position position, float cog, float sog, boolean positionIsInterpolated) {
         Position oldPosition = track.getPosition();
 
-        TrackingReport trackingReport = TrackingReport.create(positionTimestamp, position, cog, sog, positionIsInterpolated);
+        TrackingReport trackingReport = new InterpolatedTrackingReport(positionTimestamp, position, cog, sog);
         track.updatePosition(trackingReport);
 
         eventBus.post(new PositionChangedEvent(track, oldPosition));
-    }
-
+    }                */
+                /*
     private void performUpdateCellId(Track track, Position position) {
         Long oldCellId = (Long) track.getProperty(Track.CELL_ID);
         if (position != null) {
@@ -343,8 +390,8 @@ public class TrackingServiceImpl implements TrackingService {
             }
             LOG.warn("Message type contained no valid position (mmsi " + track.getMmsi() + ")");
         }
-    }
-
+    }             */
+      /*
     private void updateShipType(Track track, AisStaticCommon aisMessage) {
         Integer shipType = aisMessage.getShipType();
         track.setProperty(Track.SHIP_TYPE, shipType);
@@ -365,7 +412,7 @@ public class TrackingServiceImpl implements TrackingService {
         track.setProperty(Track.VESSEL_LENGTH, loa);
         track.setProperty(Track.VESSEL_BEAM, beam);
     }
-
+    */
     private void removeTrack(int mmsi) {
         tracksLock.lock();
         try {
@@ -432,7 +479,7 @@ public class TrackingServiceImpl implements TrackingService {
      * {@inheritDoc}
      */
     @Override
-    public Integer getNumberOfTracks() {
+    public int getNumberOfTracks() {
         int n;
 
         tracksLock.lock();
@@ -516,7 +563,6 @@ public class TrackingServiceImpl implements TrackingService {
         }
 
         // Fire TimeEvents
-        //if ((markTrigger & 0xff) == 0) {
         long timestampMillis = timestamp.getTime();
         long millisSinceLastTimeEvent = timestampMillis - lastTimeEventMillis;
 
@@ -528,7 +574,6 @@ public class TrackingServiceImpl implements TrackingService {
                 LOG.debug("TimeEvent emitted at time " + timeEvent.getTimestamp() + " msecs (" + timeEvent.getMillisSinceLastMark() + " msecs since last).");
             }
         }
-        //}
 
         markTrigger++;
     }

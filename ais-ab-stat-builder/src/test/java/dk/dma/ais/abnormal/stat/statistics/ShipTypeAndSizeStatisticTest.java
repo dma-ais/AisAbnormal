@@ -21,9 +21,9 @@ import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeStatisticData;
 import dk.dma.ais.abnormal.stat.db.data.StatisticData;
 import dk.dma.ais.abnormal.tracker.Track;
-import dk.dma.ais.abnormal.tracker.TrackingReport;
-import dk.dma.ais.abnormal.tracker.TrackingService;
+import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
+import dk.dma.ais.packet.AisPacket;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
 import dk.dma.enav.model.geometry.Position;
 import org.jmock.Expectations;
@@ -40,7 +40,7 @@ import static org.junit.Assert.assertEquals;
 public class ShipTypeAndSizeStatisticTest {
     final JUnit4Mockery context = new JUnit4Mockery();
 
-    TrackingService trackingService;
+    Tracker trackingService;
     AppStatisticsService statisticsService;
     StatisticDataRepository statisticsRepository;
 
@@ -48,18 +48,33 @@ public class ShipTypeAndSizeStatisticTest {
 
     ShipTypeAndSizeStatistic statistic;
 
+    final String[] NMEA_TEST_STRINGS = {
+        // GatehouseSourceTag [baseMmsi=2190067, country=DK, region=, timestamp=Thu Apr 10 15:30:28 CEST 2014]
+        // [msgId=1, repeat=0, userId=219000606, cog=2010, navStatus=0, pos=(33024811,6011092) = (33024811,6011092), posAcc=1, raim=0, specialManIndicator=0, rot=0, sog=108, spare=0, syncState=1, trueHeading=200, utcSec=60, slotTimeout=6, subMessage=1063]
+        "$PGHP,1,2014,4,10,13,30,28,385,219,,2190067,1,12*26\r\n" +
+        "!BSVDM,1,1,,A,13@ng7P01dPeo6`OOc:onVAp0p@W,0*12",
+
+        // GatehouseSourceTag [baseMmsi=2190067, country=DK, region=, timestamp=Thu Apr 10 15:30:29 CEST 2014]
+        // [msgId=5, repeat=0, userId=219000606, callsign=OWNM@@@, dest=BOEJDEN-FYNSHAV@@@@@, dimBow=12, dimPort=8, dimStarboard=4, dimStern=58, draught=30, dte=0, eta=67584, imo=8222824, name=FRIGG SYDFYEN@@@@@@@, posType=1, shipType=61, spare=0, version=0]
+        "$PGHP,1,2014,4,10,13,30,29,165,219,,2190067,1,28*22\r\n" +
+        "!BSVDM,2,1,1,A,53@ng7P1uN6PuLpl000I8TLN1=T@ITDp0000000u1Pr844@P07PSiBQ1,0*7B\r\n" +
+        "!BSVDM,2,2,1,A,CcAVCTj0EP00000,2*53"
+    };
+
+    final AisPacket[] packets = { AisPacket.from(NMEA_TEST_STRINGS[0]), AisPacket.from(NMEA_TEST_STRINGS[1])};
+
     @Before
     public void setup() {
         // Mock dependencies
-        trackingService = context.mock(TrackingService.class);
+        trackingService = context.mock(Tracker.class);
         statisticsService = context.mock(AppStatisticsService.class);
         statisticsRepository = context.mock(StatisticDataRepository.class);
 
         // Setup test data
-        track = new Track(1234567);
+        track = new Track(219000606);
+        track.update(packets[0]);
+        track.update(packets[1]);
         track.setProperty(Track.CELL_ID, 5674365784L);
-        track.setProperty(Track.SHIP_TYPE, 40);
-        track.setProperty(Track.VESSEL_LENGTH, 75);
 
         statistic = new ShipTypeAndSizeStatistic(statisticsService, trackingService, statisticsRepository);
     }
@@ -157,7 +172,7 @@ public class ShipTypeAndSizeStatisticTest {
 
     @Test
     public void testDoNotCountTracksWithSogLessThanTwo() {
-        track.updatePosition(TrackingReport.create(1000L, Position.create(56, 12), 0.0f, 1.99f, false));
+        track.update(System.currentTimeMillis(), Position.create(56, 12), 0.0f, 1.99f);
 
         Long oldCellId = null;
         CellChangedEvent event = new CellChangedEvent(track, oldCellId);
@@ -178,7 +193,7 @@ public class ShipTypeAndSizeStatisticTest {
 
     @Test
     public void testCountTracksWithSogOverTwo() {
-        track.updatePosition(TrackingReport.create(1000L, Position.create(56, 12), 0.0f, 2.01f, false));
+        track.update(System.currentTimeMillis(), Position.create(56, 12), 0.0f, 2.01f);
 
         Long oldCellId = null;
         CellChangedEvent event = new CellChangedEvent(track, oldCellId);

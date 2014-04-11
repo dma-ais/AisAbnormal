@@ -25,7 +25,7 @@ import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeStatisticData;
 import dk.dma.ais.abnormal.stat.db.data.SpeedOverGroundStatisticData;
 import dk.dma.ais.abnormal.stat.db.data.StatisticData;
 import dk.dma.ais.abnormal.tracker.Track;
-import dk.dma.ais.abnormal.tracker.TrackingService;
+import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
 import dk.dma.ais.abnormal.util.Categorizer;
 import org.slf4j.Logger;
@@ -42,14 +42,14 @@ public class SpeedOverGroundStatistic implements TrackingEventListener {
 
     private final transient AppStatisticsService appStatisticsService;
     private final transient StatisticDataRepository statisticsRepository;
-    private final transient TrackingService trackingService;
+    private final transient Tracker trackingService;
 
     private final transient AtomicBoolean started = new AtomicBoolean(false);
 
     static final String STATISTIC_NAME = SpeedOverGroundStatistic.class.getSimpleName();
 
     @Inject
-    public SpeedOverGroundStatistic(AppStatisticsService appStatisticsService, TrackingService trackingService, StatisticDataRepository statisticsRepository) {
+    public SpeedOverGroundStatistic(AppStatisticsService appStatisticsService, Tracker trackingService, StatisticDataRepository statisticsRepository) {
         this.appStatisticsService = appStatisticsService;
         this.trackingService = trackingService;
         this.statisticsRepository = statisticsRepository;
@@ -78,8 +78,8 @@ public class SpeedOverGroundStatistic implements TrackingEventListener {
 
         if (sog != null) {
             Long cellId = (Long) track.getProperty(Track.CELL_ID);
-            Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
-            Integer shipLength = (Integer) track.getProperty(Track.VESSEL_LENGTH);
+            Integer shipType = track.getShipType();
+            Integer shipLength = track.getVesselLength();
 
             if (isInputValid(cellId, shipType, shipLength, sog)) {
                 short shipTypeBucket = Categorizer.mapShipTypeToCategory(shipType);

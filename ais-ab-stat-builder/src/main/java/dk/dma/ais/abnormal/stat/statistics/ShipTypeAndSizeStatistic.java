@@ -24,7 +24,7 @@ import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeStatisticData;
 import dk.dma.ais.abnormal.stat.db.data.StatisticData;
 import dk.dma.ais.abnormal.tracker.Track;
-import dk.dma.ais.abnormal.tracker.TrackingService;
+import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
 import dk.dma.ais.abnormal.util.Categorizer;
 import org.slf4j.Logger;
@@ -37,14 +37,14 @@ public class ShipTypeAndSizeStatistic implements TrackingEventListener {
 
     private final transient AppStatisticsService appStatisticsService;
     private final transient StatisticDataRepository statisticsRepository;
-    private final transient TrackingService trackingService;
+    private final transient Tracker trackingService;
 
     private transient boolean started;
 
     static final String STATISTIC_NAME = ShipTypeAndSizeStatistic.class.getSimpleName();
 
     @Inject
-    public ShipTypeAndSizeStatistic(AppStatisticsService appStatisticsService, TrackingService trackingService, StatisticDataRepository statisticsRepository) {
+    public ShipTypeAndSizeStatistic(AppStatisticsService appStatisticsService, Tracker trackingService, StatisticDataRepository statisticsRepository) {
         this.appStatisticsService = appStatisticsService;
         this.trackingService = trackingService;
         this.statisticsRepository = statisticsRepository;
@@ -78,8 +78,8 @@ public class ShipTypeAndSizeStatistic implements TrackingEventListener {
         }
 
         Long cellId = (Long) track.getProperty(Track.CELL_ID);
-        Integer shipType = (Integer) track.getProperty(Track.SHIP_TYPE);
-        Integer shipLength = (Integer) track.getProperty(Track.VESSEL_LENGTH);
+        Integer shipType = track.getShipType();
+        Integer shipLength = track.getVesselLength();
 
         if (cellId == null) {
             LOG.debug("cellId is null - position is likely not valid (mmsi " + track.getMmsi() + ")");
