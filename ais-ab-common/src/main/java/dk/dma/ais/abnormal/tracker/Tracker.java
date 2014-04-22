@@ -25,7 +25,7 @@ import java.util.Set;
  * including their position, speed, course, etc.
  *
  * If a certain track has not received any updates for a while
- * it enteres status 'stale' and will receive no further updates. Instead a new track is created if more
+ * it enters status 'stale' and will receive no further updates. Instead a new track is created if more
  * AisPackets are received from the same vessel later on.
  *
  * The AisPackets are assumed to arrive in timely order; i.e. by ever-increasing values of timestamp.
@@ -54,7 +54,7 @@ public interface Tracker {
 
     /**
      * Get a set of cloned tracks from the tracker. The fact that the list is cloned makes is possible
-     * to work with its contents in isolation without worrying about multi-theaded behaviour in the tracker.
+     * to work with its contents in isolation without worrying about multi-threaded behaviour in the tracker.
      *
      * @return A list of Tracks cloned from the tracker.
      */

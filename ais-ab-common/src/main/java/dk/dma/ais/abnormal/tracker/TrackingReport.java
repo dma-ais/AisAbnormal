@@ -22,6 +22,13 @@ import net.jcip.annotations.NotThreadSafe;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A tracking report is a unique, separate report concerning a specific vessel's current
+ * position, speed, and course.
+ *
+ * This piece of information is stored in the tracker to keep track of each vessel's movements
+ * and whereabouts.
+ */
 @NotThreadSafe
 public abstract class TrackingReport implements Cloneable {
 

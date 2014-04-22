@@ -23,6 +23,9 @@ import dk.dma.ais.packet.AisPacket;
 import dk.dma.enav.model.geometry.Position;
 import net.jcip.annotations.NotThreadSafe;
 
+/**
+ * A tracking report based on AisPacket (AIS data)
+ */
 @NotThreadSafe
 public final class AisTrackingReport extends TrackingReport {
 

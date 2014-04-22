@@ -244,33 +244,7 @@ public class EventEmittingTracker implements Tracker {
             eventBus.post(new PositionChangedEvent(track, oldPosition));
         });
     }
-                /*
-    private void interpolatePositions(Track track, Long currentUpdate, IPositionMessage positionMessage) {
-        TrackingReport trackingReport = track.getNewestTrackingReport();
-        Position p1 = trackingReport.getPosition();
-        Float cog = trackingReport.getCourseOverGround();
-        Float sog = trackingReport.getSpeedOverGround();
-        long t1 = trackingReport.getTimestamp();
 
-        Position p2 = positionMessage.getPos().getGeoLocation();
-        long t2 = currentUpdate;
-
-        LOG.debug("p1=" + p1 + ", p2=" + p2);
-
-        Map<Long, Position> interpolatedPositions = calculateInterpolatedPositions(p1, t1, p2, t2);
-
-        Set<Map.Entry<Long, Position>> interpolatedPositionEntries = interpolatedPositions.entrySet();
-        Iterator<Map.Entry<Long, Position>> iterator = interpolatedPositionEntries.iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<Long, Position> positionEntry = iterator.next();
-            long positionTimestamp = positionEntry.getKey();
-            Position p = positionEntry.getValue();
-            updatePosition(track, positionTimestamp, p, cog, sog, iterator.hasNext());
-        }
-
-        LOG.debug("Used " + interpolatedPositionEntries.size() + " interpolation points for track " + track.getMmsi());
-    }
-            */
     /**
      * Calculate a map of <timestamp, Position>-pairs which are interpolated positions at regular, fixed time-intervals
      * between the two positions p1 and p2 known at time t1 and t2 respectively.
@@ -296,8 +270,6 @@ public class EventEmittingTracker implements Tracker {
             interpolatedPositions.put(t, interpolatedPosition);
         }
 
-        //interpolatedPositions.put(t2, p2);
-
         return interpolatedPositions;
     }
 
@@ -321,98 +293,9 @@ public class EventEmittingTracker implements Tracker {
     }
 
     static boolean isInterpolationRequired(long lastPositionUpdate, long currentPositionUpdate) {
-        boolean interpolationRequired = lastPositionUpdate > 0L && currentPositionUpdate - lastPositionUpdate >= TRACK_INTERPOLATION_REQUIRED_SECS * 1000L;
-        if (interpolationRequired) {
-            LOG.debug("Interpolation is required (" + currentPositionUpdate + ", " + lastPositionUpdate + ")");
-        }
-        return interpolationRequired;
-    }
-                /*
-    private void updateTimestamp(Track track, Long timestampMillis) {
-        track.setProperty(Track.TIMESTAMP_ANY_UPDATE, timestampMillis);
+        return lastPositionUpdate > 0L && currentPositionUpdate - lastPositionUpdate >= TRACK_INTERPOLATION_REQUIRED_SECS * 1000L;
     }
 
-    private void updateVesselName(Track track, AisStaticCommon aisMessage) {
-        String name = aisMessage.getName();
-        track.setProperty(Track.SHIP_NAME, name);
-    }
-
-    private void updateImo(Track track, AisMessage5 aisMessage) {
-        Integer imo = (int) aisMessage.getImo();
-        track.setProperty(Track.IMO, imo);
-    }
-
-    private void updateCallsign(Track track, AisStaticCommon aisMessage) {
-        String callsign = aisMessage.getCallsign();
-        track.setProperty(Track.CALLSIGN, callsign);
-    }
-
-    private void updatePosition(Track track, long positionTimestamp, IVesselPositionMessage aisMessage) {
-        AisPosition aisPosition = aisMessage.getPos();
-        float cog = (float) (aisMessage.getCog() / 10.0);
-        float sog = (float) (aisMessage.getSog() / 10.0);
-        Position position = aisPosition.getGeoLocation();
-
-        updatePosition(track, positionTimestamp, position, cog, sog, false);
-    }          */
-             /*
-    private void updatePosition(Track track, long positionTimestamp, Position position, float cog, float sog, boolean positionIsInterpolated) {
-       // track.setProperty(Track.TIMESTAMP_ANY_UPDATE, Long.valueOf(positionTimestamp));
-
-        performUpdatePosition(track, positionTimestamp, position, cog, sog, positionIsInterpolated);
-        performUpdateCellId(track, position);
-    }          */
-                    /*
-    private void performUpdatePosition(Track track, long positionTimestamp, Position position, float cog, float sog, boolean positionIsInterpolated) {
-        Position oldPosition = track.getPosition();
-
-        TrackingReport trackingReport = new InterpolatedTrackingReport(positionTimestamp, position, cog, sog);
-        track.updatePosition(trackingReport);
-
-        eventBus.post(new PositionChangedEvent(track, oldPosition));
-    }                */
-                /*
-    private void performUpdateCellId(Track track, Position position) {
-        Long oldCellId = (Long) track.getProperty(Track.CELL_ID);
-        if (position != null) {
-            Cell cell = grid.getCell(position);
-            Long newCellId = cell.getCellId();
-            track.setProperty(Track.CELL_ID, newCellId);
-            if ((oldCellId == null && newCellId != null) ||
-                    (oldCellId != null && newCellId == null) ||
-                    (oldCellId != null && newCellId != null && !oldCellId.equals(newCellId))) {
-                eventBus.post(new CellChangedEvent(track, oldCellId));
-            }
-        } else {
-            track.removeProperty(Track.CELL_ID);
-            if (oldCellId != null) {
-                eventBus.post(new CellChangedEvent(track, oldCellId));
-            }
-            LOG.warn("Message type contained no valid position (mmsi " + track.getMmsi() + ")");
-        }
-    }             */
-      /*
-    private void updateShipType(Track track, AisStaticCommon aisMessage) {
-        Integer shipType = aisMessage.getShipType();
-        track.setProperty(Track.SHIP_TYPE, shipType);
-    }
-
-    private void updateVesselDimensions(Track track, AisStaticCommon aisMessage) {
-        Integer dimBow = aisMessage.getDimBow();
-        Integer dimStern = aisMessage.getDimStern();
-        Integer dimPort = aisMessage.getDimPort();
-        Integer dimStarboard = aisMessage.getDimStarboard();
-        Integer loa = dimBow + dimStern;
-        Integer beam = dimPort + dimStarboard;
-
-        track.setProperty(Track.VESSEL_DIM_BOW, dimBow);
-        track.setProperty(Track.VESSEL_DIM_STERN, dimStern);
-        track.setProperty(Track.VESSEL_DIM_PORT, dimPort);
-        track.setProperty(Track.VESSEL_DIM_STARBOARD, dimStarboard);
-        track.setProperty(Track.VESSEL_LENGTH, loa);
-        track.setProperty(Track.VESSEL_BEAM, beam);
-    }
-    */
     private void removeTrack(int mmsi) {
         tracksLock.lock();
         try {
