@@ -142,6 +142,23 @@ var mapModule = {
         mapModule.map.setLayerIndex(mapModule.getVesselLayer(), 99);
     },
 
+    getPrimaryMmsisForEvent: function(jsonEvent) {
+        var primaryMmsis = new Array();
+        primaryMmsis.push(jsonEvent.behaviours[0].vessel.mmsi);
+        return primaryMmsis;
+    },
+
+    getSecondaryMmsisForEvent: function(jsonEvent) {
+        var secondaryMmsis = new Array();
+        switch (jsonEvent.eventType) {
+            case "CloseEncounterEvent":
+                secondaryMmsis.push(jsonEvent.behaviours[1].vessel.mmsi);
+                break;
+            default:
+        }
+        return secondaryMmsis;
+    },
+
     initContextMenu: function() {
         var contextMenuDef = [
             {'Name': {disabled:true} },
@@ -153,11 +170,8 @@ var mapModule = {
                 var evt = menu.originalEvent;
                 var feature = mapModule.getVesselLayer().getFeatureFromEvent(evt);
                 var behaviours = feature.data.jsonEvent.behaviours;
-                var primaryMmsis = new Array();
-                behaviours.forEach(function(b) { primaryMmsis.push(b.vessel.mmsi); });
-                var secondaryMMsis = new Array();
-                behaviours.forEach(function(b) { });
-
+                var primaryMmsis = mapModule.getPrimaryMmsisForEvent(feature.data.jsonEvent);
+                var secondaryMmsis = mapModule.getSecondaryMmsisForEvent(feature.data.jsonEvent);
                 var bounds = feature.geometry.bounds.clone();
                 bounds.transform(mapModule.projectionSphericalMercator, mapModule.projectionWGS84);
 
@@ -165,6 +179,7 @@ var mapModule = {
 
                 modal.find('#kmlgen-event-description').val(feature.data.jsonEvent.description);
                 modal.find('#kmlgen-event-primary-mmsis').val(primaryMmsis.join(", "));
+                modal.find('#kmlgen-event-secondary-mmsis').val(secondaryMmsis.join(", "));
 
                 modal.find('#kmlgen-event-from').val(new Date(feature.data.jsonEvent.startTime - 10 * 60 * 1000 /* 10 minutes before */).toISOString() );
                 modal.find('#kmlgen-event-to').val(new Date(feature.data.jsonEvent.endTime + 10 * 60 * 1000 /* 10 minutes after */).toISOString() );
