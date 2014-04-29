@@ -1,0 +1,77 @@
+<!doctype html>
+<head></head>
+<body>
+    <div class="modal large fade" id="event-kmlgen-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Export event to KML format</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" role="form">
+
+                        <div class="form-group">
+                            <label for="kmlgen-event-description" class="col-sm-2 control-label">Description</label>
+                            <div class="col-sm-10">
+                                <input class="form-control" id="kmlgen-event-description" placeholder="description">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="kmlgen-event-primary-mmsis" class="col-sm-2 control-label">Primary MMSI</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" id="kmlgen-event-primary-mmsis" placeholder="mmsi">
+                            </div>
+                            <label for="kmlgen-event-secondary-mmsis" class="col-sm-2 control-label">Secondary MMSI</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" id="kmlgen-event-secondary-mmsis" placeholder="mmsi">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="kmlgen-event-safety-zone-for" class="col-sm-2 control-label">Safety zone for</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" id="kmlgen-event-safety-zone-for" placeholder="mmsi">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="kmlgen-event-from" class="col-sm-2 control-label">From</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" id="kmlgen-event-from" placeholder="ISO 8601 format">
+                            </div>
+                            <label for="kmlgen-event-to" class="col-sm-2 control-label">To</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" id="kmlgen-event-to" placeholder="ISO 8601 format">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="kmlgen-event-north" class="col-sm-2 control-label">North boundary</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" id="kmlgen-event-north" placeholder="latitude deg°min'sec.h">
+                            </div>
+                            <label for="kmlgen-event-west" class="col-sm-2 control-label">West boundary</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" id="kmlgen-event-west" placeholder="longitude deg°min'sec.h">
+                            </div>
+
+                            <label for="kmlgen-event-south" class="col-sm-2 control-label">South boundary</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" id="kmlgen-event-south" placeholder="latitude deg°min'sec.h">
+                            </div>
+                            <label for="kmlgen-event-east" class="col-sm-2 control-label">East boundary</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" id="kmlgen-event-east" placeholder="longitude deg°min'sec.h">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" id="kmlgen-event"><span class="glyphicon glyphicon-download-alt"></span>Get KML</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+</body>

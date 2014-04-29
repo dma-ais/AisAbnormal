@@ -13,7 +13,13 @@ var mapModule = {
     projectionSphericalMercator: null,
     projectionWebMercator: null,
 
+    kmlResourceService: "http://" + document.location.hostname + ":8090/store/scenario",
+
     init: function() {
+        $('#event-kmlgen-modal-wrapper').load("event-kmlgen-modal.html", function () {
+            $('button#kmlgen-event').click(mapModule.generateKmlForEvent);
+        });
+
         $('#map-enable-nautical-charts').submit(
             function( event ) {
                 event.preventDefault();
@@ -143,6 +149,34 @@ var mapModule = {
             {'MMSI': {disabled:true}},
             {'Callsign': {disabled:true} },
             $.contextMenu.separator,
+            {'Generate KML for Google Earth ...':function(menuItem,menu) {
+                var evt = menu.originalEvent;
+                var feature = mapModule.getVesselLayer().getFeatureFromEvent(evt);
+                var behaviours = feature.data.jsonEvent.behaviours;
+                var primaryMmsis = new Array();
+                behaviours.forEach(function(b) { primaryMmsis.push(b.vessel.mmsi); });
+                var secondaryMMsis = new Array();
+                behaviours.forEach(function(b) { });
+
+                var bounds = feature.geometry.bounds.clone();
+                bounds.transform(mapModule.projectionSphericalMercator, mapModule.projectionWGS84);
+
+                var modal = $('#event-kmlgen-modal');
+
+                modal.find('#kmlgen-event-description').val(feature.data.jsonEvent.description);
+                modal.find('#kmlgen-event-primary-mmsis').val(primaryMmsis.join(", "));
+
+                modal.find('#kmlgen-event-from').val(new Date(feature.data.jsonEvent.startTime - 10 * 60 * 1000 /* 10 minutes before */).toISOString() );
+                modal.find('#kmlgen-event-to').val(new Date(feature.data.jsonEvent.endTime + 10 * 60 * 1000 /* 10 minutes after */).toISOString() );
+
+                modal.find('#kmlgen-event-north').val(OpenLayers.Util.getFormattedLonLat(bounds.top, 'lat'));
+                modal.find('#kmlgen-event-east').val(OpenLayers.Util.getFormattedLonLat(bounds.right, 'lon'));
+                modal.find('#kmlgen-event-south').val(OpenLayers.Util.getFormattedLonLat(bounds.bottom, 'lat'));
+                modal.find('#kmlgen-event-west').val(OpenLayers.Util.getFormattedLonLat(bounds.left, 'lon'));
+
+                modal.modal({});
+            }},
+            $.contextMenu.separator,
             {'Show on VesselFinder.com ...':function(menuItem,menu) {
                 var evt = menu.originalEvent;
                 var feature = mapModule.getVesselLayer().getFeatureFromEvent(evt);
@@ -175,37 +209,40 @@ var mapModule = {
             theme:'osx',
             beforeShow: function() {
                 var feature = mapModule.getVesselLayer().getFeatureFromEvent(this.originalEvent);
-                if (feature && feature.fid && feature.fid.match("^trackSymbol")) {
+                var isTrack = feature && feature.fid && feature.fid.match("^trackSymbol");
+                var isEvent = feature && feature.fid && feature.fid.match("^event");
+
+                if (isTrack) {
                     var fid = feature.fid;
                     $('.context-menu-item:nth-child(1)').find('.context-menu-item-inner').html(feature.data.name);
                     $('.context-menu-item:nth-child(2)').find('.context-menu-item-inner').html('IMO: ' + feature.data.imo);
                     $('.context-menu-item:nth-child(3)').find('.context-menu-item-inner').html('MMSI: ' + feature.data.mmsi);
                     $('.context-menu-item:nth-child(4)').find('.context-menu-item-inner').html('C/S: ' + feature.data.callsign);
-                    $('.context-menu-item:nth-child(6)').find('.context-menu-item-inner').removeClass('context-menu-item-disabled');
-                    $('.context-menu-item:nth-child(7)').find('.context-menu-item-inner').removeClass('context-menu-item-disabled');
+                    $('.context-menu-item:nth-child(8)').find('.context-menu-item-inner').removeClass('context-menu-item-disabled');
+                    $('.context-menu-item:nth-child(9)').find('.context-menu-item-inner').removeClass('context-menu-item-disabled');
                 }
                 else {
                     $('.context-menu-item:nth-child(1)').find('.context-menu-item-inner').html('Name:');
                     $('.context-menu-item:nth-child(2)').find('.context-menu-item-inner').html('IMO:');
                     $('.context-menu-item:nth-child(3)').find('.context-menu-item-inner').html('MMSI:');
                     $('.context-menu-item:nth-child(4)').find('.context-menu-item-inner').html('C/S:');
+                    $('.context-menu-item:nth-child(8)').find('.context-menu-item-inner').addClass('context-menu-item-disabled');
+                    $('.context-menu-item:nth-child(9)').find('.context-menu-item-inner').addClass('context-menu-item-disabled');
+                }
+
+                if (isEvent) {
+                    $('.context-menu-item:nth-child(6)').find('.context-menu-item-inner').removeClass('context-menu-item-disabled');
+                } else {
                     $('.context-menu-item:nth-child(6)').find('.context-menu-item-inner').addClass('context-menu-item-disabled');
-                    $('.context-menu-item:nth-child(7)').find('.context-menu-item-inner').addClass('context-menu-item-disabled');
                 }
             }
         });
     },
 
     zoomTo: function(bounds) {
-        var nw = new OpenLayers.LonLat(bounds.left, bounds.top).transform(this.projectionWGS84, this.projectionSphericalMercator);
-        var se = new OpenLayers.LonLat(bounds.right, bounds.bottom).transform(this.projectionWGS84, this.projectionSphericalMercator);
-
-        var bounds = new OpenLayers.Bounds();
-        bounds.extend(nw);
-        bounds.extend(se);
-        bounds.toBBOX();
-
-        mapModule.map.zoomToExtent(bounds, true);
+        var bbox = mapModule.getLatLonBounds(bounds);
+        bbox.toBBOX();
+        mapModule.map.zoomToExtent(bbox, true);
     },
 
     zoomToDenmark: function() {
@@ -369,6 +406,17 @@ var mapModule = {
         return viewport;
     },
 
+    getLatLonBounds: function(bounds) {
+        var nw = new OpenLayers.LonLat(bounds.left, bounds.top).transform(this.projectionWGS84, this.projectionSphericalMercator);
+        var se = new OpenLayers.LonLat(bounds.right, bounds.bottom).transform(this.projectionWGS84, this.projectionSphericalMercator);
+
+        var bbox = new OpenLayers.Bounds();
+        bbox.extend(nw);
+        bbox.extend(se);
+
+        return bbox;
+    },
+
     gridLayerFeatureListeners: {
         featureclick: function (e) {
             var feature = e.feature;
@@ -397,6 +445,54 @@ var mapModule = {
 
             return false;
         }
+    },
+
+    formattedLatLonToDecimalDegrees: function(formattedLatLon) {
+        // 57°42'32"N -> ["57", "42", "32", "N"]
+        // 11°40'01.4"E -> ["11", "40", "01.4", "E"]
+        var p = formattedLatLon.split(/[°'"]+/).join(' ').split(/[^\w\S]+/);
+
+        if (p.length != 4) {
+            throw "Illegal format";
+        }
+
+        var deg = parseFloat(p[0]);
+        var min = parseFloat(p[1]);
+        var sec = parseFloat(p[2]);
+        var sgn = p[3].match('[SsWw]') ? -1.0 : 1.0;
+
+        return sgn * (deg + min/60.0 + sec/(60.0*60.0));
+    },
+
+    generateKmlForEvent: function () {
+        var modal = $('#event-kmlgen-modal');
+
+        var desc = modal.find('#kmlgen-event-description').val();
+        var primaryMmsi = $.trim(modal.find('#kmlgen-event-primary-mmsis').val());
+        var secondaryMmsi = $.trim(modal.find('#kmlgen-event-secondary-mmsis').val());
+        var from = new Date(modal.find('#kmlgen-event-from').val()).getTime();
+        var to = new Date(modal.find('#kmlgen-event-to').val()).getTime();
+        var north = mapModule.formattedLatLonToDecimalDegrees(modal.find('#kmlgen-event-north').val());
+        var east = mapModule.formattedLatLonToDecimalDegrees(modal.find('#kmlgen-event-east').val());
+        var south = mapModule.formattedLatLonToDecimalDegrees(modal.find('#kmlgen-event-south').val());
+        var west = mapModule.formattedLatLonToDecimalDegrees(modal.find('#kmlgen-event-west').val());
+
+        var fromDate = new Date(from);
+        var toDate = new Date(to);
+
+        //http://localhost:8090/store/scenario?box=56.12,11.10,56.13,11.09&interval=2013-10-15T14:00:00Z/2013-10-15T14:10:00Z
+        var queryParams = {};
+        queryParams['box'] = north + "," + east + "," + south + "," + west;
+        queryParams['interval'] = fromDate.toISOString() + "/" + toDate.toISOString();
+        if (primaryMmsi.length > 0) {
+            queryParams['primaryMmsi'] = primaryMmsi;
+        }
+        if (secondaryMmsi.length > 0) {
+            queryParams['secondaryMmsi'] = secondaryMmsi;
+        }
+        var eventRequest = mapModule.kmlResourceService + "?" + $.param(queryParams);
+
+        window.open(eventRequest);
     }
 
 };
