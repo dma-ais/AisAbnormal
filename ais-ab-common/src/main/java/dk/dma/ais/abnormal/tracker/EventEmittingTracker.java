@@ -31,6 +31,7 @@ import dk.dma.ais.message.AisTargetType;
 import dk.dma.ais.message.IVesselPositionMessage;
 import dk.dma.ais.packet.AisPacket;
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.enav.model.geometry.PositionTime;
 import dk.dma.enav.model.geometry.grid.Cell;
 import dk.dma.enav.model.geometry.grid.Grid;
 import net.jcip.annotations.GuardedBy;
@@ -236,7 +237,7 @@ public class EventEmittingTracker implements Tracker {
         Position p2 = posMessage.getPos().getGeoLocation();
         long t2 = timestamp;
 
-        Map<Long, Position> interpolatedPositions = calculateInterpolatedPositions(p1, t1, p2, t2);
+        Map<Long, Position> interpolatedPositions = calculateInterpolatedPositions(PositionTime.create(p1, t1), PositionTime.create(p2, t2));
 
         interpolatedPositions.forEach((t, p) -> {
             Position oldPosition = track.getPosition();
@@ -251,36 +252,26 @@ public class EventEmittingTracker implements Tracker {
      *
      * The set of interpolated positions contains positions up to - but not including - t2/p2.
      *
-     * @param p1
-     * @param t1
-     * @param p2
-     * @param t2
-     * @return
+     * @param pt1 The first of the two positions to interpolate between.
+     * @param pt2 The last of the two positions to interpolate between.
+     * @return a Map of interpolated positions
      */
-    static final Map<Long, Position> calculateInterpolatedPositions(Position p1, long t1, Position p2, long t2) {
+    static final Map<Long, Position> calculateInterpolatedPositions(PositionTime pt1, PositionTime pt2) {
         TreeMap<Long, Position> interpolatedPositions = new TreeMap<>();
 
-        if (t2 < t1) {
-            LOG.error("Cannot interpolate backwards: " + t1 + " " + t2);
+        if (pt2.getTime() < pt1.getTime()) {
+            LOG.error("Cannot interpolate backwards: " + pt1.getTime() + " " + pt2.getTime());
             return interpolatedPositions;
         }
 
+        final long t1 = pt1.getTime();
+        final long t2 = pt2.getTime();
+
         for (long t = t1 + INTERPOLATION_TIME_STEP_MILLIS; t < t2; t += INTERPOLATION_TIME_STEP_MILLIS) {
-            Position interpolatedPosition = linearInterpolation(p1, t1, p2, t2, t);
-            interpolatedPositions.put(t, interpolatedPosition);
+            interpolatedPositions.put(t, PositionTime.createInterpolated(pt1, pt2, t));
         }
 
         return interpolatedPositions;
-    }
-
-    static final double linearInterpolation(double y1, long x1, double y2, long x2, long x) {
-        return y1 + (y2 - y1) / (x2 - x1) * (x - x1);
-    }
-
-    static final Position linearInterpolation(Position p1, long t1, Position p2, long t2, long t) {
-        double interpolatedLatitude = linearInterpolation(p1.getLatitude(), t1, p2.getLatitude(), t2, t);
-        double interpolatedLongitude = linearInterpolation(p1.getLongitude(), t1, p2.getLongitude(), t2, t);
-        return Position.create(interpolatedLatitude, interpolatedLongitude);
     }
 
     static boolean isTrackStale(long lastAnyUpdate, long lastPositionUpdate, long currentUpdate) {

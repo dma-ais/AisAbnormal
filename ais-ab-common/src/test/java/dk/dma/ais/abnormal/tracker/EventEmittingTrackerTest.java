@@ -35,12 +35,12 @@ import dk.dma.ais.packet.AisPacket;
 import dk.dma.ais.sentence.SentenceException;
 import dk.dma.ais.sentence.Vdm;
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.enav.model.geometry.PositionTime;
 import dk.dma.enav.model.geometry.grid.Cell;
 import dk.dma.enav.model.geometry.grid.Grid;
 import net.maritimecloud.util.SpeedUnit;
 import net.maritimecloud.util.geometry.PositionReader;
 import net.maritimecloud.util.geometry.PositionReaderSimulator;
-import net.maritimecloud.util.geometry.PositionTime;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.junit.Test;
@@ -581,7 +581,7 @@ public class EventEmittingTrackerTest {
         do {
             System.out.println("i: " + i);
 
-            PositionTime currentPosition = reader.getCurrentPosition();
+            net.maritimecloud.util.geometry.PositionTime currentPosition = reader.getCurrentPosition();
             long oldTimestamp = timestamp.getTime();
             long newTimestamp = currentPosition.getTime();
             assertEquals(oldTimestamp + 5000, newTimestamp);
@@ -725,28 +725,16 @@ public class EventEmittingTrackerTest {
     }
 
     @Test
-    public void testLinearInterpolation() {
-        assertEquals(1, EventEmittingTracker.linearInterpolation(1, 1, 3, 3, 1), 1e-16);
-        assertEquals(3, EventEmittingTracker.linearInterpolation(1, 1, 3, 3, 3), 1e-16);
-
-        assertEquals(2, EventEmittingTracker.linearInterpolation(1, 1, 3, 3, 2), 1e-16);
-        assertEquals(10, EventEmittingTracker.linearInterpolation(1, 1, 3, 3, 10), 1e-16);
-
-        assertEquals(2.5, EventEmittingTracker.linearInterpolation(0, 0, 5, 10, 5), 1e-16);
-        assertEquals(4.5, EventEmittingTracker.linearInterpolation(0, 0, 5, 10, 9), 1e-16);
-    }
-
-    @Test
     public void testCalculateInterpolatedPositions() {
         Date now = new Date(System.currentTimeMillis());
 
-        Position p1 = Position.create(55, 10);
         long t1 = now.getTime();
+        PositionTime pt1 = PositionTime.create(55, 10, t1);
 
-        Position p2 = Position.create(60, 15);
         long t2 = t1 + 50*1000;
+        PositionTime pt2 = PositionTime.create(60, 15, t2);
 
-        Map<Long,Position> interpolatedPositions = EventEmittingTracker.calculateInterpolatedPositions(p1, t1, p2, t2);
+        Map<Long,Position> interpolatedPositions = EventEmittingTracker.calculateInterpolatedPositions(pt1, pt2);
 
         assertEquals(4, interpolatedPositions.size());
         Set<Long> interpolationTimestamps = interpolatedPositions.keySet();
