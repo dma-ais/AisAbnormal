@@ -183,6 +183,7 @@ var mapModule = {
 
                 modal.find('#kmlgen-event-from').val(new Date(feature.data.jsonEvent.startTime - 10 * 60 * 1000 /* 10 minutes before */).toISOString() );
                 modal.find('#kmlgen-event-to').val(new Date(feature.data.jsonEvent.endTime + 10 * 60 * 1000 /* 10 minutes after */).toISOString() );
+                modal.find('#kmlgen-event-situation-at').val(new Date(feature.data.jsonEvent.startTime).toISOString());
 
                 modal.find('#kmlgen-event-north').val(OpenLayers.Util.getFormattedLonLat(bounds.top, 'lat'));
                 modal.find('#kmlgen-event-east').val(OpenLayers.Util.getFormattedLonLat(bounds.right, 'lon'));
@@ -487,6 +488,7 @@ var mapModule = {
         var secondaryMmsi = $.trim(modal.find('#kmlgen-event-secondary-mmsis').val());
         var from = new Date(modal.find('#kmlgen-event-from').val()).getTime();
         var to = new Date(modal.find('#kmlgen-event-to').val()).getTime();
+        var at = new Date(modal.find('#kmlgen-event-situation-at').val()).getTime();
         var north = mapModule.formattedLatLonToDecimalDegrees(modal.find('#kmlgen-event-north').val());
         var east = mapModule.formattedLatLonToDecimalDegrees(modal.find('#kmlgen-event-east').val());
         var south = mapModule.formattedLatLonToDecimalDegrees(modal.find('#kmlgen-event-south').val());
@@ -499,6 +501,9 @@ var mapModule = {
         var queryParams = {};
         queryParams['box'] = north + "," + east + "," + south + "," + west;
         queryParams['interval'] = fromDate.toISOString() + "/" + toDate.toISOString();
+        if (at) {
+            queryParams['at'] = new Date(at).toISOString();
+        }
         if (primaryMmsi.length > 0) {
             queryParams['primaryMmsi'] = primaryMmsi;
         }
