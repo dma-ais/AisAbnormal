@@ -34,9 +34,7 @@ import dk.dma.ais.abnormal.util.AisDataHelper;
 import dk.dma.ais.abnormal.util.Categorizer;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Ellipse;
-import dk.dma.enav.model.geometry.Position;
-import dk.dma.enav.model.geometry.util.CoordinateConverter;
-import dk.dma.enav.util.geometry.Point;
+import dk.dma.enav.util.CoordinateConverter;
 import net.jcip.annotations.NotThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +45,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Executor;
 
+import static dk.dma.enav.safety.SafetyZones.safetyZone;
+import static dk.dma.enav.safety.SafetyZones.vesselExtent;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.util.stream.Collectors.toSet;
@@ -148,8 +148,8 @@ public class CloseEncounterAnalysis extends Analysis {
                 track2.predict(track1.getTimeOfLastPositionReport());
             }
 
-            Ellipse safetyEllipseTrack1 = computeSafetyZone(track1.getPosition(), track1, track2);
-            Ellipse extentTrack2 = computeVesselExtent(track1.getPosition(), track2);
+            Ellipse safetyEllipseTrack1 = safetyZone(track1.getPosition(), track1.getPosition(), track1.getCourseOverGround(), track1.getSpeedOverGround(), track1.getVesselLength(), track1.getVesselBeam(), track1.getShipDimensionStern(), track1.getShipDimensionStarboard());
+            Ellipse extentTrack2 = vesselExtent(track1.getPosition(), track2.getPosition(), track2.getCourseOverGround(), track2.getVesselLength(), track2.getVesselBeam(), track2.getShipDimensionStern(), track2.getShipDimensionStarboard());
 
             if (safetyEllipseTrack1 != null && extentTrack2 != null && safetyEllipseTrack1.intersects(extentTrack2)) {
                 track1.setProperty(Track.SAFETY_ZONE, safetyEllipseTrack1);
@@ -185,113 +185,6 @@ public class CloseEncounterAnalysis extends Analysis {
     boolean isTrackPairAnalyzed(Track track1, Track track2) {
         String trackPairKey = calculateTrackPairKey(track1, track2);
         return trackPairsAnalyzed.contains(trackPairKey);
-    }
-
-
-    /**
-     * Compute the an elliptic zone which roughly corresponds to the vessel's physical extent.
-     * @param cartesianCenter
-     * @param track
-     * @return
-     */
-    Ellipse computeVesselExtent(Position cartesianCenter, Track track) {
-        return computeZone(cartesianCenter, track, 1.0, 1.0, 0.5);
-    }
-
-    /**
-     * Compute the safety zone of track. This is roughly equivalent to the elliptic area around the vessel
-     * which its navigator would observe for safety reasons to avoid imminent collisions.
-     *
-     * @param cartesianCenter
-     * @param track
-     * @param otherTrack
-     * @return
-     */
-    Ellipse computeSafetyZone(Position cartesianCenter, Track track, Track otherTrack) {
-        final double safetyEllipseLength = 4;
-        final double safetyEllipseBreadth = 5;
-        final double safetyEllipseBehind = 0.5;   // = behindLength ???
-        final double v = 1.0;
-        final double l1 = max(safetyEllipseLength * v, 1.0 + safetyEllipseBehind*v*2.0);
-        final double b1 = max(safetyEllipseBreadth * v, 1.5);
-        final double xc = -safetyEllipseBehind * v + 0.5*l1;
-
-        return computeZone(cartesianCenter, track, l1, b1, xc);
-    }
-
-    /**
-     * Compute an elliptic zone around a track.
-     * @param geodeticReference
-     * @param track
-     * @param l1
-     * @param b1
-     * @param xc
-     * @return The safety zone for the track.
-     */
-    private Ellipse computeZone(Position geodeticReference, Track track, double l1, double b1, double xc) {
-        // Retrieve and validate required input variables
-        Float   cogBoxed = track.getCourseOverGround();
-        Integer loaBoxed = track.getVesselLength();
-        Integer beamBoxed = track.getVesselBeam();
-        Integer dimSternBoxed = track.getShipDimensionStern();
-        Integer dimStarboardBoxed = track.getShipDimensionStarboard();
-
-        if (cogBoxed == null) {
-            LOG.debug("MMSI " + track.getMmsi() + ": Cannot compute safety zone: No cog.");
-            return null;
-        }
-
-        if (loaBoxed == null) {
-            LOG.debug("MMSI " + track.getMmsi() + ": Cannot compute safety zone: No loa.");
-            return null;
-        }
-
-        if (beamBoxed == null) {
-            LOG.debug("MMSI " + track.getMmsi() + ": Cannot compute safety zone: No beam.");
-            return null;
-        }
-
-        if (dimSternBoxed == null) {
-            LOG.debug("MMSI " + track.getMmsi() + ": Cannot compute safety zone: No stern dimension.");
-            return null;
-        }
-
-        if (dimStarboardBoxed == null) {
-            LOG.debug("MMSI " + track.getMmsi() + ": Cannot compute safety zone: No starboard dimension.");
-            return null;
-        }
-
-        final double cog = cogBoxed;
-        final double loa = loaBoxed;
-        final double beam = beamBoxed;
-        final double dimStern = dimSternBoxed;
-        final double dimStarboard = dimStarboardBoxed;
-
-        // Compute direction of half axis alpha
-        final double thetaDeg = CoordinateConverter.compass2cartesian(cog);
-
-        // Transform latitude/longitude to cartesian coordinates
-        final double centerLatitude = geodeticReference.getLatitude();
-        final double centerLongitude = geodeticReference.getLongitude();
-        final CoordinateConverter CoordinateConverter = new CoordinateConverter(centerLongitude, centerLatitude);
-
-        final double trackLatitude = track.getPosition().getLatitude();
-        final double trackLongitude = track.getPosition().getLongitude();
-        final double x = CoordinateConverter.lon2x(trackLongitude, trackLatitude);
-        final double y = CoordinateConverter.lat2y(trackLongitude, trackLatitude);
-
-        // Compute center of safety zone
-        final Point pt0 = new Point(x, y);
-        Point pt1 = new Point(pt0.getX() - dimStern + loa*xc, pt0.getY() + dimStarboard - beam/2.0);
-        pt1 = pt1.rotate(pt0, thetaDeg);
-
-        // Compute length of half axis alpha
-        final double alpha = loa * l1 / 2.0;
-
-        // Compute length of half axis beta
-        final double beta = beam * b1 / 2.0;
-
-        return new Ellipse(geodeticReference, pt1.getX(), pt1.getY(), alpha, beta, thetaDeg, CoordinateSystem.CARTESIAN);
     }
 
     /**
@@ -374,7 +267,6 @@ public class CloseEncounterAnalysis extends Analysis {
         statisticsService.incAnalysisStatistics(analysisName, "Events raised");
 
         LOG.info(new Date(primaryTrack.getTimeOfLastPositionReport()) + ": Detected CloseEncounterEvent: " + description.toString());
-
 
         Event event =
             CloseEncounterEventBuilder.CloseEncounterEvent()
