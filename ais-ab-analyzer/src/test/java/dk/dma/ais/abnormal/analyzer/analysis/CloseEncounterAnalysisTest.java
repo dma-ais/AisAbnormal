@@ -17,7 +17,6 @@ package dk.dma.ais.abnormal.analyzer.analysis;
 
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.analyzer.behaviour.EventCertainty;
-import dk.dma.ais.abnormal.analyzer.geometry.Zone;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.Behaviour;
 import dk.dma.ais.abnormal.event.db.domain.CloseEncounterEvent;
@@ -27,6 +26,7 @@ import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.packet.AisPacket;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
 import dk.dma.enav.model.geometry.CoordinateSystem;
+import dk.dma.enav.model.geometry.Ellipse;
 import dk.dma.enav.model.geometry.Position;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
@@ -175,60 +175,60 @@ public class CloseEncounterAnalysisTest {
     public void safetyZoneXYAreTranslatedForwardX() {
         track.update(System.currentTimeMillis(), Position.create(56, 12), 90.0f, 0.0f);
 
-        Zone zone = analysis.computeSafetyZone(track.getPosition(), track, track);
+        Ellipse ellipse = analysis.computeSafetyZone(track.getPosition(), track, track);
 
-        assertEquals(47.0, zone.getX(), 1e-6);
-        assertEquals(-2.0, zone.getY(), 1e-6);
+        assertEquals(47.0, ellipse.getX(), 1e-6);
+        assertEquals(-2.0, ellipse.getY(), 1e-6);
     }
 
     @Test @Ignore
     public void safetyZoneXYAreTranslatedForwardY() {
         track.update(System.currentTimeMillis(), Position.create(56, 12), 0.0f, 0.0f);
 
-        Zone zone = analysis.computeSafetyZone(track.getPosition(), track, track);
+        Ellipse ellipse = analysis.computeSafetyZone(track.getPosition(), track, track);
 
-        assertEquals(0.0, zone.getX(), 1e-6);
-        assertEquals(100.0, zone.getY(), 1e-6);
+        assertEquals(0.0, ellipse.getX(), 1e-6);
+        assertEquals(100.0, ellipse.getY(), 1e-6);
     }
 
     @Test
     public void safetyZoneAtSpeedZeroIsSameSizeAsShip() {
         track.update(System.currentTimeMillis(), Position.create(56, 12), 90.0f, 0.0f);
 
-        Zone zone = analysis.computeSafetyZone(track.getPosition(), track, track);
+        Ellipse ellipse = analysis.computeSafetyZone(track.getPosition(), track, track);
 
         /* Checking in cartesian coordinates */
-        assertEquals(   47, zone.getX(),        1e-6);
-        assertEquals( -2.0, zone.getY(),        1e-6);
-        assertEquals(140.0, zone.getAlpha(),    1e-6);
-        assertEquals( 30.0, zone.getBeta(),     1e-6);
-        assertEquals(  0.0, zone.getThetaDeg(), 1e-6);
+        assertEquals(   47, ellipse.getX(),        1e-6);
+        assertEquals( -2.0, ellipse.getY(),        1e-6);
+        assertEquals(140.0, ellipse.getAlpha(),    1e-6);
+        assertEquals( 30.0, ellipse.getBeta(),     1e-6);
+        assertEquals(  0.0, ellipse.getThetaDeg(), 1e-6);
     }
 
     @Test
     public void safetyZoneXYAreBigForDistantPositions() {
         track.update(System.currentTimeMillis(), Position.create(56, 12), 0.0f, 0.0f);
 
-        Zone zone1 = analysis.computeSafetyZone(Position.create(57, 12), track, track);
-        assertTrue(abs(zone1.getX()) < 1000);
-        assertTrue(abs(zone1.getY()) > 10000);
+        Ellipse ellipse1 = analysis.computeSafetyZone(Position.create(57, 12), track, track);
+        assertTrue(abs(ellipse1.getX()) < 1000);
+        assertTrue(abs(ellipse1.getY()) > 10000);
 
-        Zone zone2 = analysis.computeSafetyZone(Position.create(56, 13), track, track);
-        assertTrue(abs(zone2.getX()) > 10000);
-        assertTrue(abs(zone2.getY()) < 1000);
+        Ellipse ellipse2 = analysis.computeSafetyZone(Position.create(56, 13), track, track);
+        assertTrue(abs(ellipse2.getX()) > 10000);
+        assertTrue(abs(ellipse2.getY()) < 1000);
     }
 
     @Test
     public void testComputeSafetyZone1() {
         track.update(1000L, Position.create(56, 12), 90.0f, 10.0f);
 
-        Zone zone = analysis.computeSafetyZone(track.getPosition(), track, track);
+        Ellipse ellipse = analysis.computeSafetyZone(track.getPosition(), track, track);
 
-        assertEquals(47.0, zone.getX(), 1e-6);
-        assertEquals(-2.0, zone.getY(), 1e-6);
-        assertEquals(30.0, zone.getBeta(), 1e-6);
-        assertEquals(140.0, zone.getAlpha(), 1e-6);
-        assertEquals(0.0, zone.getThetaDeg(), 1e-6);
+        assertEquals(47.0, ellipse.getX(), 1e-6);
+        assertEquals(-2.0, ellipse.getY(), 1e-6);
+        assertEquals(30.0, ellipse.getBeta(), 1e-6);
+        assertEquals(140.0, ellipse.getAlpha(), 1e-6);
+        assertEquals(0.0, ellipse.getThetaDeg(), 1e-6);
     }
 
     @Test
@@ -238,13 +238,13 @@ public class CloseEncounterAnalysisTest {
         Track otherTrack = track.clone();
         otherTrack.update(System.currentTimeMillis(), Position.create(56, 12), 90.0f, 20.0f);
 
-        Zone safetyZone = analysis.computeSafetyZone(track.getPosition(), track, otherTrack);
+        Ellipse safetyEllipse = analysis.computeSafetyZone(track.getPosition(), track, otherTrack);
 
-        assertEquals(47.0, safetyZone.getX(), 1e-6);
-        assertEquals(-2.0, safetyZone.getY(), 1e-6);
-        assertEquals(30.0, safetyZone.getBeta(), 1e-6);
-        assertEquals(140.0, safetyZone.getAlpha(), 1e-6);
-        assertEquals(0.0, safetyZone.getThetaDeg(), 1e-6);
+        assertEquals(47.0, safetyEllipse.getX(), 1e-6);
+        assertEquals(-2.0, safetyEllipse.getY(), 1e-6);
+        assertEquals(30.0, safetyEllipse.getBeta(), 1e-6);
+        assertEquals(140.0, safetyEllipse.getAlpha(), 1e-6);
+        assertEquals(0.0, safetyEllipse.getThetaDeg(), 1e-6);
     }
 
     @Test

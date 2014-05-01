@@ -21,7 +21,6 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.analyzer.geometry.Point;
-import dk.dma.ais.abnormal.analyzer.geometry.Zone;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.CloseEncounterEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
@@ -34,9 +33,10 @@ import dk.dma.ais.abnormal.tracker.TrackingReport;
 import dk.dma.ais.abnormal.tracker.events.TimeEvent;
 import dk.dma.ais.abnormal.util.AisDataHelper;
 import dk.dma.ais.abnormal.util.Categorizer;
-import dk.dma.ais.utils.coordinates.CoordinateConverter;
 import dk.dma.enav.model.geometry.CoordinateSystem;
+import dk.dma.enav.model.geometry.Ellipse;
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.enav.model.geometry.util.CoordinateConverter;
 import net.jcip.annotations.NotThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -148,11 +148,11 @@ public class CloseEncounterAnalysis extends Analysis {
                 track2.predict(track1.getTimeOfLastPositionReport());
             }
 
-            Zone safetyZoneTrack1 = computeSafetyZone(track1.getPosition(), track1, track2);
-            Zone extentTrack2 = computeVesselExtent(track1.getPosition(), track2);
+            Ellipse safetyEllipseTrack1 = computeSafetyZone(track1.getPosition(), track1, track2);
+            Ellipse extentTrack2 = computeVesselExtent(track1.getPosition(), track2);
 
-            if (safetyZoneTrack1 != null && extentTrack2 != null && safetyZoneTrack1.intersects(extentTrack2)) {
-                track1.setProperty(Track.SAFETY_ZONE, safetyZoneTrack1);
+            if (safetyEllipseTrack1 != null && extentTrack2 != null && safetyEllipseTrack1.intersects(extentTrack2)) {
+                track1.setProperty(Track.SAFETY_ZONE, safetyEllipseTrack1);
                 track2.setProperty(Track.EXTENT, extentTrack2);
                 raiseOrMaintainAbnormalEvent(CloseEncounterEvent.class, track1, track2);
             } else {
@@ -194,7 +194,7 @@ public class CloseEncounterAnalysis extends Analysis {
      * @param track
      * @return
      */
-    Zone computeVesselExtent(Position cartesianCenter, Track track) {
+    Ellipse computeVesselExtent(Position cartesianCenter, Track track) {
         return computeZone(cartesianCenter, track, 1.0, 1.0, 0.5);
     }
 
@@ -207,7 +207,7 @@ public class CloseEncounterAnalysis extends Analysis {
      * @param otherTrack
      * @return
      */
-    Zone computeSafetyZone(Position cartesianCenter, Track track, Track otherTrack) {
+    Ellipse computeSafetyZone(Position cartesianCenter, Track track, Track otherTrack) {
         final double safetyEllipseLength = 4;
         final double safetyEllipseBreadth = 5;
         final double safetyEllipseBehind = 0.5;   // = behindLength ???
@@ -228,7 +228,7 @@ public class CloseEncounterAnalysis extends Analysis {
      * @param xc
      * @return The safety zone for the track.
      */
-    private Zone computeZone(Position geodeticReference, Track track, double l1, double b1, double xc) {
+    private Ellipse computeZone(Position geodeticReference, Track track, double l1, double b1, double xc) {
         // Retrieve and validate required input variables
         Float   cogBoxed = track.getCourseOverGround();
         Integer loaBoxed = track.getVesselLength();
@@ -291,7 +291,7 @@ public class CloseEncounterAnalysis extends Analysis {
         // Compute length of half axis beta
         final double beta = beam * b1 / 2.0;
 
-        return new Zone(geodeticReference, pt1.getX(), pt1.getY(), alpha, beta, thetaDeg);
+        return new Ellipse(geodeticReference, pt1.getX(), pt1.getY(), alpha, beta, thetaDeg, CoordinateSystem.CARTESIAN);
     }
 
     /**
@@ -362,12 +362,12 @@ public class CloseEncounterAnalysis extends Analysis {
         description.append(secondaryShipName);
         description.append(" (" + secondaryShipType + "). ");
 
-        Zone primaryTracksafetyZone = (Zone) primaryTrack.getProperty(Track.SAFETY_ZONE);
-        Zone secondaryTrackExtent = (Zone) secondaryTrack.getProperty(Track.EXTENT);
+        Ellipse primaryTracksafetyEllipse = (Ellipse) primaryTrack.getProperty(Track.SAFETY_ZONE);
+        Ellipse secondaryTrackExtent = (Ellipse) secondaryTrack.getProperty(Track.EXTENT);
 
-        CoordinateConverter CoordinateConverter = new CoordinateConverter(primaryTracksafetyZone.getGeodeticReference().getLongitude(), primaryTracksafetyZone.getGeodeticReference().getLatitude());
-        double primaryTrackLatitude = CoordinateConverter.y2Lat(primaryTracksafetyZone.getX(), primaryTracksafetyZone.getY());
-        double primaryTrackLongitude = CoordinateConverter.x2Lon(primaryTracksafetyZone.getX(), primaryTracksafetyZone.getY());
+        CoordinateConverter CoordinateConverter = new CoordinateConverter(primaryTracksafetyEllipse.getGeodeticReference().getLongitude(), primaryTracksafetyEllipse.getGeodeticReference().getLatitude());
+        double primaryTrackLatitude = CoordinateConverter.y2Lat(primaryTracksafetyEllipse.getX(), primaryTracksafetyEllipse.getY());
+        double primaryTrackLongitude = CoordinateConverter.x2Lon(primaryTracksafetyEllipse.getX(), primaryTracksafetyEllipse.getY());
         double secondaryTrackLatitude = CoordinateConverter.y2Lat(secondaryTrackExtent.getX(), secondaryTrackExtent.getY());
         double secondaryTrackLongitude = CoordinateConverter.x2Lon(secondaryTrackExtent.getX(), secondaryTrackExtent.getY());
 
@@ -382,9 +382,9 @@ public class CloseEncounterAnalysis extends Analysis {
                         .targetTimestamp(new Date(primaryTrack.getTimeOfLastPositionReport()))
                         .centerLatitude(primaryTrackLatitude)
                         .centerLongitude(primaryTrackLongitude)
-                        .majorAxisHeading(primaryTracksafetyZone.getMajorAxisGeodeticHeading())
-                        .majorSemiAxisLength(primaryTracksafetyZone.getAlpha())
-                        .minorSemiAxisLength(primaryTracksafetyZone.getBeta())
+                        .majorAxisHeading(primaryTracksafetyEllipse.getMajorAxisGeodeticHeading())
+                        .majorSemiAxisLength(primaryTracksafetyEllipse.getAlpha())
+                        .minorSemiAxisLength(primaryTracksafetyEllipse.getBeta())
                     .extentOfSecondaryVessel()
                         .targetTimestamp(new Date(secondaryTrack.getTimeOfLastPositionReport()))
                         .centerLatitude(secondaryTrackLatitude)
