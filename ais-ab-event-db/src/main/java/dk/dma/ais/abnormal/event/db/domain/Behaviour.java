@@ -67,6 +67,14 @@ public class Behaviour {
         return id;
     }
 
+    public boolean isPrimary() {
+        return isPrimary;
+    }
+
+    public void setPrimary(boolean isPrimary) {
+        this.isPrimary = isPrimary;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -83,4 +91,6 @@ public class Behaviour {
     @OrderBy("timestamp")
     private List<TrackingPoint> trackingPoints;
 
+    @NotNull
+    private boolean isPrimary;
 }

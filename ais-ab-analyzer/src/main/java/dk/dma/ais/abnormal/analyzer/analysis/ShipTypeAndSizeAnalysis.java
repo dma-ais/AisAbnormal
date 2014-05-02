@@ -218,6 +218,7 @@ public class ShipTypeAndSizeAnalysis extends StatisticBasedAnalysis {
                     .description(desc)
                     .startTime(positionTimestamp)
                     .behaviour()
+                        .isPrimary(true)
                         .vessel()
                             .mmsi(mmsi)
                             .imo(imo)

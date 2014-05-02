@@ -144,7 +144,15 @@ var mapModule = {
 
     getPrimaryMmsisForEvent: function(jsonEvent) {
         var primaryMmsis = new Array();
-        primaryMmsis.push(jsonEvent.behaviours[0].vessel.mmsi);
+
+        var behaviours = jsonEvent.behaviours;
+        var n = behaviours.length;
+        for (var i=0; i<n; i++) {
+            if (behaviours[i].primary == true) {
+                primaryMmsis.push(jsonEvent.behaviours[i].vessel.mmsi);
+            }
+        }
+
         return primaryMmsis;
     },
 
@@ -152,7 +160,13 @@ var mapModule = {
         var secondaryMmsis = new Array();
         switch (jsonEvent.eventType) {
             case "CloseEncounterEvent":
-                secondaryMmsis.push(jsonEvent.behaviours[1].vessel.mmsi);
+                var behaviours = jsonEvent.behaviours;
+                var n = behaviours.length;
+                for (var i=0; i<n; i++) {
+                    if (behaviours[i].primary == false) {
+                        secondaryMmsis.push(jsonEvent.behaviours[i].vessel.mmsi);
+                    }
+                }
                 break;
             default:
         }

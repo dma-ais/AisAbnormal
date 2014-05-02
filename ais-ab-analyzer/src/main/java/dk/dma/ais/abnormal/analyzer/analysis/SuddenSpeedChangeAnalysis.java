@@ -163,6 +163,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
                 .startTime(prevTimestamp)
                 .endTime(timestamp)
                 .behaviour()
+                    .isPrimary(true)
                     .vessel()
                         .mmsi(mmsi)
                         .imo(imo)

@@ -56,6 +56,11 @@ public class BehaviourBuilder {
         return this;
     }
 
+    public BehaviourBuilder isPrimary(boolean isPrimary) {
+        behaviour.setPrimary(isPrimary);
+        return this;
+    }
+
     public Behaviour getBehaviour() {
         return behaviour;
     }
