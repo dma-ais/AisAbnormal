@@ -142,7 +142,7 @@ var mapModule = {
         mapModule.map.setLayerIndex(mapModule.getVesselLayer(), 99);
     },
 
-    getPrimaryMmsisForEvent: function(jsonEvent) {
+    kmlGenPrimaryMmsisForEvent: function(jsonEvent) {
         var primaryMmsis = new Array();
 
         var behaviours = jsonEvent.behaviours;
@@ -156,7 +156,7 @@ var mapModule = {
         return primaryMmsis;
     },
 
-    getSecondaryMmsisForEvent: function(jsonEvent) {
+    kmlGenSecondaryMmsisForEvent: function(jsonEvent) {
         var secondaryMmsis = new Array();
         switch (jsonEvent.eventType) {
             case "CloseEncounterEvent":
@@ -173,16 +173,24 @@ var mapModule = {
         return secondaryMmsis;
     },
 
-    getStartTimeForEvent: function(jsonEvent) {
+    kmlGenStartTimeForEvent: function(jsonEvent) {
         return new Date(jsonEvent.startTime - 10 * 60 * 1000 /* 10 minutes before */).toISOString();
     },
 
-    getEndTimeForEvent: function(jsonEvent) {
+    kmlGenEndTimeForEvent: function(jsonEvent) {
         if (jsonEvent.endTime) {
             return new Date(jsonEvent.endTime + 10 * 60 * 1000 /* 10 minutes after */).toISOString();
         } else {
             return new Date(jsonEvent.startTime + 20 * 60 * 1000 /* 20 minutes after beginning */).toISOString();
         }
+    },
+
+    kmlGenTitleForEvent: function(jsonEvent) {
+        return jsonEvent.title;
+    },
+
+    kmlGenDescriptionForEvent: function(jsonEvent) {
+        return jsonEvent.description;
     },
 
     initContextMenu: function() {
@@ -195,19 +203,20 @@ var mapModule = {
             {'Generate KML for Google Earth ...':function(menuItem,menu) {
                 var evt = menu.originalEvent;
                 var feature = mapModule.getVesselLayer().getFeatureFromEvent(evt);
-                var primaryMmsis = mapModule.getPrimaryMmsisForEvent(feature.data.jsonEvent);
-                var secondaryMmsis = mapModule.getSecondaryMmsisForEvent(feature.data.jsonEvent);
+                var primaryMmsis = mapModule.kmlGenPrimaryMmsisForEvent(feature.data.jsonEvent);
+                var secondaryMmsis = mapModule.kmlGenSecondaryMmsisForEvent(feature.data.jsonEvent);
                 var bounds = feature.geometry.bounds.clone();
                 bounds.transform(mapModule.projectionSphericalMercator, mapModule.projectionWGS84);
 
                 var modal = $('#event-kmlgen-modal');
 
-                modal.find('#kmlgen-event-description').val(feature.data.jsonEvent.description);
+                modal.find('#kmlgen-event-title').val(mapModule.kmlGenTitleForEvent(feature.data.jsonEvent));
+                modal.find('#kmlgen-event-description').val(mapModule.kmlGenDescriptionForEvent(feature.data.jsonEvent));
                 modal.find('#kmlgen-event-primary-mmsis').val(primaryMmsis.join(", "));
                 modal.find('#kmlgen-event-secondary-mmsis').val(secondaryMmsis.join(", "));
 
-                modal.find('#kmlgen-event-from').val(mapModule.getStartTimeForEvent(feature.data.jsonEvent));
-                modal.find('#kmlgen-event-to').val(mapModule.getEndTimeForEvent(feature.data.jsonEvent));
+                modal.find('#kmlgen-event-from').val(mapModule.kmlGenStartTimeForEvent(feature.data.jsonEvent));
+                modal.find('#kmlgen-event-to').val(mapModule.kmlGenEndTimeForEvent(feature.data.jsonEvent));
                 modal.find('#kmlgen-event-situation-at').val(new Date(feature.data.jsonEvent.startTime).toISOString());
 
                 modal.find('#kmlgen-event-north').val(OpenLayers.Util.getFormattedLonLat(bounds.top, 'lat'));
@@ -508,7 +517,8 @@ var mapModule = {
     generateKmlForEvent: function () {
         var modal = $('#event-kmlgen-modal');
 
-        var desc = modal.find('#kmlgen-event-description').val();
+        var title = modal.find('#kmlgen-event-title').val();
+        var description = modal.find('#kmlgen-event-description').val();
         var primaryMmsi = $.trim(modal.find('#kmlgen-event-primary-mmsis').val());
         var secondaryMmsi = $.trim(modal.find('#kmlgen-event-secondary-mmsis').val());
         var from = new Date(modal.find('#kmlgen-event-from').val()).getTime();
@@ -534,6 +544,12 @@ var mapModule = {
         }
         if (secondaryMmsi.length > 0) {
             queryParams['secondaryMmsi'] = secondaryMmsi;
+        }
+        if (title.length > 0) {
+            queryParams['title'] = title;
+        }
+        if (description.length > 0) {
+            queryParams['description'] = description;
         }
         var eventRequest = mapModule.kmlResourceService + "?" + $.param(queryParams);
 

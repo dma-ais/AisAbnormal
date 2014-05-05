@@ -40,6 +40,11 @@ public abstract class EventBuilder {
         return this;
     }
 
+    public EventBuilder title(String title){
+        getEvent().setTitle(title);
+        return this;
+    }
+
     public EventBuilder description(String description){
         getEvent().setDescription(description);
         return this;

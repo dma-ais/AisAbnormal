@@ -18,6 +18,7 @@ package dk.dma.ais.abnormal.event.db.domain;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSet;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -76,6 +77,12 @@ public abstract class Event {
     private Set<Behaviour> behaviours;
 
     /**
+     * A title of the event in English language.
+     */
+    @NotBlank
+    private String title;
+
+    /**
      * A textual description of the event in English language.
      */
     private String description;
@@ -131,6 +138,14 @@ public abstract class Event {
 
     public void addBehaviour(Behaviour behaviour) {
         this.behaviours.add(behaviour);
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDescription() {
