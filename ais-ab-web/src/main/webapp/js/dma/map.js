@@ -173,6 +173,18 @@ var mapModule = {
         return secondaryMmsis;
     },
 
+    getStartTimeForEvent: function(jsonEvent) {
+        return new Date(jsonEvent.startTime - 10 * 60 * 1000 /* 10 minutes before */).toISOString();
+    },
+
+    getEndTimeForEvent: function(jsonEvent) {
+        if (jsonEvent.endTime) {
+            return new Date(jsonEvent.endTime + 10 * 60 * 1000 /* 10 minutes after */).toISOString();
+        } else {
+            return new Date(jsonEvent.startTime + 20 * 60 * 1000 /* 20 minutes after beginning */).toISOString();
+        }
+    },
+
     initContextMenu: function() {
         var contextMenuDef = [
             {'Name': {disabled:true} },
@@ -183,7 +195,6 @@ var mapModule = {
             {'Generate KML for Google Earth ...':function(menuItem,menu) {
                 var evt = menu.originalEvent;
                 var feature = mapModule.getVesselLayer().getFeatureFromEvent(evt);
-                var behaviours = feature.data.jsonEvent.behaviours;
                 var primaryMmsis = mapModule.getPrimaryMmsisForEvent(feature.data.jsonEvent);
                 var secondaryMmsis = mapModule.getSecondaryMmsisForEvent(feature.data.jsonEvent);
                 var bounds = feature.geometry.bounds.clone();
@@ -195,8 +206,8 @@ var mapModule = {
                 modal.find('#kmlgen-event-primary-mmsis').val(primaryMmsis.join(", "));
                 modal.find('#kmlgen-event-secondary-mmsis').val(secondaryMmsis.join(", "));
 
-                modal.find('#kmlgen-event-from').val(new Date(feature.data.jsonEvent.startTime - 10 * 60 * 1000 /* 10 minutes before */).toISOString() );
-                modal.find('#kmlgen-event-to').val(new Date(feature.data.jsonEvent.endTime + 10 * 60 * 1000 /* 10 minutes after */).toISOString() );
+                modal.find('#kmlgen-event-from').val(mapModule.getStartTimeForEvent(feature.data.jsonEvent));
+                modal.find('#kmlgen-event-to').val(mapModule.getEndTimeForEvent(feature.data.jsonEvent));
                 modal.find('#kmlgen-event-situation-at').val(new Date(feature.data.jsonEvent.startTime).toISOString());
 
                 modal.find('#kmlgen-event-north').val(OpenLayers.Util.getFormattedLonLat(bounds.top, 'lat'));

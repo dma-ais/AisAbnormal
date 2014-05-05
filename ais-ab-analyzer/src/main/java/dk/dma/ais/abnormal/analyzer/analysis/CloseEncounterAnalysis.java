@@ -148,15 +148,36 @@ public class CloseEncounterAnalysis extends Analysis {
                 track2.predict(track1.getTimeOfLastPositionReport());
             }
 
-            Ellipse safetyEllipseTrack1 = safetyZone(track1.getPosition(), track1.getPosition(), track1.getCourseOverGround(), track1.getSpeedOverGround(), track1.getVesselLength(), track1.getVesselBeam(), track1.getShipDimensionStern(), track1.getShipDimensionStarboard());
-            Ellipse extentTrack2 = vesselExtent(track1.getPosition(), track2.getPosition(), track2.getCourseOverGround(), track2.getVesselLength(), track2.getVesselBeam(), track2.getShipDimensionStern(), track2.getShipDimensionStarboard());
+            boolean allValuesPresent = false;
+            float track1Cog=Float.NaN, track1Sog=Float.NaN, track2Cog=Float.NaN;
+            int track1Loa=-1, track1Beam=-1, track1Stern=-1, track1Starboard=-1, track2Loa=-1, track2Beam=-1, track2Stern=-1, track2Starboard=-1;
+            try {
+                track1Cog = track1.getCourseOverGround();
+                track1Sog = track1.getSpeedOverGround();
+                track1Loa = track1.getVesselLength();
+                track1Beam = track1.getVesselBeam();
+                track1Stern = track1.getShipDimensionStern();
+                track1Starboard = track1.getShipDimensionStarboard();
+                track2Cog = track2.getCourseOverGround();
+                track2Loa = track2.getVesselLength();
+                track2Beam = track2.getVesselBeam();
+                track2Stern = track2.getShipDimensionStern();
+                track2Starboard = track2.getShipDimensionStarboard();
+                allValuesPresent = true;
+            } catch(NullPointerException e) {
+            }
 
-            if (safetyEllipseTrack1 != null && extentTrack2 != null && safetyEllipseTrack1.intersects(extentTrack2)) {
-                track1.setProperty(Track.SAFETY_ZONE, safetyEllipseTrack1);
-                track2.setProperty(Track.EXTENT, extentTrack2);
-                raiseOrMaintainAbnormalEvent(CloseEncounterEvent.class, track1, track2);
-            } else {
-                lowerExistingAbnormalEventIfExists(CloseEncounterEvent.class, track1);
+            if (allValuesPresent) {
+                Ellipse safetyEllipseTrack1 = safetyZone(track1.getPosition(), track1.getPosition(), track1Cog, track1Sog, track1Loa, track1Beam, track1Stern, track1Starboard);
+                Ellipse extentTrack2 = vesselExtent(track1.getPosition(), track2.getPosition(), track2Cog, track2Loa, track2Beam, track2Stern, track2Starboard);
+
+                if (safetyEllipseTrack1 != null && extentTrack2 != null && safetyEllipseTrack1.intersects(extentTrack2)) {
+                    track1.setProperty(Track.SAFETY_ZONE, safetyEllipseTrack1);
+                    track2.setProperty(Track.EXTENT, extentTrack2);
+                    raiseOrMaintainAbnormalEvent(CloseEncounterEvent.class, track1, track2);
+                } else {
+                    lowerExistingAbnormalEventIfExists(CloseEncounterEvent.class, track1);
+                }
             }
 
             markTrackPairAnalyzed(track1, track2);
