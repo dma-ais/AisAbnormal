@@ -32,6 +32,7 @@ import dk.dma.enav.model.geometry.Position;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -53,6 +54,9 @@ public abstract class Analysis {
     private final EventRepository eventRepository;
     private final Tracker trackingService;
     private final BehaviourManager behaviourManager;
+
+    private static final String DATE_FORMAT_STRING = "dd/MM/yyyy HH:mm";
+    protected static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_STRING);
 
     protected Analysis(EventRepository eventRepository, Tracker trackingService, BehaviourManager behaviourManager) {
         this.eventRepository = eventRepository;

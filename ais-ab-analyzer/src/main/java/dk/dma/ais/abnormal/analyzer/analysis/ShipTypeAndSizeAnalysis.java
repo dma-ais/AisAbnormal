@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 
 import static dk.dma.ais.abnormal.event.db.domain.builders.ShipSizeOrTypeEventBuilder.ShipSizeOrTypeEvent;
+import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
 
 /**
  * This analysis manages events where the presence of a vessel of the given type
@@ -187,7 +188,7 @@ public class ShipTypeAndSizeAnalysis extends StatisticBasedAnalysis {
         Integer mmsi = track.getMmsi();
         Integer imo = track.getIMO();
         String callsign = track.getCallsign();
-        String name = track.getShipName();
+        String name = nameOrMmsi(track.getShipName(), mmsi);
         Integer shipType = track.getShipType();
         Integer shipLength = track.getVesselLength();
         Date positionTimestamp = new Date(track.getTimeOfLastPositionReport());
@@ -208,14 +209,17 @@ public class ShipTypeAndSizeAnalysis extends StatisticBasedAnalysis {
         String shipTypeAsString = Categorizer.mapShipTypeCategoryToString(shipTypeCategory);
         String shipLengthAsString = Categorizer.mapShipSizeCategoryToString(shipLengthCategory);
 
-        String desc = String.format("type:%d(%s) size:%d(%s)", shipType, shipTypeAsString, shipLength, shipLengthAsString);
-        LOG.info(positionTimestamp + ": Detected ShipSizeOrTypeEvent for mmsi " + mmsi + ": "+ desc + ".");
+        String title = "Abnormal type and size of ship";
+        String description = String.format("Abnormal type and size of " + name + " (" + shipTypeAsString + ") on position " + position + " at " + DATE_FORMAT.format(positionTimestamp) + ": type:%d(%s) size:%d(%s).", shipType, shipTypeAsString, shipLength, shipLengthAsString);
+
+        LOG.info(description);
 
         Event event =
                 ShipSizeOrTypeEvent()
                     .shipType(shipTypeCategory)
                     .shipLength(shipLengthCategory)
-                    .description(desc)
+                    .title(title)
+                    .description(description)
                     .startTime(positionTimestamp)
                     .behaviour()
                         .isPrimary(true)

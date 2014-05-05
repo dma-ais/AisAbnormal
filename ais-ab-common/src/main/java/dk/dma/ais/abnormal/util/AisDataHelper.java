@@ -18,6 +18,8 @@ package dk.dma.ais.abnormal.util;
 
 import com.google.common.base.Strings;
 
+import static org.apache.commons.lang.StringUtils.isBlank;
+
 public final class AisDataHelper {
 
     private AisDataHelper() {
@@ -30,5 +32,10 @@ public final class AisDataHelper {
             name = "";
         }
         return name;
+    }
+
+    public static String nameOrMmsi(String name, int mmsi) {
+        String trimmedName = trimAisString(name);
+        return isBlank(trimmedName) ? "MMSI " + Integer.toString(mmsi) : trimmedName;
     }
 }

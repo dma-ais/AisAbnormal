@@ -137,7 +137,7 @@ public final class Track implements Cloneable {
     public void update(long timestamp, AisMessage m) {
         if (m instanceof IVesselPositionMessage) {
             IVesselPositionMessage pm = (IVesselPositionMessage) m;
-            update(timestamp, pm.getValidPosition(), (float) (pm.getCog() / 10.0), (float) (pm.getSog() / 10.0));
+            update(timestamp, pm.getValidPosition(), (float) (pm.getCog() / 10.0), (float) (pm.getSog() / 10.0), pm.getTrueHeading());
         }
     }
 
@@ -145,8 +145,8 @@ public final class Track implements Cloneable {
      * Update this track with interpolated or predicted information (as opposed to information
      * received from an AIS receiver or basestation).
      */
-    public void update(long timestamp, Position position, float cog, float sog) {
-        InterpolatedTrackingReport trackingReport = new InterpolatedTrackingReport(timestamp, position, cog, sog);
+    public void update(long timestamp, Position position, float cog, float sog, float hdg) {
+        InterpolatedTrackingReport trackingReport = new InterpolatedTrackingReport(timestamp, position, cog, sog, hdg);
         addTrackingReport(trackingReport);
 
         //trackingReports.add(trackingReport);
@@ -327,6 +327,7 @@ public final class Track implements Cloneable {
                 Position currentPosition = trackingReport.getPosition();
                 float cog = trackingReport.getCourseOverGround();
                 float sog = trackingReport.getSpeedOverGround();
+                float hdg = trackingReport.getTrueHeading();
 
                 long deltaMillis = atTime - now;
                 float deltaSeconds = deltaMillis / 1000;
@@ -336,7 +337,7 @@ public final class Track implements Cloneable {
                 float distanceMeters = distanceNauticalMiles * 1852;
                 Position predictedPosition = CoordinateSystem.CARTESIAN.pointOnBearing(currentPosition, distanceMeters, cog);
 
-                addTrackingReport(new InterpolatedTrackingReport(atTime, predictedPosition, cog, sog /* TODO should be PredictedTrackingReport */));
+                addTrackingReport(new InterpolatedTrackingReport(atTime, predictedPosition, cog, sog, hdg /* TODO should be PredictedTrackingReport */));
             } else {
                 throw new IllegalStateException("No enough data to predict future position.");
             }
@@ -419,6 +420,11 @@ public final class Track implements Cloneable {
     /** Convenience method to return track's last reported COG or null */
     public Float getCourseOverGround() {
         return nullsafeGetFromNewestTrackingReport(tp -> tp.getCourseOverGround());
+    }
+
+    /** Convenience method to return track's last reported heading or null */
+    public Float getTrueHeading() {
+        return nullsafeGetFromNewestTrackingReport(tp -> tp.getTrueHeading());
     }
 
     private <T> T nullsafeGetFromNewestTrackingReport(Function<? super TrackingReport, T> getter) {

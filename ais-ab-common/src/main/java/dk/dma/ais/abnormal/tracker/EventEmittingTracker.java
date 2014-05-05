@@ -241,7 +241,7 @@ public class EventEmittingTracker implements Tracker {
 
         interpolatedPositions.forEach((t, p) -> {
             Position oldPosition = track.getPosition();
-            track.update(t, p, (float) (posMessage.getCog() / 10.0), (float) (posMessage.getSog() / 10.0));
+            track.update(t, p, (float) (posMessage.getCog() / 10.0), (float) (posMessage.getSog() / 10.0), posMessage.getTrueHeading());
             eventBus.post(new PositionChangedEvent(track, oldPosition));
         });
     }

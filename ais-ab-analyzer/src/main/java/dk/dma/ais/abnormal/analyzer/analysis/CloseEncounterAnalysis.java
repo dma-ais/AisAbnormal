@@ -30,7 +30,6 @@ import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.abnormal.tracker.TrackingReport;
 import dk.dma.ais.abnormal.tracker.events.TimeEvent;
-import dk.dma.ais.abnormal.util.AisDataHelper;
 import dk.dma.ais.abnormal.util.Categorizer;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Ellipse;
@@ -45,6 +44,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Executor;
 
+import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
 import static dk.dma.enav.safety.SafetyZones.safetyZone;
 import static dk.dma.enav.safety.SafetyZones.vesselExtent;
 import static java.lang.Math.max;
@@ -149,7 +149,7 @@ public class CloseEncounterAnalysis extends Analysis {
             }
 
             boolean allValuesPresent = false;
-            float track1Cog=Float.NaN, track1Sog=Float.NaN, track2Cog=Float.NaN;
+            float track1Cog=Float.NaN, track1Sog=Float.NaN, track2Hdg=Float.NaN;
             int track1Loa=-1, track1Beam=-1, track1Stern=-1, track1Starboard=-1, track2Loa=-1, track2Beam=-1, track2Stern=-1, track2Starboard=-1;
             try {
                 track1Cog = track1.getCourseOverGround();
@@ -158,7 +158,7 @@ public class CloseEncounterAnalysis extends Analysis {
                 track1Beam = track1.getVesselBeam();
                 track1Stern = track1.getShipDimensionStern();
                 track1Starboard = track1.getShipDimensionStarboard();
-                track2Cog = track2.getCourseOverGround();
+                track2Hdg = track2.getTrueHeading();
                 track2Loa = track2.getVesselLength();
                 track2Beam = track2.getVesselBeam();
                 track2Stern = track2.getShipDimensionStern();
@@ -167,9 +167,9 @@ public class CloseEncounterAnalysis extends Analysis {
             } catch(NullPointerException e) {
             }
 
-            if (allValuesPresent) {
+            if (allValuesPresent && !Float.isNaN(track1Cog) && !Float.isNaN(track2Hdg)) {
                 Ellipse safetyEllipseTrack1 = safetyZone(track1.getPosition(), track1.getPosition(), track1Cog, track1Sog, track1Loa, track1Beam, track1Stern, track1Starboard);
-                Ellipse extentTrack2 = vesselExtent(track1.getPosition(), track2.getPosition(), track2Cog, track2Loa, track2Beam, track2Stern, track2Starboard);
+                Ellipse extentTrack2 = vesselExtent(track1.getPosition(), track2.getPosition(), track2Hdg, track2Loa, track2Beam, track2Stern, track2Starboard);
 
                 if (safetyEllipseTrack1 != null && extentTrack2 != null && safetyEllipseTrack1.intersects(extentTrack2)) {
                     track1.setProperty(Track.SAFETY_ZONE, safetyEllipseTrack1);
@@ -249,13 +249,10 @@ public class CloseEncounterAnalysis extends Analysis {
         }
         final Track secondaryTrack = otherTracks[0];
 
-        String primaryShipName = primaryTrack.getShipName();
-        primaryShipName = AisDataHelper.trimAisString(primaryShipName);
+        String primaryShipName = nameOrMmsi(primaryTrack.getShipName(), primaryTrack.getMmsi());
+        String secondaryShipName = nameOrMmsi(secondaryTrack.getShipName(), secondaryTrack.getMmsi());
 
-        String secondaryShipName = secondaryTrack.getShipName();
-        secondaryShipName = AisDataHelper.trimAisString(secondaryShipName);
-
-        String primaryShipType = "?";
+        String primaryShipType = "unknown type";
         Integer primaryShipTypeBoxed = primaryTrack.getShipType();
         if (primaryShipTypeBoxed != null) {
             short primaryShipTypeCategory = Categorizer.mapShipTypeToCategory(primaryShipTypeBoxed);
@@ -269,25 +266,30 @@ public class CloseEncounterAnalysis extends Analysis {
             secondaryShipType = Categorizer.mapShipTypeCategoryToString(secondaryShipTypeCategory);
         }
 
+        StringBuffer title = new StringBuffer();
+        title.append("Close encounter");
+
         StringBuffer description = new StringBuffer();
         description.append("Close encounter between ");
         description.append(primaryShipName);
         description.append(" (" + primaryShipType + ") and ");
         description.append(secondaryShipName);
-        description.append(" (" + secondaryShipType + "). ");
+        description.append(" (" + secondaryShipType + ") on ");
+        description.append(DATE_FORMAT.format(new Date(primaryTrack.getTimeOfLastPositionReport())));
+        description.append(".");
 
-        Ellipse primaryTracksafetyEllipse = (Ellipse) primaryTrack.getProperty(Track.SAFETY_ZONE);
+        Ellipse primaryTrackSafetyEllipse = (Ellipse) primaryTrack.getProperty(Track.SAFETY_ZONE);
         Ellipse secondaryTrackExtent = (Ellipse) secondaryTrack.getProperty(Track.EXTENT);
 
-        CoordinateConverter CoordinateConverter = new CoordinateConverter(primaryTracksafetyEllipse.getGeodeticReference().getLongitude(), primaryTracksafetyEllipse.getGeodeticReference().getLatitude());
-        double primaryTrackLatitude = CoordinateConverter.y2Lat(primaryTracksafetyEllipse.getX(), primaryTracksafetyEllipse.getY());
-        double primaryTrackLongitude = CoordinateConverter.x2Lon(primaryTracksafetyEllipse.getX(), primaryTracksafetyEllipse.getY());
+        CoordinateConverter CoordinateConverter = new CoordinateConverter(primaryTrackSafetyEllipse.getGeodeticReference().getLongitude(), primaryTrackSafetyEllipse.getGeodeticReference().getLatitude());
+        double primaryTrackLatitude = CoordinateConverter.y2Lat(primaryTrackSafetyEllipse.getX(), primaryTrackSafetyEllipse.getY());
+        double primaryTrackLongitude = CoordinateConverter.x2Lon(primaryTrackSafetyEllipse.getX(), primaryTrackSafetyEllipse.getY());
         double secondaryTrackLatitude = CoordinateConverter.y2Lat(secondaryTrackExtent.getX(), secondaryTrackExtent.getY());
         double secondaryTrackLongitude = CoordinateConverter.x2Lon(secondaryTrackExtent.getX(), secondaryTrackExtent.getY());
 
         statisticsService.incAnalysisStatistics(analysisName, "Events raised");
 
-        LOG.info(new Date(primaryTrack.getTimeOfLastPositionReport()) + ": Detected CloseEncounterEvent: " + description.toString());
+        LOG.info(description.toString());
 
         Event event =
             CloseEncounterEventBuilder.CloseEncounterEvent()
@@ -295,9 +297,9 @@ public class CloseEncounterAnalysis extends Analysis {
                         .targetTimestamp(new Date(primaryTrack.getTimeOfLastPositionReport()))
                         .centerLatitude(primaryTrackLatitude)
                         .centerLongitude(primaryTrackLongitude)
-                        .majorAxisHeading(primaryTracksafetyEllipse.getMajorAxisGeodeticHeading())
-                        .majorSemiAxisLength(primaryTracksafetyEllipse.getAlpha())
-                        .minorSemiAxisLength(primaryTracksafetyEllipse.getBeta())
+                        .majorAxisHeading(primaryTrackSafetyEllipse.getMajorAxisGeodeticHeading())
+                        .majorSemiAxisLength(primaryTrackSafetyEllipse.getAlpha())
+                        .minorSemiAxisLength(primaryTrackSafetyEllipse.getBeta())
                     .extentOfSecondaryVessel()
                         .targetTimestamp(new Date(secondaryTrack.getTimeOfLastPositionReport()))
                         .centerLatitude(secondaryTrackLatitude)
@@ -305,6 +307,7 @@ public class CloseEncounterAnalysis extends Analysis {
                         .majorAxisHeading(secondaryTrackExtent.getMajorAxisGeodeticHeading())
                         .majorSemiAxisLength(secondaryTrackExtent.getAlpha())
                         .minorSemiAxisLength(secondaryTrackExtent.getBeta())
+                    .title(title.toString())
                     .description(description.toString())
                     .state(Event.State.ONGOING)
                     .startTime(new Date(primaryTrack.getTimeOfLastPositionReport()))

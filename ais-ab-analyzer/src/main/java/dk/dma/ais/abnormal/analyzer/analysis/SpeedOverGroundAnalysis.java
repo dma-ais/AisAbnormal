@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 
 import static dk.dma.ais.abnormal.event.db.domain.builders.SpeedOverGroundEventBuilder.SpeedOverGroundEvent;
+import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
 
 /**
  * This analysis manages events where a vessel has an "abnormal" speed over ground
@@ -190,7 +191,7 @@ public class SpeedOverGroundAnalysis extends StatisticBasedAnalysis {
         Integer mmsi = track.getMmsi();
         Integer imo = track.getIMO();
         String callsign = track.getCallsign();
-        String name = track.getShipName();
+        String name = nameOrMmsi(track.getShipName(), mmsi);
         Integer shipType = track.getShipType();
         Integer shipLength = track.getVesselLength();
         Date positionTimestamp = new Date(track.getTimeOfLastPositionReport());
@@ -213,15 +214,18 @@ public class SpeedOverGroundAnalysis extends StatisticBasedAnalysis {
         String shipLengthAsString = Categorizer.mapShipSizeCategoryToString(shipLengthCategory);
         String speedOverGroundAsString = Categorizer.mapSpeedOverGroundCategoryToString(speedOverGroundCategory);
 
-        String desc = String.format("sog:%.1f(%s) type:%d(%s) size:%d(%s)", sog, speedOverGroundAsString, shipType, shipTypeAsString, shipLength, shipLengthAsString);
-        LOG.info(positionTimestamp + ": Detected SpeedOverGroundEvent for mmsi " + mmsi + ": "+ desc + "." );
+        String title = "Abnormal speed over ground";
+        String description = String.format("Abnormal speed over ground of " + name + " (" + shipTypeAsString + ") on position " + position + " at " + DATE_FORMAT.format(positionTimestamp) + ": cog:%.0f(%s) sog:%.1f(%s) type:%d(%s) size:%d(%s).", cog, speedOverGroundAsString, sog, speedOverGroundAsString, shipType, shipTypeAsString, shipLength, shipLengthAsString);
+
+        LOG.info(description);
 
         Event event =
                 SpeedOverGroundEvent()
                         .shipType(shipTypeCategory)
                         .shipLength(shipLengthCategory)
                         .speedOverGround(speedOverGroundCategory)
-                        .description(desc)
+                        .title(title)
+                        .description(description)
                         .startTime(positionTimestamp)
                         .behaviour()
                             .isPrimary(true)

@@ -172,7 +172,7 @@ public class ShipTypeAndSizeStatisticTest {
 
     @Test
     public void testDoNotCountTracksWithSogLessThanTwo() {
-        track.update(System.currentTimeMillis(), Position.create(56, 12), 0.0f, 1.99f);
+        track.update(System.currentTimeMillis(), Position.create(56, 12), 0.0f, 1.99f, 1.99f);
 
         Long oldCellId = null;
         CellChangedEvent event = new CellChangedEvent(track, oldCellId);
@@ -193,7 +193,7 @@ public class ShipTypeAndSizeStatisticTest {
 
     @Test
     public void testCountTracksWithSogOverTwo() {
-        track.update(System.currentTimeMillis(), Position.create(56, 12), 0.0f, 2.01f);
+        track.update(System.currentTimeMillis(), Position.create(56, 12), 0.0f, 2.01f, 2.01f);
 
         Long oldCellId = null;
         CellChangedEvent event = new CellChangedEvent(track, oldCellId);

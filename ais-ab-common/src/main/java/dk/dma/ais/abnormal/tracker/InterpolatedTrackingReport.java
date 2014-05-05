@@ -26,12 +26,14 @@ public final class InterpolatedTrackingReport extends TrackingReport {
     private final Position position;
     private final float courseOverGround;
     private final float speedOverGround;
+    private final float trueHeading;
 
-    public InterpolatedTrackingReport(long timestamp, Position position, float courseOverGround, float speedOverGround) {
+    public InterpolatedTrackingReport(long timestamp, Position position, float courseOverGround, float speedOverGround, float trueHeading) {
         this.timestamp = timestamp;
         this.position = position;
-        this.speedOverGround = speedOverGround;
         this.courseOverGround = courseOverGround;
+        this.speedOverGround = speedOverGround;
+        this.trueHeading = trueHeading;
     }
 
     @Override
@@ -52,6 +54,11 @@ public final class InterpolatedTrackingReport extends TrackingReport {
     @Override
     public float getSpeedOverGround() {
         return speedOverGround;
+    }
+
+    @Override
+    public float getTrueHeading() {
+        return trueHeading;
     }
 
     @Override

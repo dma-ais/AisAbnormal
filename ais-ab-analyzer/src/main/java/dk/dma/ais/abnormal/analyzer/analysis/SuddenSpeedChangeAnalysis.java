@@ -31,7 +31,6 @@ import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.abnormal.tracker.events.PositionChangedEvent;
 import dk.dma.ais.abnormal.tracker.events.TrackStaleEvent;
-import dk.dma.ais.abnormal.util.AisDataHelper;
 import dk.dma.ais.abnormal.util.Categorizer;
 import dk.dma.enav.model.geometry.Position;
 import org.slf4j.Logger;
@@ -40,6 +39,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
 
 /**
  * This analysis manages events where the a sudden decreasing speed change occurs.
@@ -128,14 +129,14 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
         Integer mmsi = track.getMmsi();
         Integer imo = track.getIMO();
         String callsign = track.getCallsign();
-        String name = AisDataHelper.trimAisString(track.getShipName());
+        String name = nameOrMmsi(track.getShipName(), track.getMmsi());
         Position position = track.getPosition();
         Float cog = track.getCourseOverGround();
         Float sog = track.getSpeedOverGround();
         Boolean interpolated = track.getNewestTrackingReport() instanceof InterpolatedTrackingReport;
         Integer shipType = track.getShipType();
 
-        String shipTypeAsString = "?";
+        String shipTypeAsString = "unknown type";
         if (shipType != null) {
             short shipTypeCategory = Categorizer.mapShipTypeToCategory(shipType);
             shipTypeAsString = Categorizer.mapShipTypeCategoryToString(shipTypeCategory);
@@ -151,14 +152,15 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
 
         float deltaSecs = (float) ((timestamp.getTime() - prevTimestamp.getTime()) / 1000.0);
 
-        String desc = String.format("%s: From %.1f kts to %.1f kts in %.1f secs at %s", shipTypeAsString, prevSog, sog, deltaSecs, position.toString());
+        String title = "Sudden speed change";
+        String description = String.format("Sudden speed change of " + name + " (" + shipTypeAsString + ") on position " + position + " at " + DATE_FORMAT.format(timestamp) + ": From %.1f kts to %.1f kts in %.1f secs.", prevSog, sog, deltaSecs);
 
-        String logDesc = String.format("%s: %s: From %.1f kts to %.1f kts in %.1f secs at %s", shipTypeAsString, name, prevSog, sog, deltaSecs, position.toString());
-        LOG.info(timestamp + ": Detected SuddenSpeedChangeEvent for mmsi " + mmsi + ": "+ logDesc + "." );
+        LOG.info(description);
 
         Event event =
             SuddenSpeedChangeEventBuilder.SuddenSpeedChangeEvent()
-                .description(desc)
+                .title(title)
+                .description(description)
                 .state(Event.State.PAST)
                 .startTime(prevTimestamp)
                 .endTime(timestamp)

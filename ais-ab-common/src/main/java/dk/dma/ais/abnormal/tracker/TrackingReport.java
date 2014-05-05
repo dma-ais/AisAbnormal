@@ -52,4 +52,5 @@ public abstract class TrackingReport implements Cloneable {
     public abstract Position getPosition();
     public abstract float getCourseOverGround();
     public abstract float getSpeedOverGround();
+    public abstract float getTrueHeading();
 }

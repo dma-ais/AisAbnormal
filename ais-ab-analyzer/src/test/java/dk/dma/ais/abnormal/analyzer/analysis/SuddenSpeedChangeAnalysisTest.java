@@ -65,7 +65,7 @@ public class SuddenSpeedChangeAnalysisTest {
         track.update(msg5); // Init static part
 
         // These are needed to create an event object in the database:
-        track.update(1370589743L, Position.create(56, 12), 45.0f, 10.1f);
+        track.update(1370589743L, Position.create(56, 12), 45.0f, 10.1f, 45.0f);
     }
 
     @Test
@@ -89,10 +89,10 @@ public class SuddenSpeedChangeAnalysisTest {
 
         PositionChangedEvent event = new PositionChangedEvent(track, null);
 
-        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 0) * 1000, Position.create(56, 12), 45.0f, 12.2f);
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 0) * 1000, Position.create(56, 12), 45.0f, 12.2f, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
-        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f);
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
         SuddenSpeedChangeEvent capturedEvent = eventCaptor.getCapturedObject();
@@ -126,7 +126,7 @@ public class SuddenSpeedChangeAnalysisTest {
 
         /* Grounding of 314234000 on Jul 03 2009 - 20:44:18 - 20:45:18 */
 
-        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 13.9f);
+        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 13.9f, 45.0f);
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
             ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
@@ -137,7 +137,7 @@ public class SuddenSpeedChangeAnalysisTest {
         analysis.onSpeedOverGroundUpdated(new PositionChangedEvent(track, null));
         context.assertIsSatisfied();
 
-        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 13.3f);
+        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 13.3f, 45.0f);
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
             ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
@@ -148,7 +148,7 @@ public class SuddenSpeedChangeAnalysisTest {
         analysis.onSpeedOverGroundUpdated(new PositionChangedEvent(track, null));
         context.assertIsSatisfied();
 
-        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 11.7f);
+        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 11.7f, 45.0f);
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
             ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
@@ -159,7 +159,7 @@ public class SuddenSpeedChangeAnalysisTest {
         analysis.onSpeedOverGroundUpdated(new PositionChangedEvent(track, null));
         context.assertIsSatisfied();
 
-        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 8.3f);
+        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 8.3f, 45.0f);
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
             ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
@@ -170,7 +170,7 @@ public class SuddenSpeedChangeAnalysisTest {
         analysis.onSpeedOverGroundUpdated(new PositionChangedEvent(track, null));
         context.assertIsSatisfied();
 
-        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 5.0f);
+        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 5.0f, 45.0f);
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
             ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
@@ -181,7 +181,7 @@ public class SuddenSpeedChangeAnalysisTest {
         analysis.onSpeedOverGroundUpdated(new PositionChangedEvent(track, null));
         context.assertIsSatisfied();
 
-        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 1.9f);
+        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 1.9f, 45.0f);
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
             ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
@@ -192,7 +192,7 @@ public class SuddenSpeedChangeAnalysisTest {
         analysis.onSpeedOverGroundUpdated(new PositionChangedEvent(track, null));
         context.assertIsSatisfied();
 
-        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f,  0.0f);
+        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 0.0f, 45.0f);
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
             ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
@@ -228,10 +228,10 @@ public class SuddenSpeedChangeAnalysisTest {
         int deltaSecs = 61;
 
         PositionChangedEvent event = new PositionChangedEvent(track, null);
-        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 12.2f);
+        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 12.2f, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
-        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 0.1f);
+        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
         context.assertIsSatisfied();
@@ -254,10 +254,10 @@ public class SuddenSpeedChangeAnalysisTest {
         int deltaSecs = 7;
 
         PositionChangedEvent event = new PositionChangedEvent(track, null);
-        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 0) * 1000, Position.create(56, 12), 45.0f, 22.2f);
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 0) * 1000, Position.create(56, 12), 45.0f, 22.2f, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
-        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 9.0f);
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 9.0f, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
         context.assertIsSatisfied();
@@ -266,7 +266,7 @@ public class SuddenSpeedChangeAnalysisTest {
     @Test
     public void noEventIsRaisedWhenTrackIsFirstSeen() {
         PositionChangedEvent event = new PositionChangedEvent(track, null);
-        track.update(track.getTimeOfLastPositionReport(), Position.create(56, 12), 45.0f, 12.2f);
+        track.update(track.getTimeOfLastPositionReport(), Position.create(56, 12), 45.0f, 12.2f, 45.0f);
 
         // Create object under test
         final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(statisticsService, trackingService, eventRepository);
@@ -300,13 +300,13 @@ public class SuddenSpeedChangeAnalysisTest {
         int deltaSecs = 7;
 
         PositionChangedEvent event = new PositionChangedEvent(track, null);
-        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 0) * 1000, Position.create(56, 12), 45.0f, 12.2f);
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 0) * 1000, Position.create(56, 12), 45.0f, 12.2f, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
         TrackStaleEvent staleEvent = new TrackStaleEvent(track);
         analysis.onTrackStale(staleEvent);
 
-        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f);
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
         context.assertIsSatisfied();
@@ -329,10 +329,10 @@ public class SuddenSpeedChangeAnalysisTest {
         int deltaSecs = 7;
 
         PositionChangedEvent event = new PositionChangedEvent(track, null);
-        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 0) * 1000, Position.create(56, 12), 45.0f, 102.3f /* 1023 int */);
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 0) * 1000, Position.create(56, 12), 45.0f, 102.3f /* 1023 int */, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
-        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f);
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
         context.assertIsSatisfied();

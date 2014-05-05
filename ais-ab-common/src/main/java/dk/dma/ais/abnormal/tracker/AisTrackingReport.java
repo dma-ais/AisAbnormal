@@ -66,6 +66,12 @@ public final class AisTrackingReport extends TrackingReport {
     }
 
     @Override
+    public float getTrueHeading() {
+        int trueHeading = ((IVesselPositionMessage) packet.tryGetAisMessage()).getTrueHeading();
+        return trueHeading > 500 /* 511 */ ? Float.NaN : trueHeading;
+    }
+
+    @Override
     public AisTrackingReport clone() {
         return new Cloner().deepClone(this);
     }

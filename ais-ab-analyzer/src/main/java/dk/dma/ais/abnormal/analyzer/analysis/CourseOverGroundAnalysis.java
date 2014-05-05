@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 
 import static dk.dma.ais.abnormal.event.db.domain.builders.CourseOverGroundEventBuilder.CourseOverGroundEvent;
+import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
 
 /**
  * This analysis manages events where a vessel has an "abnormal" course over ground
@@ -197,7 +198,7 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
         Integer mmsi = track.getMmsi();
         Integer imo = track.getIMO();
         String callsign = track.getCallsign();
-        String name = track.getShipName();
+        String name = nameOrMmsi(track.getShipName(), mmsi);
         Integer shipType = track.getShipType();
         Integer shipLength = track.getVesselLength();
         Date positionTimestamp = new Date(track.getTimeOfLastPositionReport());
@@ -222,15 +223,18 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
         String courseOverGroundAsString = Categorizer.mapCourseOverGroundCategoryToString(courseOverGroundCategory);
         String speedOverGroundAsString = Categorizer.mapSpeedOverGroundCategoryToString(speedOverGroundCategory);
 
-        String desc = String.format("cog:%.0f(%s) sog:%.1f(%s) type:%d(%s) size:%d(%s)", cog, courseOverGroundAsString, sog, speedOverGroundAsString, shipType, shipTypeAsString, shipLength, shipLengthAsString);
-        LOG.info(positionTimestamp + ": Detected CourseOverGroundEvent for mmsi " + mmsi + ": "+ desc + "." );
+        String title = "Abnormal course over ground";
+        String description = String.format("Abnormal course over ground of " + name + " (" + shipTypeAsString + ") on position " + position + " at " + DATE_FORMAT.format(positionTimestamp) + ": cog:%.0f(%s) sog:%.1f(%s) type:%d(%s) size:%d(%s).", cog, courseOverGroundAsString, sog, speedOverGroundAsString, shipType, shipTypeAsString, shipLength, shipLengthAsString);
+
+        LOG.info(description);
 
         Event event =
                 CourseOverGroundEvent()
                         .shipType(shipTypeCategory)
                         .shipLength(shipLengthCategory)
                         .courseOverGround(courseOverGroundCategory)
-                        .description(desc)
+                        .title(title)
+                        .description(description)
                         .startTime(positionTimestamp)
                         .behaviour()
                             .isPrimary(true)

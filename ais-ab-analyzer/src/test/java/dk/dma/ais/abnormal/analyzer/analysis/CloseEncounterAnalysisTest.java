@@ -89,40 +89,40 @@ public class CloseEncounterAnalysisTest {
 
         track = new Track(219000606);
         track.update(vessel1StaticPacket);
-        track.update(timestamp, position, 90.0f, 10.0f);
+        track.update(timestamp, position, 90.0f, 10.0f, 90.0f);
 
         closeTrack = new Track(219002827);
         closeTrack.update(vessel2StaticPacket);
-        closeTrack.update(timestamp - 40000, Position.create(56.1000, 12.0010), 180.0f, 10.0f);
-        closeTrack.update(timestamp - 30000, Position.create(56.0800, 12.0010), 180.0f, 10.0f);
-        closeTrack.update(timestamp - 20000, Position.create(56.0600, 12.0010), 180.0f, 10.0f);
-        closeTrack.update(timestamp - 10000, Position.create(56.0400, 12.0010), 180.0f, 10.0f);
-        closeTrack.update(timestamp,         Position.create(56.00001, 12.0000), 180.0f, 10.0f);
+        closeTrack.update(timestamp - 40000, Position.create(56.1000, 12.0010), 180.0f, 10.0f, 180.0f);
+        closeTrack.update(timestamp - 30000, Position.create(56.0800, 12.0010), 180.0f, 10.0f, 180.0f);
+        closeTrack.update(timestamp - 20000, Position.create(56.0600, 12.0010), 180.0f, 10.0f, 180.0f);
+        closeTrack.update(timestamp - 10000, Position.create(56.0400, 12.0010), 180.0f, 10.0f, 180.0f);
+        closeTrack.update(timestamp,         Position.create(56.00001, 12.0000), 180.0f, 10.0f, 180.0f);
         closeTrack.getTrackingReports().forEach( tr -> { tr.setProperty("event-certainty-CloseEncounterEvent", EventCertainty.LOWERED);});
         assertTrue(closeTrack.getPosition().equals(Position.create(56.00001, 12.0000)));
         assertTrue(track.getPosition().distanceTo(closeTrack.getPosition(), CoordinateSystem.CARTESIAN) < 200);
 
         distantTrack = new Track(219000606);
         distantTrack.update(vessel1StaticPacket);
-        distantTrack.update(timestamp, Position.create(57, 13), 90.0f, 10.0f);
+        distantTrack.update(timestamp, Position.create(57, 13), 90.0f, 10.0f, 90.0f);
 
         Track track1 = new Track(1);
-        track1.update(tooOld, position, 90.0f, 10.0f);
+        track1.update(tooOld, position, 90.0f, 10.0f, 90.0f);
 
         oldNearbyTrack = new Track(2);
-        oldNearbyTrack.update(old, position, 90.0f, 10.0f);
+        oldNearbyTrack.update(old, position, 90.0f, 10.0f, 90.0f);
 
         Track track3 = new Track(3);
-        track3.update(tooNew, position, 90.0f, 10.0f);
+        track3.update(tooNew, position, 90.0f, 10.0f, 90.0f);
 
         newNearbyTrack = new Track(3);
-        newNearbyTrack.update(nyw, position, 90.0f, 10.0f);
+        newNearbyTrack.update(nyw, position, 90.0f, 10.0f, 90.0f);
 
         Track track4 = new Track(4);
-        track4.update(timestamp, tooFarAway, 90.0f, 10.0f);
+        track4.update(timestamp, tooFarAway, 90.0f, 10.0f, 90.0f);
 
         distantNearbyTrack = new Track(5);
-        distantNearbyTrack.update(timestamp, farAway, 90.0f, 10.0f);
+        distantNearbyTrack.update(timestamp, farAway, 90.0f, 10.0f, 90.0f);
 
         tracks = new HashSet<>();
         tracks.add(track);

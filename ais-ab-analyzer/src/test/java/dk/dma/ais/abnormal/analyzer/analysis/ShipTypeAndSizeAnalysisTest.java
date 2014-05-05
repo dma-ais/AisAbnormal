@@ -239,7 +239,7 @@ public class ShipTypeAndSizeAnalysisTest {
         assertTrue(statistics1.getValue(Categorizer.mapShipTypeToCategory(track.getShipType()) - 1, Categorizer.mapShipLengthToCategory(track.getVesselLength()) - 1, "shipCount") < 3);
 
         // These are needed to create an event object in the database:
-        track.update(System.currentTimeMillis(), Position.create(56, 12), 45.0f, 10.1f);
+        track.update(System.currentTimeMillis(), Position.create(56, 12), 45.0f, 10.1f, 45.0f);
 
         CellChangedEvent event = new CellChangedEvent(track, null);
 
@@ -276,7 +276,7 @@ public class ShipTypeAndSizeAnalysisTest {
         assertTrue(statistics2.getValue(Categorizer.mapShipTypeToCategory(track.getShipType()) - 1, Categorizer.mapShipLengthToCategory(track.getVesselLength()) - 1, "shipCount") > 1000);
 
         // These are needed to create an event object in the database:
-        track.update(1370589743L, Position.create(56, 12), 45.0f, 10.1f);
+        track.update(1370589743L, Position.create(56, 12), 45.0f, 10.1f, 45.0f);
 
         CellChangedEvent event = new CellChangedEvent(track, null);
 

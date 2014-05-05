@@ -49,7 +49,7 @@ public class BehaviourManagerImplTest {
         trackingService = new EventEmittingTracker(new BaseConfiguration(), Grid.createSize(200), statisticsService);
         behaviourManager = new BehaviourManagerImpl(trackingService);
         track = new Track(12345678);
-        track.update(1234567890L, Position.create(56, 12), 45.0f, 10.1f);
+        track.update(1234567890L, Position.create(56, 12), 45.0f, 10.1f, 45.0f);
 
         testSubscriber = new EventBusSubscriber();
         behaviourManager.registerSubscriber(testSubscriber);
