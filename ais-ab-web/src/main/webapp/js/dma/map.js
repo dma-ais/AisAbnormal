@@ -13,7 +13,7 @@ var mapModule = {
     projectionSphericalMercator: null,
     projectionWebMercator: null,
 
-    kmlResourceService: "http://" + document.location.hostname + ":8090/store/scenario",
+    kmlResourceService: "http://" + document.location.hostname + "/store/scenario",
 
     init: function() {
         $('#event-kmlgen-modal-wrapper').load("event-kmlgen-modal.html", function () {
