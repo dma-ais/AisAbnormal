@@ -37,7 +37,7 @@ cat | sudo tee /etc/init/dma-ais-ab-web.conf << EOF
 
   script
     cd $HOME/AisAbnormal/ais-ab-web/target/ais-ab-web-0.1-SNAPSHOT
-    ./run-webapp.sh 8080 ~/AisAbnormal/data/events-20140424 ~/AisAbnormal/data/2013H2-grid200-down10.statistics
+    ./run-webapp.sh 8080 $HOME/AisAbnormal/data/events-20140424 $HOME/AisAbnormal/data/2013H2-grid200-down10.statistics
   end script
 EOF
 sudo initctl reload-configuration
