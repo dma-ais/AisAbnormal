@@ -36,8 +36,9 @@ cat | sudo tee /etc/init/dma-ais-ab-web.conf << EOF
   end script
 
   script
-    cd $HOME/AisAbnormal/ais-ab-web/target/ais-ab-web-0.1-SNAPSHOT
-    ./run-webapp.sh 8080 $HOME/AisAbnormal/data/events-20140424 $HOME/AisAbnormal/data/2013H2-grid200-down10.statistics
+    sudo su - vagrant
+    cd /home/vagrant/AisAbnormal/ais-ab-web/target/ais-ab-web-0.1-SNAPSHOT
+    ./run-webapp.sh 8080 /home/vagrant/AisAbnormal/data/aisd /home/vagrant/AisAbnormal/data/2013H2-grid200-down10.statistics
   end script
 EOF
 sudo initctl reload-configuration
