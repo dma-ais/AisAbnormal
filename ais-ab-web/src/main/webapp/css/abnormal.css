@@ -30,6 +30,10 @@ div#map {
     text-align: right;
 }
 
+input.checkbox {
+    width: 24px;
+}
+
 li {
     font-size: smaller;
 }

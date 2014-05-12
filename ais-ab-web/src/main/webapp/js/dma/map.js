@@ -18,6 +18,13 @@ var mapModule = {
     init: function() {
         $('#event-kmlgen-modal-wrapper').load("event-kmlgen-modal.html", function () {
             $('button#kmlgen-event').click(mapModule.generateKmlForEvent);
+            $("#kmlgen-event-interpolate-enable").change(function () {
+                if ($("#kmlgen-event-interpolate-enable").is(':checked')) {
+                    $("#kmlgen-event-interpolate-seconds").prop('disabled', false);
+                } else {
+                    $("#kmlgen-event-interpolate-seconds").prop('disabled', true);
+                }
+            });
         });
 
         $('#map-enable-nautical-charts').submit(
@@ -528,7 +535,8 @@ var mapModule = {
         var east = mapModule.formattedLatLonToDecimalDegrees(modal.find('#kmlgen-event-east').val());
         var south = mapModule.formattedLatLonToDecimalDegrees(modal.find('#kmlgen-event-south').val());
         var west = mapModule.formattedLatLonToDecimalDegrees(modal.find('#kmlgen-event-west').val());
-
+        var interpolationEnabled = $("#kmlgen-event-interpolate-enable").is(':checked');
+        var interpolationTimeStep = $("#kmlgen-event-interpolate-seconds").val();
         var fromDate = new Date(from);
         var toDate = new Date(to);
 
@@ -551,6 +559,10 @@ var mapModule = {
         if (description.length > 0) {
             queryParams['description'] = description;
         }
+        if (interpolationEnabled && interpolationTimeStep > 0) {
+            queryParams['interpolation'] = interpolationTimeStep;
+        }
+
         var eventRequest = mapModule.kmlResourceService + "?" + $.param(queryParams);
 
         window.open(eventRequest);

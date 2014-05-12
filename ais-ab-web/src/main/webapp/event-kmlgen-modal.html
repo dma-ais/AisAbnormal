@@ -6,56 +6,12 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Export event to KML format</h4>
+                    <h3 class="modal-title">Export event to KML format</h3>
                 </div>
                 <div class="modal-body">
                     <form class="form-horizontal" role="form">
 
-                        <div class="form-group">
-                            <label for="kmlgen-event-title" class="col-sm-2 control-label">Title</label>
-                            <div class="col-sm-10">
-                                <input class="form-control" id="kmlgen-event-title" placeholder="title">
-                            </div>
-                            <label for="kmlgen-event-description" class="col-sm-2 control-label">Description</label>
-                            <div class="col-sm-10">
-                                <input class="form-control" id="kmlgen-event-description" placeholder="description">
-                            </div>
-                        </div>
-
-                        <hr />
-
-                        <div class="form-group">
-                            <label for="kmlgen-event-primary-mmsis" class="col-sm-2 control-label">Primary MMSI</label>
-                            <div class="col-sm-4">
-                                <input class="form-control" id="kmlgen-event-primary-mmsis" placeholder="mmsi">
-                            </div>
-                            <label for="kmlgen-event-secondary-mmsis" class="col-sm-2 control-label">Secondary MMSI</label>
-                            <div class="col-sm-4">
-                                <input class="form-control" id="kmlgen-event-secondary-mmsis" placeholder="mmsi">
-                            </div>
-                        </div>
-
-                        <hr />
-
-                        <div class="form-group">
-                            <label for="kmlgen-event-from" class="col-sm-2 control-label">From</label>
-                            <div class="col-sm-4">
-                                <input class="form-control" id="kmlgen-event-from" placeholder="ISO 8601 format">
-                            </div>
-                            <label for="kmlgen-event-to" class="col-sm-2 control-label">To</label>
-                            <div class="col-sm-4">
-                                <input class="form-control" id="kmlgen-event-to" placeholder="ISO 8601 format">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="kmlgen-event-situation-at" class="col-sm-2 control-label">Situation at</label>
-                            <div class="col-sm-4">
-                                <input class="form-control" id="kmlgen-event-situation-at" placeholder="ISO 8601 format">
-                            </div>
-                        </div>
-
-                        <hr />
+                        <h4><u>Limit targets</u></h4>
 
                         <div class="form-group">
                             <label for="kmlgen-event-north" class="col-sm-2 control-label">North bound</label>
@@ -76,6 +32,67 @@
                                 <input class="form-control" id="kmlgen-event-east" placeholder="longitude deg°min'sec.h">
                             </div>
                         </div>
+
+                        <div class="form-group">
+                            <label for="kmlgen-event-from" class="col-sm-2 control-label">From</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" id="kmlgen-event-from" placeholder="ISO 8601 format">
+                            </div>
+                            <label for="kmlgen-event-to" class="col-sm-2 control-label">To</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" id="kmlgen-event-to" placeholder="ISO 8601 format">
+                            </div>
+                        </div>
+
+                        <hr />
+
+                        <h4><u>Decorate KML</u></h4>
+
+                        <div class="form-group">
+                            <label for="kmlgen-event-title" class="col-sm-2 control-label">Title</label>
+                            <div class="col-sm-10">
+                                <input class="form-control" id="kmlgen-event-title" placeholder="title">
+                            </div>
+                            <label for="kmlgen-event-description" class="col-sm-2 control-label">Description</label>
+                            <div class="col-sm-10">
+                                <input class="form-control" id="kmlgen-event-description" placeholder="description">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="kmlgen-event-primary-mmsis" class="col-sm-2 control-label">Primary</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" id="kmlgen-event-primary-mmsis" placeholder="mmsi">
+                            </div>
+                            <label for="kmlgen-event-secondary-mmsis" class="col-sm-2 control-label">Secondary</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" id="kmlgen-event-secondary-mmsis" placeholder="mmsi">
+                            </div>
+                        </div>
+
+                        <h4>Situation folder</h4>
+
+                        <div class="form-group">
+                            <label for="kmlgen-event-situation-at" class="col-sm-2 control-label">Situation at</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" id="kmlgen-event-situation-at" placeholder="ISO 8601 format">
+                            </div>
+                        </div>
+
+                        <h4>Movements folder</h4>
+
+                        <div class="form-group">
+                            <label for="kmlgen-event-interpolate-enable" class="col-sm-2 control-label">Interpolation</label>
+                            <div class="col-sm-1">
+                                <input class="form-control" id="kmlgen-event-interpolate-enable" placeholder="mmsi" type="checkbox" checked>
+                            </div>
+                            <div class="col-sm-3">
+                                <input class="form-control" id="kmlgen-event-interpolate-seconds" placeholder="step (seconds)" value="1">
+                            </div>
+                        </div>
+
+                        <hr />
+
                     </form>
                 </div>
                 <div class="modal-footer">
