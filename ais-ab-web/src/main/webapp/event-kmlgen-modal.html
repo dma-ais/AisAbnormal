@@ -9,8 +9,9 @@
                     <h3 class="modal-title">Export event to KML format</h3>
                 </div>
                 <div class="modal-body">
-                    <form class="form-horizontal" role="form">
+                    <div id="kmlgen-warning" class="alert alert-warning"></div>
 
+                    <form class="form-horizontal" role="form">
                         <h4><u>Limit targets</u></h4>
 
                         <div class="form-group">
@@ -91,12 +92,10 @@
                             </div>
                         </div>
 
-                        <hr />
-
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" id="kmlgen-event" data-dismiss="modal"><span class="glyphicon glyphicon-download-alt"></span>Get KML</button>
+                    <button type="button" class="btn btn-default" id="kmlgen-event" data-dismiss="modal"><span class="glyphicon glyphicon-download-alt"></span>Export</button>
                 </div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->

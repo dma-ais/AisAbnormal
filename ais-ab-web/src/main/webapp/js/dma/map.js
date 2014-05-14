@@ -18,6 +18,14 @@ var mapModule = {
     init: function() {
         $('#event-kmlgen-modal-wrapper').load("event-kmlgen-modal.html", function () {
             $('button#kmlgen-event').click(mapModule.generateKmlForEvent);
+            $('img#kmlgen-scenario').click(mapModule.openKmlModalForScenario);
+            $('input#kmlgen-event-from').blur(mapModule.validateKmlUserInput);
+            $('input#kmlgen-event-to').blur(mapModule.validateKmlUserInput);
+            $('input#kmlgen-event-north').blur(mapModule.validateKmlUserInput);
+            $('input#kmlgen-event-east').blur(mapModule.validateKmlUserInput);
+            $('input#kmlgen-event-south').blur(mapModule.validateKmlUserInput);
+            $('input#kmlgen-event-west').blur(mapModule.validateKmlUserInput);
+
             $("#kmlgen-event-interpolate-enable").change(function () {
                 if ($("#kmlgen-event-interpolate-enable").is(':checked')) {
                     $("#kmlgen-event-interpolate-seconds").prop('disabled', false);
@@ -181,14 +189,14 @@ var mapModule = {
     },
 
     kmlGenStartTimeForEvent: function(jsonEvent) {
-        return new Date(jsonEvent.startTime - 10 * 60 * 1000 /* 10 minutes before */).toISOString();
+        return new Date(jsonEvent.startTime - 10 * 60 * 1000 /* 10 minutes before */);
     },
 
     kmlGenEndTimeForEvent: function(jsonEvent) {
         if (jsonEvent.endTime) {
-            return new Date(jsonEvent.endTime + 10 * 60 * 1000 /* 10 minutes after */).toISOString();
+            return new Date(jsonEvent.endTime + 10 * 60 * 1000 /* 10 minutes after */);
         } else {
-            return new Date(jsonEvent.startTime + 20 * 60 * 1000 /* 20 minutes after beginning */).toISOString();
+            return new Date(jsonEvent.startTime + 20 * 60 * 1000 /* 20 minutes after beginning */);
         }
     },
 
@@ -200,6 +208,29 @@ var mapModule = {
         return jsonEvent.description;
     },
 
+    openExportToKmlModal: function (title, description, primaryMmsi, secondaryMmsi, from, to, snapshotAt, boundaryNorth, boundaryEast, boundarySouth, boundaryWest) {
+        var modal = $('#event-kmlgen-modal');
+
+        modal.find('#kmlgen-event-title').val(title);
+        modal.find('#kmlgen-event-description').val(description);
+        modal.find('#kmlgen-event-primary-mmsis').val(primaryMmsi);
+        modal.find('#kmlgen-event-secondary-mmsis').val(secondaryMmsi);
+
+        modal.find('#kmlgen-event-from').val(from.toISOString());
+        modal.find('#kmlgen-event-to').val(to.toISOString());
+        modal.find('#kmlgen-event-situation-at').val(snapshotAt);
+
+        modal.find('#kmlgen-event-north').val(boundaryNorth);
+        modal.find('#kmlgen-event-east').val(boundaryEast);
+        modal.find('#kmlgen-event-south').val(boundarySouth);
+        modal.find('#kmlgen-event-west').val(boundaryWest);
+
+        modal.modal({});
+
+        $('div#kmlgen-warning').hide();
+        mapModule.validateKmlUserInput();
+    },
+
     initContextMenu: function() {
         var contextMenuDef = [
             {'Name': {disabled:true} },
@@ -207,7 +238,7 @@ var mapModule = {
             {'MMSI': {disabled:true}},
             {'Callsign': {disabled:true} },
             $.contextMenu.separator,
-            {'Generate KML for Google Earth ...':function(menuItem,menu) {
+            {'Export for Google Earth ...':function(menuItem,menu) {
                 var evt = menu.originalEvent;
                 var feature = mapModule.getVesselLayer().getFeatureFromEvent(evt);
                 var primaryMmsis = mapModule.kmlGenPrimaryMmsisForEvent(feature.data.jsonEvent);
@@ -215,23 +246,19 @@ var mapModule = {
                 var bounds = feature.geometry.bounds.clone();
                 bounds.transform(mapModule.projectionSphericalMercator, mapModule.projectionWGS84);
 
-                var modal = $('#event-kmlgen-modal');
-
-                modal.find('#kmlgen-event-title').val(mapModule.kmlGenTitleForEvent(feature.data.jsonEvent));
-                modal.find('#kmlgen-event-description').val(mapModule.kmlGenDescriptionForEvent(feature.data.jsonEvent));
-                modal.find('#kmlgen-event-primary-mmsis').val(primaryMmsis.join(", "));
-                modal.find('#kmlgen-event-secondary-mmsis').val(secondaryMmsis.join(", "));
-
-                modal.find('#kmlgen-event-from').val(mapModule.kmlGenStartTimeForEvent(feature.data.jsonEvent));
-                modal.find('#kmlgen-event-to').val(mapModule.kmlGenEndTimeForEvent(feature.data.jsonEvent));
-                modal.find('#kmlgen-event-situation-at').val(new Date(feature.data.jsonEvent.startTime).toISOString());
-
-                modal.find('#kmlgen-event-north').val(OpenLayers.Util.getFormattedLonLat(bounds.top, 'lat'));
-                modal.find('#kmlgen-event-east').val(OpenLayers.Util.getFormattedLonLat(bounds.right, 'lon'));
-                modal.find('#kmlgen-event-south').val(OpenLayers.Util.getFormattedLonLat(bounds.bottom, 'lat'));
-                modal.find('#kmlgen-event-west').val(OpenLayers.Util.getFormattedLonLat(bounds.left, 'lon'));
-
-                modal.modal({});
+                mapModule.openExportToKmlModal(
+                    mapModule.kmlGenTitleForEvent(feature.data.jsonEvent),
+                    mapModule.kmlGenDescriptionForEvent(feature.data.jsonEvent),
+                    primaryMmsis.join(", "),
+                    secondaryMmsis.join(", "),
+                    mapModule.kmlGenStartTimeForEvent(feature.data.jsonEvent),
+                    mapModule.kmlGenEndTimeForEvent(feature.data.jsonEvent),
+                    new Date(feature.data.jsonEvent.startTime).toISOString(),
+                    OpenLayers.Util.getFormattedLonLat(bounds.top, 'lat'),
+                    OpenLayers.Util.getFormattedLonLat(bounds.right, 'lon'),
+                    OpenLayers.Util.getFormattedLonLat(bounds.bottom, 'lat'),
+                    OpenLayers.Util.getFormattedLonLat(bounds.left, 'lon')
+                );
             }},
             $.contextMenu.separator,
             {'Show on VesselFinder.com ...':function(menuItem,menu) {
@@ -510,7 +537,7 @@ var mapModule = {
         var p = formattedLatLon.split(/[°'"]+/).join(' ').split(/[^\w\S]+/);
 
         if (p.length != 4) {
-            throw "Illegal format";
+            return NaN;
         }
 
         var deg = parseFloat(p[0]);
@@ -519,6 +546,68 @@ var mapModule = {
         var sgn = p[3].match('[SsWw]') ? -1.0 : 1.0;
 
         return sgn * (deg + min/60.0 + sec/(60.0*60.0));
+    },
+
+    openKmlModalForScenario: function() {
+        var viewport = mapModule.getCurrentViewportExtent();
+        mapModule.openExportToKmlModal(
+            "Vessel scenario",
+            "",
+            "",
+            "",
+            new Date(new Date().getTime() - 10 * 60 * 1000 /* 10 minutes before now */),
+            new Date(),
+            null,
+            OpenLayers.Util.getFormattedLonLat(viewport.top, 'lat'),
+            OpenLayers.Util.getFormattedLonLat(viewport.left, 'lon'),
+            OpenLayers.Util.getFormattedLonLat(viewport.bottom, 'lat'),
+            OpenLayers.Util.getFormattedLonLat(viewport.right, 'lon')
+        );
+    },
+
+    validateKmlUserInput: function() {
+        var modal = $('#event-kmlgen-modal');
+
+        var from = new Date(modal.find('#kmlgen-event-from').val()).getTime();
+        var to = new Date(modal.find('#kmlgen-event-to').val()).getTime();
+        var timeSpan = Math.round((to - from) / 1000 / 60);
+        var largeTimeSpan = timeSpan > 60;
+
+        var n = mapModule.formattedLatLonToDecimalDegrees(modal.find('#kmlgen-event-north').val());
+        var e = mapModule.formattedLatLonToDecimalDegrees(modal.find('#kmlgen-event-east').val());
+        var s = mapModule.formattedLatLonToDecimalDegrees(modal.find('#kmlgen-event-south').val());
+        var w = mapModule.formattedLatLonToDecimalDegrees(modal.find('#kmlgen-event-west').val());
+        var nw = new OpenLayers.Geometry.Point(n, w).transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator);
+        var sw = new OpenLayers.Geometry.Point(s, w).transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator);
+        var ne = new OpenLayers.Geometry.Point(n, e).transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator);
+        var latSpan = Math.round(nw.distanceTo(sw) / 1852);
+        var lonSpan = Math.round(nw.distanceTo(ne) / 1852);
+        var largeLatSpan = latSpan > 20;
+        var largeLonSpan = lonSpan > 20;
+
+        $('div#kmlgen-warning').empty();
+        if (largeTimeSpan) {
+            $('div#kmlgen-warning').append("<div><b>WARNING!</b> Large timespan of " + timeSpan + " minutes can cause excessive amounts of data.</div>");
+        }
+        if (largeLatSpan) {
+            $('div#kmlgen-warning').append("<div><b>WARNING!</b> Large latitudal span of " + latSpan + " nm can cause excessive amounts of data.</div>");
+        }
+        if (largeLonSpan) {
+            $('div#kmlgen-warning').append("<div><b>WARNING!</b> Large longitudal span of " + lonSpan + " nm can cause excessive amounts of data.</div>");
+        }
+
+        var toOpenWarning = largeTimeSpan || largeLatSpan || largeLonSpan;
+        var isOpenWarning = $('div#kmlgen-warning').is(':visible');
+
+        if (toOpenWarning) {
+            if (! isOpenWarning) {
+                $('div#kmlgen-warning').slideDown("fast");
+            }
+        } else {
+            if (isOpenWarning) {
+                $('div#kmlgen-warning').slideUp("fast");
+            }
+        }
     },
 
     generateKmlForEvent: function () {
