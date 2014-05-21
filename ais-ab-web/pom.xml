@@ -136,11 +136,12 @@
                     </execution>
                 </executions>
             </plugin>
+            <!--
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.7</version>
                 <executions>
-                    <!-- Start application in the background for integration-test -->
+                    <!- - Start application in the background for integration-test - ->
                     <execution>
                         <id>start-ais-ab-web-appl</id>
                         <phase>pre-integration-test</phase>
@@ -162,14 +163,14 @@
                             <goal>run</goal>
                         </goals>
                     </execution>
-                    <!-- Stop application in the background for integration-test -->
-                    <!-- (has room for improvement) -->
+                    <!- - Stop application in the background for integration-test - ->
+                    <!- - (has room for improvement) - ->
                     <execution>
                         <id>stop-ais-ab-web-appl</id>
                         <phase>post-integration-test</phase>
                         <configuration>
                             <target>
-                                <!-- Find PID's to kill -->
+                                <!- - Find PID's to kill - ->
                                 <exec dir="." os="Mac OS X" executable="bash" outputproperty="app.pids">
                                     <arg value="-c"></arg>
                                     <arg value="ps -ael | grep java | grep ais-ab-web | grep -v ant | grep -v bash | awk '{print $2}' | paste -sd ' ' -" />
@@ -178,7 +179,7 @@
                                     <arg value="-c"></arg>
                                     <arg value="ps -aef | grep java | grep ais-ab-web | grep -v ant | grep -v bash | awk '{print $2}' | paste -sd ' ' -" />
                                 </exec>
-                                <!-- Kill PID's -->
+                                <!- - Kill PID's - ->
                                 <echo>Killing pid ${app.pids}</echo>
                                 <exec dir="." os="Mac OS X" executable="bash">
                                     <arg value="-c" />
@@ -187,7 +188,8 @@
                                 <exec dir="." os="Linux" executable="bash">
                                     <arg value="-c" />
                                     <arg value="kill -9 ${app.pids}" />
-                                </exec>                                <!-- Echo any remaining matching PID's (there shouldn't be any) -->
+                                </exec>
+                                <!- - Echo any remaining matching PID's (there shouldn't be any) - ->
                                 <exec dir="." os="Mac OS X" executable="bash" outputproperty="app.pids.survived">
                                     <arg value="-c"></arg>
                                     <arg value="ps -ael | grep java | grep ais-ab-web | grep -v ant | grep -v bash | awk '{print $2}' | paste -sd ' ' -" />
@@ -203,10 +205,9 @@
                             <goal>run</goal>
                         </goals>
                     </execution>
-
                 </executions>
             </plugin>
-            <!-- Wait for application to launch in the background during integration-test -->
+            <!- - Wait for application to launch in the background during integration-test - ->
             <plugin>
                 <groupId>org.kuali.maven.plugins</groupId>
                 <artifactId>maven-http-plugin</artifactId>
@@ -225,7 +226,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Perform functional test / integration-test -->
+            <!- - Perform functional test / integration-test - ->
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>2.16</version>
@@ -239,6 +240,7 @@
                     </execution>
                 </executions>
             </plugin>
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
