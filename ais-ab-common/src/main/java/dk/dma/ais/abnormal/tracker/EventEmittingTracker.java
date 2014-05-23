@@ -16,7 +16,6 @@
 
 package dk.dma.ais.abnormal.tracker;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -43,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -334,19 +334,15 @@ public class EventEmittingTracker implements Tracker {
      * {@inheritDoc}
      */
     @Override
-    public Set<Track> cloneTracks() {
-        ImmutableSet.Builder<Track> setBuilder = new ImmutableSet.Builder<>();
-
+    public Collection<Track> getTracks() {
         tracksLock.lock();
+        Collection<Track> trackCollection = null;
         try {
-            tracks.values().forEach(
-                t -> { setBuilder.add(t.clone());
-            });
+            trackCollection = tracks.values();
         } finally {
             tracksLock.unlock();
         }
-
-        return setBuilder.build();
+        return trackCollection;
     }
 
     /**

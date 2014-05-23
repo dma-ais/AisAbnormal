@@ -16,7 +16,6 @@
 
 package dk.dma.ais.abnormal.tracker;
 
-import com.rits.cloning.Cloner;
 import dk.dma.enav.model.geometry.Position;
 import net.jcip.annotations.NotThreadSafe;
 
@@ -61,8 +60,4 @@ public final class InterpolatedTrackingReport extends TrackingReport {
         return trueHeading;
     }
 
-    @Override
-    public TrackingReport clone() {
-        return new Cloner().deepClone(this);
-    }
 }

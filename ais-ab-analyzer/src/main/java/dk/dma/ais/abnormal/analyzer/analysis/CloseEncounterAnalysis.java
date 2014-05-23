@@ -38,6 +38,7 @@ import net.jcip.annotations.NotThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
@@ -114,7 +115,7 @@ public class CloseEncounterAnalysis extends Analysis {
         LOG.debug("Starting " + analysisName);
         final long systemTimeMillisBeforeAnalysis = System.currentTimeMillis();
 
-        Set<Track> tracks = getTrackingService().cloneTracks();
+        Collection<Track> tracks = getTrackingService().getTracks();
         tracks.forEach(
                 t -> analyseCloseEncounters(tracks, t)
         );
@@ -124,7 +125,7 @@ public class CloseEncounterAnalysis extends Analysis {
         LOG.debug(analysisName + " of " + tracks.size() + " tracks completed in " + (systemTimeMillisAfterAnalysis - systemTimeMillisBeforeAnalysis) + " msecs.");
     }
 
-    private void analyseCloseEncounters(Set<Track> allTracks, Track track) {
+    private void analyseCloseEncounters(Collection<Track> allTracks, Track track) {
         clearTrackPairsAnalyzed();
         if (! isSupportVessel(track)) {
             Set<Track> nearByTracks = findNearByTracks(allTracks, track, 60000, 1852);
@@ -219,7 +220,7 @@ public class CloseEncounterAnalysis extends Analysis {
      * @param nearToTrack the nearToTrack to find other near-by candidateTracks for.
      * @return the set of nearby candidateTracks
      */
-    Set<Track> findNearByTracks(Set<Track> candidateTracks, Track nearToTrack, int maxTimestampDeviationMillis, int maxDistanceDeviationMeters) {
+    Set<Track> findNearByTracks(Collection<Track> candidateTracks, Track nearToTrack, int maxTimestampDeviationMillis, int maxDistanceDeviationMeters) {
         Set<Track> nearbyTracks = Collections.EMPTY_SET;
 
         TrackingReport positionReport = nearToTrack.getNewestTrackingReport();

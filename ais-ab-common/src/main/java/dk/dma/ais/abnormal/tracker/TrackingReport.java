@@ -30,7 +30,7 @@ import java.util.Map;
  * and whereabouts.
  */
 @NotThreadSafe
-public abstract class TrackingReport implements Cloneable {
+public abstract class TrackingReport {
 
     private final Map<String, Object> properties = new HashMap<>(2);
 

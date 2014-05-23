@@ -18,7 +18,7 @@ package dk.dma.ais.abnormal.tracker;
 
 import dk.dma.ais.packet.AisPacket;
 
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * A tracking service receives AisPackets and based on these it maintains a collection of all known tracks,
@@ -53,10 +53,9 @@ public interface Tracker {
     void registerSubscriber(Object subscriber);
 
     /**
-     * Get a set of cloned tracks from the tracker. The fact that the list is cloned makes is possible
-     * to work with its contents in isolation without worrying about multi-threaded behaviour in the tracker.
+     * Get a collection of tracks from the tracker. The tracks in the set are still "live" and may be change state asynchronously by tracker threads.
      *
-     * @return A list of Tracks cloned from the tracker.
+     * @return The set of of Tracks contained in the track at the time of the call.
      */
-    Set<Track> cloneTracks();
+    Collection<Track> getTracks();
 }

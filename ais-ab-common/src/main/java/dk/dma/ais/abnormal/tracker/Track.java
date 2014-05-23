@@ -17,7 +17,6 @@
 package dk.dma.ais.abnormal.tracker;
 
 import com.google.common.collect.ImmutableList;
-import com.rits.cloning.Cloner;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisMessage5;
 import dk.dma.ais.message.AisStaticCommon;
@@ -25,7 +24,8 @@ import dk.dma.ais.message.IVesselPositionMessage;
 import dk.dma.ais.packet.AisPacket;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
-import net.jcip.annotations.NotThreadSafe;
+import net.jcip.annotations.GuardedBy;
+import net.jcip.annotations.ThreadSafe;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.TreeSet;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -51,16 +53,14 @@ import static java.util.Comparator.comparingLong;
  * such as cell-id's, event booking-keeping, etc. is set dynamically as custom properties.
  *
  */
-@NotThreadSafe
-public final class Track implements Cloneable {
+@ThreadSafe
+public final class Track {
 
     public static final String CELL_ID = "cellId";
     public static final String SAFETY_ZONE = "safetyZone";
     public static final String EXTENT = "extent";
 
-    private final int mmsi;
-
-    private final Map<String, Object> properties = new HashMap<>(3);
+    private final Lock trackLock = new ReentrantLock();
 
     private static final Comparator<TrackingReport> byTimestamp = comparingLong(TrackingReport::getTimestamp);
     private static final Supplier<TreeSet<TrackingReport>> treeSetSupplier = () -> new TreeSet<TrackingReport>(byTimestamp);
@@ -69,34 +69,52 @@ public final class Track implements Cloneable {
     public final static int MAX_AGE_POSITION_REPORTS_MINUTES = 10;
     private TreeSet<TrackingReport> trackingReports = treeSetSupplier.get();
 
+    private final int mmsi;
+
+    @GuardedBy("trackLock")
+    private final Map<String, Object> properties = new HashMap<>(3);
+
     /** The last received AIS packet of type 5 */
+    @GuardedBy("trackLock")
     private AisPacket lastStaticReport;
 
     /** Cached value of ship type from lastStaticReport - for faster reads */
+    @GuardedBy("trackLock")
     private Integer shipType;
 
     /** Cached value of ship name from lastStaticReport - for faster reads */
+    @GuardedBy("trackLock")
     private String shipName;
 
     /** Cached value of ship callsign from lastStaticReport - for faster reads */
+    @GuardedBy("trackLock")
     private String callsign;
 
     /** Cached value of IMO no. lastStaticReport - for faster reads */
+    @GuardedBy("trackLock")
     private Integer imo;
 
     /** Cached value of dimension A from lastStaticReport - for faster reads */
+    @GuardedBy("trackLock")
     private Integer shipDimensionBow;
 
     /** Cached value of dimension B from lastStaticReport - for faster reads */
+    @GuardedBy("trackLock")
     private Integer shipDimensionStern;
 
     /** Cached value of dimension C from lastStaticReport - for faster reads */
+    @GuardedBy("trackLock")
     private Integer shipDimensionPort;
 
     /** Cached value of dimension D from lastStaticReport - for faster reads */
+    @GuardedBy("trackLock")
     private Integer shipDimensionStarboard;
 
+    @GuardedBy("trackLock")
     private long timeOfLastUpdate = 0L;
+
+    @GuardedBy("trackLock")
+    private long timeOfLastPositionReport = 0L;
 
     /**
      * Create a new track with the given MMSI no.
@@ -148,10 +166,6 @@ public final class Track implements Cloneable {
     public void update(long timestamp, Position position, float cog, float sog, float hdg) {
         InterpolatedTrackingReport trackingReport = new InterpolatedTrackingReport(timestamp, position, cog, sog, hdg);
         addTrackingReport(trackingReport);
-
-        //trackingReports.add(trackingReport);
-        //timeOfLastUpdate = timestamp;
-        //purgeTrackingReports(MAX_AGE_POSITION_REPORTS_MINUTES);
     }
 
     /**
@@ -160,7 +174,7 @@ public final class Track implements Cloneable {
      * @return
      */
     public Object getProperty(String propertyName) {
-        return properties.get(propertyName);
+        return threadSafeGetStaticData(() -> properties.get(propertyName));
     }
 
     /**
@@ -170,7 +184,12 @@ public final class Track implements Cloneable {
      * @param propertyValue
      */
     public void setProperty(String propertyName, Object propertyValue) {
-        properties.put(propertyName, propertyValue);
+        try {
+            trackLock.lock();
+            properties.put(propertyName, propertyValue);
+        } finally {
+            trackLock.unlock();
+        }
     }
 
     /**
@@ -179,7 +198,12 @@ public final class Track implements Cloneable {
      * @param propertyName
      */
     public void removeProperty(String propertyName) {
-        properties.remove(propertyName);
+        try {
+            trackLock.lock();
+            properties.remove(propertyName);
+        } finally {
+            trackLock.unlock();
+        }
     }
 
     /**
@@ -197,7 +221,7 @@ public final class Track implements Cloneable {
      * @return
      */
     public long getTimeOfLastUpdate() {
-        return timeOfLastUpdate;
+        return threadSafeGetStaticData(() -> timeOfLastUpdate);
     }
 
     /**
@@ -206,17 +230,12 @@ public final class Track implements Cloneable {
      * @return
      */
     public long getTimeOfLastPositionReport() {
-        long t = 0L;
-        try {
-            t = trackingReports.last().getTimestamp();
-        } catch (NoSuchElementException e) {
-        }
-        return t;
+        return threadSafeGetStaticData(() -> timeOfLastPositionReport);
     }
 
     /** Return the last received static report (if any) */
     public AisPacket getLastStaticReport() {
-        return lastStaticReport;
+        return threadSafeGetStaticData(() -> lastStaticReport);
     }
 
     /**
@@ -232,17 +251,23 @@ public final class Track implements Cloneable {
      */
     private void addStaticReport(AisPacket p) {
         AisStaticCommon msg = (AisStaticCommon) p.tryGetAisMessage();
-        lastStaticReport = p;
-        timeOfLastUpdate = p.getBestTimestamp();
-        callsign = msg.getCallsign();
-        shipType = msg.getShipType();
-        shipName = msg.getName();
-        shipDimensionBow = msg.getDimBow();
-        shipDimensionStern = msg.getDimStern();
-        shipDimensionPort = msg.getDimPort();
-        shipDimensionStarboard = msg.getDimStarboard();
-        if (msg instanceof AisMessage5) {
-            imo = (int) ((AisMessage5) msg).getImo();
+        try {
+            trackLock.lock();
+
+            lastStaticReport = p;
+            timeOfLastUpdate = p.getBestTimestamp();
+            callsign = msg.getCallsign();
+            shipType = msg.getShipType();
+            shipName = msg.getName();
+            shipDimensionBow = msg.getDimBow();
+            shipDimensionStern = msg.getDimStern();
+            shipDimensionPort = msg.getDimPort();
+            shipDimensionStarboard = msg.getDimStarboard();
+            if (msg instanceof AisMessage5) {
+                imo = (int) ((AisMessage5) msg).getImo();
+            }
+        } finally {
+          trackLock.unlock();
         }
     }
 
@@ -250,8 +275,16 @@ public final class Track implements Cloneable {
      * Update the track with a new trackingReport
      */
     private void addTrackingReport(TrackingReport trackingReport) {
-        trackingReports.add(trackingReport);
-        timeOfLastUpdate = trackingReport.getTimestamp();
+        try {
+            trackLock.lock();
+
+            trackingReports.add(trackingReport);
+            timeOfLastUpdate = trackingReport.getTimestamp();
+            timeOfLastPositionReport = trackingReports.last().getTimestamp();
+        } finally {
+            trackLock.unlock();
+        }
+
         purgeTrackingReports(MAX_AGE_POSITION_REPORTS_MINUTES);
     }
 
@@ -262,8 +295,11 @@ public final class Track implements Cloneable {
     private TrackingReport getOldestTrackingReport() {
         TrackingReport oldestTrackingReport = null;
         try {
+            trackLock.lock();
             oldestTrackingReport = trackingReports.first();
         } catch(NoSuchElementException e)  {
+        } finally {
+            trackLock.unlock();
         }
         return oldestTrackingReport;
     }
@@ -275,8 +311,11 @@ public final class Track implements Cloneable {
     public TrackingReport getNewestTrackingReport() {
         TrackingReport mostRecentTrackingReport = null;
         try {
+            trackLock.lock();
             mostRecentTrackingReport = trackingReports.last();
         } catch(NoSuchElementException e)  {
+        } finally {
+            trackLock.unlock();
         }
         return mostRecentTrackingReport;
     }
@@ -288,7 +327,15 @@ public final class Track implements Cloneable {
      */
     public List<TrackingReport> getTrackingReports() {
         purgeTrackingReports(MAX_AGE_POSITION_REPORTS_MINUTES);
-        return ImmutableList.copyOf(trackingReports);
+        ImmutableList<TrackingReport> trackingReports1 = null;
+        try {
+            trackLock.lock();
+            trackingReports1 = ImmutableList.copyOf(trackingReports);
+        } finally {
+            trackLock.unlock();
+        }
+
+        return trackingReports1;
     }
 
     /**
@@ -305,10 +352,15 @@ public final class Track implements Cloneable {
 
                 TrackingReport oldestTrackingReport = getOldestTrackingReport();
                 if (oldestTrackingReport != null && oldestTrackingReport.getTimestamp() < oldestKept) {
-                    trackingReports = trackingReports
-                            .stream()
-                            .filter(p -> p.getTimestamp() >= oldestKept)
-                            .collect(Collectors.toCollection(treeSetSupplier));
+                    try {
+                        trackLock.lock();
+                        trackingReports = trackingReports
+                                .stream()
+                                .filter(p -> p.getTimestamp() >= oldestKept)
+                                .collect(Collectors.toCollection(treeSetSupplier));
+                    } finally {
+                        trackLock.unlock();
+                    }
                 }
             }
         }
@@ -346,11 +398,6 @@ public final class Track implements Cloneable {
         }
     }
 
-    @Override
-    public Track clone() {
-        return new Cloner().deepClone(this);
-    }
-
     private void checkAisPacket(AisPacket p) {
         AisMessage msg = p.tryGetAisMessage();
         if (msg == null) {
@@ -363,22 +410,22 @@ public final class Track implements Cloneable {
 
     /** Convenience method to return track's last reported ship type or null */
     public Integer getShipType() {
-        return shipType;
+        return threadSafeGetStaticData(() -> shipType);
     }
 
     /** Convenience method to return track's last reported ship name or null */
     public String getShipName() {
-        return shipName;
+        return threadSafeGetStaticData(() -> shipName);
     }
 
     /** Convenience method to return track's last reported callsign or null */
     public String getCallsign() {
-        return callsign;
+        return threadSafeGetStaticData(() -> callsign);
     }
 
     /** Convenience method to return track's last reported IMO no. or null */
     public Integer getIMO() {
-        return imo;
+        return threadSafeGetStaticData(() -> imo);
     }
 
     /** Convenience method to return track's last reported vessel length or null */
@@ -392,49 +439,65 @@ public final class Track implements Cloneable {
     }
 
     public Integer getShipDimensionBow() {
-        return shipDimensionBow;
+        return threadSafeGetStaticData(() -> shipDimensionBow);
     }
 
     public Integer getShipDimensionStern() {
-        return shipDimensionStern;
+        return threadSafeGetStaticData(() -> shipDimensionStern);
     }
 
     public Integer getShipDimensionPort() {
-        return shipDimensionPort;
+        return threadSafeGetStaticData(() -> shipDimensionPort);
     }
 
     public Integer getShipDimensionStarboard() {
-        return shipDimensionStarboard;
+        return threadSafeGetStaticData(() -> shipDimensionStarboard);
     }
 
     /** Convenience method to return track's last reported position or null */
     public Position getPosition() {
-        return nullsafeGetFromNewestTrackingReport(tp -> tp.getPosition());
+        return nullAndThreadSafeGetFromNewestTrackingReport(tp -> tp.getPosition());
     }
 
     /** Convenience method to return track's last reported SOG or null */
     public Float getSpeedOverGround() {
-        return nullsafeGetFromNewestTrackingReport(tp -> tp.getSpeedOverGround());
+        return nullAndThreadSafeGetFromNewestTrackingReport(tp -> tp.getSpeedOverGround());
     }
 
     /** Convenience method to return track's last reported COG or null */
     public Float getCourseOverGround() {
-        return nullsafeGetFromNewestTrackingReport(tp -> tp.getCourseOverGround());
+        return nullAndThreadSafeGetFromNewestTrackingReport(tp -> tp.getCourseOverGround());
     }
 
     /** Convenience method to return track's last reported heading or null */
     public Float getTrueHeading() {
-        return nullsafeGetFromNewestTrackingReport(tp -> tp.getTrueHeading());
+        return nullAndThreadSafeGetFromNewestTrackingReport(tp -> tp.getTrueHeading());
     }
 
-    private <T> T nullsafeGetFromNewestTrackingReport(Function<? super TrackingReport, T> getter) {
+    private <T> T threadSafeGetStaticData(Supplier<T> getter) {
         T value = null;
-        TrackingReport tp = getNewestTrackingReport();
-        if (tp != null) {
-            try {
-                value = getter.apply(tp);
-            } catch (NullPointerException e) {
+        try {
+            trackLock.lock();
+            value = getter.get();
+        } finally {
+            trackLock.unlock();
+        }
+        return value;
+    }
+
+    private <T> T nullAndThreadSafeGetFromNewestTrackingReport(Function<? super TrackingReport, T> getter) {
+        T value = null;
+        try {
+            trackLock.lock();
+            TrackingReport tp = getNewestTrackingReport();
+            if (tp != null) {
+                try {
+                    value = getter.apply(tp);
+                } catch (NullPointerException e) {
+                }
             }
+        } finally {
+            trackLock.unlock();
         }
         return value;
     }

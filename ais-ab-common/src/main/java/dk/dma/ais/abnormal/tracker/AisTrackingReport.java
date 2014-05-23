@@ -16,21 +16,19 @@
 
 package dk.dma.ais.abnormal.tracker;
 
-import com.rits.cloning.Cloner;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.IVesselPositionMessage;
 import dk.dma.ais.packet.AisPacket;
 import dk.dma.enav.model.geometry.Position;
-import net.jcip.annotations.NotThreadSafe;
+import net.jcip.annotations.Immutable;
 
 /**
  * A tracking report based on AisPacket (AIS data)
  */
-@NotThreadSafe
+@Immutable
 public final class AisTrackingReport extends TrackingReport {
 
     private final AisPacket packet;
-    private static final Cloner cloner = new Cloner();
 
     public AisTrackingReport(AisPacket aisPacket) {
         AisMessage aisMessage = aisPacket.tryGetAisMessage();
@@ -42,7 +40,7 @@ public final class AisTrackingReport extends TrackingReport {
     }
 
     public AisPacket getPacket() {
-        return cloner.deepClone(packet);
+        return packet;
     }
 
     @Override
@@ -69,10 +67,5 @@ public final class AisTrackingReport extends TrackingReport {
     public float getTrueHeading() {
         int trueHeading = ((IVesselPositionMessage) packet.tryGetAisMessage()).getTrueHeading();
         return trueHeading > 500 /* 511 */ ? Float.NaN : trueHeading;
-    }
-
-    @Override
-    public AisTrackingReport clone() {
-        return new Cloner().deepClone(this);
     }
 }
