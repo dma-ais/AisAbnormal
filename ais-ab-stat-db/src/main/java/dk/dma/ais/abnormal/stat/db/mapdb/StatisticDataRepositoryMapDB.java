@@ -94,6 +94,10 @@ public class StatisticDataRepositoryMapDB implements StatisticDataRepository {
 
     @Override
     public void openForRead() {
+        if (this.db != null) {
+            throw new IllegalStateException("Database already opened.");
+        }
+
         this.readOnly = true;
         this.db = openDiskDatabase(dbFile, this.readOnly);
         LOG.debug("File successfully opened for read by MapDB.");
@@ -101,6 +105,10 @@ public class StatisticDataRepositoryMapDB implements StatisticDataRepository {
 
     @Override
     public void openForWrite(boolean cacheInMemoryDumpToDiskOnClose) {
+        if (this.db != null) {
+            throw new IllegalStateException("Database already opened.");
+        }
+
         this.readOnly = false;
         this.dumpToDiskOnClose = cacheInMemoryDumpToDiskOnClose;
 
@@ -142,13 +150,7 @@ public class StatisticDataRepositoryMapDB implements StatisticDataRepository {
     }
 
     private void copyToDatabase(DB toDatabase) {
-        // Pump.copy(db, onDisk);
-        // Causes java.lang.ArrayIndexOutOfBoundsException
-        // at java.lang.System.arraycopy(Native Method)
-        // at org.mapdb.BTreeKeySerializer.leadingValuePackRead(BTreeKeySerializer.java:189)
-        // on read
-        // Seems like an unfinished feature?
-        // https://github.com/jankotek/MapDB/issues/208
+        // Pump.copy(db, onDisk); <-- TODO not working in MapDB v1.0.1: https://github.com/jankotek/MapDB/issues/208
 
         // Copy metadata to other database
         putMetaData(toDatabase, getMetaData());
