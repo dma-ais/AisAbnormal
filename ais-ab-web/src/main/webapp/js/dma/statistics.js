@@ -133,10 +133,6 @@ var statisticsModule = {
         cellFeature = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Polygon([cellGeometry]), cell, cellStyle);
         cellFeature.fid = cell.cellId;
 
-        if (isNaN(fillOpacity)) {
-            console.log(cell.cellId + " " + fillOpacity + " " + totalShipCount + " " + 0.05 + (Math.min(totalShipCount/500, 1))*0.5);
-        }
-
         var gridLayer = mapModule.getGridLayer();
         gridLayer.addFeatures([cellFeature]);
     },
