@@ -33,86 +33,88 @@
             <h1>AIS Abnormal Behaviour</h1>
             <p class="lead">A service delivered by the Danish Maritime Authority.</p>
         </div>
-        <div class="row">
-            <div class="col-md-12" id="event-search-modal-wrapper" />
+        <div>
+            <div id="event-search-modal-wrapper" />
         </div>
-        <div class="row">
-            <div class="col-md-12" id="event-kmlgen-modal-wrapper" />
+        <div>
+            <div id="event-kmlgen-modal-wrapper" />
         </div>
-        <div class="row">
-            <div class="col-md-9">
-                <div id="map"></div>
-                <div style="margin-top: 10px;">
-                    <ul class="col-md-11 well well-sm" style="list-style-type: none;" id="ticker">
-                        <li>No events</li>
-                    </ul>
-                    <img id="kmlgen-scenario" data-toggle="tooltip" title="Export visible area in KMZ format for Google Earth" class="col-md-1" style="float:right;" src="img/kmz.png" />
-                </div>
-                <div id="cell-data" class="row" style="clear:both;">
-                    <div class="col-md-12">
-                        <h4>Cell data</h4>
-                        <div class="cell-data-contents">...</div>
-                    </div>
+        <div id="main-column-left">
+            <div id="map"></div>
+            <div style="margin-top: 10px;">
+                <ul class="well well-sm" style="list-style-type: none;" id="ticker">
+                    <li>No events</li>
+                </ul>
+            </div>
+            <div id="cell-data" class="row" style="clear:both;">
+                <div>
+                    <h4>Cell data</h4>
+                    <div class="cell-data-contents">...</div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="tabs">
-                    <ul>
-                        <li><a href="#tabs-1" id="tab-map">Map</a></li>
-                        <li><a href="#tabs-2" id="tab-stats">Statistics</a></li>
-                        <li><a href="#tabs-3" id="tab-events">Events</a></li>
-                    </ul>
-                    <div id="tabs-1">
-                        <div class="headline">View</div>
-                        <div class="useroutput" id="viewport">...</div>
-                        <div class="headline">Cursor</div>
-                        <div class="useroutput" id="cursorpos">...</div>
-                        <div class="headline">Controls</div>
-                        <button id="cells-force-load">Load and display cells</button>
-                        <div class="headline">Nautical charts</div>
-                        <form id="map-enable-nautical-charts">
-                            <input id="map-gst-username" type="text" placeholder="Username" />
-                            <input id="map-gst-password" type="password" placeholder="Password" />
-                            <button id="map-nautical-enable">Enable</button>
-                        </form>
-                    </div>
-                    <div id="tabs-2">
-                        <div class="headline">Dataset</div>
-                        <div class="useroutput" id="gridsize">Grid size: <span class="data">...</span></div>
-                        <div class="useroutput" id="downsampling">Down sampling: <span class="data">...</span></div>
-                        <div class="headline" id="statistic-names">Statistics</div>
-                    </div>
-                    <div id="tabs-3">
-                        <div class="headline">Event</div>
-                        <button id="events-search" data-toggle="modal" data-target="#event-search-modal">Search events...</button>
-                        <button id="events-remove">Hide events</button>
-                    </div>
+        </div>
+        <div id="main-column-right">
+            <div class="tabs">
+                <ul>
+                    <li><a href="#tabs-1" id="tab-map">Map</a></li>
+                    <li><a href="#tabs-2" id="tab-stats">Statistics</a></li>
+                    <li><a href="#tabs-3" id="tab-events">Events</a></li>
+                </ul>
+                <div id="tabs-1">
+                    <div class="headline">View</div>
+                    <div class="useroutput" id="viewport">...</div>
+                    <div class="headline">Cursor</div>
+                    <div class="useroutput" id="cursorpos">...</div>
+                    <div class="headline">Controls</div>
+                    <button id="cells-force-load">Load and display cells</button>
+                    <div class="headline">Nautical charts</div>
+                    <form id="map-enable-nautical-charts">
+                        <input id="map-gst-username" type="text" placeholder="Username" />
+                        <input id="map-gst-password" type="password" placeholder="Password" />
+                        <button id="map-nautical-enable">Enable</button>
+                    </form>
                 </div>
-                <div class="panel panel-default" style="margin-top: 10px;">
-                    <div class="panel-body">
-                        <div class="headline">Application status</div>
-                        <div class="useroutput" id="cell-layer-load-status">No cells loaded.</div>
-                    </div>
+                <div id="tabs-2">
+                    <div class="headline">Dataset</div>
+                    <div class="useroutput" id="gridsize">Grid size: <span class="data">...</span></div>
+                    <div class="useroutput" id="downsampling">Down sampling: <span class="data">...</span></div>
+                    <div class="headline" id="statistic-names">Statistics</div>
                 </div>
-                <div class="panel panel-default" style="margin-top: 10px;">
-                    <div class="panel-body">
-                        <div class="headline">Events shown</div>
-                        <table class="useroutput" id="events-shown" style="width: 240px; margin-left: 0px;" class="dataTable">
-                            <thead>
-                                <th>ID</th>
-                                <th>Vessel</th>
-                                <th style="margin-right: 0px;">&nbsp;</th>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
+                <div id="tabs-3">
+                    <div class="headline">Event</div>
+                    <button id="events-search" data-toggle="modal" data-target="#event-search-modal">Search events...</button>
+                    <button id="events-remove">Hide events</button>
+                </div>
+            </div>
+            <div class="panel panel-default" style="margin-top: 10px;">
+                <div class="panel-body">
+                    <div class="headline">Export data</div>
+                    <img id="kmlgen-scenario" data-toggle="tooltip" title="Export visible area in KMZ format for Google Earth" src="img/kmz.png" />
+                </div>
+            </div>
+            <div class="panel panel-default" style="margin-top: 10px;">
+                <div class="panel-body">
+                    <div class="headline">Application status</div>
+                    <div class="useroutput" id="cell-layer-load-status">No cells loaded.</div>
+                </div>
+            </div>
+            <div class="panel panel-default" style="margin-top: 10px;">
+                <div class="panel-body">
+                    <div class="headline">Events shown</div>
+                    <table class="useroutput" id="events-shown" style="width: 240px; margin-left: 0px;" class="dataTable">
+                        <thead>
+                            <th>ID</th>
+                            <th>Vessel</th>
+                            <th style="margin-right: 0px;">&nbsp;</th>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
         <div id="push"></div>
     </div>
-
     <div id="footer">
         <div class="container">
             <p>(C) Copyright 2013-4 by the <a href="http://www.dma.dk/">Danish Maritime Authority</a>.</p>

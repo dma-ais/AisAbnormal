@@ -17,11 +17,6 @@ div.dataTables_wrapper{
     display: table;
 }
 
-div#map {
-   /* height: 640px; */
-    margin: 20px auto;
-}
-
 .percentage {
     text-align: right;
 }
@@ -98,11 +93,25 @@ body {
 
 /* Wrapper for page content to push down footer */
 #wrap {
-    min-height: 100%;
+    width: 95%;
     height: auto !important;
-    height: 100%;
-    /* Negative indent footer by it's height */
-    margin: 0 auto -60px;
+    margin: 0 150px -60px 50px; /* Negative indent footer by it's height */
+}
+
+div#map {
+    width: 100%;
+}
+
+#main-column-left {
+    float: left;
+    width: 100%;
+    padding-right: 350px;
+}
+
+#main-column-right {
+    float: right;
+    margin-left: -100%;
+    width: 300px;
 }
 
 /* Set the fixed height of the footer here */
