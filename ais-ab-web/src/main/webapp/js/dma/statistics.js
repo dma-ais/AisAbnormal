@@ -104,12 +104,17 @@ var statisticsModule = {
         point.transform(mapModule.projectionWGS84, mapModule.map.getProjectionObject());
         cellCoords.push(point);
 
+        var totalShipCountType = cell.totalShipCount["ShipTypeAndSizeStatisticData"];
+        var totalShipCountCog = cell.totalShipCount["CourseOverGroundStatisticData"];
+        var totalShipCountSog = cell.totalShipCount["SpeedOverGroundStatisticData"];
+        var totalShipCount = ((totalShipCountType == undefined ? 0 : totalShipCountType) + (totalShipCountCog == undefined ? 0 : totalShipCountCog) + (totalShipCountSog == undefined ? 0 : totalShipCountSog))/3;
+
         var strokeColor = "#aaaaaa";
-        var totalShipCount = cell.totalShipCount["ShipTypeAndSizeStatisticData"];
         if (totalShipCount >= 1000) {
             strokeColor = "#66cc66";
         }
-        var fillOpacity = 0.05 + (Math.min(totalShipCount/500, 1))*0.5;
+
+        var fillOpacity = fillOpacity = 0.05 + (Math.min(totalShipCount/500, 1))*0.5;
 
         var strokeOpacity = fillOpacity;
 
@@ -127,6 +132,10 @@ var statisticsModule = {
         var cellGeometry = new OpenLayers.Geometry.LinearRing(cellCoords);
         cellFeature = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Polygon([cellGeometry]), cell, cellStyle);
         cellFeature.fid = cell.cellId;
+
+        if (isNaN(fillOpacity)) {
+            console.log(cell.cellId + " " + fillOpacity + " " + totalShipCount + " " + 0.05 + (Math.min(totalShipCount/500, 1))*0.5);
+        }
 
         var gridLayer = mapModule.getGridLayer();
         gridLayer.addFeatures([cellFeature]);
@@ -176,8 +185,8 @@ var statisticsModule = {
         tableHtml += "</tbody>";
         tableHtml += "</table>";
 
-        parentNode.append(tableHtml);
         parentNode.append("<div>Total ship count is " + totalShipCount + ".</div>");
+        parentNode.append(tableHtml);
 
         parentNode.find('#statistic-table').dataTable({
             "bFilter": false,
@@ -239,8 +248,8 @@ var statisticsModule = {
         tableHtml += "</tbody>";
         tableHtml += "</table>";
 
-        parentNode.append(tableHtml);
         parentNode.append("<div>Total ship count is " + totalShipCount + ".</div>");
+        parentNode.append(tableHtml);
 
         parentNode.find('#statistic-table').dataTable({
             "bFilter": false,
