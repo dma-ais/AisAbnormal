@@ -22,6 +22,22 @@
 		<url>https://github.com/dma-ais/AisAbnormal/</url>
 	</scm>
 
+    <developers>
+        <developer>
+            <id>tbsalling</id>
+            <name>Thomas Borg Salling</name>
+            <email>tbsalling@tbsalling.dk</email>
+            <url>http://tbsalling.dk</url>
+            <organization>Danish Maritime Authority</organization>
+            <organizationUrl>http://www.dma.dk</organizationUrl>
+            <timezone>+1</timezone>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
+
 	<modules>
 		<module>ais-ab-common</module>
 		<module>ais-ab-stat-db</module>
