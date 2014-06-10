@@ -22,7 +22,6 @@ import dk.dma.ais.abnormal.stat.db.data.StatisticData;
 import org.mapdb.BTreeMap;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
-import org.mapdb.StoreHeap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -392,13 +391,13 @@ public class StatisticDataRepositoryMapDB implements StatisticDataRepository {
 
     @SuppressWarnings("unused")
     private static DB openInMemoryOffHeapDatabase() {
-        DB db = DBMaker.newDirectMemoryDB().make();   // Serialize to off-heap
+        DB db = DBMaker.newMemoryDirectDB().make();   // Serialize to off-heap
         LOG.debug("Opened memory-based off-heap database.");
         return db;
     }
 
     private static DB openInMemoryOnHeapDatabase() {
-        DB db = new DB(new StoreHeap());            // On-heap; subject to garbage collection
+        DB db = DBMaker.newHeapDB().make();            // On-heap; subject to garbage collection
         LOG.debug("Opened memory-based on-heap database.");
         return db;
     }
