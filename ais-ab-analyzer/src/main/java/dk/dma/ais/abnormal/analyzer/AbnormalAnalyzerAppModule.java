@@ -30,9 +30,13 @@ import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeStatisticData;
 import dk.dma.ais.abnormal.stat.db.mapdb.StatisticDataRepositoryMapDB;
 import dk.dma.ais.abnormal.tracker.EventEmittingTracker;
 import dk.dma.ais.abnormal.tracker.Tracker;
+import dk.dma.ais.filter.GeoMaskFilter;
 import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
+import dk.dma.enav.model.geometry.BoundingBox;
+import dk.dma.enav.model.geometry.CoordinateSystem;
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.grid.Grid;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
@@ -42,9 +46,21 @@ import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public final class AbnormalAnalyzerAppModule extends AbstractModule {
@@ -204,6 +220,73 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
             LOG.error("Failed to create Grid object", e);
         }
         return grid;
+    }
+
+    @Provides
+    @Singleton
+    GeoMaskFilter provideGeoMaskFilter() {
+        List<BoundingBox> boundingBoxes = null;
+
+        URL resource = ClassLoader.class.getResource("/geomask.xml");
+        LOG.info("Reading geomask from " + resource.toString());
+        try {
+            boundingBoxes = parseGeoMaskXmlInputStream(resource.openStream());
+        } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
+        }
+
+        return new GeoMaskFilter(boundingBoxes);
+    }
+
+    private List<BoundingBox> parseGeoMaskXmlInputStream(InputStream is) {
+        List<BoundingBox> boundingBoxes = new ArrayList<>();
+        try {
+            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document document = documentBuilder.parse(is);
+            document.normalizeDocument();
+            final NodeList areaPolygons = document.getElementsByTagName("area_polygon");
+            final int numAreaPolygons = areaPolygons.getLength();
+            for (int i = 0; i < numAreaPolygons; i++) {
+                Node areaPolygon = areaPolygons.item(i);
+                LOG.info("XML reading area_polygon " + areaPolygon.getAttributes().getNamedItem("name").toString());
+                NodeList polygons = areaPolygon.getChildNodes();
+                int numPolygons = polygons.getLength();
+                for (int p = 0; p < numPolygons; p++) {
+                    Node polygon = polygons.item(p);
+                    if (polygon instanceof Element) {
+                        NodeList items = polygon.getChildNodes();
+                        int numItems = items.getLength();
+                        BoundingBox boundingBox = null;
+                        try {
+                            for (int j = 0; j < numItems; j++) {
+                                Node item = items.item(j);
+                                if (item instanceof Element) {
+                                    final double lat = Double.parseDouble(item.getAttributes().getNamedItem("lat").getNodeValue());
+                                    final double lon = Double.parseDouble(item.getAttributes().getNamedItem("lon").getNodeValue());
+                                    if (boundingBox == null) {
+                                        boundingBox = BoundingBox.create(Position.create(lat, lon), Position.create(lat, lon), CoordinateSystem.CARTESIAN);
+                                    } else {
+                                        boundingBox = boundingBox.include(Position.create(lat, lon));
+                                    }
+                                }
+                            }
+                            LOG.info("Blocking messages in bbox " + boundingBox.toString() + " " + (boundingBox.getMaxLat()-boundingBox.getMinLat()) + " " + (boundingBox.getMaxLon()-boundingBox.getMinLon()));
+                            boundingBoxes.add(boundingBox);
+                        } catch (NumberFormatException e) {
+                            LOG.error(e.getMessage(), e);
+                        }
+                    }
+                }
+            }
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace(System.err);
+        } catch (SAXException e) {
+            e.printStackTrace(System.err);
+        } catch (IOException e) {
+            e.printStackTrace(System.err);
+        }
+
+        return boundingBoxes;
     }
 
     private static boolean isValidStatisticDataRepositoryFormat(StatisticDataRepository statisticsRepository) {

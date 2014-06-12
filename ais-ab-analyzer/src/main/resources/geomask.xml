@@ -1,0 +1,852 @@
+<areas>
+    <area_polygon guid="{21caae4d-bf80-4c74-b2d4-c99b6cf61705}" name="Aarhus_0" depth="50" filename="">
+        <polygon>
+            <item guid="{1cb79eaa-4ee0-40f2-9ef7-8cbb801ebd8e}" lat="56.1728502" lon="10.2259121">
+            </item>
+            <item guid="{d79fed1f-ada2-42b9-bcc2-9e30a045d0b0}" lat="56.1569442" lon="10.2677039">
+            </item>
+            <item guid="{bbfcf005-00a5-401a-bd01-09569d01b58f}" lat="56.1496806" lon="10.2562597">
+            </item>
+            <item guid="{801c5c0d-c010-4e70-97bc-1996212d9892}" lat="56.1376774" lon="10.2249739">
+            </item>
+            <item guid="{417f39e0-f288-4494-9ce2-e0df083a0415}" lat="56.1458357" lon="10.2046509">
+            </item>
+            <item guid="{405bb92a-9298-4d74-846f-4da7a308f772}" lat="56.1663203" lon="10.2168349">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{10dab64a-bc8f-44e0-a45c-6e6623bf82de}" name="Fredericia_0" depth="50" filename="">
+        <polygon>
+            <item guid="{9251cb71-1264-4b79-94d8-01806e2ca059}" lat="55.5622729" lon="9.76862455">
+            </item>
+            <item guid="{3a2a987a-e0d0-4d52-befb-6efd40fad966}" lat="55.5540433" lon="9.76877229">
+            </item>
+            <item guid="{67dfaf7a-73e9-42cc-9dc9-7bf0b227ba74}" lat="55.5539308" lon="9.7632415">
+            </item>
+            <item guid="{ad263456-7ef2-4998-acc7-acd21bd3a2f6}" lat="55.5557346" lon="9.75706283">
+            </item>
+            <item guid="{1ce4156d-938f-4805-a5d3-1763665943e8}" lat="55.5548874" lon="9.74017122">
+            </item>
+            <item guid="{ae912589-dcf6-455d-9580-883279422845}" lat="55.5541539" lon="9.73573698">
+            </item>
+            <item guid="{9ba913b5-9b9b-4b1a-a9fe-58123fe2b746}" lat="55.5555895" lon="9.7281621">
+            </item>
+            <item guid="{1526c297-3e73-42d9-b963-6c043eb80e54}" lat="55.5622138" lon="9.73294106">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{a9a02389-e030-41b7-8e32-debf004b75dd}" name="Koege_0" depth="50" filename="">
+        <polygon>
+            <item guid="{d0267bef-ab01-4220-8f8c-ca207ee70a69}" lat="55.4514326" lon="12.2047091">
+            </item>
+            <item guid="{cf26f93f-1eac-4307-b293-888697576530}" lat="55.4575106" lon="12.204937">
+            </item>
+            <item guid="{0cfa3658-51d8-477c-aa5b-59c75c933b98}" lat="55.4576264" lon="12.184854">
+            </item>
+            <item guid="{aa2a9415-52e3-4658-bca3-5a4a424c194c}" lat="55.4516252" lon="12.1846595">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{e4c6c8f2-d78f-4f02-b38a-4d8fa5ada35e}" name="Middelfart_0" depth="50" filename="">
+        <polygon>
+            <item guid="{6d85d5c5-17cb-4752-9c16-f28127952411}" lat="55.5088482" lon="9.73435917">
+            </item>
+            <item guid="{6c53079a-86f0-4a7e-b119-9118cbe80c7f}" lat="55.5055125" lon="9.73433099">
+            </item>
+            <item guid="{3267a784-600f-47a9-89e2-10256534a3c8}" lat="55.5053286" lon="9.74794243">
+            </item>
+            <item guid="{be6f8602-c31d-43c2-b3d9-135f8a5cfb7d}" lat="55.5087835" lon="9.74795268">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{d0a1d23e-1d41-4b37-be6e-5b681246ed52}" name="Kalundborg_0" depth="50" filename="">
+        <polygon>
+            <item guid="{d9453f24-2ec9-46fc-a4e0-635fe111ae4e}" lat="55.6895791" lon="11.0425884">
+            </item>
+            <item guid="{30f9e85a-c297-421e-9c7d-fcae4f9ed5a4}" lat="55.688826" lon="11.1058446">
+            </item>
+            <item guid="{7870a60c-e146-46fa-9b0a-169658d3562b}" lat="55.6598555" lon="11.1045953">
+            </item>
+            <item guid="{68f5604a-d0f7-4ab1-be32-d5bb3aaf0cca}" lat="55.6609902" lon="11.0418369">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{9f7239af-0009-4408-a0f6-6ed376983d98}" name="Stigsnæs_0" depth="50" filename="">
+        <polygon>
+            <item guid="{74a70a56-72df-4e8e-aaca-ffcf360f1517}" lat="55.1936884" lon="11.2660941">
+            </item>
+            <item guid="{42277aaa-5f9a-45ad-88ed-f020b00805e6}" lat="55.1936588" lon="11.2372458">
+            </item>
+            <item guid="{c92ef65d-3e15-4117-89e3-ee29f2a6245c}" lat="55.2120136" lon="11.2370554">
+            </item>
+            <item guid="{4d1c0694-8a31-4220-8d34-f1e3d6b96455}" lat="55.2117891" lon="11.2657819">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{85be7fb0-14bc-4035-8e57-7f84e8ada8fd}" name="Fakseladeplads_0" depth="50" filename="">
+        <polygon>
+            <item guid="{6e5fdb2a-c7bf-42bf-8a16-bf411514bf14}" lat="55.2131017" lon="12.1640173">
+            </item>
+            <item guid="{9527b291-73a3-4fcc-bcf7-ba298bf58fb8}" lat="55.2111025" lon="12.1651003">
+            </item>
+            <item guid="{ca319d20-71ea-4121-8555-1408d9d100ab}" lat="55.2112987" lon="12.167812">
+            </item>
+            <item guid="{c4e5243b-0cfe-4481-8f9b-e65649662419}" lat="55.2148319" lon="12.1659797">
+            </item>
+            <item guid="{aba4fe0b-25c6-4c7d-8605-6485ed0e16ce}" lat="55.2143594" lon="12.1607552">
+            </item>
+            <item guid="{995fd25e-6d44-4757-aa96-1af1765b2fc0}" lat="55.2129418" lon="12.1618383">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{96adf580-76fe-4809-aa0d-8ea1725e2922}" name="Gedser_0" depth="50" filename="">
+        <polygon>
+            <item guid="{f73c567e-f642-4b9a-9987-1ec36e29ad88}" lat="54.5739807" lon="11.9239301">
+            </item>
+            <item guid="{f8d332c1-f6ee-4cef-bcf7-f10a5fde6fdb}" lat="54.5707483" lon="11.9240911">
+            </item>
+            <item guid="{d3d8108e-6ed6-4634-8bf6-e87ffac4214d}" lat="54.5711353" lon="11.9311118">
+            </item>
+            <item guid="{40751fd1-4efe-407f-b969-4b9350775472}" lat="54.5739367" lon="11.9307064">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{48e4aa48-c858-46c8-aeb2-19cd7259146b}" name="Rødby_0" depth="50" filename="">
+        <polygon>
+            <item guid="{4812365c-67d5-4614-89c4-755e9bd1a6d1}" lat="54.6556933" lon="11.3439789">
+            </item>
+            <item guid="{1ab65d00-62b0-4e3d-8066-a68612828b82}" lat="54.6542568" lon="11.3453785">
+            </item>
+            <item guid="{c4e0c268-26b4-4c9b-8f90-427a8d4f373c}" lat="54.6515661" lon="11.3444527">
+            </item>
+            <item guid="{5ed2eae0-5d3c-4601-abdc-caa402996313}" lat="54.6507452" lon="11.3444725">
+            </item>
+            <item guid="{1e1c84cb-af43-49ef-8a9c-26b100207924}" lat="54.6496051" lon="11.3464433">
+            </item>
+            <item guid="{589905dd-3bb6-459d-b860-fefae32b5908}" lat="54.649514" lon="11.348138">
+            </item>
+            <item guid="{9e116018-926a-4e8d-b7b1-60aeb667397e}" lat="54.6511102" lon="11.3548382">
+            </item>
+            <item guid="{b05b4494-5d54-4b27-9f43-e792023473e3}" lat="54.6576432" lon="11.3554103">
+            </item>
+            <item guid="{609bb9f3-f0ca-40fd-a1ae-8c599a21acfb}" lat="54.6576544" lon="11.3441165">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{f2dbf384-d5cc-40ee-9253-ba81ffe5c90e}" name="Nakskov_0" depth="50" filename="">
+        <polygon>
+            <item guid="{1fe85d44-e4c2-4e70-a847-fbb660bbbbaf}" lat="54.8348745" lon="11.1094304">
+            </item>
+            <item guid="{6bf0371c-92f8-4ce6-a80f-57bbedeeb8b1}" lat="54.8270818" lon="11.1093827">
+            </item>
+            <item guid="{0dc84a1a-a3ae-4ec6-807a-9a830da9449f}" lat="54.8269793" lon="11.1394931">
+            </item>
+            <item guid="{a8fbb241-50ef-4c96-b969-d1e79f5341ca}" lat="54.8348164" lon="11.1395209">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{ed6e6a30-6291-444e-aaa3-f8c095e2b68e}" name="NykøbingFalster_0" depth="50" filename="">
+        <polygon>
+            <item guid="{22d40ea3-4aa5-46e1-bb70-12c83392e9b0}" lat="54.7608967" lon="11.8654231">
+            </item>
+            <item guid="{eb78616a-31f9-4a34-b490-da1558c31425}" lat="54.7630186" lon="11.8647829">
+            </item>
+            <item guid="{e334aee5-da59-43b8-a95c-272568591d9d}" lat="54.7652477" lon="11.8629761">
+            </item>
+            <item guid="{96aed84d-60bb-4173-9228-3509c2ffe42f}" lat="54.7669316" lon="11.8620032">
+            </item>
+            <item guid="{08188b83-369c-4706-996e-ec043106c79b}" lat="54.7719671" lon="11.8583609">
+            </item>
+            <item guid="{723ec65f-7278-4f79-b4e6-fed68271af99}" lat="54.7731539" lon="11.8627536">
+            </item>
+            <item guid="{40f2969a-29cd-45d5-ac0b-9eaad9f6899e}" lat="54.7720794" lon="11.86634">
+            </item>
+            <item guid="{ab9e5464-35c3-41df-90f8-db15954e01bf}" lat="54.7613185" lon="11.870175">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{400bea8c-5b4b-4eda-84cb-24f5c72230ad}" name="Korsør_0" depth="50" filename="">
+        <polygon>
+            <item guid="{f807f6d6-b5b2-43eb-b61d-1ad387ea32ff}" lat="55.3379454" lon="11.1237434">
+            </item>
+            <item guid="{33780093-01d8-43a9-b50e-ec2b01bcd2a7}" lat="55.3324184" lon="11.1190742">
+            </item>
+            <item guid="{773eb1c2-a244-4934-8479-8ad0161f4fc9}" lat="55.3288388" lon="11.1257437">
+            </item>
+            <item guid="{78865e65-ef73-4457-842e-c7bf5ed39cde}" lat="55.3309275" lon="11.1369823">
+            </item>
+            <item guid="{6d25c93f-f4ca-46e0-ae03-4776562d26d4}" lat="55.3296054" lon="11.1483957">
+            </item>
+            <item guid="{15a85148-f29e-4402-80b6-fdf56e78a3d7}" lat="55.3370783" lon="11.1482486">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{6eb26d5e-c618-48e9-8fef-6d783ce39fdf}" name="Hundested_0" depth="50" filename="">
+        <polygon>
+            <item guid="{b2503d67-dbdc-458f-8f75-187590d23f3e}" lat="55.9595174" lon="11.8406088">
+            </item>
+            <item guid="{b11273a2-e88f-419a-976e-3349bc6a3ec7}" lat="55.9575568" lon="11.8433458">
+            </item>
+            <item guid="{bd72cdd1-3ec8-418a-8ba2-ec1fd8548089}" lat="55.9566608" lon="11.8469641">
+            </item>
+            <item guid="{e3e76120-8381-4bfa-add4-9f0d3904c523}" lat="55.957271" lon="11.8491212">
+            </item>
+            <item guid="{661b1b9b-2cd8-4fdc-8b76-6ba5f5cd5e66}" lat="55.9619583" lon="11.8488667">
+            </item>
+            <item guid="{314fb337-a3f5-4f07-876b-6e90cbd497cb}" lat="55.961491" lon="11.8403999">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{50de3410-f46b-414c-8496-d19bdb268147}" name="Frederiksværk_0" depth="50" filename="">
+        <polygon>
+            <item guid="{0fc3b57c-8fde-489f-891b-be8fd80d6991}" lat="55.9596214" lon="12.0083762">
+            </item>
+            <item guid="{c688e4f4-ea07-4bc9-b331-3145ee85e909}" lat="55.9642698" lon="12.0103231">
+            </item>
+            <item guid="{f9ff74d4-fa0e-4a2c-a599-44a9f45afa76}" lat="55.9645373" lon="12.0162395">
+            </item>
+            <item guid="{d662f6d0-1648-479c-92f2-3d9cf9550c94}" lat="55.9620485" lon="12.0183339">
+            </item>
+            <item guid="{8f20f6d8-c38a-4f35-bed3-b801be375c4c}" lat="55.9583257" lon="12.0107647">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{d8964cdb-409e-4ace-9a3b-90088aba58d7}" name="Odense_0" depth="50" filename="">
+        <polygon>
+            <item guid="{96bc4f55-30d0-4e73-b0be-f03f4c623843}" lat="55.4047048" lon="10.3535346">
+            </item>
+            <item guid="{f5106d29-08e9-46ec-bc9c-e5f65725c0c3}" lat="55.4938213" lon="10.4203044">
+            </item>
+            <item guid="{641d34a7-a785-43fb-abe6-3e1191607d8f}" lat="55.4938675" lon="10.5835521">
+            </item>
+            <item guid="{78feaa97-88d3-447f-856a-01e888c89950}" lat="55.477852" lon="10.5826214">
+            </item>
+            <item guid="{c2a3b66d-c551-41ca-a4ca-34a68a8f8c36}" lat="55.405488" lon="10.4345175">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{a705c499-249e-4284-b092-37c124bab6eb}" name="Vejle_0" depth="50" filename="">
+        <polygon>
+            <item guid="{50b90404-f7a8-4ed9-b5d2-02c304508b14}" lat="55.7042963" lon="9.57341573">
+            </item>
+            <item guid="{2ce1408d-526d-4fcd-ae68-94d7a2527e4f}" lat="55.7094011" lon="9.54175122">
+            </item>
+            <item guid="{4604fa2b-3019-4403-9d54-732613313c77}" lat="55.7052886" lon="9.53969379">
+            </item>
+            <item guid="{32d43aff-ff1c-4f50-a507-e92692453848}" lat="55.7002054" lon="9.57120555">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{fb0c666d-8ea8-4f5a-8a56-2c889a4261f9}" name="Grenå_0" depth="50" filename="">
+        <polygon>
+            <item guid="{8957cc70-4170-47a0-9443-7e7377ac76f3}" lat="56.4085116" lon="10.917268">
+            </item>
+            <item guid="{8c6d9889-7015-4ed0-870c-5e86e7dbc822}" lat="56.4247567" lon="10.9285399">
+            </item>
+            <item guid="{5ceab557-9412-47a2-98e8-59bc52283153}" lat="56.4209803" lon="10.9456909">
+            </item>
+            <item guid="{b075673e-03a8-4ace-b98f-8b063223c155}" lat="56.4047918" lon="10.9341375">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{fa7188b4-e32a-4df8-bdcf-cd70bc86e6a3}" name="Frederikshavn" depth="50" filename="">
+        <polygon>
+            <item guid="{b45ada4e-00cf-4a53-bfb3-4ffcfeac30f1}" lat="57.4283489" lon="10.5345156">
+            </item>
+            <item guid="{d5cf8728-a267-4b26-9dc9-226698c13c50}" lat="57.4446809" lon="10.534301">
+            </item>
+            <item guid="{4099a086-e6ad-4d19-9223-e9ce138a3df1}" lat="57.4446818" lon="10.5596828">
+            </item>
+            <item guid="{45e73d78-822b-42fa-9e41-a0b2180f6b95}" lat="57.4283275" lon="10.5595964">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{923a8f51-083d-429e-a3db-3d4cf0849c7b}" name="Skagen_0" depth="50" filename="">
+        <polygon>
+            <item guid="{f53e393d-f541-410c-a43b-ae92e25e0904}" lat="57.709637" lon="10.5774035">
+            </item>
+            <item guid="{0bae89e1-47ec-40b7-a599-7f7bb09cb2e9}" lat="57.7236331" lon="10.5774294">
+            </item>
+            <item guid="{d391a510-00a6-4af5-80cf-733dd803fc30}" lat="57.7235048" lon="10.6140979">
+            </item>
+            <item guid="{ba7f1798-4510-41b3-88d7-bab4684bdb9a}" lat="57.7095454" lon="10.6139833">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{dc61445d-b33c-4b89-b847-939956918640}" name="Hirtshals_0" depth="50" filename="">
+        <polygon>
+            <item guid="{fdd3414f-34bf-43bf-9704-5c36a2791b1a}" lat="57.5903847" lon="9.95135233">
+            </item>
+            <item guid="{30c22476-df21-4b6b-b4c5-90a636967143}" lat="57.6002217" lon="9.9546771">
+            </item>
+            <item guid="{2414743a-b524-47bc-ab5a-d82f82fc0a18}" lat="57.5970367" lon="9.98638162">
+            </item>
+            <item guid="{a4069e71-ac5a-4137-b5df-a1578d1fc3bb}" lat="57.5903178" lon="9.98659599">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{d33cc5d2-058d-4943-8279-e31c88ab027f}" name="Hanstholm_0" depth="50" filename="">
+        <polygon>
+            <item guid="{a83cf932-83c4-4de3-9a9d-095f18f2d7f5}" lat="57.1164337" lon="8.58895902">
+            </item>
+            <item guid="{c956790e-bc1b-4046-af69-073482c263d5}" lat="57.1269282" lon="8.58886313">
+            </item>
+            <item guid="{c13b04b4-f49b-4034-bb98-ee334b841319}" lat="57.1270472" lon="8.60440615">
+            </item>
+            <item guid="{9fb00a6d-4afd-4683-949a-44b7265a71e2}" lat="57.1164166" lon="8.60446628">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{802defa7-03a6-439f-870e-7ff139e8f971}" name="Thyborøn_0" depth="50" filename="">
+        <polygon>
+            <item guid="{9a9c00b0-349e-4ef9-bf92-cc82babb5b08}" lat="56.7071912" lon="8.22075447">
+            </item>
+            <item guid="{9bc2e770-4547-49e6-b74e-44f608498070}" lat="56.7008534" lon="8.21443406">
+            </item>
+            <item guid="{2e0d6faa-2b80-4f5a-af48-4cde0ed41f44}" lat="56.6915833" lon="8.21941288">
+            </item>
+            <item guid="{c5504646-8742-4d9a-90e4-ef81f0f50777}" lat="56.6932462" lon="8.22808357">
+            </item>
+            <item guid="{2394ebe4-11d2-4024-a479-ade91d58d6da}" lat="56.6972715" lon="8.22732493">
+            </item>
+            <item guid="{532dd7a6-6e30-406c-89ff-b4af0d3e4d0b}" lat="56.7028473" lon="8.22585431">
+            </item>
+            <item guid="{97f2e0cd-123a-4544-a6d5-f9ca29aeeb4d}" lat="56.7071466" lon="8.22446677">
+            </item>
+            <item guid="{a8768f0e-08a6-4d07-8695-e7c64923f2cb}" lat="56.7074824" lon="8.2222638">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{8e3bc473-427e-457b-a2dc-95661d426624}" name="Åbenrå_0" depth="50" filename="">
+        <polygon>
+            <item guid="{8d30b75a-9576-48c1-a1c4-5c515e1aef11}" lat="55.0395837" lon="9.42215689">
+            </item>
+            <item guid="{ae2b8231-5129-47d5-95fa-9a3367540e10}" lat="55.0397714" lon="9.42690092">
+            </item>
+            <item guid="{2acf36b9-75d2-4440-bde3-291ef48bab88}" lat="55.0374749" lon="9.42777354">
+            </item>
+            <item guid="{de25c2aa-4e32-45a0-9597-c919c3fdd4d2}" lat="55.0410525" lon="9.43521681">
+            </item>
+            <item guid="{d60ce936-6e8b-4c56-ac6f-57f990ec91ea}" lat="55.0474579" lon="9.43240878">
+            </item>
+            <item guid="{7a1a7c46-10bd-47d8-b58f-b81e16ae6936}" lat="55.0468015" lon="9.42141913">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{c90421f7-2211-431b-92f1-20ee48b8a506}" name="Nyborg_0" depth="50" filename="">
+        <polygon>
+            <item guid="{5b4fd649-e654-41a9-b65b-118522b6c2e3}" lat="55.2838068" lon="10.7883327">
+            </item>
+            <item guid="{183ca53c-391c-4bf7-9a8c-5e716a82e1ce}" lat="55.2862565" lon="10.8309275">
+            </item>
+            <item guid="{2d0aff0d-9ceb-4e88-a41a-f866afa00233}" lat="55.2968038" lon="10.8344474">
+            </item>
+            <item guid="{0a140592-432f-42d6-b861-16e5ef82fb97}" lat="55.3110968" lon="10.7935928">
+            </item>
+            <item guid="{0e10a1a1-90b3-483d-b399-c7a0cb27e42e}" lat="55.3107732" lon="10.7849211">
+            </item>
+            <item guid="{486cbdea-ce7c-4bcd-bc3f-c3a39f516672}" lat="55.2949011" lon="10.7763739">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{53e25bb1-ea2a-4788-8e50-2580dc618438}" name="København_0" depth="50" filename="">
+        <polygon>
+            <item guid="{ee5a14f7-a20a-44e8-aa48-08edd698fc6b}" lat="55.680024" lon="12.5887163">
+            </item>
+            <item guid="{1501491b-f715-4e1c-ac63-3b6633753d59}" lat="55.6954382" lon="12.5859562">
+            </item>
+            <item guid="{1bac09f2-0d5c-4ef9-9dd0-012600b85320}" lat="55.7091024" lon="12.5885624">
+            </item>
+            <item guid="{70fa468e-f34a-4c17-b36d-ec20c5130591}" lat="55.71462" lon="12.5920878">
+            </item>
+            <item guid="{c3803bd1-5ea2-4c15-a484-ab2a0772c257}" lat="55.7193037" lon="12.5962982">
+            </item>
+            <item guid="{d6dd9699-8fa9-47a3-8799-974aae9cdb88}" lat="55.724637" lon="12.6072643">
+            </item>
+            <item guid="{f9b5ef87-9c52-46b6-bf6f-bb0d8a2a0b1d}" lat="55.72726" lon="12.6351371">
+            </item>
+            <item guid="{21a10b1f-f246-4526-89da-0c9c7234591c}" lat="55.7230889" lon="12.6449311">
+            </item>
+            <item guid="{6a1e868c-4bc1-4c6b-9201-b5f2bb63b6d1}" lat="55.7094273" lon="12.6301211">
+            </item>
+            <item guid="{7e4ccd79-657a-4dfb-83b6-f91e675cde44}" lat="55.6983319" lon="12.6360591">
+            </item>
+            <item guid="{01592506-b47f-4e07-9144-b0ef33039b2c}" lat="55.6845747" lon="12.6469419">
+            </item>
+            <item guid="{03bfb7fe-c388-4f38-a67b-272ae37eb3df}" lat="55.6779424" lon="12.6524778">
+            </item>
+            <item guid="{207361d2-0609-4618-9308-4619cacc2fe0}" lat="55.6716943" lon="12.6549024">
+            </item>
+            <item guid="{f2e81965-1ffd-4dd9-b40e-b141600901cb}" lat="55.6648446" lon="12.6522733">
+            </item>
+            <item guid="{cdbf816f-b150-4258-9fa7-abf8bd24cb8c}" lat="55.6648447" lon="12.6294293">
+            </item>
+            <item guid="{aa6e89ad-e93a-4182-876e-ad9c9294d60f}" lat="55.6692309" lon="12.6027184">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{0b2d7dfb-1216-4985-8a24-f3eddb1c50e0}" name="Masnedø_0" depth="50" filename="">
+        <polygon>
+            <item guid="{9a393d67-799c-49eb-be56-1669c306dabc}" lat="54.9957001" lon="11.8880974">
+            </item>
+            <item guid="{f6d1b4ee-ecf7-449d-8c50-e0b27efd84f7}" lat="54.9979652" lon="11.882047">
+            </item>
+            <item guid="{3af7a6f4-3dec-4c66-9acc-c88bfdbd47f5}" lat="54.9993296" lon="11.8835249">
+            </item>
+            <item guid="{20aa0a65-cdfe-4f87-a7b4-5929be502e62}" lat="54.9970777" lon="11.8896447">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{7245cad4-a9b8-4af5-bcd6-3c8931931dc0}" name="Næstved_0" depth="50" filename="">
+        <polygon>
+            <item guid="{272bf238-e658-4db7-8743-88c63dd415a9}" lat="55.2100544" lon="11.7018642">
+            </item>
+            <item guid="{770ad3a5-0089-4ac8-862c-afc567c7c4e5}" lat="55.2186556" lon="11.7328842">
+            </item>
+            <item guid="{4f5f9426-c27e-41da-a814-c058fe2c762f}" lat="55.2265426" lon="11.7483393">
+            </item>
+            <item guid="{746612e7-88db-437a-9e9e-bc9d3601cbda}" lat="55.2296685" lon="11.7540744">
+            </item>
+            <item guid="{81ad8014-91d8-41de-82db-c5619d37fed1}" lat="55.2272494" lon="11.7626714">
+            </item>
+            <item guid="{523e54f6-3593-47a6-8817-0c18462b3d07}" lat="55.2229854" lon="11.7610471">
+            </item>
+            <item guid="{c7dbf5ce-cb3c-40bb-8d08-efa497afb219}" lat="55.2189355" lon="11.7564331">
+            </item>
+            <item guid="{a0d8e9d0-b851-4f5e-aa90-5cb3f3c8bf31}" lat="55.2159523" lon="11.7488306">
+            </item>
+            <item guid="{76c4fc5c-1086-42ef-a10c-90c21f8d7e9b}" lat="55.211832" lon="11.7367441">
+            </item>
+            <item guid="{f0f80726-d9c2-4d52-802c-f4527e5550c7}" lat="55.2089187" lon="11.7271515">
+            </item>
+            <item guid="{33f81c65-9ff2-42bf-bb7e-292522360049}" lat="55.2061468" lon="11.7171866">
+            </item>
+            <item guid="{ea3bc646-59a6-4660-af58-fa2a5d5b7a2c}" lat="55.2035873" lon="11.7066002">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{e62a641d-5180-47a2-b881-03b62e7cd024}" name="Svendborg_0" depth="50" filename="">
+        <polygon>
+            <item guid="{ebb89035-3d3f-498c-bcc6-39c921f249cf}" lat="55.060579" lon="10.6235888">
+            </item>
+            <item guid="{0cf3d9f1-693d-4d19-9c41-087a1acbe93f}" lat="55.0630327" lon="10.614572">
+            </item>
+            <item guid="{05b557a0-eda3-4abb-8c03-842bf003fbcb}" lat="55.0611082" lon="10.6132281">
+            </item>
+            <item guid="{9e71e712-0648-4b8c-af6b-f7cac9f6ce4e}" lat="55.0596487" lon="10.6137025">
+            </item>
+            <item guid="{f9056d42-4260-492e-bc6a-03ec9e0bfc01}" lat="55.0583339" lon="10.6139564">
+            </item>
+            <item guid="{bf646387-a842-4851-8d7c-a9d56d3f1d7d}" lat="55.056201" lon="10.6145447">
+            </item>
+            <item guid="{a80e1374-c1c4-4ae5-8692-8b1f712a25e8}" lat="55.0550623" lon="10.6143488">
+            </item>
+            <item guid="{fd255c59-1cc3-4b74-8587-0b1c75dd85f0}" lat="55.0550496" lon="10.6151987">
+            </item>
+            <item guid="{ec4c00a2-5a2b-4cc6-9d85-0b5652b287a9}" lat="55.0558426" lon="10.6155862">
+            </item>
+            <item guid="{57f1fd26-33eb-4f21-b9c8-48d97636eb08}" lat="55.0566674" lon="10.6169982">
+            </item>
+            <item guid="{def306ba-af8d-48e9-8d87-920689d39b2e}" lat="55.057397" lon="10.6203207">
+            </item>
+            <item guid="{d36eb030-bfe7-44bf-b53f-55821e2892b5}" lat="55.0593923" lon="10.6236727">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{cb5760c8-bc1b-4814-9263-65a7f2665069}" name="Skærbækværket_0" depth="50" filename="">
+        <polygon>
+            <item guid="{94632f52-2aa7-49a5-8de9-8fb04be43d80}" lat="55.513589" lon="9.60653331">
+            </item>
+            <item guid="{85683ad4-a5bb-41b8-b599-b18c4c7bed26}" lat="55.5077915" lon="9.60643312">
+            </item>
+            <item guid="{878e97ed-c8d5-43d5-8864-8185acadf1f9}" lat="55.5077053" lon="9.62319032">
+            </item>
+            <item guid="{12526c2b-9048-4e3f-bb48-d4e4070ccd9b}" lat="55.5134596" lon="9.6231911">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{9c0c9986-016b-413c-afa1-205a6e7c5783}" name="Horsens_0" depth="50" filename="">
+        <polygon>
+            <item guid="{6534def3-a141-4e26-a874-15be44bf8434}" lat="55.8600918" lon="9.85633929">
+            </item>
+            <item guid="{fb8b54c8-b715-4a44-be1b-c2ade0e107c9}" lat="55.8583115" lon="9.87184339">
+            </item>
+            <item guid="{d48fd2dc-78ce-4d06-b509-333747c9b9e3}" lat="55.8565293" lon="9.87109657">
+            </item>
+            <item guid="{1148abc9-8f37-4716-ba39-ba2352774f6f}" lat="55.8555511" lon="9.87819405">
+            </item>
+            <item guid="{68100d77-8c9a-492d-a5bf-9623b6d63999}" lat="55.8543276" lon="9.88859064">
+            </item>
+            <item guid="{41b096d7-cb5a-49a2-9975-373d4d0179f1}" lat="55.8469545" lon="9.88796621">
+            </item>
+            <item guid="{c5b6d9a6-e9f3-4c99-ad84-f4f4897f7d2c}" lat="55.8528928" lon="9.85310618">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{753ac5ad-1b43-415f-b586-4eb256fe0a10}" name="Studstrupværket_0" depth="50" filename="">
+        <polygon>
+            <item guid="{3c6c73d8-129c-4f01-be35-926c80ba4bd3}" lat="56.2554178" lon="10.3470169">
+            </item>
+            <item guid="{d377d1a7-5619-43c6-8454-d42054e503e6}" lat="56.2502474" lon="10.3622635">
+            </item>
+            <item guid="{b37e819d-2ca0-4414-a634-d5365a51d3b3}" lat="56.2428217" lon="10.3552303">
+            </item>
+            <item guid="{5eba6bda-e56d-4bdf-909c-acb5f1636efc}" lat="56.2482269" lon="10.3395916">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{a14c326d-b302-4ac2-8704-c06fe2580766}" name="Ålborg_0" depth="50" filename="">
+        <polygon>
+            <item guid="{ff3d56b6-77bb-4e06-9427-221e9cf2a90d}" lat="57.0911426" lon="9.87199535">
+            </item>
+            <item guid="{61ade33e-fde1-4460-afd4-e684f9cb1920}" lat="57.0437368" lon="9.87124932">
+            </item>
+            <item guid="{0ef25c8d-aa92-4483-8af3-33a72b90d3d0}" lat="57.043795" lon="10.0107121">
+            </item>
+            <item guid="{5df8c5cf-88e0-42d4-bb3d-ec6f67ad82ee}" lat="57.0433579" lon="10.0455784">
+            </item>
+            <item guid="{6a9c0f78-0fff-4910-976d-666b8886dc9d}" lat="57.0429778" lon="10.0723679">
+            </item>
+            <item guid="{95346b9a-36e5-48c9-a8f2-2dfddd7cb47f}" lat="57.0467998" lon="10.0746335">
+            </item>
+            <item guid="{fc4ab8b4-48f6-4e30-98d2-ade075523f08}" lat="57.0608185" lon="10.0448186">
+            </item>
+            <item guid="{db503a34-9f69-47bd-aa36-700ec21f6a4c}" lat="57.0612558" lon="10.0094181">
+            </item>
+            <item guid="{8f564221-4507-4d29-95ea-ceed7457d474}" lat="57.0912222" lon="10.006855">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{86770141-c8d4-404a-97d5-bc51c6811648}" name="Nordjyllandsværket_0" depth="50" filename="">
+        <polygon>
+            <item guid="{36dc0054-ab57-44ce-90ad-fe8a40367ff4}" lat="57.0751171" lon="10.0322416">
+            </item>
+            <item guid="{35d55d39-3e56-463f-ade1-71a9edce3dd6}" lat="57.0685081" lon="10.0403988">
+            </item>
+            <item guid="{76495bfb-05e8-410c-b825-c2e109ee71f4}" lat="57.072741" lon="10.0523471">
+            </item>
+            <item guid="{d89c67fe-e13c-431a-8d3c-5aeeeaf66369}" lat="57.0798086" lon="10.0429278">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{bc346e80-7537-4c75-84b8-56aff2c3c154}" name="Randers_0" depth="50" filename="">
+        <polygon>
+            <item guid="{5a8da94b-cbd4-4bec-88c5-4ee6b5dc5ee6}" lat="56.4688221" lon="10.0333917">
+            </item>
+            <item guid="{15eda763-e03b-4843-bfd8-cff194420d28}" lat="56.450989" lon="10.0334116">
+            </item>
+            <item guid="{1b5bdcce-3ddd-4ee3-a555-676111210a5a}" lat="56.4510601" lon="10.0840775">
+            </item>
+            <item guid="{e8e171d4-b8be-4982-85ec-ab4c1f2e1d47}" lat="56.4690857" lon="10.0829201">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{57b3764d-b988-4ca7-8d73-5a3fcc57994f}" name="Struer_0" depth="50" filename="">
+        <polygon>
+            <item guid="{06135d39-9eb9-4de5-9f37-e164df6fbc6f}" lat="56.491451" lon="8.59608608">
+            </item>
+            <item guid="{3ecbd135-5f2f-4fe7-9fd7-ee9ad36b2d61}" lat="56.4964131" lon="8.59634108">
+            </item>
+            <item guid="{8fa9e5fb-4a32-446f-a329-535324a7937e}" lat="56.4963105" lon="8.60484142">
+            </item>
+            <item guid="{a01bf918-f6bc-4707-8e21-5f9c69611dab}" lat="56.4913742" lon="8.60491131">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{95a4a7fe-42e4-4811-8cb4-1654dde422a3}" name="Thisted_0" depth="50" filename="">
+        <polygon>
+            <item guid="{5cf2fbc4-ab78-4a8e-bc46-ae8c32fb5ef7}" lat="56.9556365" lon="8.69231301">
+            </item>
+            <item guid="{fd9f1486-da83-459d-9a4b-e16de94a7bfb}" lat="56.9493857" lon="8.69270638">
+            </item>
+            <item guid="{f619ba61-8285-4cb0-9f8d-07d150f430d3}" lat="56.9496368" lon="8.70432125">
+            </item>
+            <item guid="{c3072672-13df-4afc-8201-f661507ce31d}" lat="56.9557391" lon="8.70367432">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{80adb553-0b9d-41f2-b23b-dd6f96639562}" name="Esbjerg_0" depth="50" filename="">
+        <polygon>
+            <item guid="{98c5bfa2-e4f7-4b17-ac9c-7671ce97b629}" lat="55.4898246" lon="8.42567435">
+            </item>
+            <item guid="{fc648bea-42e9-4ea8-963e-a035abf66cab}" lat="55.4821546" lon="8.39794832">
+            </item>
+            <item guid="{f8b73590-3526-42a7-b263-1536beac5065}" lat="55.4674595" lon="8.41327144">
+            </item>
+            <item guid="{6e1dac1a-4a92-4658-9877-e730abaf8e2b}" lat="55.4558668" lon="8.42657193">
+            </item>
+            <item guid="{6f3fcc6d-dad7-4d4a-9111-cc7d21728059}" lat="55.4516218" lon="8.43997815">
+            </item>
+            <item guid="{b423aabf-874b-47b1-97a3-679de2f2c1d9}" lat="55.4477548" lon="8.45606261">
+            </item>
+            <item guid="{6db16d74-a1ef-43ed-8435-cd796ae921c3}" lat="55.4442643" lon="8.47650042">
+            </item>
+            <item guid="{e0acc1e0-4bf4-4da3-88d6-4f0771fd550e}" lat="55.4428021" lon="8.48833788">
+            </item>
+            <item guid="{4bbe099f-3496-4a6c-a489-62ae600bb2a3}" lat="55.4569179" lon="8.50992273">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{d9fee347-5dc5-4f88-9b4a-c4fec7aa2207}" name="Avedøreværket_0" depth="50" filename="">
+        <polygon>
+            <item guid="{bf12acd8-d5b1-4271-ac4f-c7053cf23920}" lat="55.6039743" lon="12.4788148">
+            </item>
+            <item guid="{d1b43566-3a65-4903-8880-03615f3115f1}" lat="55.5958131" lon="12.4776762">
+            </item>
+            <item guid="{05f08d23-9520-4bc9-a33a-7c39f93f5d7b}" lat="55.5948787" lon="12.4937754">
+            </item>
+            <item guid="{b04cc21b-b5aa-4642-8dd8-1d59d7c6031a}" lat="55.6032011" lon="12.4949744">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{a6ba4deb-45ff-43c5-ba61-07c11061055d}" name="Holbæk_0" depth="50" filename="">
+        <polygon>
+            <item guid="{0ec04bf3-2c5c-4717-a0cf-4bc787af9746}" lat="55.7247999" lon="11.7132741">
+            </item>
+            <item guid="{dfee9957-e2df-4efb-8b94-c6828b5176fb}" lat="55.7198686" lon="11.7116218">
+            </item>
+            <item guid="{46432f09-c517-4d3f-90ad-73a388b0d072}" lat="55.7189247" lon="11.7223094">
+            </item>
+            <item guid="{8c2d3a06-d055-4522-96fd-1d6ba72752e0}" lat="55.724105" lon="11.7235205">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{d6d0b8ec-b2f6-4735-aa8b-79fe12413791}" name="Rønne_0" depth="50" filename="">
+        <polygon>
+            <item guid="{ba7bf79a-c5ff-4fe8-87e8-17e6003aab90}" lat="55.1018775" lon="14.6786949">
+            </item>
+            <item guid="{9d20cbbd-34a8-44ea-8a59-fe50504701ec}" lat="55.0886246" lon="14.6789044">
+            </item>
+            <item guid="{57fb652e-aa93-4504-b670-8496476e23eb}" lat="55.0886833" lon="14.7018207">
+            </item>
+            <item guid="{a933da50-c905-4a5d-84c4-1d341eda4083}" lat="55.1019559" lon="14.7013439">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{575faf35-eeb3-4831-9fbf-9ef6ea539b26}" name="Skive_0" depth="50" filename="">
+        <polygon>
+            <item guid="{9ca7f403-967b-4d77-933f-11ad43abf88e}" lat="56.5708918" lon="9.0508832">
+            </item>
+            <item guid="{9d9fae8f-4a55-4fb0-80ff-f72c5e5034ac}" lat="56.568957" lon="9.05109887">
+            </item>
+            <item guid="{ff59dcee-a870-4aa2-96ef-b245c99ec3b8}" lat="56.5691422" lon="9.05636884">
+            </item>
+            <item guid="{20d4cb3f-cc1f-4ac6-a258-e4be553cea4f}" lat="56.5710506" lon="9.0561943">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{ac40eb4d-730b-4bb2-9b8f-0f7551f27ddd}" name="Hobro_0" depth="50" filename="">
+        <polygon>
+            <item guid="{e53eac92-dbf7-483b-a840-b86cc850d14c}" lat="56.6436724" lon="9.79822214">
+            </item>
+            <item guid="{14ba6d5a-47ee-4ac4-bafc-9cdd3277dd1d}" lat="56.6358688" lon="9.79786961">
+            </item>
+            <item guid="{f779c309-45c3-40c5-946f-8d294369d573}" lat="56.6363751" lon="9.81626158">
+            </item>
+            <item guid="{5afe7912-0c1b-4cf2-a7fe-53766aac4613}" lat="56.6441919" lon="9.81073785">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{25ea225d-eb28-4ea6-9db7-54980ad7329e}" name="Kolding_0" depth="50" filename="">
+        <polygon>
+            <item guid="{9487052f-97d7-4afc-808e-383977acd779}" lat="55.491618" lon="9.47913268">
+            </item>
+            <item guid="{95714253-d306-4cbe-b450-52d80fba228e}" lat="55.4879606" lon="9.48183466">
+            </item>
+            <item guid="{0cbd9428-664d-4751-ba91-c88a9ca3f00c}" lat="55.4925277" lon="9.51094128">
+            </item>
+            <item guid="{330c98ff-630a-4a21-8a5d-a1503967e734}" lat="55.4967208" lon="9.50833795">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{40f6bf71-a1cb-4218-b66b-d932c3e416fd}" name="Assens_0" depth="50" filename="">
+        <polygon>
+            <item guid="{d6c08344-0562-4d6d-92c6-86c01878d573}" lat="55.2734812" lon="9.88195329">
+            </item>
+            <item guid="{9c0cb8ea-7624-43dc-b639-f5ffa0f84516}" lat="55.2737019" lon="9.8901924">
+            </item>
+            <item guid="{38e084e7-bfc0-4c08-a4b6-c5a1143642b0}" lat="55.2655361" lon="9.89088865">
+            </item>
+            <item guid="{8ecdeccc-7245-45c0-a03c-d5049ec9b121}" lat="55.2657422" lon="9.88283196">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{11c0eb08-8a67-4cae-bdd3-4e30dcf645de}" name="Rudkøbing_0" depth="50" filename="">
+        <polygon>
+            <item guid="{aaa0ed23-5874-4e96-b44e-0fa1313329af}" lat="54.9383327" lon="10.700839">
+            </item>
+            <item guid="{fdebe159-5022-4357-8bdf-ca9d757ae6ff}" lat="54.9403702" lon="10.7055284">
+            </item>
+            <item guid="{ad2dbcba-04c6-4ab8-b9b4-a1edff0cc4d2}" lat="54.9386703" lon="10.7082642">
+            </item>
+            <item guid="{6e419dce-b841-4b4a-8c2f-6f4f13845547}" lat="54.9362799" lon="10.7035376">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{ab982e65-dc99-4a5a-a2c5-141a31c9fcf9}" name="Bandholm_0" depth="50" filename="">
+        <polygon>
+            <item guid="{fc148bd2-f2a5-46fa-a188-d0f93b09a52e}" lat="54.8374111" lon="11.4862991">
+            </item>
+            <item guid="{b7805d48-652a-4943-b569-0046ca4a2f06}" lat="54.8402181" lon="11.4920612">
+            </item>
+            <item guid="{81b10230-575b-4889-9eb8-fc208f3107fb}" lat="54.8381347" lon="11.4950939">
+            </item>
+            <item guid="{7b910bfb-ae39-4d02-9147-5e3855c259f1}" lat="54.8353653" lon="11.4894186">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{45d696cf-f751-4719-a1f8-63eb44c94351}" name="Aggersund" depth="50" filename="">
+        <polygon>
+            <item guid="{a2b57083-eea7-4c5d-bdbe-999458ae72ac}" lat="56.9974239" lon="9.29281732">
+            </item>
+            <item guid="{d1a607e1-9ca8-4edd-9a77-9baee5c905b5}" lat="56.9977842" lon="9.29354597">
+            </item>
+            <item guid="{a90ee6fd-ab8b-48d9-b5ee-365bd4e9a3be}" lat="56.9972922" lon="9.29431156">
+            </item>
+            <item guid="{f2df4ee3-be9f-44a7-baf1-fd14348efd4a}" lat="56.9969721" lon="9.29352247">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{bb84a613-cb4a-426c-8bf9-4ebb687953f6}" name="Allinge_0" depth="50" filename="">
+        <polygon>
+            <item guid="{78f6d26b-0a49-49e5-b97a-58fb77ab81d8}" lat="55.2788695" lon="14.7997208">
+            </item>
+            <item guid="{97c54d75-b22b-4578-b794-40e1d6911196}" lat="55.2800256" lon="14.8024179">
+            </item>
+            <item guid="{38b5ba2c-ed30-49ec-be20-6e23c54545af}" lat="55.2783996" lon="14.8046144">
+            </item>
+            <item guid="{43bc9447-2a72-42fb-bd76-d5c051cdcde0}" lat="55.2772911" lon="14.8019823">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{4ede8e52-f86d-4c28-9980-dfee974fd69c}" name="Augustenborg_0" depth="50" filename="">
+        <polygon>
+            <item guid="{d2a3a6a3-55f6-45a9-b105-c3aaffd9e471}" lat="54.9442152" lon="9.86682084">
+            </item>
+            <item guid="{63b169e8-e940-4a37-a7a5-7d24195ba7d7}" lat="54.9414649" lon="9.86751799">
+            </item>
+            <item guid="{fef9296a-0e5e-466f-9dc9-1ec0fcc6119a}" lat="54.9419" lon="9.8744426">
+            </item>
+            <item guid="{f63381b2-5963-49da-9321-08fdf8c98a09}" lat="54.9447809" lon="9.87363985">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{a1a0aa92-1888-4500-a3ea-5f7d32e9fe87}" name="Bagenkop_0" depth="50" filename="">
+        <polygon>
+            <item guid="{7502986b-5d8e-4250-83f0-06a4a97213e8}" lat="54.75379" lon="10.668796">
+            </item>
+            <item guid="{5b49eb1a-d55a-4512-bbf1-b35667dd76b5}" lat="54.7536716" lon="10.6760422">
+            </item>
+            <item guid="{d49abc99-f9cc-4fdb-bee9-299df124aad2}" lat="54.7499732" lon="10.674521">
+            </item>
+            <item guid="{b0234b02-c6cc-42f1-ac74-e12a3865b6a5}" lat="54.7503184" lon="10.669497">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{bbde5741-a299-43b2-8c0a-4d1a21a56f73}" name="Avedøre_0" depth="50" filename="">
+        <polygon>
+            <item guid="{dbed2eb7-7964-4492-b73d-240a19d0efa3}" lat="55.6100336" lon="12.4956882">
+            </item>
+            <item guid="{ce63a634-bbbc-4514-8f7b-fcbaf2dfc24d}" lat="55.6094862" lon="12.5031881">
+            </item>
+            <item guid="{f3306272-97db-469b-b248-66363cfd7e09}" lat="55.612277" lon="12.5034523">
+            </item>
+            <item guid="{6b8f36b1-3514-4670-8d51-b1b0fbcde13c}" lat="55.6129741" lon="12.4964812">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{cd1a944f-e5b7-4188-b8c0-f6b194f7d66e}" name="Christiansø_0" depth="50" filename="">
+        <polygon>
+            <item guid="{d0587cc3-443c-4bdf-8323-645dbbda30a8}" lat="55.3215118" lon="15.1844503">
+            </item>
+            <item guid="{c0ace257-e64d-4a8e-b7ec-015dc889e5f4}" lat="55.3214548" lon="15.1867548">
+            </item>
+            <item guid="{f56dc703-56a4-47b7-8af0-dc68e98efbc1}" lat="55.3187135" lon="15.187081">
+            </item>
+            <item guid="{81613c71-56e4-4660-865d-9f3296fdeb18}" lat="55.3186786" lon="15.1849691">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{835adc6b-9fa5-490c-bae6-ea14356d509e}" name="Dragør_0" depth="50" filename="">
+        <polygon>
+            <item guid="{60225995-4b76-41b8-9e89-fe5d08e8f037}" lat="55.5953827" lon="12.673778">
+            </item>
+            <item guid="{f422b808-b2a4-4eb4-81fd-d41895bf65bb}" lat="55.5952941" lon="12.6840628">
+            </item>
+            <item guid="{bc94b4cf-cc2c-4285-97ae-9e9152f601a0}" lat="55.5887583" lon="12.6824659">
+            </item>
+            <item guid="{742103c5-bb1d-4775-9262-79f77ae65f3c}" lat="55.5893793" lon="12.6736481">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{bbe1efbe-7dbc-473a-b9de-e562cf295079}" name="Ebeltoft_0" depth="50" filename="">
+        <polygon>
+            <item guid="{69ecbbac-3cd0-40c4-a2b1-8aa65fa020f7}" lat="56.2001208" lon="10.6727792">
+            </item>
+            <item guid="{521c8e1a-fd8b-45c1-99cc-a569fe8ff475}" lat="56.1975654" lon="10.6669691">
+            </item>
+            <item guid="{8697be97-935d-4df4-82a1-4f2a92aba509}" lat="56.1896591" lon="10.6637519">
+            </item>
+            <item guid="{365e71ec-16b1-4b3a-8ea9-09e4b70b1533}" lat="56.1879123" lon="10.6710916">
+            </item>
+            <item guid="{9a64ee86-5b39-44e6-8f28-32c8c32c884c}" lat="56.2005139" lon="10.6765089">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{2deef613-3cbb-4e89-ac2c-532ace617500}" name="EbeltoftFærgehavn_0" depth="50" filename="">
+        <polygon>
+            <item guid="{d36c939e-ebe0-493f-bbef-7b37ae7fc672}" lat="56.1516972" lon="10.6646145">
+            </item>
+            <item guid="{aa011a7b-8bf4-43fa-bc50-6f1abf3d9abf}" lat="56.1532166" lon="10.662538">
+            </item>
+            <item guid="{4fea43e2-439a-45e6-b57b-d538a7ccb50a}" lat="56.1570222" lon="10.6670523">
+            </item>
+            <item guid="{7fbbfefa-67c3-40a7-9642-a2c24847ffd6}" lat="56.155059" lon="10.6716881">
+            </item>
+            <item guid="{d26bf167-3ae9-4573-9a9b-720b760612af}" lat="56.1528269" lon="10.6699739">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{975b9976-399c-4a5e-90e2-2273b200ceb9}" name="Egernsund_0" depth="50" filename="">
+        <polygon>
+            <item guid="{22b5b1ca-7aa3-4c09-ba51-6b96fa919299}" lat="54.9074243" lon="9.59839667">
+            </item>
+            <item guid="{9a99a4f2-567e-4aa1-9618-dd76af95038a}" lat="54.9096889" lon="9.60275512">
+            </item>
+            <item guid="{fc08b1f6-ce48-4b14-8380-159f5af46e27}" lat="54.9110261" lon="9.60317432">
+            </item>
+            <item guid="{ccde2bd6-b1ae-4842-bfd0-44233a96c756}" lat="54.9137605" lon="9.60072261">
+            </item>
+            <item guid="{b4245ece-daf6-4b62-96f3-74eead2b0b22}" lat="54.9137967" lon="9.59806112">
+            </item>
+            <item guid="{d3134f1c-d6c5-4b1d-bd01-f264af661418}" lat="54.9094239" lon="9.5962802">
+            </item>
+            <item guid="{c43aa6f7-9256-4eb9-b3ac-0d8aa185a9e9}" lat="54.9078338" lon="9.59680419">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{848786d0-903b-419e-b902-8fc9856db2db}" name="Helsingør_0" depth="50" filename="">
+        <polygon>
+            <item guid="{09d9cb85-b72d-43da-a14c-1d87709ae43d}" lat="56.0394898" lon="12.6133605">
+            </item>
+            <item guid="{9a848f1e-588e-439d-b92d-c1f73ca34c86}" lat="56.0318523" lon="12.6133055">
+            </item>
+            <item guid="{ece06b92-6603-4690-9d30-b64e62165d94}" lat="56.0318209" lon="12.6250825">
+            </item>
+            <item guid="{f6c8187d-8018-4aef-baf4-878945046556}" lat="56.0394268" lon="12.6252528">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid="{271f82a7-7da7-4a6a-aa90-fe62fe150931}" name="Helsingborg_0" depth="50" filename="">
+        <polygon>
+            <item guid="{0a50229f-682a-4089-b9d4-9573d10d4d06}" lat="56.0475007" lon="12.68154">
+            </item>
+            <item guid="{6e329790-f9d3-4a0d-9807-0e7331e746d7}" lat="56.0369614" lon="12.6816314">
+            </item>
+            <item guid="{5d661a1d-ca6b-4205-afcf-cd90be849eb4}" lat="56.0369273" lon="12.7002569">
+            </item>
+            <item guid="{58d51717-a53d-41f4-92cd-84e7b83612fb}" lat="56.0475169" lon="12.6999006">
+            </item>
+        </polygon>
+    </area_polygon>
+</areas>
