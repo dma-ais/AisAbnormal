@@ -46,6 +46,9 @@ import java.util.Date;
 
 import static dk.dma.ais.abnormal.event.db.domain.builders.ShipSizeOrTypeEventBuilder.ShipSizeOrTypeEvent;
 import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isEngagedInTowing;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isSmallVessel;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isSpecialCraft;
 
 /**
  * This analysis manages events where the presence of a vessel of the given type
@@ -75,6 +78,11 @@ public class ShipTypeAndSizeAnalysis extends StatisticBasedAnalysis {
         statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events received");
 
         Track track = trackEvent.getTrack();
+
+        if (isSmallVessel.test(track) || isSpecialCraft.test(track) || isEngagedInTowing.test(track)) {
+            return;
+        }
+
         Long cellId = (Long) track.getProperty(Track.CELL_ID);
         Integer shipType = track.getShipType();
         Integer shipLength = track.getVesselLength();

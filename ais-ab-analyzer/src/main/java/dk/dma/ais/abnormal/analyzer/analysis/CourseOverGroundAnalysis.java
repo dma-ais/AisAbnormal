@@ -46,6 +46,10 @@ import java.util.Date;
 
 import static dk.dma.ais.abnormal.event.db.domain.builders.CourseOverGroundEventBuilder.CourseOverGroundEvent;
 import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isEngagedInTowing;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isSlowVessel;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isSmallVessel;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isSpecialCraft;
 
 /**
  * This analysis manages events where a vessel has an "abnormal" course over ground
@@ -75,8 +79,7 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
 
         Track track = trackEvent.getTrack();
 
-        Float sog = track.getSpeedOverGround();
-        if (sog == null || sog < 2.0) {
+        if (isSlowVessel.test(track) || isSmallVessel.test(track) || isSpecialCraft.test(track) || isEngagedInTowing.test(track)) {
             return;
         }
 

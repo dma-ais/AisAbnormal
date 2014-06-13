@@ -41,6 +41,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isEngagedInTowing;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isSmallVessel;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isSpecialCraft;
 
 /**
  * This analysis manages events where the a sudden decreasing speed change occurs.
@@ -75,7 +78,9 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
     @AllowConcurrentEvents
     @Subscribe
     public void onSpeedOverGroundUpdated(PositionChangedEvent trackEvent) {
-        final Float sogAsFloat = trackEvent.getTrack().getSpeedOverGround();
+        Track track = trackEvent.getTrack();
+
+        final Float sogAsFloat = track.getSpeedOverGround();
         if (sogAsFloat == null) {
             return;
         }
@@ -84,7 +89,11 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
             return;
         }
 
-        performAnalysis(trackEvent.getTrack(), sog);
+        if (isSmallVessel.test(track) || isSpecialCraft.test(track) || isEngagedInTowing.test(track)) {
+            return;
+        }
+
+        performAnalysis(track, sog);
 
         if (counter++ % 10000 == 0) {
             statisticsService.setAnalysisStatistics(analysisName, "Ships > 8 kts", tracks.size());

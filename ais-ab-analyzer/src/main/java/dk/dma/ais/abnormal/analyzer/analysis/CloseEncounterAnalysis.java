@@ -46,6 +46,13 @@ import java.util.TreeSet;
 import java.util.concurrent.Executor;
 
 import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isEngagedInFishing;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isEngagedInTowing;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isFishingVessel;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isSlowVessel;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isSmallVessel;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isSupportVessel;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isUndefinedVessel;
 import static dk.dma.enav.safety.SafetyZones.safetyZone;
 import static dk.dma.enav.safety.SafetyZones.vesselExtent;
 import static java.lang.Math.max;
@@ -127,16 +134,33 @@ public class CloseEncounterAnalysis extends Analysis {
 
     private void analyseCloseEncounters(Collection<Track> allTracks, Track track) {
         clearTrackPairsAnalyzed();
-        if (! isSupportVessel(track)) {
-            Set<Track> nearByTracks = findNearByTracks(allTracks, track, 60000, 1852);
-            nearByTracks.forEach(nearByTrack -> {
-                if (isFishingVessel(track) && isFishingVessel(nearByTrack)) { return; }
-                if (isUndefinedVessel(track) && isUndefinedVessel(nearByTrack)) { return; }
-                if (isSupportVessel(nearByTrack)) { return; };
-                if (isSlowVessel(track) && isSlowVessel(nearByTrack)) { return; };
+        if (isSupportVessel.negate().test(track) && isEngagedInTowing.negate().test(track)) {
+            findNearByTracks(allTracks, track, 60000, 1852)
+                .stream()
+                .filter(isSupportVessel.negate())
+                .filter(isEngagedInTowing.negate())
+                .forEach(nearByTrack -> {
+                    if (isFishingVessel.test(track) && isFishingVessel.test(nearByTrack)) {
+                        return;
+                    }
+                    if (isUndefinedVessel.test(track) && isUndefinedVessel.test(nearByTrack)) {
+                        return;
+                    }
+                    if (isSlowVessel.test(track) && isSlowVessel.test(nearByTrack)) {
+                        return;
+                    }
+                    ;
+                    if (isSmallVessel.test(track) && isSmallVessel.test(nearByTrack)) {
+                        return;
+                    }
+                    ;
+                    if (isEngagedInFishing.test(track) && isEngagedInFishing.test(nearByTrack)) {
+                        return;
+                    }
+                    ;
 
-                analyseCloseEncounter(track, nearByTrack);
-            });
+                    analyseCloseEncounter(track, nearByTrack);
+                });
         }
     }
 
@@ -348,25 +372,6 @@ public class CloseEncounterAnalysis extends Analysis {
         addPreviousTrackingPoints(event, secondaryTrack);
 
         return event;
-    }
-
-    private static boolean isSupportVessel(Track track) {
-        Integer shipType = track.getShipType();
-        return shipType != null && Categorizer.mapShipTypeToCategory(shipType) == 4;
-    }
-
-    private static boolean isFishingVessel(Track track) {
-        Integer shipType = track.getShipType();
-        return shipType != null && Categorizer.mapShipTypeToCategory(shipType) == 5;
-    }
-
-    private static boolean isUndefinedVessel(Track track) {
-        Integer shipType = track.getShipType();
-        return shipType != null && Categorizer.mapShipTypeToCategory(shipType) == 8;
-    }
-
-    private static boolean isSlowVessel(Track track) {
-        return track.getSpeedOverGround() < 3.0;
     }
 
 }
