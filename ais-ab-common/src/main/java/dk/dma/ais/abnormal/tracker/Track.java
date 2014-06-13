@@ -430,12 +430,12 @@ public final class Track {
 
     /** Convenience method to return track's last reported vessel length or null */
     public Integer getVesselLength() {
-        return shipDimensionBow == null || shipDimensionPort == null ? null : shipDimensionBow + shipDimensionStern;
+        return shipDimensionBow == null || shipDimensionStern == null ? null : shipDimensionBow + shipDimensionStern;
     }
 
     /** Convenience method to return track's last reported vessel beam or null */
     public Integer getVesselBeam() {
-        return shipDimensionBow == null || shipDimensionPort == null ? null : shipDimensionPort + shipDimensionStarboard;
+        return shipDimensionPort == null || shipDimensionStarboard == null ? null : shipDimensionPort + shipDimensionStarboard;
     }
 
     public Integer getShipDimensionBow() {
