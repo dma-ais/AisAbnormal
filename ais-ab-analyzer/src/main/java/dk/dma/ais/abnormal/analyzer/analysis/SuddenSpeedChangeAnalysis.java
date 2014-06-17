@@ -41,9 +41,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isClassB;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isEngagedInTowing;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isFishingVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isSmallVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isSpecialCraft;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isUnknownTypeOrSize;
 
 /**
  * This analysis manages events where the a sudden decreasing speed change occurs.
@@ -61,7 +64,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
 
     private final float speedHighMark = 9.0f;
     private final float speedLowMark = 1.0f;
-    private final int suddenTimeSecs = 60;
+    private final int suddenTimeSecs = 30;
 
     private final Map<Integer,TrackingPointData> tracks;
     private final String analysisName;
@@ -89,7 +92,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
             return;
         }
 
-        if (isSmallVessel.test(track) || isSpecialCraft.test(track) || isEngagedInTowing.test(track)) {
+        if (isClassB.test(track) || isUnknownTypeOrSize.test(track) || isFishingVessel.test(track) || isSmallVessel.test(track) || isSpecialCraft.test(track) || isEngagedInTowing.test(track)) {
             return;
         }
 

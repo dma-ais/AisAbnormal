@@ -42,6 +42,11 @@ public final class TrackPredicates {
         return shipType != null && Categorizer.mapShipTypeToCategory(shipType) == 4;
     };
 
+    public static Predicate<Track> isClassB = track -> {
+        Integer shipType = track.getShipType();
+        return shipType != null && Categorizer.mapShipTypeToCategory(shipType) == 6;
+    };
+
     public static Predicate<Track> isFishingVessel = track -> {
         Integer shipType = track.getShipType();
         return shipType != null && Categorizer.mapShipTypeToCategory(shipType) == 5;
@@ -51,6 +56,8 @@ public final class TrackPredicates {
         Integer shipType = track.getShipType();
         return shipType != null && Categorizer.mapShipTypeToCategory(shipType) == 8;
     };
+
+    public static Predicate<Track> isUnknownTypeOrSize = track -> track.getShipType() == null || track.getVesselLength() == null;
 
     public static Predicate<Track> isSlowVessel = track -> track.getSpeedOverGround() < 3.0;
 

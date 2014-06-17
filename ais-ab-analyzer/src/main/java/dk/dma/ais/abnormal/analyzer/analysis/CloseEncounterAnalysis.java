@@ -149,15 +149,12 @@ public class CloseEncounterAnalysis extends Analysis {
                     if (isSlowVessel.test(track) && isSlowVessel.test(nearByTrack)) {
                         return;
                     }
-                    ;
                     if (isSmallVessel.test(track) && isSmallVessel.test(nearByTrack)) {
                         return;
                     }
-                    ;
                     if (isEngagedInFishing.test(track) && isEngagedInFishing.test(nearByTrack)) {
                         return;
                     }
-                    ;
 
                     analyseCloseEncounter(track, nearByTrack);
                 });

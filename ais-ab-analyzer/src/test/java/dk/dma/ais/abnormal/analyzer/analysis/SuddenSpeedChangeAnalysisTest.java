@@ -159,6 +159,7 @@ public class SuddenSpeedChangeAnalysisTest {
         analysis.onSpeedOverGroundUpdated(new PositionChangedEvent(track, null));
         context.assertIsSatisfied();
 
+        /*
         track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 8.3f, 45.0f);
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
@@ -180,6 +181,7 @@ public class SuddenSpeedChangeAnalysisTest {
         }});
         analysis.onSpeedOverGroundUpdated(new PositionChangedEvent(track, null));
         context.assertIsSatisfied();
+        */
 
         track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 1.9f, 45.0f);
         context.checking(new Expectations() {{
