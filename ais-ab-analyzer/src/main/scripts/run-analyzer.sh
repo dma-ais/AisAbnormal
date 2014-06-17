@@ -1,7 +1,11 @@
 #!/bin/sh
 java -jar ais-ab-analyzer-0.1-SNAPSHOT.jar \
 -downsampling 5 \
--eventDataRepositoryType h2 \
--eventDataDbFile events \
--statistics stats-2013-06-dwn5-grid200 \
--aisDataSourceURL file://../../../../../data/ais/aisdk/2013-06/*.txt.gz
+-eventDataRepositoryType pgsql \
+-eventDataDbHost localhost \
+-eventDataDbPort 8432 \
+-eventDataDbUsername abnormal \
+-eventDataDbPassword "replace_with_secret" \
+-eventDataDbName abnormal \
+-statistics ~/AisAbnormal/data/2013H2-grid200-down10.MapDB-1_0_1 \
+-aisDataSourceURL tcp://10.33.128.140:65261
