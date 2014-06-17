@@ -155,7 +155,9 @@ public class CloseEncounterAnalysis extends Analysis {
                     if (isEngagedInFishing.test(track) && isEngagedInFishing.test(nearByTrack)) {
                         return;
                     }
-
+                    if (! (track.getSpeedOverGround() > 5.0 || nearByTrack.getSpeedOverGround() > 5.0)) {
+                        return;
+                    }
                     analyseCloseEncounter(track, nearByTrack);
                 });
         }

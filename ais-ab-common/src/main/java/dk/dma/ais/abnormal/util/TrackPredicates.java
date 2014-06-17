@@ -37,29 +37,33 @@ public final class TrackPredicates {
         return shipType != null && shipType >= 50 && shipType <= 55;
     };
 
-    public static Predicate<Track> isSupportVessel = track -> {
-        Integer shipType = track.getShipType();
-        return shipType != null && Categorizer.mapShipTypeToCategory(shipType) == 4;
-    };
+    public static Predicate<Track> isTankerVessel = track -> shipTypeCategoryEquals(track, 1);
 
-    public static Predicate<Track> isClassB = track -> {
-        Integer shipType = track.getShipType();
-        return shipType != null && Categorizer.mapShipTypeToCategory(shipType) == 6;
-    };
+    public static Predicate<Track> isCargoVessel = track -> shipTypeCategoryEquals(track, 2);
 
-    public static Predicate<Track> isFishingVessel = track -> {
-        Integer shipType = track.getShipType();
-        return shipType != null && Categorizer.mapShipTypeToCategory(shipType) == 5;
-    };
+    public static Predicate<Track> isPassengerVessel = track -> shipTypeCategoryEquals(track, 3);
 
-    public static Predicate<Track> isUndefinedVessel = track -> {
-        Integer shipType = track.getShipType();
-        return shipType != null && Categorizer.mapShipTypeToCategory(shipType) == 8;
-    };
+    public static Predicate<Track> isSupportVessel = track -> shipTypeCategoryEquals(track, 4);
+
+    public static Predicate<Track> isFishingVessel = track -> shipTypeCategoryEquals(track, 5);
+
+    public static Predicate<Track> isClassB = track -> shipTypeCategoryEquals(track, 6);
+
+    public static Predicate<Track> isUndefinedVessel = track -> shipTypeCategoryEquals(track, 8);
 
     public static Predicate<Track> isUnknownTypeOrSize = track -> track.getShipType() == null || track.getVesselLength() == null;
 
     public static Predicate<Track> isSlowVessel = track -> track.getSpeedOverGround() < 3.0;
+
+    public static Predicate<Track> isLongVessel = track -> {
+        Integer length = track.getVesselLength();
+        return length == null ? false : length.intValue() >= 30;
+    };
+
+    public static Predicate<Track> isVeryLongVessel = track -> {
+        Integer length = track.getVesselLength();
+        return length == null ? false : length.intValue() >= 75;
+    };
 
     public static Predicate<Track> isSmallVessel = track -> {
         Integer length = track.getVesselLength();
@@ -75,4 +79,10 @@ public final class TrackPredicates {
         Integer shipType = track.getShipType();
         return shipType == null ? false : shipType == 30;
     };
+
+    private static boolean shipTypeCategoryEquals(Track track, int category) {
+        Integer shipType = track.getShipType();
+        return shipType != null && Categorizer.mapShipTypeToCategory(shipType) == category;
+    }
+
 }

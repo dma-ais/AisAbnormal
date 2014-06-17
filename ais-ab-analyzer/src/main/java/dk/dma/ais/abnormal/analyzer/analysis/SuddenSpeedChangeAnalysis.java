@@ -41,12 +41,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isCargoVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isClassB;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isEngagedInTowing;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isFishingVessel;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isLongVessel;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isPassengerVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isSmallVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isSpecialCraft;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isTankerVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isUnknownTypeOrSize;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isVeryLongVessel;
 
 /**
  * This analysis manages events where the a sudden decreasing speed change occurs.
@@ -92,14 +97,26 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
             return;
         }
 
-        if (isClassB.test(track) || isUnknownTypeOrSize.test(track) || isFishingVessel.test(track) || isSmallVessel.test(track) || isSpecialCraft.test(track) || isEngagedInTowing.test(track)) {
+        if (
+           isClassB.test(track)
+        || isUnknownTypeOrSize.test(track)
+        || isFishingVessel.test(track)
+        || isSmallVessel.test(track)
+        || isSpecialCraft.test(track)
+        || isEngagedInTowing.test(track)
+        || ! ( isVeryLongVessel.test(track)
+            || (isCargoVessel.test(track) && isLongVessel.test(track))
+            || (isTankerVessel.test(track) && isLongVessel.test(track))
+            || (isPassengerVessel.test(track) && isLongVessel.test(track))
+           )
+        ) {
             return;
         }
 
         performAnalysis(track, sog);
 
         if (counter++ % 10000 == 0) {
-            statisticsService.setAnalysisStatistics(analysisName, "Ships > 8 kts", tracks.size());
+            statisticsService.setAnalysisStatistics(analysisName, "Sudden spd chg", tracks.size());
         }
         statisticsService.incAnalysisStatistics(analysisName, "Analyses performed");
     }
