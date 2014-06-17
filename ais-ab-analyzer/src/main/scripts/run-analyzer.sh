@@ -2,7 +2,7 @@
 java -jar ais-ab-analyzer-0.1-SNAPSHOT.jar \
 -downsampling 5 \
 -eventDataRepositoryType pgsql \
--eventDataDbHost localhost \
+-eventDataDbHost ais-lin-u002 \
 -eventDataDbPort 8432 \
 -eventDataDbUsername abnormal \
 -eventDataDbPassword "replace_with_secret" \
