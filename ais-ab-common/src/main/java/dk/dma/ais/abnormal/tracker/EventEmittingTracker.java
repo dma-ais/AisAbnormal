@@ -26,9 +26,13 @@ import dk.dma.ais.abnormal.tracker.events.PositionChangedEvent;
 import dk.dma.ais.abnormal.tracker.events.TimeEvent;
 import dk.dma.ais.abnormal.tracker.events.TrackStaleEvent;
 import dk.dma.ais.message.AisMessage;
+import dk.dma.ais.message.AisPosition;
 import dk.dma.ais.message.AisTargetType;
+import dk.dma.ais.message.IPositionMessage;
 import dk.dma.ais.message.IVesselPositionMessage;
 import dk.dma.ais.packet.AisPacket;
+import dk.dma.enav.model.geometry.BoundingBox;
+import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.PositionTime;
 import dk.dma.enav.model.geometry.grid.Cell;
@@ -81,6 +85,9 @@ public class EventEmittingTracker implements Tracker {
 
     final Grid grid;
 
+    /** Process only targets inside this area */
+    final BoundingBox area;
+
     static final int TRACK_STALE_SECS = 1800;  // 30 mins
     static final int TRACK_INTERPOLATION_REQUIRED_SECS = 30;  // 30 secs
     static final int INTERPOLATION_TIME_STEP_MILLIS = 10000;
@@ -127,6 +134,7 @@ public class EventEmittingTracker implements Tracker {
         this.grid = grid;
         this.statisticsService = statisticsService;
         this.mmsiBlacklist = initVesselBlackList(configuration);
+        this.area = initArea(configuration);
         eventBus.register(this); // to catch dead events
     }
 
@@ -135,7 +143,7 @@ public class EventEmittingTracker implements Tracker {
      */
     @Override
     public void update(AisPacket packet) {
-        performUpdate(packet.getBestTimestamp(), packet.tryGetAisMessage(), track -> track.update(packet) );
+        performUpdate(packet.getBestTimestamp(), packet.tryGetAisMessage(), track -> track.update(packet));
     }
 
     void update(long timeOfCurrentUpdate, AisMessage aisMessage) {
@@ -145,7 +153,7 @@ public class EventEmittingTracker implements Tracker {
     private void performUpdate(long timeOfCurrentUpdate, AisMessage aisMessage, Consumer<Track> trackUpdater) {
         final int mmsi = aisMessage.getUserId();
 
-        if (! isOnBlackList(mmsi)) {
+        if (! isOnBlackList(mmsi) && isInsideArea(aisMessage)) {
             if (isOnObservationList(mmsi)) {
                 outputMessageSummary(aisMessage);
             }
@@ -381,6 +389,23 @@ public class EventEmittingTracker implements Tracker {
     }
 
     /**
+     * Check if this aisMessage is inside the area which is tracked.
+     * @param aisMessage
+     * @return true if the aisMessage contains no position or a position inside the area.
+     */
+    private final boolean isInsideArea(AisMessage aisMessage) {
+        if (area == null) {
+            return true;
+        }
+        if (aisMessage instanceof IPositionMessage) {
+            AisPosition pos = ((IPositionMessage) aisMessage).getPos();
+            return pos != null && pos.getGeoLocation() != null && area.contains(pos.getGeoLocation());
+        } else {
+            return true;
+        }
+    }
+
+    /**
      * Initialize internal data structures required to accept/reject track updates based on black list mechanism.
      * @param configuration
      * @return
@@ -411,6 +436,29 @@ public class EventEmittingTracker implements Tracker {
             LOG.info(Arrays.toString(blacklistedMmsis.toArray()));
         }
         return blacklistedMmsis;
+    }
+
+    /**
+     * Initialize internal data structures required to accept/reject track updates based on geography.
+     * @param configuration
+     * @return
+     */
+    private static BoundingBox initArea(Configuration configuration) {
+        BoundingBox area = null;
+
+        Float north = configuration.getFloat("prefilter.bbox.north", null);
+        Float south = configuration.getFloat("prefilter.bbox.south", null);
+        Float east = configuration.getFloat("prefilter.bbox.east", null);
+        Float west = configuration.getFloat("prefilter.bbox.west", null);
+
+        if (north != null && south != null && east != null && west != null) {
+            area = BoundingBox.create(Position.create(north, west), Position.create(south, east), CoordinateSystem.CARTESIAN);
+            LOG.info("Area: " + area);
+        } else {
+            LOG.warn("No area-based pre-filtering of messages.");
+        }
+
+        return area;
     }
 
     /**
