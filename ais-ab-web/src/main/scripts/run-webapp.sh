@@ -1,6 +1,10 @@
 #!/bin/sh
 java -jar ais-ab-web-0.1-SNAPSHOT.jar \
--eventDataRepositoryType h2 \
--eventDataDbFile $2 \
--statistics $3 \
+-eventDataRepositoryType pgsql \
+-eventDataDbHost $2 \
+-eventDataDbPort $3 \
+-eventDataDbUsername $4 \
+-eventDataDbPassword $5 \
+-eventDataDbName $6 \
+-statistics $7 \
 -port $1 
