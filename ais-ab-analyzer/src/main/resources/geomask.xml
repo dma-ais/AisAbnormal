@@ -1685,13 +1685,13 @@
     </area_polygon>
     <area_polygon guid = "{212a57c8-778a-4622-ab61-1a61d8a032c5}" name = "Goteborg_0" depth = "50" filename = "">
         <polygon>
-            <item guid = "{f7dca60f-fb70-4b97-9ab8-950bd651be76}" lat = "57.7462291" lon = "11.8337706">
+            <item guid = "{f7dca60f-fb70-4b97-9ab8-950bd651be76}" lat = "57.7774336" lon = "11.6058102">
             </item>
-            <item guid = "{e945f449-bf70-4dbb-89cf-054fc8f26692}" lat = "57.6088361" lon = "11.8353222">
+            <item guid = "{e945f449-bf70-4dbb-89cf-054fc8f26692}" lat = "57.5629603" lon = "11.6097627">
             </item>
-            <item guid = "{36e33ea0-1665-48b7-a658-d551c0c80594}" lat = "57.6099971" lon = "12.0979649">
+            <item guid = "{36e33ea0-1665-48b7-a658-d551c0c80594}" lat = "57.5647045" lon = "12.093861">
             </item>
-            <item guid = "{7e46c4eb-be5a-4cb2-a3ff-43903ef132d2}" lat = "57.7449871" lon = "12.1018974">
+            <item guid = "{7e46c4eb-be5a-4cb2-a3ff-43903ef132d2}" lat = "57.7756054" lon = "12.100081">
             </item>
         </polygon>
     </area_polygon>
@@ -1704,6 +1704,54 @@
             <item guid = "{46369f5b-2bc8-4035-863f-74b8f62d701e}" lat = "55.5521993" lon = "14.3657587">
             </item>
             <item guid = "{69785547-7f0f-425c-9d28-0754e753d2a9}" lat = "55.5619309" lon = "14.3653221">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{2ec8ebc1-9c44-4195-87c4-3506067d57d6}" name = "Flensborg_0" depth = "50" filename = "">
+        <polygon>
+            <item guid = "{3558a9bc-d18d-4c96-877e-c56030431a7d}" lat = "54.8166713" lon = "9.42531508">
+            </item>
+            <item guid = "{4a9a42c7-97f6-403e-b0ce-fc77fc220f36}" lat = "54.7863556" lon = "9.42506151">
+            </item>
+            <item guid = "{019f39c0-ec24-4399-b576-40e39b326fe6}" lat = "54.7863949" lon = "9.45821343">
+            </item>
+            <item guid = "{efaddf86-3a42-43c3-8840-a69354780783}" lat = "54.8166334" lon = "9.45849185">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{272a44a1-a0c6-4b46-98f9-407b1d7bb766}" name = "Puttgarden_0" depth = "50" filename = "">
+        <polygon>
+            <item guid = "{e0c33049-e97d-4bf2-83a9-0c5af2827f89}" lat = "54.5109973" lon = "11.2215312">
+            </item>
+            <item guid = "{44933f61-cf74-4869-8de1-36294c3335b0}" lat = "54.4988415" lon = "11.2213631">
+            </item>
+            <item guid = "{3cc311b2-8c4a-42ce-bb93-eefd04d37d4b}" lat = "54.4990816" lon = "11.2402331">
+            </item>
+            <item guid = "{acc9aebc-b295-4472-9365-96340fb328cc}" lat = "54.5111973" lon = "11.2414038">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{e8c8fc5d-0c17-449c-8d87-5adb94d6be19}" name = "Rügen_0" depth = "50" filename = "">
+        <polygon>
+            <item guid = "{9c51a02e-6ee4-4f7b-81df-e998d8fec38d}" lat = "54.2682923" lon = "13.0619331">
+            </item>
+            <item guid = "{e08220e6-48ad-4f77-a044-9aa184587a3d}" lat = "54.6908723" lon = "13.0666299">
+            </item>
+            <item guid = "{9190ca75-4a69-4ab4-8e89-5baa07565387}" lat = "54.6847258" lon = "13.7618208">
+            </item>
+            <item guid = "{8bd11585-0d98-4b57-8fe8-b667e59eb508}" lat = "54.2677789" lon = "13.7552122">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{39f82455-f13c-4154-aab1-ac64d021afe3}" name = "Karlshamn_0" depth = "50" filename = "">
+        <polygon>
+            <item guid = "{53134b72-620d-468c-982e-be1a79eb0b06}" lat = "56.1868394" lon = "14.8029686">
+            </item>
+            <item guid = "{89fab648-a798-462b-b8e1-655ad1d5aafc}" lat = "56.1498945" lon = "14.8030354">
+            </item>
+            <item guid = "{d0b8c51f-0ecd-4487-a3f4-c591fcafec84}" lat = "56.1502613" lon = "14.8900096">
+            </item>
+            <item guid = "{89878e99-f8c2-4920-811c-cabfa77991fb}" lat = "56.1886001" lon = "14.8912798">
             </item>
         </polygon>
     </area_polygon>
