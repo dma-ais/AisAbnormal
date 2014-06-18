@@ -26,6 +26,7 @@ import dk.dma.ais.abnormal.analyzer.analysis.SpeedOverGroundAnalysis;
 import dk.dma.ais.abnormal.analyzer.analysis.SuddenSpeedChangeAnalysis;
 import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.filter.GeoMaskFilter;
+import dk.dma.ais.filter.LocationFilter;
 import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisMessage5;
@@ -50,14 +51,16 @@ public class PacketHandlerImpl implements PacketHandler {
     private final Tracker tracker;
     private final ReplayDownSampleFilter downSampleFilter;
     private final GeoMaskFilter geoMaskFilter;
+    private final LocationFilter locationFilter;
     private final Set<Analysis> analyses;
 
     @Inject
-    public PacketHandlerImpl(AppStatisticsService statisticsService, Tracker tracker, ReplayDownSampleFilter downSampleFilter, GeoMaskFilter geoMaskFilter) {
+    public PacketHandlerImpl(AppStatisticsService statisticsService, Tracker tracker, ReplayDownSampleFilter downSampleFilter, GeoMaskFilter geoMaskFilter, LocationFilter locationFilter) {
         this.statisticsService = statisticsService;
         this.tracker = tracker;
         this.downSampleFilter = downSampleFilter;
         this.geoMaskFilter = geoMaskFilter;
+        this.locationFilter = locationFilter;
         this.analyses = initAnalyses();
 
         this.analyses.forEach(analysis -> analysis.start());
@@ -67,6 +70,10 @@ public class PacketHandlerImpl implements PacketHandler {
         statisticsService.incUnfilteredPacketCount();
 
         if (downSampleFilter.rejectedByFilter(packet)) {
+            return;
+        }
+
+        if (locationFilter.rejectedByFilter(packet)) {
             return;
         }
 

@@ -31,6 +31,7 @@ import dk.dma.ais.abnormal.stat.db.mapdb.StatisticDataRepositoryMapDB;
 import dk.dma.ais.abnormal.tracker.EventEmittingTracker;
 import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.filter.GeoMaskFilter;
+import dk.dma.ais.filter.LocationFilter;
 import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
@@ -38,6 +39,7 @@ import dk.dma.enav.model.geometry.BoundingBox;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.grid.Grid;
+import dk.dma.enav.util.function.Predicate;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -236,6 +238,44 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
         }
 
         return new GeoMaskFilter(boundingBoxes);
+    }
+
+    @Provides
+    @Singleton
+    LocationFilter provideLocationFilter() {
+        Configuration configuration = provideConfiguration();
+
+        Float north = configuration.getFloat("filter.location.bbox.north", null);
+        Float south = configuration.getFloat("filter.location.bbox.south", null);
+        Float east = configuration.getFloat("filter.location.bbox.east", null);
+        Float west = configuration.getFloat("filter.location.bbox.west", null);
+
+        BoundingBox tmpBbox = null;
+        if (north != null && south != null && east != null && west != null) {
+            tmpBbox = BoundingBox.create(Position.create(north, west), Position.create(south, east), CoordinateSystem.CARTESIAN);
+            LOG.info("Area: " + tmpBbox);
+        } else {
+            LOG.warn("No location-based pre-filtering of messages.");
+        }
+
+        LocationFilter filter = new LocationFilter();
+
+        if (tmpBbox == null) {
+            filter.addFilterGeometry(Predicate.TRUE);
+        } else {
+            final BoundingBox bbox = tmpBbox;
+            filter.addFilterGeometry(new Predicate<Position>() {
+                @Override
+                public boolean test(Position position) {
+                    if (position == null) {
+                        return false;
+                    }
+                    return bbox.contains(position);
+                }
+            });
+        }
+
+        return filter;
     }
 
     private List<BoundingBox> parseGeoMaskXmlInputStream(InputStream is) {
