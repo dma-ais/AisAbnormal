@@ -619,22 +619,36 @@ var mapModule = {
         var secondaryMmsi = $.trim(modal.find('#kmlgen-event-secondary-mmsis').val());
         var from = new Date(modal.find('#kmlgen-event-from').val()).getTime();
         var to = new Date(modal.find('#kmlgen-event-to').val()).getTime();
-        var at = new Date(modal.find('#kmlgen-event-situation-at').val()).getTime();
         var north = mapModule.formattedLatLonToDecimalDegrees(modal.find('#kmlgen-event-north').val());
         var east = mapModule.formattedLatLonToDecimalDegrees(modal.find('#kmlgen-event-east').val());
         var south = mapModule.formattedLatLonToDecimalDegrees(modal.find('#kmlgen-event-south').val());
         var west = mapModule.formattedLatLonToDecimalDegrees(modal.find('#kmlgen-event-west').val());
-        var interpolationEnabled = $("#kmlgen-event-interpolate-enable").is(':checked');
-        var interpolationTimeStep = $("#kmlgen-event-interpolate-seconds").val();
         var fromDate = new Date(from);
         var toDate = new Date(to);
+
+        var folderSituationEnabled = $("#kmlgen-event-situation-enable").is(':checked');
+        var at = new Date(modal.find('#kmlgen-event-situation-at').val()).getTime();
+
+        var folderMovementsEnabled = $("#kmlgen-event-movements-enable").is(':checked');
+        var interpolationTimeStep = $("#kmlgen-event-movements-interpolation-interval").val();
+
+        var folderTracksEnabled = $("#kmlgen-event-tracks-enable").is(':checked');
+        var folderTracksIncludeCargo = $("#kmlgen-event-track-car").is(':checked');
+        var folderTracksIncludeTankers = $("#kmlgen-event-track-tan").is(':checked');
+        var folderTracksIncludePassenger = $("#kmlgen-event-track-pax").is(':checked');
+        var folderTracksIncludeFishing = $("#kmlgen-event-track-fis").is(':checked');
+        var folderTracksIncludeClassB = $("#kmlgen-event-track-clb").is(':checked');
+        var folderTracksIncludeOther = $("#kmlgen-event-track-oth").is(':checked');
 
         //http://localhost:8090/store/scenario?box=56.12,11.10,56.13,11.09&interval=2013-10-15T14:00:00Z/2013-10-15T14:10:00Z
         var queryParams = {};
         queryParams['box'] = north + "," + east + "," + south + "," + west;
         queryParams['interval'] = fromDate.toISOString() + "/" + toDate.toISOString();
-        if (at) {
-            queryParams['at'] = new Date(at).toISOString();
+        if (title.length > 0) {
+            queryParams['title'] = title;
+        }
+        if (description.length > 0) {
+            queryParams['description'] = description;
         }
         if (primaryMmsi.length > 0) {
             queryParams['primaryMmsi'] = primaryMmsi;
@@ -642,14 +656,39 @@ var mapModule = {
         if (secondaryMmsi.length > 0) {
             queryParams['secondaryMmsi'] = secondaryMmsi;
         }
-        if (title.length > 0) {
-            queryParams['title'] = title;
+        if (folderSituationEnabled) {
+            queryParams['situationFolderEnabled'] = true;
+            if (at) {
+                queryParams['at'] = new Date(at).toISOString();
+            }
         }
-        if (description.length > 0) {
-            queryParams['description'] = description;
+        if (folderMovementsEnabled) {
+            queryParams['movementsFolderEnabled'] = true;
+            if (interpolationTimeStep && interpolationTimeStep > 0) {
+                queryParams['interpolation'] = interpolationTimeStep;
+            }
         }
-        if (interpolationEnabled && interpolationTimeStep > 0) {
-            queryParams['interpolation'] = interpolationTimeStep;
+        if (folderTracksEnabled) {
+            queryParams['tracksFolderEnabled'] = true;
+
+            if (folderTracksIncludeCargo) {
+                queryParams['tracksCargo'] = true;
+            }
+            if (folderTracksIncludeTankers) {
+                queryParams['tracksTankers'] = true;
+            }
+            if (folderTracksIncludePassenger) {
+                queryParams['tracksPassenger'] = true;
+            }
+            if (folderTracksIncludeFishing) {
+                queryParams['tracksFishing'] = true;
+            }
+            if (folderTracksIncludeClassB) {
+                queryParams['tracksClassB'] = true;
+            }
+            if (folderTracksIncludeOther) {
+                queryParams['tracksOther'] = true;
+            }
         }
 
         var eventRequest = mapModule.kmlResourceService + "?" + $.param(queryParams);

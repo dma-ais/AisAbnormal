@@ -1,7 +1,16 @@
 <!doctype html>
-<head></head>
+<html>
+<head>
+    <script>
+        function KmlGenController($scope) {
+            $scope.situationEnable = true;
+            $scope.movementsEnable = true;
+            $scope.tracksEnable = true;
+        }
+    </script>
+</head>
 <body>
-    <div class="modal large fade" id="event-kmlgen-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal large fade" id="event-kmlgen-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" ng-app>
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -11,8 +20,8 @@
                 <div class="modal-body">
                     <div id="kmlgen-warning" class="alert alert-warning"></div>
 
-                    <form class="form-horizontal" role="form">
-                        <h4><u>Limit targets</u></h4>
+                    <form class="form-horizontal" role="form" ng-controller="KmlGenController">
+                        <h4><u>Targets</u></h4>
 
                         <div class="form-group">
                             <label for="kmlgen-event-north" class="col-sm-2 control-label">North bound</label>
@@ -47,7 +56,7 @@
 
                         <hr />
 
-                        <h4><u>Decorate KML</u></h4>
+                        <h4><u>KML</u></h4>
 
                         <div class="form-group">
                             <label for="kmlgen-event-title" class="col-sm-2 control-label">Title</label>
@@ -71,24 +80,49 @@
                             </div>
                         </div>
 
-                        <h4>Situation folder</h4>
+                        <h4>Folders</h4>
 
                         <div class="form-group">
-                            <label for="kmlgen-event-situation-at" class="col-sm-2 control-label">Situation at</label>
+                            <label for="kmlgen-event-situation-enable" class="col-sm-2 control-label">Situation</label>
+                            <div class="col-sm-1">
+                                <input class="form-control" id="kmlgen-event-situation-enable" type="checkbox" checked ng-model="situationEnable">
+                            </div>
+                            <div class="col-sm-2">
+                                <label class="control-label" for="kmlgen-event-situation-at">at time</label>
+                            </div>
                             <div class="col-sm-4">
-                                <input class="form-control" id="kmlgen-event-situation-at" placeholder="ISO 8601 format">
+                                <input class="form-control" id="kmlgen-event-situation-at" placeholder="ISO 8601 format" ng-disabled="!situationEnable">
                             </div>
                         </div>
 
-                        <h4>Movements folder</h4>
+                        <div class="form-group">
+                            <label for="kmlgen-event-movements-enable" class="col-sm-2 control-label">Movements</label>
+                            <div class="col-sm-1">
+                                <input class="form-control" id="kmlgen-event-movements-enable" type="checkbox" checked ng-model="movementsEnable">
+                            </div>
+                            <div class="col-sm-2">
+                                <label class="control-label" for="kmlgen-event-movements-interpolation-interval">interpolation</label>
+                            </div>
+                            <div class="col-sm-1">
+                                <input class="form-control" id="kmlgen-event-movements-interpolation-interval" placeholder="secs" value="1" ng-disabled="!movementsEnable">
+                            </div>
+                        </div>
 
                         <div class="form-group">
-                            <label for="kmlgen-event-interpolate-enable" class="col-sm-2 control-label">Interpolation</label>
+                            <label for="kmlgen-event-tracks-enable" class="col-sm-2 control-label">Tracks</label>
                             <div class="col-sm-1">
-                                <input class="form-control" id="kmlgen-event-interpolate-enable" placeholder="mmsi" type="checkbox" checked>
+                                <input class="form-control" id="kmlgen-event-tracks-enable" type="checkbox" checked ng-model="tracksEnable">
                             </div>
-                            <div class="col-sm-3">
-                                <input class="form-control" id="kmlgen-event-interpolate-seconds" placeholder="step (seconds)" value="1">
+                            <div class="col-sm-2" hidden>
+                                <label class="control-label" for="kmlgen-event-movements-interpolation-interval">for</label>
+                            </div>
+                            <div class="col-sm-7" hidden>
+                                <label class="checkbox-inline"><input type="checkbox" id="kmlgen-event-track-car" ng-disabled="!tracksEnable" value="trackCar">Cargo</label>
+                                <label class="checkbox-inline"><input type="checkbox" id="kmlgen-event-track-tan" ng-disabled="!tracksEnable" value="trackTan">Tankers</label>
+                                <label class="checkbox-inline"><input type="checkbox" id="kmlgen-event-track-pax" ng-disabled="!tracksEnable" value="trackPas">Passenger</label>
+                                <label class="checkbox-inline"><input type="checkbox" id="kmlgen-event-track-fis" ng-disabled="!tracksEnable" value="trackFis">Fishing</label>
+                                <label class="checkbox-inline"><input type="checkbox" id="kmlgen-event-track-clb" ng-disabled="!tracksEnable" value="trackClb">Class B</label>
+                                <label class="checkbox-inline"><input type="checkbox" id="kmlgen-event-track-oth" ng-disabled="!tracksEnable" value="trackOth">Other</label>
                             </div>
                         </div>
 
@@ -100,4 +134,12 @@
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div>
+    <script>
+        var appNode = $('#event-kmlgen-modal');
+        angular.module('eventKmlGen', []);
+        angular.element(appNode).ready(function() {
+            angular.bootstrap(appNode, ['eventKmlGen']);
+        });
+    </script>
 </body>
+</html>
