@@ -571,7 +571,7 @@ var mapModule = {
         var from = new Date(modal.find('#kmlgen-event-from').val()).getTime();
         var to = new Date(modal.find('#kmlgen-event-to').val()).getTime();
         var timeSpan = Math.round((to - from) / 1000 / 60);
-        var largeTimeSpan = timeSpan > 60;
+        var largeTimeSpan = timeSpan > 6*60;
 
         var n = mapModule.formattedLatLonToDecimalDegrees(modal.find('#kmlgen-event-north').val());
         var e = mapModule.formattedLatLonToDecimalDegrees(modal.find('#kmlgen-event-east').val());
@@ -580,23 +580,20 @@ var mapModule = {
         var nw = new OpenLayers.Geometry.Point(n, w).transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator);
         var sw = new OpenLayers.Geometry.Point(s, w).transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator);
         var ne = new OpenLayers.Geometry.Point(n, e).transform(mapModule.projectionWGS84, mapModule.projectionSphericalMercator);
-        var latSpan = Math.round(nw.distanceTo(sw) / 1852);
-        var lonSpan = Math.round(nw.distanceTo(ne) / 1852);
-        var largeLatSpan = latSpan > 20;
-        var largeLonSpan = lonSpan > 20;
+        var latSpan = Math.round(nw.distanceTo(sw) / 1000);
+        var lonSpan = Math.round(nw.distanceTo(ne) / 1000);
+        var area = latSpan * lonSpan;
+        var largeArea = area > 2500;
 
         $('div#kmlgen-warning').empty();
         if (largeTimeSpan) {
-            $('div#kmlgen-warning').append("<div><b>WARNING!</b> Large timespan of " + timeSpan + " minutes can cause excessive amounts of data.</div>");
+            $('div#kmlgen-warning').append("<div><b>WARNING!</b> Large timespan of " + timeSpan + " minutes can cause excessive amounts of data. Server may refuse.</div>");
         }
-        if (largeLatSpan) {
-            $('div#kmlgen-warning').append("<div><b>WARNING!</b> Large latitudal span of " + latSpan + " nm can cause excessive amounts of data.</div>");
-        }
-        if (largeLonSpan) {
-            $('div#kmlgen-warning').append("<div><b>WARNING!</b> Large longitudal span of " + lonSpan + " nm can cause excessive amounts of data.</div>");
+        if (largeArea) {
+            $('div#kmlgen-warning').append("<div><b>WARNING!</b> Large area span of " + area + " sq km can cause excessive amounts of data. Server may refuse.</div>");
         }
 
-        var toOpenWarning = largeTimeSpan || largeLatSpan || largeLonSpan;
+        var toOpenWarning = largeTimeSpan || largeArea;
         var isOpenWarning = $('div#kmlgen-warning').is(':visible');
 
         if (toOpenWarning) {
