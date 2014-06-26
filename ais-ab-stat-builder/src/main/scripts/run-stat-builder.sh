@@ -1,8 +1,9 @@
 #!/bin/sh
-java -jar ais-ab-stat-builder-0.1-SNAPSHOT.jar \
+java \
+-d64 -Xmx12G -XX:+UseG1GC \
+-jar ais-ab-stat-builder-0.1-SNAPSHOT.jar \
 -downsampling 5 \
 -gridsize 200 \
--inputDirectory ../../../../../data/ais/aisdk/2013-06 \
+-inputDirectory /data/aisdata/abnormal_dump \
 -input *.txt.gz \
--output stats-2013-06-dwn5-grid200
-
+-output stats-20130610-20140610-dwn5-grid200
