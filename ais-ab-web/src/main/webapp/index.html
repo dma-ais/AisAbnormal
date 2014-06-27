@@ -30,11 +30,6 @@
 </head>
 <body>
     <div id="wrap" class="container">
-        <div class="page-header">
-            <img style="float:right;" src="img/dma.png" />
-            <h1>AIS Abnormal Behaviour</h1>
-            <p class="lead">A service delivered by the Danish Maritime Authority.</p>
-        </div>
         <div>
             <div id="event-search-modal-wrapper" />
         </div>
@@ -42,13 +37,13 @@
             <div id="event-kmlgen-modal-wrapper" />
         </div>
         <div id="main-column-left">
-            <div id="map"></div>
+            <div id="map" class="panel"></div>
             <div style="margin-top: 10px;">
                 <ul class="well well-sm" style="list-style-type: none;" id="ticker">
                     <li>No events</li>
                 </ul>
             </div>
-            <div id="cell-data" class="row" style="clear:both;">
+            <div id="cell-data" style="clear:both;">
                 <div>
                     <h4>Cell data</h4>
                     <div class="cell-data-contents">...</div>
@@ -56,6 +51,10 @@
             </div>
         </div>
         <div id="main-column-right">
+            <div class="appinfo">
+                <a href="http://www.dma.dk" target="_blank"><img src="img/dma.png" /></a>
+                <h4>AIS Abnormal Behaviour</h4>
+            </div>
             <div class="tabs">
                 <ul>
                     <li><a href="#tabs-1" id="tab-map">Map</a></li>
@@ -118,15 +117,14 @@
         <div id="push"></div>
     </div>
     <div id="footer">
-        <div class="container">
+        <div class="container" style="visibility: hidden;">
             <p>(C) Copyright 2013-4 by the <a href="http://www.dma.dk/">Danish Maritime Authority</a>.</p>
         </div>
     </div>
-
 	<script>
-        $( document ).ready(function() {
+        $(document).ready(function() {
             $(window).resize(function(){
-                $('div#map').css('height', $(window).height() - 500);
+                $('div#map').css('height', $(window).height()-150);
             }).resize();
             $(function() {
                 $('.tabs').tabs();

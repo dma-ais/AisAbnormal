@@ -59,6 +59,12 @@ table#statisticTable td:first-child {
     font-weight: bold;
 }
 
+.appinfo {
+    text-align: center;
+    margin-top: 16px;
+    margin-bottom: 32px;
+}
+
 /* Event modal */
 .modal.large {
     width: 80%;
@@ -93,9 +99,9 @@ body {
 
 /* Wrapper for page content to push down footer */
 #wrap {
-    width: 95%;
+    width: 100%;
     height: auto !important;
-    margin: 0 150px -60px 50px; /* Negative indent footer by it's height */
+    margin: 16px 150px -60px 0px; /* Negative indent footer by it's height */
 }
 
 div#map {
@@ -105,7 +111,7 @@ div#map {
 #main-column-left {
     float: left;
     width: 100%;
-    padding-right: 350px;
+    padding-right: 320px;
 }
 
 #main-column-right {
