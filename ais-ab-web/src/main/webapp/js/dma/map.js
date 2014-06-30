@@ -374,16 +374,21 @@ var mapModule = {
 
     showGridLayer: function () {
         var gridLayer = mapModule.map.getLayersByName("DMA grid layer")[0];
-        // Display grid layer
-        if (gridLayer) {
-            gridLayer.display(true);
-        } else {
+        if (!gridLayer) {
             mapModule.constructGridLayer();
+            gridLayer = mapModule.map.getLayersByName("DMA grid layer")[0];
         }
-        // Load cells and data (required grid layer to be constructed)
-        statisticsModule.loadCells();
-        // Book-keeping
-        mapModule.isGridLayerVisible = true;
+
+        // Display grid layer
+        if (angular.element($('#CellsControllerElement')).scope().cellsEnable) {
+            gridLayer.display(true);
+            // Load cells and data (required grid layer to be constructed)
+            statisticsModule.loadCells();
+            // Book-keeping
+            mapModule.isGridLayerVisible = true;
+        } else {
+            gridLayer.display(false);
+        }
     },
 
     showVesselLayer: function () {

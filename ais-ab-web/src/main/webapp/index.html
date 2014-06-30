@@ -28,8 +28,8 @@
     <link rel="stylesheet" type="text/css" href="css/jquery.contextmenu.css">
     <link rel="stylesheet" type="text/css" href="css/abnormal.css">
 </head>
-<body>
-    <div id="wrap" class="container">
+<body ng-app="AbnormalApp">
+<div id="wrap" class="container">
         <div>
             <div id="event-search-modal-wrapper" />
         </div>
@@ -66,8 +66,16 @@
                     <div class="useroutput" id="viewport">...</div>
                     <div class="headline">Cursor</div>
                     <div class="useroutput" id="cursorpos">...</div>
-                    <div class="headline">Controls</div>
-                    <button id="cells-force-load">Load and display cells</button>
+                    <div class="headline">Cells</div>
+                    <div id="CellsControllerElement" ng-controller="CellsController">
+                        <div class="checkbox" style="float: left;">
+                            <label>
+                                <input type="checkbox" id="cell-layer-enabled" ng-model="cellsEnable">Enable
+                            </label>
+                        </div>
+                        <span>&nbsp;</span>
+                        <button id="cells-force-load" ng-disabled="!cellsEnable">Force load</button>
+                    </div>
                     <div class="headline">Nautical charts</div>
                     <form id="map-enable-nautical-charts">
                         <input id="map-gst-username" type="text" placeholder="Username" />
@@ -121,7 +129,22 @@
             <p>(C) Copyright 2013-4 by the <a href="http://www.dma.dk/">Danish Maritime Authority</a>.</p>
         </div>
     </div>
-	<script>
+    <script>
+        angular
+        .module('AbnormalApp', [])
+        .controller('CellsController', ['$scope', function($scope) {
+            $scope.cellsEnable = true;
+            $scope.$watch('cellsEnable', function(newValue, oldValue) {
+                if (mapModule.map) {
+                    if (newValue == false) {
+                        mapModule.hideGridLayer();
+                    } else {
+                        mapModule.showGridLayer();
+                    }
+                }
+            });
+        }]);
+
         $(document).ready(function() {
             $(window).resize(function(){
                 $('div#map').css('height', $(window).height()-150);

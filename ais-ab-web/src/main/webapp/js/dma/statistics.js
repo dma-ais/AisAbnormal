@@ -10,6 +10,8 @@ var statisticsModule = {
         this.userOutputClearCellData();
         this.userOutputMetadata();
 
+        $('#cell-layer-enabled').prop('checked', true);
+
         // init categories
         var cellResourceService = "/abnormal/rest/cell";
         $.getJSON(cellResourceService, {
