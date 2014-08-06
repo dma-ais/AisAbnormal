@@ -30,14 +30,24 @@ public class Vessel implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
+    /** Vessel's MMSI number */
     @NotNull
     private int mmsi;
 
+    /** Vessel's hull name */
     private String name;
 
+    /** Vessel's IMO number */
     private Integer imo;
 
+    /** Vessel's international radio call sign */
     private String callsign;
+
+    /** Vessel's type category (1-8) */
+    private Short type;
+
+    /** Vessel's length category (1-5) */
+    private Short length;
 
     public Vessel() {
     }
@@ -76,5 +86,21 @@ public class Vessel implements Serializable {
 
     public void setCallsign(String callsign) {
         this.callsign = callsign;
+    }
+
+    public Short getType() {
+        return type;
+    }
+
+    public void setType(Short type) {
+        this.type = type;
+    }
+
+    public Short getLength() {
+        return length;
+    }
+
+    public void setLength(Short length) {
+        this.length = length;
     }
 }

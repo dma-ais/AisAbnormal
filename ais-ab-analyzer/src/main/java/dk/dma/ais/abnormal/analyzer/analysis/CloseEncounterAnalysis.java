@@ -278,17 +278,19 @@ public class CloseEncounterAnalysis extends Analysis {
 
         String primaryShipType = "unknown type";
         Integer primaryShipTypeBoxed = primaryTrack.getShipType();
+        short primaryShipTypeCategory = Categorizer.mapShipTypeToCategory(primaryShipTypeBoxed);
         if (primaryShipTypeBoxed != null) {
-            short primaryShipTypeCategory = Categorizer.mapShipTypeToCategory(primaryShipTypeBoxed);
             primaryShipType = Categorizer.mapShipTypeCategoryToString(primaryShipTypeCategory);
         }
+        short primaryShipLengthCategory = Categorizer.mapShipLengthToCategory(primaryTrack.getVesselLength());
 
         String secondaryShipType = "?";
         Integer secondaryShipTypeBoxed = secondaryTrack.getShipType();
+        short secondaryShipTypeCategory = Categorizer.mapShipTypeToCategory(secondaryShipTypeBoxed);
         if (secondaryShipTypeBoxed != null) {
-            short secondaryShipTypeCategory = Categorizer.mapShipTypeToCategory(secondaryShipTypeBoxed);
             secondaryShipType = Categorizer.mapShipTypeCategoryToString(secondaryShipTypeCategory);
         }
+        short secondaryShipLengthCategory = Categorizer.mapShipLengthToCategory(secondaryTrack.getVesselLength());
 
         StringBuffer title = new StringBuffer();
         title.append("Close encounter");
@@ -341,6 +343,8 @@ public class CloseEncounterAnalysis extends Analysis {
                             .mmsi(primaryTrack.getMmsi())
                             .imo(primaryTrack.getIMO())
                             .callsign(primaryTrack.getCallsign())
+                            .type(primaryShipTypeCategory)
+                            .length(primaryShipLengthCategory)
                             .name(primaryTrack.getShipName())
                         .trackingPoint()
                             .timestamp(new Date(primaryTrack.getTimeOfLastPositionReport()))
@@ -356,6 +360,8 @@ public class CloseEncounterAnalysis extends Analysis {
                             .mmsi(secondaryTrack.getMmsi())
                             .imo(secondaryTrack.getIMO())
                             .callsign(secondaryTrack.getCallsign())
+                            .type(secondaryShipTypeCategory)
+                            .length(primaryShipLengthCategory)
                             .name(secondaryTrack.getShipName())
                         .trackingPoint()
                             .timestamp(new Date(secondaryTrack.getTimeOfLastPositionReport()))

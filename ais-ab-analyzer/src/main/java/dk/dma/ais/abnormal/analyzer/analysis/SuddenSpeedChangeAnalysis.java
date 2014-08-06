@@ -164,13 +164,15 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
         Float sog = track.getSpeedOverGround();
         Boolean interpolated = track.getNewestTrackingReport() instanceof InterpolatedTrackingReport;
         Integer shipType = track.getShipType();
+        Integer shipLength = track.getVesselLength();
 
         String shipTypeAsString = "unknown type";
+        short shipTypeCategory = Categorizer.mapShipTypeToCategory(shipType);
         if (shipType != null) {
-            short shipTypeCategory = Categorizer.mapShipTypeToCategory(shipType);
             shipTypeAsString = Categorizer.mapShipTypeCategoryToString(shipTypeCategory);
             shipTypeAsString = shipTypeAsString.substring(0, 1).toUpperCase() + shipTypeAsString.substring(1);
         }
+        short shipLengthCategory = Categorizer.mapShipLengthToCategory(shipLength);
 
         TrackingPointData prevTrackingPoint = tracks.get(mmsi);
         Date prevTimestamp = new Date(prevTrackingPoint.getTimestamp());
@@ -199,6 +201,8 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
                         .mmsi(mmsi)
                         .imo(imo)
                         .callsign(callsign)
+                        .type(shipTypeCategory)
+                        .length(shipLengthCategory)
                         .name(name)
                     .trackingPoint()
                         .timestamp(prevTimestamp)

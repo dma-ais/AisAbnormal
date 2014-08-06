@@ -119,7 +119,7 @@ var eventModule = {
 
         var tableHtml  = "<table class='table'>"
         tableHtml += "<thead><tr>";
-        tableHtml += "<td>Action</td><td>Id</td><td>Type</td><td>Start</td><td>End</td><td>Vessel</td>";
+        tableHtml += "<td>Action</td><td>Id</td><td>Type</td><td>Start</td><td>Type</td><td>Length</td><td>Vessel</td>";
         tableHtml += "</tr></thead><tbody></tbody>";
         tableHtml += "</table>";
 
@@ -130,16 +130,19 @@ var eventModule = {
 
     addSearchResult: function(event) {
         var eventStart = eventModule.formatTimestamp(event.startTime);
-        var eventEnd = eventModule.formatTimestamp(event.endTime);
         var eventType = event.eventType.replace('Event','');
+        var shipTypeCategory = eventModule.mapShipTypeToString(event.behaviours[0].vessel.type);
+        var shipLengthCategory = eventModule.mapShipLengthToString(event.behaviours[0].vessel.length);
+        var shipName = event.behaviours[0].vessel.name;
 
         var searchResultHtml  = "<tr>";
         searchResultHtml += "<td><span id='result-" + event.id + "' class='glyphicon glyphicon-film'></span></td>";
         searchResultHtml += "<td>" + event.id + "</td>";
         searchResultHtml += "<td>" + eventModule.camelCaseToSentenceCase(eventType); + "</td>";
         searchResultHtml += "<td>" + eventStart + "</td>";
-        searchResultHtml += "<td>" + eventEnd + "</td>";
-        searchResultHtml += "<td>" + event.behaviours[0].vessel.name + "</td>";
+        searchResultHtml += "<td>" + shipTypeCategory + "</td>";
+        searchResultHtml += "<td>" + shipLengthCategory + "</td>";
+        searchResultHtml += "<td>" + shipName + "</td>";
         searchResultHtml += "</tr>";
 
         $('#event-search-modal .search-results .search-data tbody').append(searchResultHtml);
@@ -150,6 +153,37 @@ var eventModule = {
         });
 
         eventModule.searchResults.push(event);
+    },
+
+    mapShipTypeToString: function(shipType) {
+        var shipTypeAsString = '';
+
+        switch(shipType) {
+            case 1: shipTypeAsString = 'Tanker'; break;
+            case 2: shipTypeAsString = 'Cargo'; break;
+            case 3: shipTypeAsString = 'Passenger'; break;
+            case 4: shipTypeAsString = 'Support'; break;
+            case 5: shipTypeAsString = 'Fishing'; break;
+            case 6: shipTypeAsString = 'Class B'; break;
+            case 7: shipTypeAsString = 'Other'; break;
+            case 8: shipTypeAsString = 'Undef'; break;
+        }
+
+        return shipTypeAsString;
+    },
+
+    mapShipLengthToString: function(shipLength) {
+        var shipLengthAsString = '';
+
+        switch(shipLength) {
+            case 1: shipLengthAsString = 'Undefined'; break;
+            case 2: shipLengthAsString = '1-50m'; break;
+            case 3: shipLengthAsString = '50-100m'; break;
+            case 4: shipLengthAsString = '100-200m'; break;
+            case 5: shipLengthAsString = '200-999m'; break;
+        }
+
+        return shipLengthAsString;
     },
 
     findEventByCriteria: function () {

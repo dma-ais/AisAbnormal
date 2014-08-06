@@ -244,6 +244,8 @@ public class SpeedOverGroundAnalysis extends StatisticBasedAnalysis {
                                 .mmsi(mmsi)
                                 .imo(imo)
                                 .callsign(callsign)
+                                .type(shipTypeCategory)
+                                .length(shipLengthCategory)
                                 .name(name)
                             .trackingPoint()
                                 .timestamp(positionTimestamp)
