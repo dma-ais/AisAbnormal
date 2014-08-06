@@ -43,11 +43,11 @@ public class Vessel implements Serializable {
     /** Vessel's international radio call sign */
     private String callsign;
 
-    /** Vessel's type category (1-8) */
-    private Short type;
+    /** Vessel's type (as per ITU 1371) */
+    private Integer type;
 
-    /** Vessel's length category (1-5) */
-    private Short length;
+    /** Vessel's length over all (in metres) */
+    private Integer length;
 
     public Vessel() {
     }
@@ -88,19 +88,19 @@ public class Vessel implements Serializable {
         this.callsign = callsign;
     }
 
-    public Short getType() {
+    public Integer getType() {
         return type;
     }
 
-    public void setType(Short type) {
+    public void setType(Integer type) {
         this.type = type;
     }
 
-    public Short getLength() {
+    public Integer getLength() {
         return length;
     }
 
-    public void setLength(Short length) {
+    public void setLength(Integer length) {
         this.length = length;
     }
 }

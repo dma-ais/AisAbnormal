@@ -57,12 +57,12 @@ public class VesselBuilder {
         return this;
     }
 
-    public VesselBuilder type(Short type) {
+    public VesselBuilder type(Integer type) {
         vessel.setType(type);
         return this;
     }
 
-    public VesselBuilder length(Short length) {
+    public VesselBuilder length(Integer length) {
         vessel.setLength(length);
         return this;
     }
