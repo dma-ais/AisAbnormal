@@ -117,9 +117,9 @@ var eventModule = {
         var searchResults = $('#event-search-modal .search-results .search-data');
         searchResults.empty();
 
-        var tableHtml  = "<table class='table'>"
+        var tableHtml  = "<table id='event-search-results' class='table'>"
         tableHtml += "<thead><tr>";
-        tableHtml += "<td>Action</td><td>Id</td><td>Type</td><td>Start</td><td>Type</td><td>LOA</td><td>Vessel</td>";
+        tableHtml += "<td class=\"no-sort\"></td><td>Id</td><td>Type</td><td data-date-format=\"ddmmyyyy\">Start</td><td>Type</td><td>LOA</td><td>Vessel</td>";
         tableHtml += "</tr></thead><tbody></tbody>";
         tableHtml += "</table>";
 
@@ -181,6 +181,18 @@ var eventModule = {
             $.each(events, function (idx, event) {
                 eventModule.addSearchResult(event);
             });
+            $("table#event-search-results").tablesorter(
+                {
+                    theme : 'bootstrap',
+                    headerTemplate: '{content} {icon}',
+                    widgets: ['zebra','columns', 'uitheme'],
+                    headers: {
+                        '.no-sort' : {
+                            sorter: false
+                        }
+                    }
+                }
+            );
             eventModule.setSearchCompleted("Found " + events.length + " matching events.");
         }).fail(function (jqXHR, textStatus) {
             eventModule.setSearchCompleted("Search error: " + textStatus);
@@ -197,8 +209,8 @@ var eventModule = {
             var eventResourceService = "/abnormal/rest/event";
             var eventResource = eventResourceService + "/" + eventId;
             $.getJSON(eventResource).done(function (event) {
-                eventModule.setSearchCompleted("Found " + (event ? "":"no ") + "matching event.");
                 eventModule.addSearchResult(event);
+                eventModule.setSearchCompleted("Found " + (event ? "":"no ") + "matching event.");
             }).fail(function (jqXHR, textStatus) {
                 eventModule.setSearchCompleted("Search error: " + textStatus);
             });
