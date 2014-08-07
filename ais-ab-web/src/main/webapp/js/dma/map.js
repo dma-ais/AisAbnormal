@@ -189,7 +189,7 @@ var mapModule = {
     },
 
     kmlGenStartTimeForEvent: function(jsonEvent) {
-        return new Date(jsonEvent.startTime - 10 * 60 * 1000 /* 10 minutes before */);
+        return new Date(jsonEvent.startTime - 15 * 60 * 1000 /* 15 minutes before */);
     },
 
     kmlGenEndTimeForEvent: function(jsonEvent) {
@@ -244,6 +244,25 @@ var mapModule = {
                 var primaryMmsis = mapModule.kmlGenPrimaryMmsisForEvent(feature.data.jsonEvent);
                 var secondaryMmsis = mapModule.kmlGenSecondaryMmsisForEvent(feature.data.jsonEvent);
                 var bounds = feature.geometry.bounds.clone();
+
+                /* Ensure exported area at least 5 km x 5 km */
+                var minimumBoundsWidthMeters = 5000;
+                var minimumBoundsHeightMeters = 5000;
+                var boundsWidthMeters = bounds.right - bounds.left;
+                var boundsHeightMeters = bounds.top - bounds.bottom;
+                if (boundsWidthMeters < minimumBoundsHeightMeters) {
+                    var missingWidthMeters = minimumBoundsWidthMeters - boundsWidthMeters;
+                    bounds.left = bounds.left - missingWidthMeters/2;
+                    bounds.right = bounds.right + missingWidthMeters/2;
+                }
+                if (boundsHeightMeters < minimumBoundsHeightMeters) {
+                    var missingHeightMeters = minimumBoundsHeightMeters - boundsHeightMeters;
+                    bounds.bottom = bounds.bottom - missingHeightMeters/2;
+                    bounds.top = bounds.top + missingHeightMeters/2;
+                }
+
+                console.log("Bounds - " + bounds.getSize().h + " x " + bounds.getSize().w);
+
                 bounds.transform(mapModule.projectionSphericalMercator, mapModule.projectionWGS84);
 
                 mapModule.openExportToKmlModal(
