@@ -56,7 +56,7 @@ import static dk.dma.ais.abnormal.util.TrackPredicates.isVeryLongVessel;
 /**
  * This analysis manages events where the a sudden decreasing speed change occurs.
  * A sudden decreasing speed change is defined as a a speed change going from more
- * than 9 knots to less than 1 knot in less than 60 seconds. This analysis is not
+ * than 7 knots to less than 1 knot in less than 30 seconds. This analysis is not
  * based on previous observations (statistic data).
  */
 public class SuddenSpeedChangeAnalysis extends Analysis {
@@ -67,7 +67,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
 
     private final AppStatisticsService statisticsService;
 
-    private final float speedHighMark = 9.0f;
+    private final float speedHighMark = 7.0f;
     private final float speedLowMark = 1.0f;
     private final int suddenTimeSecs = 30;
 
@@ -88,33 +88,37 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
     public void onSpeedOverGroundUpdated(PositionChangedEvent trackEvent) {
         Track track = trackEvent.getTrack();
 
-        final Float sogAsFloat = track.getSpeedOverGround();
-        if (sogAsFloat == null) {
+        /* Do not perform analysis if reported speed is invalid */
+        final Float sogBoxed = track.getSpeedOverGround();
+        if (sogBoxed == null) {
             return;
         }
-        final float sog = sogAsFloat;
+        final float sog = sogBoxed.floatValue();
         if (sog >= 102.3 /* ~1024 invalid sog */ ) {
             return;
         }
 
-        if (
-           isClassB.test(track)
-        || isUnknownTypeOrSize.test(track)
-        || isFishingVessel.test(track)
-        || isSmallVessel.test(track)
-        || isSpecialCraft.test(track)
-        || isEngagedInTowing.test(track)
-        || ! ( isVeryLongVessel.test(track)
-            || (isCargoVessel.test(track) && isLongVessel.test(track))
-            || (isTankerVessel.test(track) && isLongVessel.test(track))
-            || (isPassengerVessel.test(track) && isLongVessel.test(track))
-           )
+        /* Do not perform analysis for vessels with these characteristics: */
+        if (   isClassB.test(track)
+            || isUnknownTypeOrSize.test(track)
+            || isFishingVessel.test(track)
+            || isSmallVessel.test(track)
+            || isSpecialCraft.test(track)
+            || isEngagedInTowing.test(track)
         ) {
             return;
         }
 
-        performAnalysis(track, sog);
+        /* Perform analysis only for very long vessels and some long vessels: */
+        if (    isVeryLongVessel.test(track)
+            || (isLongVessel.test(track) && (isCargoVessel.test(track) || isTankerVessel.test(track) || isPassengerVessel.test(track)))
+        ) {
+            performAnalysis(track, sog);
+            updateApplicationStatistics();
+        }
+    }
 
+    private void updateApplicationStatistics() {
         if (counter++ % 10000 == 0) {
             statisticsService.setAnalysisStatistics(analysisName, "Sudden spd chg", tracks.size());
         }
@@ -172,7 +176,6 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
             shipTypeAsString = Categorizer.mapShipTypeCategoryToString(shipTypeCategory);
             shipTypeAsString = shipTypeAsString.substring(0, 1).toUpperCase() + shipTypeAsString.substring(1);
         }
-        short shipLengthCategory = Categorizer.mapShipLengthToCategory(shipLength);
 
         TrackingPointData prevTrackingPoint = tracks.get(mmsi);
         Date prevTimestamp = new Date(prevTrackingPoint.getTimestamp());
@@ -201,8 +204,8 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
                         .mmsi(mmsi)
                         .imo(imo)
                         .callsign(callsign)
-                        .type(shipType /* shipTypeCategory */)
-                        .length(shipLength /* shipLengthCategory */)
+                        .type(shipType)
+                        .length(shipLength)
                         .name(name)
                     .trackingPoint()
                         .timestamp(prevTimestamp)
