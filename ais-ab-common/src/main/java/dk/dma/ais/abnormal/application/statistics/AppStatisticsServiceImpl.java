@@ -33,7 +33,7 @@ public class AppStatisticsServiceImpl implements AppStatisticsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AppStatisticsServiceImpl.class);
 
-    private static final long DEFAULT_LOG_INTERVAL_SECONDS = 60;
+    private static final long DEFAULT_LOG_INTERVAL_SECONDS = 3600;
     private final long logInterval;
     private final AtomicLong lastLog = new AtomicLong(System.currentTimeMillis());
     private final AtomicLong lastMessageCount = new AtomicLong(0);
