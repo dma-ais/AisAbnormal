@@ -16,25 +16,6 @@ var mapModule = {
     kmlResourceService: "http://" + document.location.hostname + "/store/scenario",
 
     init: function() {
-        $('#event-kmlgen-modal-wrapper').load("event-kmlgen-modal.html", function () {
-            $('button#kmlgen-event').click(mapModule.generateKmlForEvent);
-            $('img#kmlgen-scenario').click(mapModule.openKmlModalForScenario);
-            $('input#kmlgen-event-from').blur(mapModule.validateKmlUserInput);
-            $('input#kmlgen-event-to').blur(mapModule.validateKmlUserInput);
-            $('input#kmlgen-event-north').blur(mapModule.validateKmlUserInput);
-            $('input#kmlgen-event-east').blur(mapModule.validateKmlUserInput);
-            $('input#kmlgen-event-south').blur(mapModule.validateKmlUserInput);
-            $('input#kmlgen-event-west').blur(mapModule.validateKmlUserInput);
-
-            $("#kmlgen-event-interpolate-enable").change(function () {
-                if ($("#kmlgen-event-interpolate-enable").is(':checked')) {
-                    $("#kmlgen-event-interpolate-seconds").prop('disabled', false);
-                } else {
-                    $("#kmlgen-event-interpolate-seconds").prop('disabled', true);
-                }
-            });
-        });
-
         $('#map-enable-nautical-charts').submit(
             function( event ) {
                 event.preventDefault();
@@ -75,6 +56,16 @@ var mapModule = {
 
         mapModule.registerEventHandlers();
         mapModule.zoomToDenmark();
+    },
+
+    onKmlGenModalLoaded: function() {
+        $('button#kmlgen-event').click(mapModule.generateKmlForEvent);
+        $('input#kmlgen-event-from').blur(mapModule.validateKmlUserInput);
+        $('input#kmlgen-event-to').blur(mapModule.validateKmlUserInput);
+        $('input#kmlgen-event-north').blur(mapModule.validateKmlUserInput);
+        $('input#kmlgen-event-east').blur(mapModule.validateKmlUserInput);
+        $('input#kmlgen-event-south').blur(mapModule.validateKmlUserInput);
+        $('input#kmlgen-event-west').blur(mapModule.validateKmlUserInput);
     },
 
     addNauticalLayers: function (gstUsername, gstPassword) {

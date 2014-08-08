@@ -1,15 +1,15 @@
 <!doctype html>
-<html>
+<html xmlns:ng="http://angularjs.org" ng-app>
 <head>
 	<title>Danish Maritime Authority</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- JS -->
-    <script type="text/javascript" src="//code.jquery.com/jquery-2.0.3.js"></script>
+    <script type="text/javascript" src="//code.jquery.com/jquery-2.1.1.min.js"></script>
     <script type="text/javascript" src="//code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
     <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/openlayers/2.13.1/OpenLayers.js"></script>
-    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.min.js"></script>
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.21/angular.min.js"></script>
 
     <script type="text/javascript" src="js/jquery.contextmenu.js"></script>
     <script type="text/javascript" src="js/jquery.ticker.js"></script>
@@ -34,99 +34,99 @@
 </head>
 <body>
 <div id="wrap" class="container">
-        <div>
-            <div id="event-search-modal-wrapper" />
+    <div>
+        <div id="event-search-modal-wrapper" ng-controller="EventSearchModalController" ng-include src="'event-search-modal.html'" onload="onload();"></div>
+    </div>
+    <div>
+        <div id="event-kmlgen-modal-wrapper" ng-controller="KmlGenModalController" ng-include src="'event-kmlgen-modal.html'" onload="onload();"></div>
+    </div>
+    <div id="main-column-right">
+        <div class="appinfo">
+            <a href="http://www.dma.dk" target="_blank"><img src="img/dma.png" /></a>
+            <h4>AIS Abnormal Behaviour</h4>
         </div>
-        <div>
-            <div id="event-kmlgen-modal-wrapper" />
-        </div>
-        <div id="main-column-left">
-            <div id="map" class="panel"></div>
-            <div style="margin-top: 10px;">
-                <ul class="well well-sm" style="list-style-type: none;" id="ticker">
-                    <li>No events</li>
-                </ul>
-            </div>
-            <div id="cell-data" style="clear:both;">
-                <div>
-                    <h4>Cell data</h4>
-                    <div class="cell-data-contents">...</div>
-                </div>
-            </div>
-        </div>
-        <div id="main-column-right">
-            <div class="appinfo">
-                <a href="http://www.dma.dk" target="_blank"><img src="img/dma.png" /></a>
-                <h4>AIS Abnormal Behaviour</h4>
-            </div>
-            <div class="tabs">
-                <ul>
-                    <li><a href="#tabs-1" id="tab-map">Map</a></li>
-                    <li><a href="#tabs-2" id="tab-stats">Statistics</a></li>
-                    <li><a href="#tabs-3" id="tab-events">Events</a></li>
-                </ul>
-                <div id="tabs-1">
-                    <div class="headline">View</div>
-                    <div class="useroutput" id="viewport">...</div>
-                    <div class="headline">Cursor</div>
-                    <div class="useroutput" id="cursorpos">...</div>
-                    <div class="headline">Cells</div>
-                    <div id="CellsControllerElement" ng-controller="CellsController">
-                        <div class="checkbox" style="float: left;">
-                            <label>
-                                <input type="checkbox" id="cell-layer-enabled" ng-model="cellsEnable">Enable
-                            </label>
-                        </div>
-                        <span>&nbsp;</span>
-                        <button id="cells-force-load" ng-disabled="!cellsEnable">Force load</button>
+        <div class="tabs">
+            <ul>
+                <li><a href="#tabs-1" id="tab-map">Map</a></li>
+                <li><a href="#tabs-2" id="tab-stats">Statistics</a></li>
+                <li><a href="#tabs-3" id="tab-events">Events</a></li>
+            </ul>
+            <div id="tabs-1">
+                <div class="headline">View</div>
+                <div class="useroutput" id="viewport">...</div>
+                <div class="headline">Cursor</div>
+                <div class="useroutput" id="cursorpos">...</div>
+                <div class="headline">Cells</div>
+                <div id="CellsControllerElement" ng-controller="CellsController">
+                    <div class="checkbox" style="float: left;">
+                        <label>
+                            <input type="checkbox" id="cell-layer-enabled" ng-model="cellsEnable">Enable
+                        </label>
                     </div>
-                    <div class="headline">Nautical charts</div>
-                    <form id="map-enable-nautical-charts">
-                        <input id="map-gst-username" type="text" placeholder="Username" />
-                        <input id="map-gst-password" type="password" placeholder="Password" />
-                        <button id="map-nautical-enable">Enable</button>
-                    </form>
+                    <span>&nbsp;</span>
+                    <button id="cells-force-load" ng-disabled="!cellsEnable">Force load</button>
                 </div>
-                <div id="tabs-2">
-                    <div class="headline">Dataset</div>
-                    <div class="useroutput" id="gridsize">Grid size: <span class="data">...</span></div>
-                    <div class="useroutput" id="downsampling">Down sampling: <span class="data">...</span></div>
-                    <div class="headline" id="statistic-names">Statistics</div>
-                </div>
-                <div id="tabs-3">
-                    <div class="headline">Event</div>
-                    <button id="events-search" data-toggle="modal" data-target="#event-search-modal">Search events...</button>
-                    <button id="events-remove">Hide events</button>
-                </div>
+                <div class="headline">Nautical charts</div>
+                <form id="map-enable-nautical-charts">
+                    <input id="map-gst-username" type="text" placeholder="Username" />
+                    <input id="map-gst-password" type="password" placeholder="Password" />
+                    <button id="map-nautical-enable">Enable</button>
+                </form>
             </div>
-            <div class="panel panel-default" style="margin-top: 10px;">
-                <div class="panel-body">
-                    <div class="headline">Export data</div>
-                    <img id="kmlgen-scenario" data-toggle="tooltip" title="Export visible area in KMZ format for Google Earth" src="img/kmz.png" />
-                </div>
+            <div id="tabs-2">
+                <div class="headline">Dataset</div>
+                <div class="useroutput" id="gridsize">Grid size: <span class="data">...</span></div>
+                <div class="useroutput" id="downsampling">Down sampling: <span class="data">...</span></div>
+                <div class="headline" id="statistic-names">Statistics</div>
             </div>
-            <div class="panel panel-default" style="margin-top: 10px;">
-                <div class="panel-body">
-                    <div class="headline">Application status</div>
-                    <div class="useroutput" id="cell-layer-load-status">No cells loaded.</div>
-                </div>
-            </div>
-            <div class="panel panel-default" style="margin-top: 10px;">
-                <div class="panel-body">
-                    <div class="headline">Events shown</div>
-                    <table class="useroutput" id="events-shown" style="width: 240px; margin-left: 0px;" class="dataTable">
-                        <thead>
-                            <th>ID</th>
-                            <th>Vessel</th>
-                            <th style="margin-right: 0px;">&nbsp;</th>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
+            <div id="tabs-3">
+                <div class="headline">Event</div>
+                <button id="events-search" data-toggle="modal" data-target="#event-search-modal">Search events...</button>
+                <button id="events-remove">Hide events</button>
             </div>
         </div>
-        <div id="push"></div>
+        <div class="panel panel-default" style="margin-top: 10px;">
+            <div class="panel-body">
+                <div class="headline">Export data</div>
+                <img id="kmlgen-scenario" data-toggle="tooltip" title="Export visible area in KMZ format for Google Earth" src="img/kmz.png" ng-controller="KmlGenModalController" ng-click="onclick()"/>
+            </div>
+        </div>
+        <div class="panel panel-default" style="margin-top: 10px;">
+            <div class="panel-body">
+                <div class="headline">Application status</div>
+                <div class="useroutput" id="cell-layer-load-status">No cells loaded.</div>
+            </div>
+        </div>
+        <div class="panel panel-default" style="margin-top: 10px;">
+            <div class="panel-body">
+                <div class="headline">Events shown</div>
+                <table class="useroutput" id="events-shown" style="width: 240px; margin-left: 0px;" class="dataTable">
+                    <thead>
+                        <th>ID</th>
+                        <th>Vessel</th>
+                        <th style="margin-right: 0px;">&nbsp;</th>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="main-column-left">
+        <div id="map" class="panel"></div>
+        <div style="margin-top: 10px;">
+            <ul class="well well-sm" style="list-style-type: none;" id="ticker">
+                <li>No events</li>
+            </ul>
+        </div>
+        <div id="cell-data" style="clear:both;">
+            <div>
+                <h4>Cell data</h4>
+                <div class="cell-data-contents">...</div>
+            </div>
+        </div>
+    </div>
+    <div id="push"></div>
     </div>
     <div id="footer">
         <div class="container" style="visibility: hidden;">
@@ -134,20 +134,33 @@
         </div>
     </div>
     <script>
-        angular
-        .module('AbnormalApp', [])
-        .controller('CellsController', ['$scope', function($scope) {
+        function CellsController($scope) {
             $scope.cellsEnable = true;
             $scope.$watch('cellsEnable', function(newValue, oldValue) {
                 if (mapModule.map) {
                     if (newValue == false) {
                         mapModule.hideGridLayer();
                     } else {
-                        mapModule.showGridLayer();
+                        mapModule.onMapMoveEnd(undefined);
                     }
                 }
             });
-        }]);
+        }
+
+        function EventSearchModalController($scope) {
+            $scope.onload = function() {
+                eventModule.onEventSearchModalLoaded();
+            }
+        }
+
+        function KmlGenModalController($scope) {
+            $scope.onload = function() {
+                mapModule.onKmlGenModalLoaded();
+            }
+            $scope.onclick = function() {
+                mapModule.openKmlModalForScenario();
+            }
+        }
 
         $(document).ready(function() {
             $(window).resize(function(){
