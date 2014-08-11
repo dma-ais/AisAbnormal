@@ -74,6 +74,7 @@ public class AbnormalAnalyzerApp extends AbstractDaemon {
         reader.join();
         LOG.info("AisDirectoryReader thread finished.");
 
+        statisticsService.dumpStatistics();
     }
 
     @Override
