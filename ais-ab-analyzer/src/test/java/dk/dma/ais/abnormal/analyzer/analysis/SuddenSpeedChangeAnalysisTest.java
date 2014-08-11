@@ -20,6 +20,7 @@ import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.SuddenSpeedChangeEvent;
+import dk.dma.ais.abnormal.tracker.EventEmittingTracker;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.abnormal.tracker.events.PositionChangedEvent;
@@ -27,6 +28,8 @@ import dk.dma.ais.abnormal.tracker.events.TrackStaleEvent;
 import dk.dma.ais.packet.AisPacket;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.enav.model.geometry.grid.Grid;
+import org.apache.commons.configuration.BaseConfiguration;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
@@ -337,6 +340,73 @@ public class SuddenSpeedChangeAnalysisTest {
         track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void canDetectFaxborgsGroundingInVejleFjordOnAug08_2014() {
+
+        final String[] NMEA_TEST_STRINGS = {
+            "\\si:AISD*3F\\\r\n" +
+            "$PGHP,1,2014,8,7,14,37,24,435,219,,2190076,1,6D*6D\r\n" +
+            "!BSVDM,2,1,5,A,5:02Ih01WrRsEH57J20H5P8u8N222222222222167H66663k085QBS1H,0*55\r\n" +
+            "!BSVDM,2,2,5,A,888888888888880,2*38",
+
+            "\\si:AISD*3F\\\r\n" +
+            "$PGHP,1,2014,8,7,14,42,6,278,219,,2190076,1,3B*53\r\n" +
+            "!BSVDM,1,1,,A,1:02Ih001U0d=V:Op85<2aT>0<0F,0*3B",         // 10.1 knots
+
+            "\\si:AISD*3F\\\r\n" +
+            "$PGHP,1,2014,8,7,14,42,6,278,219,,2190067,1,3B*53\r\n" +
+            "!BSVDM,1,1,,A,1:02Ih001U0d=V:Op85<2aT>0<0F,0*3B",         // 10.1 knots
+
+            "\\si:AISD*3F\\\r\n" +
+            "$PGHP,1,2014,8,7,14,42,15,825,219,,2190076,1,5D*63\r\n" +
+            "!BSVDM,1,1,,B,1:02Ih001T0d=IjOp8bsvqTR089@,0*5D",         // 10.0 knots
+
+            "\\si:AISD*3F\\\r\n" +
+            "$PGHP,1,2014,8,7,14,42,25,279,219,,2190067,1,30*11\r\n" +
+            "!BSVDM,1,1,,A,1:02Ih0PAM0d=?POp9=ct9Nl0<0F,0*30",         //  9.3 knots
+
+            "\\si:AISD*3F\\\r\n" +
+            "$PGHP,1,2014,8,7,14,42,36,121,219,,2190076,1,0E*6B\r\n" +
+            "!BSVDM,1,1,,B,1:02Ih000A0d==VOp9DcpIM80HE9,0*0E",         //  1.7 knots
+
+            "\\si:AISD*3F\\\r\n" +
+            "$PGHP,1,2014,8,7,14,42,45,372,219,,2190067,1,45*1F\r\n" +
+            "!BSVDM,1,1,,A,1:02Ih00040d==bOp9E;oqMJ0D0E,0*45",         //  0.4 knots
+
+            "\\si:AISD*3F\\\r\n" +
+            "$PGHP,1,2014,8,7,14,42,45,372,219,,2190076,1,45*1F\r\n" +
+            "!BSVDM,1,1,,A,1:02Ih00040d==bOp9E;oqMJ0D0E,0*45",         //  0.4 knots
+
+            "\\si:AISD*3F\\\r\n" +
+            "$PGHP,1,2014,8,7,14,42,56,432,219,,2190076,1,68*11\r\n" +
+            "!BSVDM,1,1,,B,1:02Ih00010d==`Op9E;eqMh0D0D,0*68",         //  0.1 knots
+        };
+
+        // Create real tracker; not mock
+        Tracker tracker = new EventEmittingTracker(new BaseConfiguration(), Grid.createSize(200), statisticsService);
+        // Create object under test
+        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(statisticsService, tracker, eventRepository);
+
+        // Set expectations
+        context.checking(new Expectations() {{
+            ignoring(trackingService).registerSubscriber(analysis);
+            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
+            exactly(7).of(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
+            exactly(2).of(eventRepository).findOngoingEventByVessel(with(671128000), with(SuddenSpeedChangeEvent.class));
+            exactly(1).of(eventRepository).save(with(any(SuddenSpeedChangeEvent.class)));
+        }});
+
+        // Run test
+        analysis.start();
+
+        for (int i = 0; i < NMEA_TEST_STRINGS.length; i++) {
+            tracker.update(AisPacket.from(NMEA_TEST_STRINGS[i]));
+        }
+
+        // Assert expectations met
         context.assertIsSatisfied();
     }
 
