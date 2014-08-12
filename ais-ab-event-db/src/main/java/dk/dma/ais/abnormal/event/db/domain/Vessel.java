@@ -46,8 +46,8 @@ public class Vessel implements Serializable {
     /** Vessel's type (as per ITU 1371) */
     private Integer type;
 
-    /** Vessel's length over all (in metres) */
-    private Integer length;
+    /** Vessel's dimensions in metres; measured from reported position reference / position sensor location */
+    private Integer toBow, toStern, toPort, toStarboard;
 
     public Vessel() {
     }
@@ -96,11 +96,40 @@ public class Vessel implements Serializable {
         this.type = type;
     }
 
+    /* TODO: Obsoleted by toBow and toStern */
     public Integer getLength() {
-        return length;
+        return toBow == null || toStern == null ? null : toBow + toStern;
     }
 
-    public void setLength(Integer length) {
-        this.length = length;
+    public Integer getToBow() {
+        return toBow;
+    }
+
+    public void setToBow(Integer toBow) {
+        this.toBow = toBow;
+    }
+
+    public Integer getToStern() {
+        return toStern;
+    }
+
+    public void setToStern(Integer toStern) {
+        this.toStern = toStern;
+    }
+
+    public Integer getToPort() {
+        return toPort;
+    }
+
+    public void setToPort(Integer toPort) {
+        this.toPort = toPort;
+    }
+
+    public Integer getToStarboard() {
+        return toStarboard;
+    }
+
+    public void setToStarboard(Integer toStarboard) {
+        this.toStarboard = toStarboard;
     }
 }

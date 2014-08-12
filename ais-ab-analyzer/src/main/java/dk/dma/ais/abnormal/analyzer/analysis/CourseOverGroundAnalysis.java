@@ -207,10 +207,15 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
         String name = nameOrMmsi(track.getShipName(), mmsi);
         Integer shipType = track.getShipType();
         Integer shipLength = track.getVesselLength();
+        Integer shipDimensionToBow = track.getShipDimensionBow();
+        Integer shipDimensionToStern = track.getShipDimensionStern();
+        Integer shipDimensionToPort = track.getShipDimensionPort();
+        Integer shipDimensionToStarboard = track.getShipDimensionStarboard();
         Date positionTimestamp = new Date(track.getTimeOfLastPositionReport());
         Position position = track.getPosition();
         Float cog = track.getCourseOverGround();
         Float sog = track.getSpeedOverGround();
+        Float hdg = track.getTrueHeading();
         Boolean interpolated = track.getNewestTrackingReport() instanceof InterpolatedTrackingReport;
 
         TrackingPoint.EventCertainty certainty = TrackingPoint.EventCertainty.UNDEFINED;
@@ -249,7 +254,10 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
                                 .imo(imo)
                                 .callsign(callsign)
                                 .type(shipType /* shipTypeCategory */)
-                                .length(shipLength /* shipLengthCategory */)
+                                .toBow(shipDimensionToBow)
+                                .toStern(shipDimensionToStern)
+                                .toPort(shipDimensionToPort)
+                                .toStarboard(shipDimensionToStarboard)
                                 .name(name)
                             .trackingPoint()
                                 .timestamp(positionTimestamp)
@@ -257,6 +265,7 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
                                 .eventCertainty(certainty)
                                 .speedOverGround(sog)
                                 .courseOverGround(cog)
+                                .trueHeading(hdg)
                                 .latitude(position.getLatitude())
                                 .longitude(position.getLongitude())
                 .getEvent();

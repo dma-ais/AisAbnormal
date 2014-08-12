@@ -53,6 +53,9 @@ public class TrackingPoint implements Comparable<TrackingPoint> {
     @Column(precision=4, scale=2)
     private Float courseOverGround;
 
+    @Column(precision=4, scale=2)
+    private Float trueHeading;
+
     @NotNull
     private Boolean positionInterpolated;
 
@@ -107,6 +110,14 @@ public class TrackingPoint implements Comparable<TrackingPoint> {
 
     public void setCourseOverGround(Float courseOverGround) {
         this.courseOverGround = courseOverGround;
+    }
+
+    public Float getTrueHeading() {
+        return trueHeading;
+    }
+
+    public void setTrueHeading(Float trueHeading) {
+        this.trueHeading = trueHeading;
     }
 
     public void setPositionInterpolated(Boolean positionInterpolated) {

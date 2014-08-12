@@ -132,7 +132,7 @@ var eventModule = {
         var eventStart = eventModule.formatTimestamp(event.startTime);
         var eventType = event.eventType.replace('Event','');
         var shipType = event.behaviours[0].vessel.type;
-        var shipLength = event.behaviours[0].vessel.length;
+        var shipLength = event.behaviours[0].vessel.toBow + event.behaviours[0].vessel.toStern;
         var shipName = event.behaviours[0].vessel.name;
 
         var searchResultHtml  = "<tr>";

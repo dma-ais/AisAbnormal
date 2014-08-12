@@ -73,6 +73,11 @@ public class TrackingPointBuilder {
         return this;
     }
 
+    public TrackingPointBuilder trueHeading(Float heading) {
+        trackingPoint.setTrueHeading(heading);
+        return this;
+    }
+
     public BehaviourBuilder behaviour() {
         BehaviourBuilder newBehaviourBuilder = new BehaviourBuilder(this.behaviourBuilder.eventBuilder);
         behaviourBuilder.eventBuilder.getEvent().addBehaviour(newBehaviourBuilder.getBehaviour());

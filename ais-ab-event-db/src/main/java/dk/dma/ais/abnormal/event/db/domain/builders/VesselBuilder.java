@@ -62,8 +62,23 @@ public class VesselBuilder {
         return this;
     }
 
-    public VesselBuilder length(Integer length) {
-        vessel.setLength(length);
+    public VesselBuilder toPort(Integer toPort) {
+        vessel.setToPort(toPort);
+        return this;
+    }
+
+    public VesselBuilder toStarboard(Integer toStarboard) {
+        vessel.setToStarboard(toStarboard);
+        return this;
+    }
+
+    public VesselBuilder toBow(Integer toBow) {
+        vessel.setToBow(toBow);
+        return this;
+    }
+
+    public VesselBuilder toStern(Integer toStern) {
+        vessel.setToStern(toStern);
         return this;
     }
 

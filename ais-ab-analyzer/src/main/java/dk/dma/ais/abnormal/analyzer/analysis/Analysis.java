@@ -122,6 +122,7 @@ public abstract class Analysis {
             Position position = primaryTrack.getPosition();
             Float cog = primaryTrack.getCourseOverGround();
             Float sog = primaryTrack.getSpeedOverGround();
+            Float hdg = primaryTrack.getTrueHeading();
             boolean interpolated = primaryTrack.getNewestTrackingReport() instanceof InterpolatedTrackingReport;
 
             TrackingPoint.EventCertainty certainty = TrackingPoint.EventCertainty.UNDEFINED;
@@ -132,7 +133,7 @@ public abstract class Analysis {
                 }
             }
 
-            addTrackingPoint(event, mmsi, positionTimestamp, position, cog, sog, interpolated, certainty);
+            addTrackingPoint(event, mmsi, positionTimestamp, position, cog, sog, hdg, interpolated, certainty);
         } else {
             event = buildEvent(primaryTrack, otherTracks);
         }
@@ -143,7 +144,7 @@ public abstract class Analysis {
     /**
      * Add a tracking point to an event and a target.
      */
-    protected static void addTrackingPoint(Event event, int mmsi, Date positionTimestamp, Position position, Float cog, Float sog, Boolean interpolated, TrackingPoint.EventCertainty eventCertainty) {
+    protected static void addTrackingPoint(Event event, int mmsi, Date positionTimestamp, Position position, Float cog, Float sog, Float hdg, Boolean interpolated, TrackingPoint.EventCertainty eventCertainty) {
         event.getBehaviour(mmsi).addTrackingPoint(
                 TrackingPointBuilder.TrackingPoint()
                         .timestamp(positionTimestamp)
@@ -151,6 +152,7 @@ public abstract class Analysis {
                         .eventCertainty(eventCertainty)
                         .speedOverGround(sog)
                         .courseOverGround(cog)
+                        .trueHeading(hdg)
                         .latitude(position.getLatitude())
                         .longitude(position.getLongitude())
                         .getTrackingPoint()
@@ -183,6 +185,7 @@ public abstract class Analysis {
                             trackingReport.getPosition(),
                             trackingReport.getCourseOverGround(),
                             trackingReport.getSpeedOverGround(),
+                            trackingReport.getTrueHeading(),
                             trackingReport instanceof InterpolatedTrackingReport,
                             eventCertainty);
                 }

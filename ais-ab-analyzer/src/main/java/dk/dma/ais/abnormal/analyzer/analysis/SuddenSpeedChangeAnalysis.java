@@ -136,7 +136,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
         final long timestamp = track.getTimeOfLastPositionReport();
 
         if (sog >= speedHighMark) {
-            TrackingPointData trackingPointData = new TrackingPointData(timestamp, sog, track.getCourseOverGround(), track.getNewestTrackingReport() instanceof InterpolatedTrackingReport, track.getPosition());
+            TrackingPointData trackingPointData = new TrackingPointData(timestamp, sog, track.getCourseOverGround(), track.getTrueHeading(), track.getNewestTrackingReport() instanceof InterpolatedTrackingReport, track.getPosition());
             tracks.put(mmsi, trackingPointData);
         } else if (sog <= speedLowMark) {
             TrackingPointData trackingPointData = tracks.get(mmsi);
@@ -166,9 +166,13 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
         Position position = track.getPosition();
         Float cog = track.getCourseOverGround();
         Float sog = track.getSpeedOverGround();
+        Float hdg = track.getTrueHeading();
         Boolean interpolated = track.getNewestTrackingReport() instanceof InterpolatedTrackingReport;
         Integer shipType = track.getShipType();
-        Integer shipLength = track.getVesselLength();
+        Integer shipDimensionToBow = track.getShipDimensionBow();
+        Integer shipDimensionToStern = track.getShipDimensionStern();
+        Integer shipDimensionToPort = track.getShipDimensionPort();
+        Integer shipDimensionToStarboard = track.getShipDimensionStarboard();
 
         String shipTypeAsString = "unknown type";
         short shipTypeCategory = Categorizer.mapShipTypeToCategory(shipType);
@@ -181,6 +185,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
         Date prevTimestamp = new Date(prevTrackingPoint.getTimestamp());
         float prevSog = prevTrackingPoint.getSog();
         Float prevCog = prevTrackingPoint.getCog();
+        Float prevHdg = prevTrackingPoint.getHdg();
         Position prevPosition = prevTrackingPoint.getPosition();
         Boolean prevInterpolated = prevTrackingPoint.getPositionInterpolated();
 
@@ -205,7 +210,10 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
                         .imo(imo)
                         .callsign(callsign)
                         .type(shipType)
-                        .length(shipLength)
+                        .toBow(shipDimensionToBow)
+                        .toStern(shipDimensionToStern)
+                        .toPort(shipDimensionToPort)
+                        .toStarboard(shipDimensionToStarboard)
                         .name(name)
                     .trackingPoint()
                         .timestamp(prevTimestamp)
@@ -213,6 +221,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
                         .eventCertainty(TrackingPoint.EventCertainty.RAISED)
                         .speedOverGround(prevSog)
                         .courseOverGround(prevCog)
+                        .trueHeading(prevHdg)
                         .latitude(prevPosition.getLatitude())
                         .longitude(prevPosition.getLongitude())
             .getEvent();
@@ -224,6 +233,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
                 .eventCertainty(TrackingPoint.EventCertainty.RAISED)
                 .speedOverGround(sog)
                 .courseOverGround(cog)
+                .trueHeading(hdg)
                 .latitude(position.getLatitude())
                 .longitude(position.getLongitude())
             .getTrackingPoint());
@@ -245,13 +255,15 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
         private final long timestamp; // Null not allowed
         private final float sog;      // Null not allowed
         private final Float cog;
+        private final Float hdg;
         private final Boolean positionInterpolated;
         private final Position position;
 
-        private TrackingPointData(Long timestamp, Float sog, Float cog, Boolean positionInterpolated, Position position) {
+        private TrackingPointData(Long timestamp, Float sog, Float cog, Float hdg, Boolean positionInterpolated, Position position) {
             this.timestamp = timestamp;
             this.sog = sog;
             this.cog = cog;
+            this.hdg = hdg;
             this.positionInterpolated = positionInterpolated;
             this.position = position;
         }
@@ -266,6 +278,9 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
 
         public Float getCog() {
             return cog;
+        }
+        public Float getHdg() {
+            return hdg;
         }
 
         public Boolean getPositionInterpolated() {
