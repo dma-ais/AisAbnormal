@@ -38,7 +38,6 @@ public class TrackingPoint implements Comparable<TrackingPoint> {
     private long id;
 
     @NotNull
-    @Past
     private Date timestamp;
 
     @NotNull
