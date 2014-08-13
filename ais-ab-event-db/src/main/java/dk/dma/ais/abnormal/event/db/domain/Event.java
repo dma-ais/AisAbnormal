@@ -61,13 +61,11 @@ public abstract class Event {
      * Time on which the event started.
      */
     @NotNull
-    @Past
     private Date startTime;
 
     /**
      * Time on which the event ended.
      */
-    @Past
     private Date endTime;
 
     /**
