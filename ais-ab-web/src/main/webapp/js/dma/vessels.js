@@ -140,7 +140,8 @@ var vesselModule = {
             var historyStyle = {
                 strokeColor: 'red',
                 strokeOpacity: 1,
-                strokeWidth: 2
+                strokeWidth: 2,
+                graphicZIndex: 2
             };
 
             var trackHistoryFeature = new OpenLayers.Feature.Vector(trackHistory, null, historyStyle);
