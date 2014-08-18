@@ -29,6 +29,7 @@ import net.jcip.annotations.ThreadSafe;
 
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -318,6 +319,28 @@ public final class Track {
             trackLock.unlock();
         }
         return mostRecentTrackingReport;
+    }
+
+    /**
+     * Get the the position report at time t.
+     * @return
+     */
+    public TrackingReport getTrackingReportAt(long t) {
+        TrackingReport trackingReportAtT = null;
+        try {
+            trackLock.lock();
+            Iterator<TrackingReport> iterator = trackingReports.iterator();
+            while(iterator.hasNext()) {
+                trackingReportAtT = iterator.next();
+                if (trackingReportAtT.getTimestamp() == t) {
+                    break;
+                }
+                trackingReportAtT = null;
+            }
+        } finally {
+            trackLock.unlock();
+        }
+        return trackingReportAtT;
     }
 
     /**
