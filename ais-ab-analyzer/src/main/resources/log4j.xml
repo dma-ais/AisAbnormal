@@ -13,8 +13,8 @@
 		</layout>
 	</appender>
 
-    <logger name="dk.dma.ais.abnormal.analyzer.behaviour">
-        <level value="INFO"></level>
+    <logger name="dk.dma.ais.abnormal.analyzer.analysis.SuddenSpeedChangeAnalysis">
+        <level value="DEBUG"></level>
     </logger>
 
 	<root>

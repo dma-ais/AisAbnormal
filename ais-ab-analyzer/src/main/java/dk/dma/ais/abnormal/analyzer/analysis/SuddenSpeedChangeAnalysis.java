@@ -146,7 +146,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
     public void onTrackStale(TrackStaleEvent trackEvent) {
         final int mmsi = trackEvent.getTrack().getMmsi();
         if (tracksWithSuddenSpeedDecrease.contains(mmsi)) {
-            LOG.debug("MMSI " + mmsi + " is now stale. Removed from observation list.");
+            LOG.debug(nameOrMmsi(trackEvent.getTrack().getShipName(), mmsi) + " is now stale. Removed from observation list.");
             tracksWithSuddenSpeedDecrease.remove(mmsi);
         }
     }
@@ -157,16 +157,16 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
 
         if (speedOverGround != null && speedOverGround <= SPEED_LOW_MARK) {
             if (!tracksWithSuddenSpeedDecrease.contains(mmsi) && isSuddenSpeedDecrease(track)) {
-                LOG.debug("MMSI " + mmsi + " experienced sudden speed decrease. Added to observation list.");
+                LOG.debug(nameOrMmsi(track.getShipName(), mmsi) + " experienced sudden speed decrease. Added to observation list.");
                 tracksWithSuddenSpeedDecrease.add(mmsi);
             } else if (tracksWithSuddenSpeedDecrease.contains(mmsi) && isSustainedSpeedDecrease(track)) {
-                LOG.debug("MMSI " + mmsi + " experienced sustained speed decrease. Event raised.");
+                LOG.debug(nameOrMmsi(track.getShipName(), mmsi) + " experienced sustained speed decrease. Event raised.");
                 raiseAndLowerSuddenSpeedChangeEvent(track);
                 tracksWithSuddenSpeedDecrease.remove(mmsi);
             }
         } else {
             if (tracksWithSuddenSpeedDecrease.contains(mmsi)) {
-                LOG.debug("MMSI " + mmsi + " speed above low mark. Removed from observation list.");
+                LOG.debug(nameOrMmsi(track.getShipName(), mmsi) + " speed above low mark. Removed from observation list.");
                 tracksWithSuddenSpeedDecrease.remove(mmsi);
             }
         }
