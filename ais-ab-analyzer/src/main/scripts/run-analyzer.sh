@@ -1,6 +1,6 @@
 #!/bin/sh
 java -jar ais-ab-analyzer-0.1-SNAPSHOT.jar \
--downsampling 5 \
+-downsampling 2 \
 -eventDataRepositoryType pgsql \
 -eventDataDbHost $1 \
 -eventDataDbPort $2 \
