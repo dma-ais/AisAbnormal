@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
 
+import static dk.dma.ais.abnormal.util.AisDataHelper.isSpeedOverGroundAvailable;
 import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isCargoVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isClassB;
@@ -95,6 +96,8 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
 
     private final String analysisName;
 
+    private int statCount = 0;
+
     @Inject
     public SuddenSpeedChangeAnalysis(AppStatisticsService statisticsService, Tracker trackingService, EventRepository eventRepository) {
         super(eventRepository, trackingService, null);
@@ -108,12 +111,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
         Track track = trackEvent.getTrack();
 
         /* Do not perform analysis if reported speed is invalid */
-        final Float sogBoxed = track.getSpeedOverGround();
-        if (sogBoxed == null) {
-            return;
-        }
-        final float sog = sogBoxed.floatValue();
-        if (sog >= 102.3 /* ~1024 invalid sog */) {
+        if (!isSpeedOverGroundAvailable(track.getSpeedOverGround())) {
             return;
         }
 
@@ -139,6 +137,9 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
 
     private void updateApplicationStatistics() {
         statisticsService.incAnalysisStatistics(analysisName, "Analyses performed");
+        if (statCount++ % 10000 == 0) {
+            statisticsService.setAnalysisStatistics(analysisName, "# observation list", tracksWithSuddenSpeedDecrease.size());
+        }
     }
 
     @AllowConcurrentEvents

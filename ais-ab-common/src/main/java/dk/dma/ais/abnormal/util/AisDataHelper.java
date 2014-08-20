@@ -25,6 +25,13 @@ public final class AisDataHelper {
     private AisDataHelper() {
     }
 
+    /**
+     * Trim AIS string to Java String by converting all '@'s to spaces, and then
+     * trimming all leading and trailing spaces away.
+     *
+     * @param name
+     * @return
+     */
     public static String trimAisString(String name) {
         if (!Strings.isNullOrEmpty(name)) {
             name = name.replace('@', ' ').trim();
@@ -34,8 +41,42 @@ public final class AisDataHelper {
         return name;
     }
 
+    /**
+     * If name is blank return the MMSI no. Otherwise return the name.
+     * @param name
+     * @param mmsi
+     * @return
+     */
     public static String nameOrMmsi(String name, int mmsi) {
         String trimmedName = trimAisString(name);
         return isBlank(trimmedName) ? "MMSI " + Integer.toString(mmsi) : trimmedName;
     }
+
+    /**
+     * Return true if speed over ground is available as per ITU-R M.1371-4 (table 45)
+     * @param sog
+     * @return
+     */
+    public static boolean isSpeedOverGroundAvailable(Float sog) {
+        return sog != null && sog < 102.3;
+    }
+
+    /**
+     * Return true if course over ground is available as per ITU-R M.1371-4 (table 45)
+     * @param cog
+     * @return
+     */
+    public static boolean isCourseOverGroundAvailable(Float cog) {
+        return cog != null && cog < 360.0;
+    }
+
+    /**
+     * Return true if true heading is available as per ITU-R M.1371-4 (table 45)
+     * @param hdg
+     * @return
+     */
+    public static boolean isTrueHeadingAvailable(Float hdg) {
+        return hdg != null && hdg < 360.0;
+    }
+
 }
