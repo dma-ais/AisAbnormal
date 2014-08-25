@@ -49,7 +49,18 @@ public final class AisDataHelper {
      */
     public static String nameOrMmsi(String name, int mmsi) {
         String trimmedName = trimAisString(name);
-        return isBlank(trimmedName) ? "MMSI " + Integer.toString(mmsi) : trimmedName;
+        return isBlank(trimmedName) ? "MMSI " + mmsi : trimmedName;
+    }
+
+    /**
+     * If name is blank return the MMSI no. Otherwise return the name and the MMSI no.
+     * @param name
+     * @param mmsi
+     * @return
+     */
+    public static String nameMmsiOrMmsi(String name, int mmsi) {
+        String trimmedName = trimAisString(name);
+        return isBlank(trimmedName) ? "MMSI " + mmsi : trimmedName + " (" + mmsi + ")";
     }
 
     /**

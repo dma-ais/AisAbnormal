@@ -19,6 +19,7 @@ package dk.dma.ais.abnormal.event.db.jpa;
 import dk.dma.ais.abnormal.event.db.domain.Behaviour;
 import dk.dma.ais.abnormal.event.db.domain.CloseEncounterEvent;
 import dk.dma.ais.abnormal.event.db.domain.CourseOverGroundEvent;
+import dk.dma.ais.abnormal.event.db.domain.DriftEvent;
 import dk.dma.ais.abnormal.event.db.domain.ShipSizeOrTypeEvent;
 import dk.dma.ais.abnormal.event.db.domain.SpeedOverGroundEvent;
 import dk.dma.ais.abnormal.event.db.domain.SuddenSpeedChangeEvent;
@@ -70,6 +71,7 @@ public final class JpaSessionFactoryFactory {
                 .addAnnotatedClass(SpeedOverGroundEvent.class)
                 .addAnnotatedClass(ShipSizeOrTypeEvent.class)
                 .addAnnotatedClass(SuddenSpeedChangeEvent.class)
+                .addAnnotatedClass(DriftEvent.class)
                 .addAnnotatedClass(CloseEncounterEvent.class)
                 .addAnnotatedClass(Zone.class)
                 .addAnnotatedClass(Vessel.class)
@@ -121,6 +123,7 @@ public final class JpaSessionFactoryFactory {
                 .addAnnotatedClass(SpeedOverGroundEvent.class)
                 .addAnnotatedClass(ShipSizeOrTypeEvent.class)
                 .addAnnotatedClass(SuddenSpeedChangeEvent.class)
+                .addAnnotatedClass(DriftEvent.class)
                 .addAnnotatedClass(CloseEncounterEvent.class)
                 .addAnnotatedClass(Zone.class)
                 .addAnnotatedClass(Vessel.class)
