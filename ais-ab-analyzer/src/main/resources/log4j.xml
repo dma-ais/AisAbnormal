@@ -13,7 +13,7 @@
 		</layout>
 	</appender>
 
-    <logger name="dk.dma.ais.abnormal.analyzer.analysis.SuddenSpeedChangeAnalysis">
+    <logger name="dk.dma.ais.abnormal.event.db.jpa.JpaEventRepository">
         <level value="DEBUG"></level>
     </logger>
 

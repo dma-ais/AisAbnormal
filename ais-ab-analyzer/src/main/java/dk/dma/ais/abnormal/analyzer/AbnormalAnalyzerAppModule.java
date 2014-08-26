@@ -18,9 +18,13 @@ package dk.dma.ais.abnormal.analyzer;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManager;
 import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManagerImpl;
+import dk.dma.ais.abnormal.analyzer.reports.ReportJobFactory;
+import dk.dma.ais.abnormal.analyzer.reports.ReportMailer;
+import dk.dma.ais.abnormal.analyzer.reports.ReportScheduler;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.jpa.JpaEventRepository;
 import dk.dma.ais.abnormal.event.db.jpa.JpaSessionFactoryFactory;
@@ -46,6 +50,8 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
+import org.quartz.SchedulerFactory;
+import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -103,6 +109,10 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
         bind(PacketHandler.class).to(PacketHandlerImpl.class).in(Singleton.class);
         bind(Tracker.class).to(EventEmittingTracker.class).in(Singleton.class);
         bind(BehaviourManager.class).to(BehaviourManagerImpl.class).in(Singleton.class);
+        bind(SchedulerFactory.class).to(StdSchedulerFactory.class).in(Scopes.SINGLETON);
+        bind(ReportJobFactory.class).in(Scopes.SINGLETON);
+        bind(ReportScheduler.class).in(Scopes.SINGLETON);
+        bind(ReportMailer.class).in(Scopes.SINGLETON);
     }
 
     @Provides

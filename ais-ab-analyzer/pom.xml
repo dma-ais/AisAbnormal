@@ -22,7 +22,22 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>${dependencies.slf4j.version}</version>
         </dependency>
-		<dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-email</artifactId>
+            <version>1.3.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>2.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.4</version>
+        </dependency>
+        <dependency>
 			<groupId>dk.dma.enav</groupId>
 			<artifactId>enav-util</artifactId>
             <version>0.4-SNAPSHOT</version>

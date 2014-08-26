@@ -20,6 +20,7 @@ import com.beust.jcommander.ParameterException;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import dk.dma.ais.abnormal.analyzer.reports.ReportScheduler;
 import dk.dma.ais.abnormal.analyzer.userargs.UserArguments;
 import dk.dma.ais.abnormal.application.ApplicationSupport;
 import dk.dma.ais.reader.AisReader;
@@ -61,11 +62,15 @@ public class AbnormalAnalyzerApp extends AbstractDaemon {
     @Inject
     private AppStatisticsService statisticsService;
 
+    @Inject
+    private ReportScheduler reportScheduler;
+
     @Override
     protected void runDaemon(Injector injector) throws Exception {
         LOG.info("Starting AbnormalAnalyzerApp");
 
         statisticsService.start();
+        reportScheduler.start();
 
         reader.registerPacketHandler(packetHandler);
         LOG.info("Starting AisDirectoryReader thread.");
