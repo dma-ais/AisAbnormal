@@ -21,6 +21,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.Event;
+import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
+import dk.dma.ais.abnormal.event.db.domain.Vessel;
 import net.jcip.annotations.NotThreadSafe;
 import org.apache.commons.configuration.Configuration;
 import org.joda.time.DateTime;
@@ -33,8 +35,6 @@ import org.slf4j.LoggerFactory;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-
-import static org.apache.commons.lang.StringUtils.isBlank;
 
 @NotThreadSafe
 @Singleton
@@ -96,16 +96,24 @@ public class RecentEventsReportJob implements Job {
         email.append("<pre>");
         eventsByType.keySet().forEach(eventType -> {
             email.append(eventType.getSimpleName() + " (" + eventsByType.get(eventType).size() + ")\n");
-            email.append("------------------------------------------------------------------------------------\n");
+            email.append("------------------------------------------------------------------------------------------------------\n");
             eventsByType.get(eventType).forEach(event -> {
-                tabbedAppend(email, event.getId());
-                tabbedAppend(email, event.getStartTime());
-                tabbedAppend(email, event.getEndTime());
-                tabbedAppend(email, event.getBehaviours().iterator().next().getVessel().getMmsi());
-                tabbedAppend(email, event.getBehaviours().iterator().next().getVessel().getName());
+                Vessel vessel = event.getBehaviours().iterator().next().getVessel();
+                TrackingPoint tp = event.getBehaviours().iterator().next().getTrackingPoints().first();
+
+                email.append(String.format("%5d ", event.getId()));
+                email.append(String.format("%16s ", DATE_FORMAT.format(event.getStartTime())));
+                email.append(String.format("%16s ", event.getEndTime() == null ? " " : DATE_FORMAT.format(event.getStartTime())));
+                email.append(String.format("%9d ", vessel.getMmsi()));
+                email.append(String.format("%-20s ", vessel.getName()));
+                email.append(String.format("%6.4f ", tp.getLatitude()));
+                email.append(String.format("%6.4f ", tp.getLongitude()));
+                email.append(String.format("%5.1f ", tp.getSpeedOverGround()));
+                email.append(String.format("%4.1f ", tp.getCourseOverGround()));
+                email.append(String.format("%3.0f ", tp.getTrueHeading()));
                 email.append('\n');
             });
-            email.append("====================================================================================\n");
+            email.append("======================================================================================================\n");
             email.append("\n");
         });
         email.append("\n");
@@ -113,15 +121,6 @@ public class RecentEventsReportJob implements Job {
         email.append("</html>");
 
         return email.toString();
-    }
-
-    private static StringBuffer tabbedAppend(StringBuffer sb, Object object) {
-        if (object instanceof Date) {
-            object = DATE_FORMAT.format(object);
-        }
-        sb.append(object == null || isBlank(object.toString()) ? "\t\t" : object.toString());
-        sb.append('\t');
-        return sb;
     }
 
 }
