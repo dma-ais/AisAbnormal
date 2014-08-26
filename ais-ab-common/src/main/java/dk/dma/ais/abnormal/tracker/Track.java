@@ -67,7 +67,7 @@ public final class Track {
     private static final Supplier<TreeSet<TrackingReport>> treeSetSupplier = () -> new TreeSet<TrackingReport>(byTimestamp);
     private boolean positionReportPurgeEnable = true;
 
-    public final static int MAX_AGE_POSITION_REPORTS_MINUTES = 30;
+    public final static int MAX_AGE_POSITION_REPORTS_MINUTES = 20;
     private TreeSet<TrackingReport> trackingReports = treeSetSupplier.get();
 
     private final int mmsi;

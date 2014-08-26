@@ -34,6 +34,11 @@ public class DriftAnalysisTest {
     private final float minHdgCogDeviationDegrees = MIN_HDG_COG_DEVIATION_DEGREES;
 
     @Test
+    public void ensureValidConfiguration() {
+        assertTrue(Track.MAX_AGE_POSITION_REPORTS_MINUTES > DriftAnalysis.OBSERVATION_PERIOD_MINUTES);
+    }
+
+    @Test
     public void testIsSignificantDeviation() {
         assertFalse(isSignificantDeviation(0.0f, 0.0f + minHdgCogDeviationDegrees - 1.0f));
         assertFalse(isSignificantDeviation(0.0f, 0.0f + minHdgCogDeviationDegrees));
