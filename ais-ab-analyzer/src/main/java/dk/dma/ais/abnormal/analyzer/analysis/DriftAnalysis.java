@@ -40,7 +40,6 @@ import java.util.TreeSet;
 import static dk.dma.ais.abnormal.util.AisDataHelper.isCourseOverGroundAvailable;
 import static dk.dma.ais.abnormal.util.AisDataHelper.isSpeedOverGroundAvailable;
 import static dk.dma.ais.abnormal.util.AisDataHelper.isTrueHeadingAvailable;
-import static dk.dma.ais.abnormal.util.AisDataHelper.nameMmsiOrMmsi;
 import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isCargoVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isClassB;
@@ -229,7 +228,7 @@ public class DriftAnalysis extends Analysis {
         final Integer mmsi = track.getMmsi();
         final Integer imo = track.getIMO();
         final String callsign = track.getCallsign();
-        final String name = nameMmsiOrMmsi(track.getShipName(), mmsi);
+        final String name = nameOrMmsi(track.getShipName(), mmsi);
         final Integer shipType = track.getShipType();
         final Integer shipDimensionToBow = track.getShipDimensionBow();
         final Integer shipDimensionToStern = track.getShipDimensionStern();
