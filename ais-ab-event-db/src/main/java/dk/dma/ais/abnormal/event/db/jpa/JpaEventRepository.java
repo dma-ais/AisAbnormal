@@ -195,6 +195,8 @@ public class JpaEventRepository implements EventRepository {
 
     @Override
     public List<Event> findEventsByFromAndTo(Date from, Date to) {
+        LOG.debug("Searching events from " + from + " to " + to + ".");
+
         Session session = getSession();
 
         List events = null;
@@ -212,6 +214,8 @@ public class JpaEventRepository implements EventRepository {
         } finally {
             session.close();
         }
+
+        LOG.debug("Found " + events.size() + " matching events.");
 
         return events;
     }
