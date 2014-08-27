@@ -23,6 +23,7 @@ import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
 import dk.dma.ais.abnormal.event.db.domain.Vessel;
+import dk.dma.ais.abnormal.util.Categorizer;
 import net.jcip.annotations.NotThreadSafe;
 import org.apache.commons.configuration.Configuration;
 import org.joda.time.DateTime;
@@ -95,25 +96,28 @@ public class RecentEventsReportJob implements Job {
 
         email.append("<pre>");
         eventsByType.keySet().forEach(eventType -> {
-            email.append(eventType.getSimpleName() + " (" + eventsByType.get(eventType).size() + ")\n");
-            email.append("------------------------------------------------------------------------------------------------------\n");
+            email.append(eventType.getSimpleName() + " (" + eventsByType.get(eventType).size() + ")\n\n");
+            email.append(String.format("%-6s %-16s %-16s %-9s %-20s %-3s %-9s %-7s %-7s %-4s %-5s %-3s%n",
+                "#", "BEGIN", "END", "MMSI", "NAME", "LOA", "TYPE", "LAT", "LON", "SOG", "COG", "HDG"));
+            email.append("--------------------------------------------------------------------------------------------------------------------\n");
             eventsByType.get(eventType).forEach(event -> {
                 Vessel vessel = event.getBehaviours().iterator().next().getVessel();
-                TrackingPoint tp = event.getBehaviours().iterator().next().getTrackingPoints().first();
-
-                email.append(String.format("%5d ", event.getId()));
+                TrackingPoint tp = event.getBehaviours().iterator().next().getTrackingPoints().last();
+                email.append(String.format("%6d ", event.getId()));
                 email.append(String.format("%16s ", DATE_FORMAT.format(event.getStartTime())));
                 email.append(String.format("%16s ", event.getEndTime() == null ? " " : DATE_FORMAT.format(event.getStartTime())));
                 email.append(String.format("%9d ", vessel.getMmsi()));
                 email.append(String.format("%-20s ", vessel.getName()));
-                email.append(String.format("%6.4f ", tp.getLatitude()));
-                email.append(String.format("%6.4f ", tp.getLongitude()));
-                email.append(String.format("%5.1f ", tp.getSpeedOverGround()));
-                email.append(String.format("%4.1f ", tp.getCourseOverGround()));
+                email.append(String.format("%3d ", vessel.getLength()));
+                email.append(String.format("%-9s ", Categorizer.mapShipTypeCategoryToString(Categorizer.mapShipTypeToCategory(vessel.getType()))).toUpperCase());
+                email.append(String.format("%7.4f ", tp.getLatitude()));
+                email.append(String.format("%7.4f ", tp.getLongitude()));
+                email.append(String.format("%4.1f ", tp.getSpeedOverGround()));
+                email.append(String.format("%5.1f ", tp.getCourseOverGround()));
                 email.append(String.format("%3.0f ", tp.getTrueHeading()));
                 email.append('\n');
             });
-            email.append("======================================================================================================\n");
+            email.append("====================================================================================================================\n");
             email.append("\n");
         });
         email.append("\n");

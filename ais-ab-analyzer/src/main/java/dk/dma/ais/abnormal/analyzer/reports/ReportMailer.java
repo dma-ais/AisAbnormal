@@ -61,6 +61,7 @@ public class ReportMailer {
                 email.addTo(receiver);
             }
             email.send();
+            LOG.info("Report sent with email to " + email.getToAddresses().toString() + " (\"" + subject + "\")");
         } catch (EmailException e) {
             LOG.error(e.getMessage(), e);
         }
