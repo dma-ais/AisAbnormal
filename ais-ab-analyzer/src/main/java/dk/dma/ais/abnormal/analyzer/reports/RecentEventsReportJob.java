@@ -97,7 +97,7 @@ public class RecentEventsReportJob implements Job {
         email.append("<pre>");
         eventsByType.keySet().forEach(eventType -> {
             email.append(eventType.getSimpleName() + " (" + eventsByType.get(eventType).size() + ")\n\n");
-            email.append(String.format("%-6s %-16s %-16s %-9s %-20s %-3s %-9s %-7s %-7s %-4s %-5s %-3s%n",
+            email.append(String.format("%-8s %-16s %-16s %-9s %-20s %-3s %-9s %-7s %-7s %-4s %-5s %-3s%n",
                 "#", "BEGIN", "END", "MMSI", "NAME", "LOA", "TYPE", "LAT", "LON", "SOG", "COG", "HDG"));
             email.append("----------------------------------------------------------------------------------------------------------------------\n");
             eventsByType.get(eventType).forEach(event -> {
