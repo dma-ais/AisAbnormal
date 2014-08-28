@@ -16,8 +16,8 @@
 
 package dk.dma.ais.abnormal.event.db.domain;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSet;
+import org.hibernate.annotations.Index;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.CascadeType;
@@ -30,7 +30,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Past;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
@@ -50,39 +49,33 @@ public abstract class Event {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    /**
-     * State of the event.
-     */
+    /** State of the event. */
     @NotNull
     @Enumerated(EnumType.STRING)
     private State state = State.ONGOING;
 
-    /**
-     * Time on which the event started.
-     */
+    /** Time on which the event started. */
     @NotNull
+    @Index(name="INDEX_EVENT_STARTTIME")
     private Date startTime;
 
-    /**
-     * Time on which the event ended.
-     */
+    /** Time on which the event ended. */
+    @Index(name="INDEX_EVENT_ENDTIME")
     private Date endTime;
 
-    /**
-     * The behaviour observed in connection with this event
-     */
+    /** True if this event is suppressed by an operator who concludes that this isn't an event */
+    @Index(name="INDEX_EVENT_SUPPRESSED")
+    private boolean suppressed = false;
+
+    /** The behaviour observed in connection with this event */
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<Behaviour> behaviours;
 
-    /**
-     * A title of the event in English language.
-     */
+    /** A title of the event in English language. */
     @NotBlank
     private String title;
 
-    /**
-     * A textual description of the event in English language.
-     */
+    /** A textual description of the event in English language. */
     private String description;
 
     protected Event() {
@@ -121,6 +114,14 @@ public abstract class Event {
         this.endTime = endTime;
     }
 
+    public boolean isSuppressed() {
+        return suppressed;
+    }
+
+    public void setSuppressed(boolean suppressed) {
+        this.suppressed = suppressed;
+    }
+
     public Behaviour getBehaviour(int mmsi) {
         Behaviour behaviour = null;
         try {
@@ -156,11 +157,17 @@ public abstract class Event {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("startTime", startTime)
-                .add("endTime", endTime)
-                .add("description", description)
-                .toString();
+        final StringBuffer sb = new StringBuffer("Event{");
+        sb.append("id=").append(id);
+        sb.append(", state=").append(state);
+        sb.append(", startTime=").append(startTime);
+        sb.append(", endTime=").append(endTime);
+        sb.append(", suppressed=").append(suppressed);
+        sb.append(", behaviours=").append(behaviours);
+        sb.append(", title='").append(title).append('\'');
+        sb.append(", description='").append(description).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 
     public enum State {

@@ -24,13 +24,16 @@ import dk.dma.ais.abnormal.event.rest.parameters.DateParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
+import java.util.Objects;
 
 @RequestScoped
 @Path("/event")
@@ -57,6 +60,35 @@ public class EventResource {
         return eventRepository.getEvent(id);
     }
 
+    @PUT
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Path("/{eventId}/suppress")
+    public void suppress(String suppressedAsString, @PathParam("eventId") Integer eventId) {
+        Objects.nonNull(suppressedAsString);
+        Objects.nonNull(eventId);
+
+        final boolean suppressed = Boolean.valueOf(suppressedAsString);
+
+        Event event = eventRepository.getEvent(eventId);
+        if (suppressed == true) {
+            if (event.isSuppressed()) {
+                LOG.warn("Event id " + eventId + " is already suppressed.");
+            } else {
+                event.setSuppressed(true);
+                eventRepository.save(event);
+                LOG.debug("Event id " + eventId + " is now suppressed.");
+            }
+        } else {
+            if (!event.isSuppressed()) {
+                LOG.warn("Event id " + eventId + " is already unsuppressed.");
+            } else {
+                event.setSuppressed(false);
+                eventRepository.save(event);
+                LOG.debug("Event id " + eventId + " is now unsuppressed.");
+            }
+        }
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/type")
@@ -67,17 +99,16 @@ public class EventResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Object get(
-            @QueryParam("from") DateParameter from,
-            @QueryParam("to") DateParameter to,
-            @QueryParam("type") String type,
-            @QueryParam("vessel") String vessel,
-            @QueryParam("numberOfRecentEvents") Integer numberOfRecentEvents,
-            @QueryParam("north") Double north,
-            @QueryParam("east") Double east,
-            @QueryParam("south") Double south,
-            @QueryParam("west") Double west
-        ) {
-
+        @QueryParam("from") DateParameter from,
+        @QueryParam("to") DateParameter to,
+        @QueryParam("type") String type,
+        @QueryParam("vessel") String vessel,
+        @QueryParam("numberOfRecentEvents") Integer numberOfRecentEvents,
+        @QueryParam("north") Double north,
+        @QueryParam("east") Double east,
+        @QueryParam("south") Double south,
+        @QueryParam("west") Double west
+    ) {
         // Check validity of parameters and parameter combinations
         if (north != null || east != null || south != null || west != null ) {
             if (! (north != null && east != null && south != null && west != null)) {

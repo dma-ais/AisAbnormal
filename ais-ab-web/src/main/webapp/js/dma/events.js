@@ -119,7 +119,7 @@ var eventModule = {
 
         var tableHtml  = "<table id='event-search-results' class='table'>"
         tableHtml += "<thead><tr>";
-        tableHtml += "<td class=\"no-sort\"></td><td>Id</td><td>Type</td><td data-date-format=\"ddmmyyyy\">Start</td><td>Type</td><td>LOA</td><td>Vessel</td>";
+        tableHtml += "<td class=\"no-sort\"></td><td>Id</td><td>Type</td><td data-date-format=\"ddmmyyyy\">Start</td><td>Type</td><td>LOA</td><td>Vessel</td><td class=\"no-sort\"></td>";
         tableHtml += "</tr></thead><tbody></tbody>";
         tableHtml += "</table>";
 
@@ -135,21 +135,26 @@ var eventModule = {
         var shipLength = event.behaviours[0].vessel.toBow + event.behaviours[0].vessel.toStern;
         var shipName = event.behaviours[0].vessel.name;
 
-        var searchResultHtml  = "<tr>";
-        searchResultHtml += "<td><span id='result-" + event.id + "' class='glyphicon glyphicon-film'></span></td>";
-        searchResultHtml += "<td class=\"text-right\">" + event.id + "</td>";
+        var searchResultHtml  = "<tr id='event-search-result-event-" + event.id + "'>";
+        searchResultHtml += "<td class='glyphicon-1'><span id='result-remove-" + event.id + "' class='glyphicon glyphicon-remove-sign' data-toggle='tooltip' title='Permanently suppress event'></span></td>";
+        searchResultHtml += "<td class='text-right'>" + event.id + "</td>";
         searchResultHtml += "<td>" + eventModule.camelCaseToSentenceCase(eventType); + "</td>";
         searchResultHtml += "<td>" + eventStart + "</td>";
-        searchResultHtml += "<td class=\"text-right\">" + shipType + "</td>";
-        searchResultHtml += "<td class=\"text-right\">" + shipLength + "</td>";
+        searchResultHtml += "<td class='text-right'>" + shipType + "</td>";
+        searchResultHtml += "<td class='text-right'>" + shipLength + "</td>";
         searchResultHtml += "<td>" + shipName + "</td>";
+        searchResultHtml += "<td class='glyphicon-1'><span id='result-show-" + event.id + "' class='glyphicon glyphicon-globe' data-toggle='tooltip' title='Show event on map'></span></td>";
         searchResultHtml += "</tr>";
 
         $('#event-search-modal .search-results .search-data tbody').append(searchResultHtml);
 
-        $("#event-search-modal .search-results #result-" + event.id).on("click", function() {
+        $("#event-search-modal .search-results #result-show-" + event.id).on("click", function() {
             eventModule.visualizeEvent(event);
             $('#event-search-modal').modal('hide');
+        });
+
+        $("#event-search-modal .search-results #result-remove-" + event.id).on("click", function() {
+            eventModule.suppressEvent(event);
         });
 
         eventModule.searchResults.push(event);
@@ -264,6 +269,17 @@ var eventModule = {
     visualizeEvent: function(event) {
         vesselModule.addEvent(event);
         eventModule.synchronizeEventsOnMapWithTable();
+    },
+
+    suppressEvent: function(event) {
+        var eventRequest = eventModule.eventResourceService + '/' + event.id + '/suppress';
+
+        $.ajax({url: eventRequest, type: 'PUT', contentType: 'text/plain', data: 'true', processData: false}).done(function (events) {
+            $('#event-search-result-event-' + event.id).remove();
+        }).fail(function (jqXHR, textStatus) {
+            console.log(jqXHR);
+            eventModule.setSearchCompleted("Search error: " + textStatus);
+        });
     },
 
     synchronizeEventsOnMapWithTable: function() {

@@ -70,7 +70,7 @@ public class JpaEventRepository implements EventRepository {
 
         List events = null;
         try {
-            Query query = session.createQuery("SELECT DISTINCT e.class AS c FROM Event e ORDER BY c");
+            Query query = session.createQuery("SELECT DISTINCT e.class AS c FROM Event e WHERE e.suppressed=false ORDER BY c");
             events = query.list();
         } finally {
             session.close();
@@ -114,10 +114,10 @@ public class JpaEventRepository implements EventRepository {
             StringBuilder hql = new StringBuilder();
 
             if (north != null && east != null && south != null && west != null) {
-                hql.append("SELECT DISTINCT e FROM Event e LEFT JOIN e.behaviours AS b LEFT JOIN b.trackingPoints AS tp WHERE latitude<:north AND latitude>:south AND longitude<:east AND longitude>:west AND ");
+                hql.append("SELECT DISTINCT e FROM Event e LEFT JOIN e.behaviours AS b LEFT JOIN b.trackingPoints AS tp WHERE e.suppressed=false AND latitude<:north AND latitude>:south AND longitude<:east AND longitude>:west AND ");
                 usesArea = true;
             } else {
-                hql.append("SELECT DISTINCT e FROM Event e LEFT JOIN e.behaviours AS b WHERE ");
+                hql.append("SELECT DISTINCT e FROM Event e LEFT JOIN e.behaviours AS b WHERE e.suppressed=false AND ");
             }
 
             // from
@@ -185,6 +185,9 @@ public class JpaEventRepository implements EventRepository {
             if (usesVessel) {
                 query.setParameter("vessel", vessel);
             }
+
+            LOG.debug("Query: " + query.toString());
+
             events = query.list();
         } finally {
             session.close();
@@ -203,8 +206,8 @@ public class JpaEventRepository implements EventRepository {
         try {
             StringBuilder hql = new StringBuilder();
             hql.append("SELECT e FROM Event e WHERE ");
-            hql.append("(e.startTime >= :from AND e.startTime <= :to) OR ");
-            hql.append("(e.endTime >= :from AND e.endTime <= :to)");
+            hql.append("(e.suppressed=false AND e.startTime >= :from AND e.startTime <= :to) OR ");
+            hql.append("(e.suppressed=false AND e.endTime >= :from AND e.endTime <= :to)");
 
             //
             Query query = session.createQuery(hql.toString());
@@ -226,7 +229,7 @@ public class JpaEventRepository implements EventRepository {
 
         List events = null;
         try {
-            Query query = session.createQuery("SELECT e FROM Event e ORDER BY e.startTime DESC");
+            Query query = session.createQuery("SELECT e FROM Event e WHERE e.suppressed=false ORDER BY e.startTime DESC");
             query.setMaxResults(numberOfEvents);
             events = query.list();
         } finally {
@@ -242,7 +245,7 @@ public class JpaEventRepository implements EventRepository {
 
         T event = null;
         try {
-            Query query = session.createQuery("SELECT e FROM Event e LEFT JOIN e.behaviours b WHERE TYPE(e) = :clazz AND e.state = :state AND b.vessel.mmsi = :mmsi");
+            Query query = session.createQuery("SELECT e FROM Event e LEFT JOIN e.behaviours b WHERE TYPE(e) = :clazz AND e.state = :state AND b.vessel.mmsi = :mmsi AND e.suppressed=false");
             query.setCacheable(true);
             query.setParameter("clazz", eventClass);
             query.setString("state", "ONGOING");

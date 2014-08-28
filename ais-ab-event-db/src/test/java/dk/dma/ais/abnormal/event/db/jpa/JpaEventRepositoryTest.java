@@ -170,6 +170,7 @@ public class JpaEventRepositoryTest {
 
         eventRepository.findEventsByFromAndToAndTypeAndVesselAndArea(from, to, "SpeedOverGroundEvent", "vessel", 56.1, 12.1, 56.0, 12.0);
 
+        assertTrue(queryString.getCapturedObject().toString().matches(".*suppressed=false.*"));
         assertTrue(queryString.getCapturedObject().toString().matches(".*WHERE.*latitude<:north.*"));
         assertTrue(queryString.getCapturedObject().toString().matches(".*WHERE.*latitude>:south.*"));
         assertTrue(queryString.getCapturedObject().toString().matches(".*WHERE.*longitude<:east.*"));
@@ -195,7 +196,7 @@ public class JpaEventRepositoryTest {
 
         eventRepository.findRecentEvents(3);
 
-        assertTrue(queryString.getCapturedObject().toString().matches("SELECT e FROM Event e ORDER BY e.startTime DESC"));
+        assertTrue(queryString.getCapturedObject().toString().matches("SELECT e FROM Event e WHERE e.suppressed=false ORDER BY e.startTime DESC"));
 
         context.assertIsSatisfied();
     }
@@ -213,7 +214,7 @@ public class JpaEventRepositoryTest {
 
         eventRepository.getEventTypes();
 
-        assertTrue(queryString.getCapturedObject().toString().matches("SELECT .* e.class .* FROM Event e .*"));
+        assertTrue(queryString.getCapturedObject().toString().matches("SELECT DISTINCT e.class AS c FROM Event e WHERE e.suppressed=false ORDER BY c"));
 
         context.assertIsSatisfied();
     }
