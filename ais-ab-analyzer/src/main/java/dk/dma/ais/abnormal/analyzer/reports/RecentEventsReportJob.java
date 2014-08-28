@@ -109,7 +109,7 @@ public class RecentEventsReportJob implements Job {
                 email.append(String.format("%9d ", vessel.getMmsi()));
                 email.append(String.format("%-20s ", vessel.getName()));
                 email.append(String.format("%3d ", vessel.getLength()));
-                email.append(String.format("%-9s ", Categorizer.mapShipTypeCategoryToString(Categorizer.mapShipTypeToCategory(vessel.getType()))).toUpperCase());
+                email.append(String.format("%-9s ", vessel.getType() == null ? "" : Categorizer.mapShipTypeCategoryToString(Categorizer.mapShipTypeToCategory(vessel.getType()))).toUpperCase());
                 email.append(String.format("%7.4f ", tp.getLatitude()));
                 email.append(String.format("%7.4f ", tp.getLongitude()));
                 email.append(String.format("%4.1f ", tp.getSpeedOverGround()));
