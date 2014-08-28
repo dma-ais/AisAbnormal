@@ -99,11 +99,11 @@ public class RecentEventsReportJob implements Job {
             email.append(eventType.getSimpleName() + " (" + eventsByType.get(eventType).size() + ")\n\n");
             email.append(String.format("%-6s %-16s %-16s %-9s %-20s %-3s %-9s %-7s %-7s %-4s %-5s %-3s%n",
                 "#", "BEGIN", "END", "MMSI", "NAME", "LOA", "TYPE", "LAT", "LON", "SOG", "COG", "HDG"));
-            email.append("--------------------------------------------------------------------------------------------------------------------\n");
+            email.append("----------------------------------------------------------------------------------------------------------------------\n");
             eventsByType.get(eventType).forEach(event -> {
                 Vessel vessel = event.getBehaviours().iterator().next().getVessel();
                 TrackingPoint tp = event.getBehaviours().iterator().next().getTrackingPoints().last();
-                email.append(String.format("%6d ", event.getId()));
+                email.append(String.format("%8d ", event.getId()));
                 email.append(String.format("%16s ", DATE_FORMAT.format(event.getStartTime())));
                 email.append(String.format("%16s ", event.getEndTime() == null ? " " : DATE_FORMAT.format(event.getStartTime())));
                 email.append(String.format("%9d ", vessel.getMmsi()));
@@ -117,7 +117,7 @@ public class RecentEventsReportJob implements Job {
                 email.append(String.format("%3.0f ", tp.getTrueHeading()));
                 email.append('\n');
             });
-            email.append("====================================================================================================================\n");
+            email.append("======================================================================================================================\n");
             email.append("\n");
         });
         email.append("\n");
