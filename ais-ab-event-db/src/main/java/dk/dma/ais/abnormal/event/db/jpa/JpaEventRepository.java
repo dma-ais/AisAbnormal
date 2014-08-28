@@ -150,6 +150,12 @@ public class JpaEventRepository implements EventRepository {
                 } catch (NumberFormatException e) {
                 }
                 hql.replace(hql.length()-3, hql.length(), ")"); // "OR " -> ")"
+                if (! vessel.startsWith("%")) {
+                    vessel = "%" + vessel;
+                }
+                if (! vessel.endsWith("%")) {
+                    vessel = vessel + "%";
+                }
                 usesVessel = true;
             }
 

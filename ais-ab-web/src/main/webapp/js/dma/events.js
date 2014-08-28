@@ -167,7 +167,7 @@ var eventModule = {
         var queryParams = {
             from: $('#search-event-from').val(),
             to: $('#search-event-to').val(),
-            vessel: '%' + $('#search-event-vessel').val().replace("*","%") + '%'
+            vessel: $('#search-event-vessel').val().replace("*","%")
         };
         if ($('#search-event-type').val().toLowerCase() != 'any') {
             queryParams['type'] = $('#search-event-type').val();
