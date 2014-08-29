@@ -213,9 +213,9 @@ public class JpaEventRepository implements EventRepository {
             StringBuilder hql = new StringBuilder();
             hql.append("SELECT e FROM Event e WHERE ");
             hql.append("(e.suppressed=false AND e.startTime >= :from AND e.startTime <= :to) OR ");
-            hql.append("(e.suppressed=false AND e.endTime >= :from AND e.endTime <= :to)");
+            hql.append("(e.suppressed=false AND e.endTime >= :from AND e.endTime <= :to) ");
+            hql.append("ORDER BY e.startTime");
 
-            //
             Query query = session.createQuery(hql.toString());
             query.setParameter("from", from);
             query.setParameter("to", to);
