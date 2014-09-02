@@ -40,7 +40,7 @@
         <dependency>
 			<groupId>dk.dma.enav</groupId>
 			<artifactId>enav-util</artifactId>
-            <version>0.4-SNAPSHOT</version>
+            <version>0.4</version>
 		</dependency>
 		<dependency>
 			<groupId>dk.dma.commons</groupId>
