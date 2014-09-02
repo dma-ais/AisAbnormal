@@ -43,7 +43,6 @@ import dk.dma.enav.model.geometry.BoundingBox;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.grid.Grid;
-import dk.dma.enav.util.function.Predicate;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -70,6 +69,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 
 public final class AbnormalAnalyzerAppModule extends AbstractModule {
     private static final Logger LOG = LoggerFactory.getLogger(AbnormalAnalyzerAppModule.class);
@@ -271,7 +271,7 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
         LocationFilter filter = new LocationFilter();
 
         if (tmpBbox == null) {
-            filter.addFilterGeometry(Predicate.TRUE);
+            filter.addFilterGeometry(e -> true);
         } else {
             final BoundingBox bbox = tmpBbox;
             filter.addFilterGeometry(new Predicate<Position>() {

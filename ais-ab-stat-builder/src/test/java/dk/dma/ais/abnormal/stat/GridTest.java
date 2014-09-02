@@ -24,13 +24,13 @@ import dk.dma.ais.reader.AisReaders;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.grid.Cell;
 import dk.dma.enav.model.geometry.grid.Grid;
-import dk.dma.enav.util.function.Consumer;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 public class GridTest {
     
@@ -45,7 +45,7 @@ public class GridTest {
         
         //AisReader reader = AisReaders.createReaderFromFile("/tmp/ais_dk_76h.txt.gz");
         AisReader reader = AisReaders.createReaderFromFile("src/test/resources/ais-sample.txt.gz");
-        reader.registerPacketHandler(new Consumer<AisPacket>() {            
+        reader.registerPacketHandler(new Consumer<AisPacket>() {
             @Override
             public void accept(AisPacket p) {
                 if (df.rejectedByFilter(p)) {

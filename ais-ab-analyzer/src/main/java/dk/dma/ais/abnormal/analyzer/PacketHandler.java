@@ -17,7 +17,8 @@
 package dk.dma.ais.abnormal.analyzer;
 
 import dk.dma.ais.packet.AisPacket;
-import dk.dma.enav.util.function.Consumer;
+
+import java.util.function.Consumer;
 
 public interface PacketHandler extends Consumer<AisPacket> {
 }
