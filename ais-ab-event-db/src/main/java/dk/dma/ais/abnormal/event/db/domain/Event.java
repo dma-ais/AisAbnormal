@@ -17,6 +17,8 @@
 package dk.dma.ais.abnormal.event.db.domain;
 
 import com.google.common.collect.ImmutableSet;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Index;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -24,7 +26,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -68,7 +69,8 @@ public abstract class Event {
     private boolean suppressed = false;
 
     /** The behaviour observed in connection with this event */
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
+    @Fetch(FetchMode.JOIN)
     private Set<Behaviour> behaviours;
 
     /** A title of the event in English language. */

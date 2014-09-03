@@ -17,6 +17,8 @@
 package dk.dma.ais.abnormal.event.db.domain;
 
 import com.google.common.collect.ImmutableSortedSet;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -87,7 +89,8 @@ public class Behaviour {
     private Vessel vessel;
 
     @NotNull
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
+    @Fetch(FetchMode.JOIN)
     @OrderBy("timestamp")
     private List<TrackingPoint> trackingPoints;
 

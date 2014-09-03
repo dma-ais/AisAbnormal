@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 import java.util.List;
 
+import static java.lang.System.currentTimeMillis;
+
 /**
  * JpaEventRepository is an implementation of the EventRepository interface which
  * manages persistent Event objects in a relational database accessed via Hibernate.
@@ -61,6 +63,7 @@ public class JpaEventRepository implements EventRepository {
         if (readonly) {
             session.setDefaultReadOnly(true);
         }
+
         return session;
     }
 
@@ -113,11 +116,17 @@ public class JpaEventRepository implements EventRepository {
         try {
             StringBuilder hql = new StringBuilder();
 
+            hql.append("SELECT e FROM Event e ");
+
+            if (! StringUtils.isBlank(vessel)) {
+                hql.append("LEFT JOIN e.behaviours AS b ");
+            }
+
             if (north != null && east != null && south != null && west != null) {
-                hql.append("SELECT DISTINCT e FROM Event e LEFT JOIN e.behaviours AS b LEFT JOIN b.trackingPoints AS tp WHERE e.suppressed=false AND latitude<:north AND latitude>:south AND longitude<:east AND longitude>:west AND ");
+                hql.append("LEFT JOIN b.trackingPoints AS tp WHERE e.suppressed=false AND latitude<:north AND latitude>:south AND longitude<:east AND longitude>:west AND ");
                 usesArea = true;
             } else {
-                hql.append("SELECT DISTINCT e FROM Event e LEFT JOIN e.behaviours AS b WHERE e.suppressed=false AND ");
+                hql.append("WHERE e.suppressed=false AND ");
             }
 
             // from
@@ -194,7 +203,12 @@ public class JpaEventRepository implements EventRepository {
 
             LOG.debug("Query: " + query.toString());
 
+            final long t0 = currentTimeMillis();
             events = query.list();
+            final long t1 = currentTimeMillis();
+
+            LOG.debug("Query took " + (t1-t0) + " msecs.");
+
         } finally {
             session.close();
         }
@@ -219,6 +233,7 @@ public class JpaEventRepository implements EventRepository {
             Query query = session.createQuery(hql.toString());
             query.setParameter("from", from);
             query.setParameter("to", to);
+
             events = query.list();
         } finally {
             session.close();
