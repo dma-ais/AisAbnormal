@@ -116,14 +116,14 @@ public class JpaEventRepository implements EventRepository {
         try {
             StringBuilder hql = new StringBuilder();
 
-            hql.append("SELECT e FROM Event e ");
+            hql.append("SELECT DISTINCT e FROM Event e ");
 
             if (! StringUtils.isBlank(vessel)) {
                 hql.append("LEFT JOIN e.behaviours AS b ");
             }
 
             if (north != null && east != null && south != null && west != null) {
-                hql.append("LEFT JOIN b.trackingPoints AS tp WHERE e.suppressed=false AND latitude<:north AND latitude>:south AND longitude<:east AND longitude>:west AND ");
+                hql.append("LEFT JOIN e.behaviours AS b LEFT JOIN b.trackingPoints AS tp WHERE e.suppressed=false AND latitude<:north AND latitude>:south AND longitude<:east AND longitude>:west AND ");
                 usesArea = true;
             } else {
                 hql.append("WHERE e.suppressed=false AND ");
@@ -202,13 +202,10 @@ public class JpaEventRepository implements EventRepository {
             }
 
             LOG.debug("Query: " + query.toString());
-
             final long t0 = currentTimeMillis();
             events = query.list();
             final long t1 = currentTimeMillis();
-
-            LOG.debug("Query took " + (t1-t0) + " msecs.");
-
+            LOG.debug("Found " + events.size() + " matching events in " + (t1-t0) + " msecs.");
         } finally {
             session.close();
         }
