@@ -18,6 +18,8 @@ var eventModule = {
         $('#event-search-by-id').click(eventModule.findEventById);
         $('#event-search-by-other').click(eventModule.findEventByCriteria);
 
+        $('div#event-search-warning').hide();
+
         $('#search-event-type').empty();
         $('#search-event-type').append('<option value="any">Any</option>');
         var eventTypeRequest = eventModule.eventResourceService + "/type"
@@ -162,7 +164,6 @@ var eventModule = {
 
     findEventByCriteria: function () {
         eventModule.clearSearchResults();
-        eventModule.setSearchStarted("Searching...");
 
         var queryParams = {
             from: $('#search-event-from').val(),
@@ -180,28 +181,52 @@ var eventModule = {
             queryParams['west'] = bounds.left;
         }
 
-        var eventRequest = eventModule.eventResourceService + "?" + $.param(queryParams);
+        var fromEntered = queryParams.from != undefined && $.trim(queryParams.from).length >= 10;
+        var toEntered = queryParams.to != undefined && $.trim(queryParams.to).length >= 10;
+        var vesselEntered = queryParams.vessel != undefined && $.trim(queryParams.vessel).length >= 1;
 
-        $.getJSON(eventRequest).done(function (events) {
-            $.each(events, function (idx, event) {
-                eventModule.addSearchResult(event);
-            });
-            $("table#event-search-results").tablesorter(
-                {
-                    theme : 'bootstrap',
-                    headerTemplate: '{content} {icon}',
-                    widgets: ['zebra','columns', 'uitheme'],
-                    headers: {
-                        '.no-sort' : {
-                            sorter: false
+        if (vesselEntered || (fromEntered && toEntered)) {
+            eventModule.setSearchStarted("Searching...");
+            if ($('div#event-search-warning').is(':visible')) {
+                $('div#event-search-warning').slideUp("fast");
+            }
+
+            var start_time = new Date();
+
+            var eventRequest = eventModule.eventResourceService + "?" + $.param(queryParams);
+
+            $.getJSON(eventRequest).done(function (events) {
+                $.each(events, function (idx, event) {
+                    eventModule.addSearchResult(event);
+                });
+                $("table#event-search-results").tablesorter(
+                    {
+                        theme: 'bootstrap',
+                        headerTemplate: '{content} {icon}',
+                        widgets: ['zebra', 'columns', 'uitheme'],
+                        headers: {
+                            '.no-sort': {
+                                sorter: false
+                            }
                         }
                     }
-                }
-            );
-            eventModule.setSearchCompleted("Found " + events.length + " matching events.");
-        }).fail(function (jqXHR, textStatus) {
-            eventModule.setSearchCompleted("Search error: " + textStatus);
-        });
+                );
+
+                var end_time = new Date();
+
+                eventModule.setSearchCompleted("Found " + events.length + " matching events in " + (end_time-start_time) + " msecs.");
+            }).fail(function (jqXHR, textStatus) {
+                eventModule.setSearchCompleted("Search error: " + textStatus);
+            });
+        } else {
+            $('div#event-search-warning').empty();
+            $('div#event-search-warning').append("<div><b>ERROR! Please enter either 'from'+'to' or 'vessel'.</b></div>");
+
+            if (! $('div#event-search-warning').is(':visible')) {
+                    $('div#event-search-warning').slideDown("fast");
+            }
+        }
+
     },
 
     findEventById: function () {
