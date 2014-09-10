@@ -23,6 +23,12 @@ import org.apache.commons.mail.HtmlEmail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The ReportMailer will send a message consisting of a subject and a body to a
+ * pre-configured set of recipients.
+ *
+ * @author Thomas Borg Salling <tbsalling@tbsalling.dk>
+ */
 public class ReportMailer {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReportMailer.class);
@@ -31,9 +37,11 @@ public class ReportMailer {
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
 
+    /** The application main configuration class */
     @Inject
     Configuration configuration;
 
+    /* The configuration keys used for lookup in the main configuration class */
     public static final String CONFKEY_SMTP_HOST = "reports.mailer.smtp.host";
     public static final String CONFKEY_SMTP_PORT = "reports.mailer.smtp.port";
     public static final String CONFKEY_SMTP_USER = "reports.mailer.smtp.user";
@@ -42,7 +50,12 @@ public class ReportMailer {
     public static final String CONFKEY_SMTP_FROM = "reports.mailer.smtp.from";
     public static final String CONFKEY_SMTP_TO   = "reports.mailer.smtp.to";
 
-    public void sendReport(String subject, String body) {
+    /**
+     * Send email with subject and message body.
+     * @param subject the email subject.
+     * @param body the email body.
+     */
+    public void send(String subject, String body) {
         try {
             HtmlEmail email = new HtmlEmail();
             email.setHostName(configuration.getString(CONFKEY_SMTP_HOST, "localhost"));

@@ -46,6 +46,8 @@ import java.util.List;
  * The Analysis class provides basic methods to its subclasses, so they can reuse the code to raise and
  * lower events.
  *
+ * @author Thomas Borg Salling <tbsalling@tbsalling.dk>
+ *
  */
 public abstract class Analysis {
 

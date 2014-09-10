@@ -24,6 +24,8 @@ import dk.dma.ais.abnormal.tracker.Tracker;
 /**
  * This class provides basic and common functionality to Analysis-es which are based
  * on comparison of current track behaviour with statistic data based on history behaviours.
+ *
+ * @author Thomas Borg Salling <tbsalling@tbsalling.dk>
  */
 public abstract class StatisticBasedAnalysis extends Analysis {
 

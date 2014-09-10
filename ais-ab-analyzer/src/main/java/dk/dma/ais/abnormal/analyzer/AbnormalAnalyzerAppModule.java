@@ -71,6 +71,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
+/**
+ * This is the Google Guice module class which defines creates objects to be injected by Guice.
+ *
+ * @author Thomas Borg Salling <tbsalling@tbsalling.dk>
+ */
 public final class AbnormalAnalyzerAppModule extends AbstractModule {
     private static final Logger LOG = LoggerFactory.getLogger(AbnormalAnalyzerAppModule.class);
     {

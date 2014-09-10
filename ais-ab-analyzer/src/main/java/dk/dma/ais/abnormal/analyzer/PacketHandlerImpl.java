@@ -67,6 +67,11 @@ public class PacketHandlerImpl implements PacketHandler {
         this.analyses.forEach(analysis -> analysis.start());
     }
 
+    /**
+     * Receive and process one AisPacket.
+     *
+     * @param packet The AisPacket to process.
+     */
     public void accept(final AisPacket packet) {
         statisticsService.incUnfilteredPacketCount();
 

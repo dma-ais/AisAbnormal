@@ -57,6 +57,8 @@ import static dk.dma.ais.abnormal.util.TrackPredicates.isUnknownTypeOrSize;
  * This analysis manages events where a vessel has an "abnormal" speed over ground
  * relative to the previous observations for vessels in the same grid cell. Statistics
  * for previous observations are stored in the StatisticDataRepository.
+ *
+ * @author Thomas Borg Salling <tbsalling@tbsalling.dk>
  */
 public class SpeedOverGroundAnalysis extends StatisticBasedAnalysis {
     private static final Logger LOG = LoggerFactory.getLogger(SpeedOverGroundAnalysis.class);

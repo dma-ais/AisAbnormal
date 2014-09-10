@@ -58,6 +58,8 @@ import static dk.dma.ais.abnormal.util.TrackPredicates.isUnknownTypeOrSize;
  * and size is "abnormal" for the current position (grid cell) relative to previous
  * observations for vessels in the same grid cell. Statistics for previous observations
  * are stored in the StatisticDataRepository.
+ *
+ * @author Thomas Borg Salling <tbsalling@tbsalling.dk>
  */
 public class ShipTypeAndSizeAnalysis extends StatisticBasedAnalysis {
     private static final Logger LOG = LoggerFactory.getLogger(ShipTypeAndSizeAnalysis.class);

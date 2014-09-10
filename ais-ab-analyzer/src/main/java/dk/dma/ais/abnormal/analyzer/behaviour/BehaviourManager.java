@@ -24,6 +24,8 @@ import dk.dma.ais.abnormal.tracker.Track;
  * If the behaviour is to that it can be considered abnormal, then a request to raise an event is posted on
  * the event bus. If a track is already considered behaving abnormally but starts to behave normally, then a
  * request to lower an event is posted on the event bus.
+ *
+ * @author Thomas Borg Salling <tbsalling@tbsalling.dk>
  */
 public interface BehaviourManager {
     /**

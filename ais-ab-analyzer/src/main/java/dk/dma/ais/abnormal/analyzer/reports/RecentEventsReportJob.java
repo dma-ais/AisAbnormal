@@ -37,6 +37,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * This class is a Job which is executed to generate a "recent events" report.
+ *
+ * A recent event report is a list of events raised since the previous run of this job.
+ * At the first invocation, the report contains events from the previous 24 hours.
+ *
+ * @author Thomas Borg Salling <tbsalling@tbsalling.dk>
+ */
 @NotThreadSafe
 @Singleton
 public class RecentEventsReportJob implements Job {
@@ -64,6 +72,12 @@ public class RecentEventsReportJob implements Job {
     public RecentEventsReportJob() {
     }
 
+    /**
+     * The execute method is triggered by the scheduler, when the report should be generated.
+     *
+     * @param jobExecutionContext
+     * @throws JobExecutionException
+     */
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         LOG.debug("RecentEventsReportJob triggered");
@@ -74,7 +88,7 @@ public class RecentEventsReportJob implements Job {
 
         Multimap<Class<? extends Event>, Event> eventsByType = getEventsByType(t1.toDate(), t2.toDate());
         String reportBody = generateReportBody(t1.toDate(), t2.toDate(), eventsByType);
-        reportMailer.sendReport("Abnormal events", reportBody);
+        reportMailer.send("Abnormal events", reportBody);
 
         LOG.debug("RecentEventsReportJob finished");
     }

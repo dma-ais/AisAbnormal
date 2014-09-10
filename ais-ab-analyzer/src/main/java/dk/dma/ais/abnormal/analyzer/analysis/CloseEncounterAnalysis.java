@@ -71,6 +71,8 @@ import static java.util.stream.Collectors.toSet;
  * This analysis is rather extensive, and we can therefore now allow to block the EventBus
  * for the duration of a complete analysis. Instead the worked is spawned to a separate worker
  * thread.
+ *
+ * @author Thomas Borg Salling <tbsalling@tbsalling.dk>
  */
 @NotThreadSafe
 public class CloseEncounterAnalysis extends Analysis {

@@ -34,6 +34,8 @@ import org.slf4j.LoggerFactory;
  * If more than the threshold of abnormal behaviours are observed, then a request to raise an event is posted on
  * the event bus (if no such event was already raised). If more than the the threshold of normal behaviours are
  * observed, then a request to lower an event is posted on the event bus (if an event was requested raised earlier).
+ *
+ * @author Thomas Borg Salling <tbsalling@tbsalling.dk>
  */
 public class BehaviourManagerImpl implements BehaviourManager {
 
@@ -67,6 +69,14 @@ public class BehaviourManagerImpl implements BehaviourManager {
         eventBus.register(this);
     }
 
+    /**
+     * If an abnormal behaviour is detected (by an Analysis), then it can call this method
+     * to indicate it. It is then up to the BehaviourManager to actually raise an event, if
+     * a sufficient number of event detections have occured in a row.
+     *
+     * @param eventClass the type of event detected.
+     * @param track the track for which the event is detected.
+     */
     @Override
     public void abnormalBehaviourDetected(Class<? extends Event> eventClass, Track track) {
         if (!getEventRaised(eventClass, track)) {
@@ -94,6 +104,14 @@ public class BehaviourManagerImpl implements BehaviourManager {
         }
     }
 
+    /**
+     * If an normal behaviour is detected (by an Analysis), then it can call this method
+     * to indicate it. It is then up to the BehaviourManager to manage when the event
+     * should be lowered.
+     *
+     * @param eventClass the type of event analysed for.
+     * @param track the track for which the event is analysed (but not detected).
+     */
     @Override
     public void normalBehaviourDetected(Class<? extends Event> eventClass, Track track) {
         if (getEventRaised(eventClass, track)) {
@@ -123,6 +141,13 @@ public class BehaviourManagerImpl implements BehaviourManager {
         }
     }
 
+    /**
+     * If the track has gone stale (missing, deleted) - then this method can be called to
+     * free up related resources held by the BehaviourManager.
+     *
+     * @param eventClass the event class analysed for by the calling Analysis.
+     * @param track the track which has gone stale.
+     */
     @Override
     public void trackStaleDetected(Class<? extends Event> eventClass, Track track) {
         removeEventRaised(eventClass, track);
@@ -134,6 +159,13 @@ public class BehaviourManagerImpl implements BehaviourManager {
         eventBus.register(subscriber);
     }
 
+    /**
+     * Get the EventCertainty for the given event class and track.
+     *
+     * @param eventClass the event class.
+     * @param track the track.
+     * @return the event certainty.
+     */
     @Override
     public EventCertainty getEventCertaintyAtCurrentPosition(Class<? extends Event> eventClass, Track track) {
         EventCertainty eventCertainty = null;

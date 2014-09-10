@@ -29,6 +29,12 @@ import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
+/**
+ * The Report Scheduler configures a schedule of all periodic reports to be
+ * automatically generated and distributed.
+ *
+ * @author Thomas Borg Salling <tbsalling@tbsalling.dk>
+ */
 public class ReportScheduler {
 
     public static final String CONFKEY_REPORTS_ENABLED = "reports.enabled";

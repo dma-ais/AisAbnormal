@@ -21,6 +21,12 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 
+/**
+ * This class is needed to support URLs starting with "tcp://". Specifically
+ * included to support the -aisDataSourceUrl command line argument.
+ *
+ * @author Thomas Borg Salling <tbsalling@tbsalling.dk>
+ */
 public class Handler extends URLStreamHandler
 {
     @Override

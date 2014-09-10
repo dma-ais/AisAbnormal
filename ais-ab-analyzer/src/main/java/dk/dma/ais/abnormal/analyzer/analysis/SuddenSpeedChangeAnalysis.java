@@ -67,6 +67,8 @@ import static dk.dma.ais.abnormal.util.TrackPredicates.isVeryLongVessel;
  * the speed must stay below 1 knot for a least 1 minute before an event is raised.
  *
  * This analysis is not based on previous observations (statistic data).
+ *
+ * @author Thomas Borg Salling <tbsalling@tbsalling.dk>
  */
 
 public class SuddenSpeedChangeAnalysis extends Analysis {

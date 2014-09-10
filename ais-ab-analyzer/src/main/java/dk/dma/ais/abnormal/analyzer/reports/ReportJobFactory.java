@@ -26,6 +26,8 @@ import org.quartz.spi.TriggerFiredBundle;
 
 /**
  * This class performs integration between Google Guice and Quartz Scheduler.
+ *
+ * @author Thomas Borg Salling <tbsalling@tbsalling.dk>
  */
 public class ReportJobFactory implements JobFactory {
 

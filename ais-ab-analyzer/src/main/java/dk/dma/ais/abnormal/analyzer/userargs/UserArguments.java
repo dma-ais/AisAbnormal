@@ -21,6 +21,14 @@ import com.google.common.base.Strings;
 
 import java.net.URL;
 
+/**
+ * The UserArguments class defines names, help texts, and default values for all
+ * command line arguments accepted by the application.
+ *
+ * It also holds typed copies of the command line arguments after application launch.
+ *
+ * @author Thomas Borg Salling <tbsalling@tbsalling.dk>
+ */
 @SuppressWarnings("FieldCanBeLocal")
 public class UserArguments {
 

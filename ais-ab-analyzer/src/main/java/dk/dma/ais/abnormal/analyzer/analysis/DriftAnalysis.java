@@ -61,6 +61,8 @@ import static dk.dma.ais.abnormal.util.TrackPredicates.isVeryLongVessel;
  * show a significant deviation between cog and hdg then an event is raised.
  *
  * This analysis is not based on previous observations (statistic data).
+ *
+ * @author Thomas Borg Salling <tbsalling@tbsalling.dk>
  */
 
 public class DriftAnalysis extends Analysis {
