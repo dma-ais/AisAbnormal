@@ -25,6 +25,8 @@ import org.quartz.Trigger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_REPORTS_ENABLED;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_REPORTS_RECENTEVENTS_CRON;
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
@@ -36,9 +38,6 @@ import static org.quartz.TriggerBuilder.newTrigger;
  * @author Thomas Borg Salling <tbsalling@tbsalling.dk>
  */
 public class ReportScheduler {
-
-    public static final String CONFKEY_REPORTS_ENABLED = "reports.enabled";
-    public static final String CONFKEY_SMTP_CRON = "reports.recentevents.cron";
 
     private final Scheduler scheduler;
 
@@ -97,7 +96,7 @@ public class ReportScheduler {
                 .withIdentity("DailyEventsReportJobTrigger")
                 .startNow()
                 // sec min hour dom mon dow year
-                .withSchedule(cronSchedule(configuration.getString(CONFKEY_SMTP_CRON, "0/30 * * * * ?")))
+                .withSchedule(cronSchedule(configuration.getString(CONFKEY_REPORTS_RECENTEVENTS_CRON, "0/30 * * * * ?")))
                 .build();
 
             scheduler.scheduleJob(job, trigger);

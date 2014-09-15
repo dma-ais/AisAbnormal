@@ -20,6 +20,8 @@ import dk.dma.ais.filter.GeoMaskFilter;
 import dk.dma.enav.model.geometry.BoundingBox;
 import org.junit.Test;
 
+import java.io.File;
+import java.net.URL;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -29,18 +31,8 @@ public class AbnormalAnalyzerAppModuleTest {
 
     @Test
     public void canReadXmlResourceForGeoMaskFilter() throws Exception {
-        AbnormalAnalyzerAppModule appModule = new AbnormalAnalyzerAppModule(
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
-        );
+        URL configResource = this.getClass().getClassLoader().getResource("analyzer.properties");
+        AbnormalAnalyzerAppModule appModule = new AbnormalAnalyzerAppModule(new File(configResource.toURI()).toPath());
 
         GeoMaskFilter geoMaskFilter = appModule.provideGeoMaskFilter();
         List<BoundingBox> boundingBoxes = geoMaskFilter.getSuppressedBoundingBoxes();

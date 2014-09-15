@@ -23,6 +23,15 @@ import org.apache.commons.mail.HtmlEmail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_REPORTS_MAILER_SMTP_FROM;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_REPORTS_MAILER_SMTP_HOST;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_REPORTS_MAILER_SMTP_PASS;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_REPORTS_MAILER_SMTP_PORT;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_REPORTS_MAILER_SMTP_SSL;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_REPORTS_MAILER_SMTP_TO;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_REPORTS_MAILER_SMTP_USER;
+
+
 /**
  * The ReportMailer will send a message consisting of a subject and a body to a
  * pre-configured set of recipients.
@@ -41,15 +50,6 @@ public class ReportMailer {
     @Inject
     Configuration configuration;
 
-    /* The configuration keys used for lookup in the main configuration class */
-    public static final String CONFKEY_SMTP_HOST = "reports.mailer.smtp.host";
-    public static final String CONFKEY_SMTP_PORT = "reports.mailer.smtp.port";
-    public static final String CONFKEY_SMTP_USER = "reports.mailer.smtp.user";
-    public static final String CONFKEY_SMTP_PASS = "reports.mailer.smtp.pass";
-    public static final String CONFKEY_SMTP_SSL  = "reports.mailer.smtp.ssl";
-    public static final String CONFKEY_SMTP_FROM = "reports.mailer.smtp.from";
-    public static final String CONFKEY_SMTP_TO   = "reports.mailer.smtp.to";
-
     /**
      * Send email with subject and message body.
      * @param subject the email subject.
@@ -58,18 +58,18 @@ public class ReportMailer {
     public void send(String subject, String body) {
         try {
             HtmlEmail email = new HtmlEmail();
-            email.setHostName(configuration.getString(CONFKEY_SMTP_HOST, "localhost"));
-            email.setSmtpPort(configuration.getInt(CONFKEY_SMTP_PORT, 465));
+            email.setHostName(configuration.getString(CONFKEY_REPORTS_MAILER_SMTP_HOST, "localhost"));
+            email.setSmtpPort(configuration.getInt(CONFKEY_REPORTS_MAILER_SMTP_PORT, 465));
             email.setAuthenticator(new DefaultAuthenticator(
-                configuration.getString(CONFKEY_SMTP_USER, "anonymous"),
-                configuration.getString(CONFKEY_SMTP_PASS, "guest")
+                configuration.getString(CONFKEY_REPORTS_MAILER_SMTP_USER, "anonymous"),
+                configuration.getString(CONFKEY_REPORTS_MAILER_SMTP_PASS, "guest")
             ));
             email.setStartTLSEnabled(false);
-            email.setSSLOnConnect(configuration.getBoolean(CONFKEY_SMTP_SSL, true));
-            email.setFrom(configuration.getString(CONFKEY_SMTP_FROM, ""));
+            email.setSSLOnConnect(configuration.getBoolean(CONFKEY_REPORTS_MAILER_SMTP_SSL, true));
+            email.setFrom(configuration.getString(CONFKEY_REPORTS_MAILER_SMTP_FROM, ""));
             email.setSubject(subject);
             email.setHtmlMsg(body);
-            String[] receivers = configuration.getStringArray(CONFKEY_SMTP_TO);
+            String[] receivers = configuration.getStringArray(CONFKEY_REPORTS_MAILER_SMTP_TO);
             for (String receiver : receivers) {
                 email.addTo(receiver);
             }

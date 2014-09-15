@@ -16,6 +16,7 @@
 
 package dk.dma.ais.abnormal.analyzer;
 
+import com.google.common.io.ByteStreams;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
@@ -43,7 +44,6 @@ import dk.dma.enav.model.geometry.BoundingBox;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.grid.Grid;
-import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -65,11 +65,28 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
+
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_AIS_DATASOURCE_DOWNSAMPLING;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_AIS_DATASOURCE_URL;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_H2_FILE;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_PGSQL_HOST;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_PGSQL_NAME;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_PGSQL_PASSWORD;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_PGSQL_PORT;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_PGSQL_USERNAME;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_REPOSITORY_TYPE;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_FILTER_LOCATION_BBOX_EAST;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_FILTER_LOCATION_BBOX_NORTH;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_FILTER_LOCATION_BBOX_SOUTH;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_FILTER_LOCATION_BBOX_WEST;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_STATISTICS_FILE;
 
 /**
  * This is the Google Guice module class which defines creates objects to be injected by Guice.
@@ -82,28 +99,11 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
 
-    private final URL aisDataSourceUrl;
-    private final String statistics;
-    private final String pathToEventDatabase;
-    private final Integer downSampling;
-    private final String eventRepositoryType;
-    private final String eventDataDbHost;
-    private final Integer eventDataDbPort;
-    private final String eventDataDbName;
-    private final String eventDataDbUsername;
-    private final String eventDataDbPassword;
+    private final Path configFile;
 
-    public AbnormalAnalyzerAppModule(URL aisDataSourceUrl, String statistics, String eventDataDbFile, Integer downSampling, String eventRepositoryType, String eventDataDbHost, Integer eventDataDbPort, String eventDataDbName, String eventDataDbUsername, String eventDataDbPassword) {
-        this.aisDataSourceUrl = aisDataSourceUrl;
-        this.statistics = statistics;
-        this.pathToEventDatabase = eventDataDbFile;
-        this.downSampling = downSampling;
-        this.eventRepositoryType = eventRepositoryType;
-        this.eventDataDbHost = eventDataDbHost;
-        this.eventDataDbPort = eventDataDbPort;
-        this.eventDataDbName = eventDataDbName;
-        this.eventDataDbUsername = eventDataDbUsername;
-        this.eventDataDbPassword = eventDataDbPassword;
+    public AbnormalAnalyzerAppModule(Path configFile) {
+        this.configFile = configFile;
+        provideConfiguration();
     }
 
     @Override
@@ -123,27 +123,54 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     @Provides
     @Singleton
     Configuration provideConfiguration() {
-        Configuration configuration = null;
-        try {
-            PropertiesConfiguration configFile = new PropertiesConfiguration("analyzer.properties") ;
-            configuration = configFile;
-            LOG.info("Loaded configuration file " + configFile.getFile().toString() + ".");
-        } catch (ConfigurationException e) {
-            configuration = new BaseConfiguration();
-            LOG.warn(e.getMessage() + ". Using blank configuration.");
+        PropertiesConfiguration configuration = null;
+        if (Files.exists(configFile)) {
+            try {
+                configuration = new PropertiesConfiguration(configFile.toFile());
+            } catch (ConfigurationException e) {
+                LOG.error(e.getMessage(), e);
+                System.exit(-1);
+            }
+            LOG.info("Using configuration file: " + configFile);
         }
+        if (configuration == null) {
+            LOG.error("Could not find configuration file: " + configFile);
+            printConfigurationTemplate();
+            System.exit(-1);
+        }
+        if (configuration.isEmpty()) {
+            LOG.error("Configuration file was empty: " + configFile);
+            printConfigurationTemplate();
+            System.exit(-1);
+        }
+        if (! dk.dma.ais.abnormal.analyzer.config.Configuration.isValid(configuration)) {
+            LOG.error("Configuration is invalid: " + configFile);
+            printConfigurationTemplate();
+            System.exit(-1);
+        }
+        LOG.info("Configuration file located, read and presumed valid.");
         return configuration;
+    }
+
+    private void printConfigurationTemplate() {
+        InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream("analyzer.properties");
+
+        System.out.println("Use this template for configuration file:");
+        System.out.println("-----------------------------------------");
+        try {
+            ByteStreams.copy(resourceAsStream, System.out);
+        } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
+        }
+        System.out.println("-----------------------------------------");
     }
 
     @Provides
     ReplayDownSampleFilter provideReplayDownSampleFilter() {
-        ReplayDownSampleFilter filter = null;
-        try {
-            filter = new ReplayDownSampleFilter(downSampling);
-            LOG.info("Created ReplayDownSampleFilter with down sampling period of " + downSampling + " secs.");
-        } catch (Exception e) {
-            LOG.error("Failed to create ReplayDownSampleFilter object", e);
-        }
+        Configuration configuration = getConfiguration();
+        int downsampling = configuration.getInt(CONFKEY_AIS_DATASOURCE_DOWNSAMPLING, 0);
+        ReplayDownSampleFilter filter = new ReplayDownSampleFilter(downsampling);
+        LOG.info("Created ReplayDownSampleFilter with down sampling period of " + downsampling + " secs.");
         return filter;
     }
 
@@ -151,12 +178,19 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     @Singleton
     EventRepository provideEventRepository() {
         SessionFactory sessionFactory;
-
+        Configuration configuration = getConfiguration();
+        String eventRepositoryType = configuration.getString(CONFKEY_EVENTS_REPOSITORY_TYPE);
         try {
             if ("h2".equalsIgnoreCase(eventRepositoryType)) {
-                    sessionFactory = JpaSessionFactoryFactory.newH2SessionFactory(new File(pathToEventDatabase));
+                sessionFactory = JpaSessionFactoryFactory.newH2SessionFactory(new File(configuration.getString(CONFKEY_EVENTS_H2_FILE)));
             } else if ("pgsql".equalsIgnoreCase(eventRepositoryType)) {
-                sessionFactory = JpaSessionFactoryFactory.newPostgresSessionFactory(eventDataDbHost, eventDataDbPort, eventDataDbName, eventDataDbUsername, eventDataDbPassword);
+                sessionFactory = JpaSessionFactoryFactory.newPostgresSessionFactory(
+                        configuration.getString(CONFKEY_EVENTS_PGSQL_HOST),
+                        configuration.getInt(CONFKEY_EVENTS_PGSQL_PORT, 8432),
+                        configuration.getString(CONFKEY_EVENTS_PGSQL_NAME),
+                        configuration.getString(CONFKEY_EVENTS_PGSQL_USERNAME),
+                        configuration.getString(CONFKEY_EVENTS_PGSQL_PASSWORD)
+                );
             } else {
                 throw new IllegalArgumentException("eventRepositoryType: " + eventRepositoryType);
             }
@@ -171,9 +205,10 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     @Provides
     @Singleton
     StatisticDataRepository provideStatisticDataRepository() {
+        Configuration configuration = getConfiguration();
         StatisticDataRepository statisticsRepository = null;
         try {
-            String statisticsFilename = statistics;
+            String statisticsFilename = configuration.getString(CONFKEY_STATISTICS_FILE);
             statisticsRepository = new StatisticDataRepositoryMapDB(statisticsFilename);
             statisticsRepository.openForRead();
             LOG.info("Opened statistic set database with filename '" + statisticsFilename + "' for read.");
@@ -192,6 +227,17 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     @Singleton
     AisReader provideAisReader() {
         AisReader aisReader = null;
+
+        Configuration configuration = getConfiguration();
+        String aisDatasourceUrlAsString = configuration.getString(CONFKEY_AIS_DATASOURCE_URL);
+
+        URL aisDataSourceUrl;
+        try {
+            aisDataSourceUrl = new URL(aisDatasourceUrlAsString);
+        } catch (MalformedURLException e) {
+            LOG.error(e.getMessage(), e);
+            return null;
+        }
 
         String protocol = aisDataSourceUrl.getProtocol();
         LOG.debug("AIS data source protocol: " + protocol);
@@ -258,12 +304,12 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     @Provides
     @Singleton
     LocationFilter provideLocationFilter() {
-        Configuration configuration = provideConfiguration();
+        Configuration configuration = getConfiguration();
 
-        Float north = configuration.getFloat("filter.location.bbox.north", null);
-        Float south = configuration.getFloat("filter.location.bbox.south", null);
-        Float east = configuration.getFloat("filter.location.bbox.east", null);
-        Float west = configuration.getFloat("filter.location.bbox.west", null);
+        Float north = configuration.getFloat(CONFKEY_FILTER_LOCATION_BBOX_NORTH, null);
+        Float south = configuration.getFloat(CONFKEY_FILTER_LOCATION_BBOX_SOUTH, null);
+        Float east = configuration.getFloat(CONFKEY_FILTER_LOCATION_BBOX_EAST, null);
+        Float west = configuration.getFloat(CONFKEY_FILTER_LOCATION_BBOX_WEST, null);
 
         BoundingBox tmpBbox = null;
         if (north != null && south != null && east != null && west != null) {
@@ -279,14 +325,11 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
             filter.addFilterGeometry(e -> true);
         } else {
             final BoundingBox bbox = tmpBbox;
-            filter.addFilterGeometry(new Predicate<Position>() {
-                @Override
-                public boolean test(Position position) {
-                    if (position == null) {
-                        return false;
-                    }
-                    return bbox.contains(position);
+            filter.addFilterGeometry(position -> {
+                if (position == null) {
+                    return false;
                 }
+                return bbox.contains(position);
             });
         }
 
@@ -369,4 +412,7 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
         return valid;
     }
 
+    private Configuration getConfiguration() {
+        return AbnormalAnalyzerApp.getInjector().getInstance(Configuration.class);
+    }
 }

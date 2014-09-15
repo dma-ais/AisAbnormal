@@ -120,24 +120,13 @@ public class AbnormalAnalyzerApp extends AbstractDaemon {
             userArguments.setHelp(true);
         }
 
-        if (userArguments.isHelp() || (!userArguments.paramsValidForH2() && !userArguments.paramsValidForPgsql())) {
+        if (userArguments.isHelp()) {
             jCommander = new JCommander(userArguments, "-help");
             jCommander.setProgramName("AbnormalAnalyzerApp");
             jCommander.usage();
         } else {
             Injector injector = Guice.createInjector(
-                    new AbnormalAnalyzerAppModule(
-                            userArguments.getAisDataSourceURL(),
-                            userArguments.getStatisticData(),
-                            userArguments.getEventDataDbFile(),
-                            userArguments.getDownSampling(),
-                            userArguments.getEventDataRepositoryType(),
-                            userArguments.getEventDataDbHost(),
-                            userArguments.getEventDataDbPort(),
-                            userArguments.getEventDataDbName(),
-                            userArguments.getEventDataDbUsername(),
-                            userArguments.getEventDataDbPassword()
-                    )
+                new AbnormalAnalyzerAppModule(userArguments.getConfigFile())
             );
             AbnormalAnalyzerApp.setInjector(injector);
             try {
