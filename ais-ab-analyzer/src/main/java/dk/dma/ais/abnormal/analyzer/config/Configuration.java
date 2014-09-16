@@ -83,11 +83,9 @@ public final class Configuration {
         String statisticsFileName = configuration.getString(CONFKEY_STATISTICS_FILE);
         File statisticsFile = new File(statisticsFileName);
         if (! statisticsFile.exists()) {
-            LOG.error("File does not exist: " + statisticsFileName);
-            return false;
+            LOG.warn("File does not exist: " + statisticsFileName);
         } else if (! statisticsFile.canRead()) {
-            LOG.error("Can not read file: " + statisticsFileName);
-            return false;
+            LOG.warn("Can not read file: " + statisticsFileName);
         }
 
         // Validate CONFKEY_AIS_DATASOURCE_URL
@@ -95,8 +93,7 @@ public final class Configuration {
         try {
             new URL(aisDataSourceUrlAsString);
         } catch (MalformedURLException e) {
-            LOG.error(e.getMessage(), e);
-            return false;
+            LOG.warn(e.getMessage(), e);
         }
 
         //
@@ -116,18 +113,15 @@ public final class Configuration {
         if ("h2".equals(eventsRepositoryType.toLowerCase().trim())) {
             String eventsH2File = configuration.getString(CONFKEY_EVENTS_H2_FILE);
             if (eventsH2File == null || isBlank(eventsH2File)) {
-                LOG.error("Missing value for: " + CONFKEY_EVENTS_H2_FILE);
-                return false;
+                LOG.warn("Missing value for: " + CONFKEY_EVENTS_H2_FILE);
             }
             File h2File = new File(eventsH2File);
             if (h2File.exists()) {
                 if (!h2File.canRead()) {
-                    LOG.error("Cannot read from: " + h2File.getAbsoluteFile());
-                    return false;
+                    LOG.warn("Cannot read from: " + h2File.getAbsoluteFile());
                 }
                 if (!h2File.canWrite()) {
-                    LOG.error("Cannot write to: " + h2File.getAbsoluteFile());
-                    return false;
+                    LOG.warn("Cannot write to: " + h2File.getAbsoluteFile());
                 }
             }
         }
