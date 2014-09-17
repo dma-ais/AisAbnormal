@@ -16,4 +16,6 @@ The run the application:
     * Execute `run-analyzer.sh`.
 * On Windows
     * Execute `run-analyzer.bat`.
-
+* Via Docker
+    * Execute `sudo docker run -e CONFIG_FILE=/data/analyzer.properties -v ~/tmp/data:/data dmadk/ais-ab-analyzer:latest`
+    
