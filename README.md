@@ -84,6 +84,19 @@ and built with:
 
 [Development builds](http://dma.ci.cloudbees.com/job/AisAbnormal/) are available on [CloudBees](http://cloudbees.com/).
 
+# Releases #
+The source code is stored in a public repository on [GitHub](http://github.com/dma-ais/AisAbnormal). The development line of 
+code is kept on the [master branch](https://github.com/dma-ais/AisAbnormal/tree/master) and some short-lived feature branches.
+
+There is also a special [release branch](https://github.com/dma-ais/AisAbnormal/tree/release) in the GitHub repo. Whenever a commit
+is merged or committed onto this branch it will be detected by the linked [Docker Hub](https://registry.hub.docker.com/repos/dmadk/). 
+Docker Hub will then perform an [automated build](http://docs.docker.com/docker-hub/builds/) of two new docker images; one for
+the analyzer (called [dmadk/ais-ab-analyzer](https://registry.hub.docker.com/u/dmadk/ais-ab-analyzer/)) and one for the web 
+application (called [dmadk/ais-ab-web](https://registry.hub.docker.com/u/dmadk/ais-ab-web)).
+
+The two automatically built docker images are public and can be used to launch docker containers running the analyzer
+and web application (see below). 
+
 # Developing #
 
 AisAbnormal is IDE agnostic and can be developed using any text editor. However, it has been
@@ -159,41 +172,40 @@ The analyzer can be started like this:
     $ java -jar target/ais-ab-analyzer-0.1-SNAPSHOT.jar
 
 This will produce a helpful output like this:
-
+    
+    The following option is required: -config 
     Usage: AbnormalAnalyzerApp [options]
       Options:
-      * -aisDataSourceURL
-           Uniform Resource Locator pointing to source of AIS data ('file://' and
-           'tcp://' protocols supported).
-        -downsampling
-           Downsampling period (in secs).
-           Default: 10
-        -eventDataDbFile
-           Name of file to hold event data.
-        -eventDataDbHost
-           Name of the event database RDBMS host.
-        -eventDataDbName
-           Database name to use for the event database with the RDBMS host.
-        -eventDataDbPassword
-           Password to connect to the event database RDBMS host.
-        -eventDataDbPort
-           Remote port of the event database RDBMS host.
-        -eventDataDbUsername
-           Username to connect to the event database RDBMS host.
-      * -eventDataRepositoryType
-           Type of repository used to hold event data ('h2', 'pgsql').
-      * -statistics
-           Name of file containing statistics data.
+      * -config
+           Name of configuration file to use.
+    
+The -config parameter is mandatory, and points to a file containing the all configuration parameters for the analyzer. If 
+a non-existing file is pointed to, then the analyzer prints a configuration file template on the console:
 
-To start the analyzer reading an AIS stream from file aisdump.txt.gz, downsample these by 10 seconds,
-use the previosly generated test-stats statistical data, and store the results in an H2 database named
-'test-events' - use the following example command line:
+    $ java -jar ais-ab-analyzer-0.1-SNAPSHOT.jar -config non-existing.file
+    2014-09-18 08:30:29,593 INFO  main             AbnormalAnalyzerAppModule        AbnormalAnalyzerAppModule created (dk.dma.ais.abnormal.analyzer.AbnormalAnalyzerAppModule@20fa23c1).
+    2014-09-18 08:30:29,597 ERROR main             AbnormalAnalyzerAppModule        Could not find configuration file: non-existing.file
+    Use this template for configuration file:
+    -----------------------------------------
+    #
+    # This is the configuration file for ais-ab-analyzer.
+    #
+    
+    ...
+        
+    # Comma-separated list of MMSI numbers which will not cause any events to be raised
+    blacklist.mmsi = -1
+    
+    ...
 
-    $ java -jar target/ais-ab-analyzer-0.1-SNAPSHOT.jar -aisDataSourceURL file:///data/ais/aisdump_dk.txt.gz -statistics /data/statistics/test-stats -eventDataRepositoryType h2 -eventDataDbFile /data/events/test-events
+### Starting using public Docker image ###
+The analyzer could be started in a Docker container from a publicly available Docker image, which requires no local checkout or build
+of the software. The Docker container is spawned like this:
 
-It is also possible to connect the analyzer directly to an AIS data from a TCP/IP network source in line with this:
-
-    $ java -jar target/ais-ab-analyzer-0.1-SNAPSHOT.jar -aisDataSourceURL tcp://192.168.1.12:4001 -statistics /data/statistics/test-stats -eventDataRepositoryType h2 -eventDataDbFile /data/events/test-events
+    sudo docker run -e CONFIG_FILE=/data/analyzer.properties -v /home/ais/AisAbnormal/data:/data dmadk/ais-ab-analyzer:latest
+   
+The /home/ais/AisAbnormal/data folder is a local folder on the host machine, which contains the analyzer.properties configuration
+file and the statistics file to use for statistical analyses.
 
 ### Output ###
 The Analyzer, when configured to store to an H2 database, will produce an event database file like this:
@@ -326,6 +338,17 @@ looks like this:
 
 <font color='red'>_Note! Until further, it is necessary to launch the application with the current directory being ais-ab-web (so that
 static assets assumed by the program to be in src/main/webapp are available)._</font>
+
+### Starting using public Docker image ###
+The web application image can be run in a Docker container from a publicly available Docker image, which requires no local checkout
+or build of the software. The Docker container is spawned like this:
+
+    sudo docker run -p 127.0.0.1:8080:80 -e DB_HOST=<ip> -e DB_PORT=8432 -e DB_USER=xxx -e DB_PASS=xxx -e DB_INST=xxx -e STAT_FILE=/data/stats-2014-dwn5-grid200 -v /home/ais/AisAbnormal/data:/data dmadk/ais-ab-web:latest
+
+Here port 80 in the container is mapped to port 8080 on the host machine. There is no DNS client configured in the docker image,
+so DB_HOST must point to an IP address running a Postgres server. Remaining DB_* parameters are for connection to Postgres. STAT_FILE
+points to the statistics data file to use, and /home/ais/AisAbnormal/data is a local folder on the host machine which is mapped to
+/data in the docker container. This folder should contain the statistics data file.
 
 # Modules ##
 
