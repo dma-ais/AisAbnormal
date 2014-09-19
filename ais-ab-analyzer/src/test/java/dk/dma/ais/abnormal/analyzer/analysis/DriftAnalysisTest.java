@@ -25,6 +25,8 @@ import static dk.dma.ais.abnormal.analyzer.analysis.DriftAnalysis.OBSERVATION_PE
 import static dk.dma.ais.abnormal.analyzer.analysis.DriftAnalysis.SPEED_HIGH_MARK;
 import static dk.dma.ais.abnormal.analyzer.analysis.DriftAnalysis.SPEED_LOW_MARK;
 import static dk.dma.ais.abnormal.analyzer.analysis.DriftAnalysis.isSignificantDeviation;
+import static dk.dma.ais.abnormal.analyzer.analysis.DriftAnalysis.isDriftDistanceLongEnough;
+import static dk.dma.ais.abnormal.analyzer.analysis.DriftAnalysis.isDriftPeriodLongEnough;
 import static dk.dma.ais.abnormal.analyzer.analysis.DriftAnalysis.isSustainedDrift;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -68,7 +70,7 @@ public class DriftAnalysisTest {
     }
 
     @Test
-    public void testIsSustainedDrift() throws Exception {
+    public void testIsDriftPeriodLongEnough() throws Exception {
         final long t0 = System.currentTimeMillis();
 
         final long t1 = t0 + OBSERVATION_PERIOD_MINUTES*60*1000;
@@ -81,7 +83,7 @@ public class DriftAnalysisTest {
             track.update(t, Position.create(56.0, 12.0), 45.0f, 12.0f, 45.1f);
             //System.out.println("t:" + t + " pos:" + track.getPosition() + " sog:" + track.getSpeedOverGround() + " cog:" + track.getCourseOverGround() + " hdg:" + track.getTrueHeading());
         }
-        assertFalse(isSustainedDrift(track));
+        assertFalse(isDriftPeriodLongEnough(track));
 
         // slowButNonDriftingTrack (speed indicates drift, cog/hdg deviation does not)
         System.out.println("Testing track moving in observed speed interval, but not drifting");
@@ -90,7 +92,7 @@ public class DriftAnalysisTest {
             track.update(t, Position.create(56.0, 12.0), 45.0f, (float) (SPEED_LOW_MARK + 0.5), 45.1f);
             //System.out.println("t:" + t + " pos:" + track.getPosition() + " sog:" + track.getSpeedOverGround() + " cog:" + track.getCourseOverGround() + " hdg:" + track.getTrueHeading());
         }
-        assertFalse(isSustainedDrift(track));
+        assertFalse(isDriftPeriodLongEnough(track));
 
         // slowButNonDriftingTrack (speed does not indicate drift, cog/hdg deviation does)
         System.out.println("Testing track moving in normal speed, but cog/hdg deviation indicates drift");
@@ -99,7 +101,7 @@ public class DriftAnalysisTest {
             track.update(t, Position.create(56.0, 12.0), -45.0f, (float) (SPEED_HIGH_MARK + 0.5), 45.1f);
             //System.out.println("t:" + t + " pos:" + track.getPosition() + " sog:" + track.getSpeedOverGround() + " cog:" + track.getCourseOverGround() + " hdg:" + track.getTrueHeading());
         }
-        assertFalse(isSustainedDrift(track));
+        assertFalse(isDriftPeriodLongEnough(track));
 
         // verySlowButNonDriftingTrack (neither speed nor cog/hdg deviation indicate drift)
         System.out.println("Testing track moving below observed speed interval and not drifting");
@@ -108,7 +110,7 @@ public class DriftAnalysisTest {
             track.update(t, Position.create(56.0, 12.0), 45.0f, (float) (SPEED_LOW_MARK - 0.5), 45.1f);
             //System.out.println("t:" + t + " pos:" + track.getPosition() + " sog:" + track.getSpeedOverGround() + " cog:" + track.getCourseOverGround() + " hdg:" + track.getTrueHeading());
         }
-        assertFalse(isSustainedDrift(track));
+        assertFalse(isDriftPeriodLongEnough(track));
 
         // driftingTrackButNotForLongEnough
         System.out.println("Testing track drifting, but not drifting for long enough");
@@ -121,7 +123,7 @@ public class DriftAnalysisTest {
             track.update(t, Position.create(56.0, 12.0), -45.0f, (float) (SPEED_LOW_MARK + 0.5), 45.1f);
             //System.out.println("t:" + t + " pos:" + track.getPosition() + " sog:" + track.getSpeedOverGround() + " cog:" + track.getCourseOverGround() + " hdg:" + track.getTrueHeading());
         }
-        assertFalse(isSustainedDrift(track));
+        assertFalse(isDriftPeriodLongEnough(track));
 
         // driftingTrackGettingOutOfDrift
         System.out.println("Testing track drifting, but eventually getting out of drift");
@@ -134,7 +136,7 @@ public class DriftAnalysisTest {
             track.update(t, Position.create(56.0, 12.0), 45.0f, (float) (SPEED_LOW_MARK + 0.5), 45.1f);
             //System.out.println("t:" + t + " pos:" + track.getPosition() + " sog:" + track.getSpeedOverGround() + " cog:" + track.getCourseOverGround() + " hdg:" + track.getTrueHeading());
         }
-        assertFalse(isSustainedDrift(track));
+        assertFalse(isDriftPeriodLongEnough(track));
 
         //
         System.out.println("Testing drifting track 1");
@@ -143,7 +145,7 @@ public class DriftAnalysisTest {
             track.update(t, Position.create(56.0, 12.0), -45.0f, (float) (SPEED_LOW_MARK + 0.5), 45.1f);
             //System.out.println("t:" + t + " pos:" + track.getPosition() + " sog:" + track.getSpeedOverGround() + " cog:" + track.getCourseOverGround() + " hdg:" + track.getTrueHeading());
         }
-        assertTrue(isSustainedDrift(track));
+        assertTrue(isDriftPeriodLongEnough(track));
 
         System.out.println("Testing drifting track 2");
         track = new Track(219000001);
@@ -151,8 +153,76 @@ public class DriftAnalysisTest {
             track.update(t, Position.create(56.0, 12.0), 353.3f, (float) (SPEED_LOW_MARK + 0.5), 45.1f);
             //System.out.println("t:" + t + " pos:" + track.getPosition() + " sog:" + track.getSpeedOverGround() + " cog:" + track.getCourseOverGround() + " hdg:" + track.getTrueHeading());
         }
-        assertTrue(isSustainedDrift(track));
-
+        assertTrue(isDriftPeriodLongEnough(track));
     }
 
+    @Test
+    public void testIsDriftDistanceLongEnough() {
+        final long t0 = System.currentTimeMillis();
+        final long dt = 7000;
+
+        // nonDriftingTrack (speed normal, cog/hdg deviation normal)
+        Track track = new Track(219000001);
+        track.update(t0, Position.create(56.0, 12.0), 45.0f, 12.0f, 45.1f);
+        assertFalse(isDriftDistanceLongEnough(track));
+        track.update(t0+dt, Position.create(56.0001, 12.0001), 45.0f, 12.0f, 45.1f);
+        assertFalse(isDriftDistanceLongEnough(track));
+
+        // driftingTrack
+        track = new Track(219000001);
+        track.update(t0, Position.create(56.0000, 11.0000), -45.0f, (float) (SPEED_LOW_MARK + 0.5), 45.1f);
+        assertFalse(isDriftDistanceLongEnough(track));
+        track.update(t0+dt, Position.create(56.0001, 11.0001), -45.0f, (float) (SPEED_LOW_MARK + 0.5), 45.1f); // 12 m - http://www.csgnetwork.com/gpsdistcalc.html
+        assertFalse(isDriftDistanceLongEnough(track));
+        track.update(t0+2*dt, Position.create(56.0010, 11.0010), -45.0f, (float) (SPEED_LOW_MARK + 0.5), 45.1f); // 155 m
+        assertFalse(isDriftDistanceLongEnough(track));
+        track.update(t0+3*dt, Position.create(56.0100, 11.0100), -45.0f, (float) (SPEED_LOW_MARK + 0.5), 45.1f); // 1273 m
+        assertTrue(isDriftDistanceLongEnough(track));
+    }
+
+    @Test
+    public void testIsSustainedDrift() {
+        final long t0 = System.currentTimeMillis();
+        final long dt = 7000;
+
+        // nonDriftingTrack (speed normal, cog/hdg deviation normal)
+        Track track = new Track(219000001);
+        for (int i=0; i < 100; i++) {
+            track.update(t0+i*dt, Position.create(56.0 + 0.001*i, 12.0 + 0.001*i), 45.0f, (float) (SPEED_LOW_MARK + 0.5), 45.1f);
+            assertFalse(isSustainedDrift(track));
+        }
+
+        // drifting track, but not for long enough time
+        track = new Track(219000001);
+        int i=0;
+        while (i*dt < OBSERVATION_PERIOD_MINUTES*60*1000) {
+            track.update(t0 + i*dt, Position.create(56.0 + i*0.0001, 12.0 + i*0.0001), -54.0f, (float) (SPEED_LOW_MARK + 0.5), 45.1f);
+            assertFalse(isSustainedDrift(track));
+            i++;
+        }
+
+        // drifting track, but not for long enough distance
+        track = new Track(219000001);
+        i=0;
+        while (i*dt < OBSERVATION_PERIOD_MINUTES*60*1000) {
+            track.update(t0 + i*dt, Position.create(56.0 + i*0.00001, 12.0 + i*0.00001), -54.0f, (float) (SPEED_LOW_MARK + 0.5), 45.1f);
+            assertFalse(isSustainedDrift(track));
+            i++;
+        }
+        track.update(t0 + i*dt, Position.create(56.0 + i*0.00001, 12.0 + i*0.00001), -54.0f, (float) (SPEED_LOW_MARK + 0.5), 45.1f);
+        System.out.println("Track drifted " + track.getNewestTrackingReport().getPosition().rhumbLineDistanceTo(track.getOldestTrackingReport().getPosition()) + " meters in " + i*dt/1000/60 + " minutes");
+        assertFalse(isSustainedDrift(track));
+
+        // drifting track
+        track = new Track(219000001);
+        i=0;
+        while (i*dt < OBSERVATION_PERIOD_MINUTES*60*1000) {
+            track.update(t0 + i*dt, Position.create(56.0 + i*0.0001, 12.0 + i*0.0001), -54.0f, (float) (SPEED_LOW_MARK + 0.5), 45.1f);
+            assertFalse(isSustainedDrift(track));
+            i++;
+        }
+        track.update(t0 + i*dt, Position.create(56.0 + i*0.0001, 12.0 + i*0.0001), -54.0f, (float) (SPEED_LOW_MARK + 0.5), 45.1f);
+        System.out.println("Track drifted " + track.getNewestTrackingReport().getPosition().rhumbLineDistanceTo(track.getOldestTrackingReport().getPosition()) + " meters in " + i*dt/1000/60 + " minutes");
+        assertTrue(isSustainedDrift(track));
+    }
 }

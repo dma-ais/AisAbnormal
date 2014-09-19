@@ -28,6 +28,7 @@ import dk.dma.ais.abnormal.event.db.domain.builders.DriftEventBuilder;
 import dk.dma.ais.abnormal.tracker.InterpolatedTrackingReport;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.Tracker;
+import dk.dma.ais.abnormal.tracker.TrackingReport;
 import dk.dma.ais.abnormal.tracker.events.PositionChangedEvent;
 import dk.dma.ais.abnormal.tracker.events.TrackStaleEvent;
 import dk.dma.enav.model.geometry.Position;
@@ -35,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
+import java.util.List;
 import java.util.TreeSet;
 
 import static dk.dma.ais.abnormal.util.AisDataHelper.isCourseOverGroundAvailable;
@@ -83,8 +85,11 @@ public class DriftAnalysis extends Analysis {
     /** Minimum no. of degrees to consider heading/course deviation significant */
     static final long MIN_HDG_COG_DEVIATION_DEGREES = 45;
 
-    /** Tracks must have low speed and cog/hdg deviation for this period of time before a drift event is raised */
+    /** Tracks must drift for this period of time before a drift event is raised */
     static final int OBSERVATION_PERIOD_MINUTES = 10;
+
+    /** Tracks must drift for this distance before a drift event is raised */
+    static final double OBSERVATION_DISTANCE_METERS = 500f;
 
     private TreeSet<Integer> tracksPossiblyDrifting = new TreeSet<>();
 
@@ -144,9 +149,7 @@ public class DriftAnalysis extends Analysis {
         if (tracksPossiblyDrifting.contains(mmsi)) {
             LOG.debug(nameOrMmsi(trackEvent.getTrack().getShipName(), mmsi) + " is now stale. Removed from observation list.");
             tracksPossiblyDrifting.remove(mmsi);
-
             // TODO lowerEventIfRaised();
-
         }
     }
 
@@ -170,26 +173,67 @@ public class DriftAnalysis extends Analysis {
         }
     }
 
-    static boolean isSignificantDeviation(float cog, float hdg) {
-        return absoluteDirectionalDifference(cog, hdg) > MIN_HDG_COG_DEVIATION_DEGREES;
-    }
-
-    private static boolean isTrackingPeriodLongEnough(Track track) {
-        return track.getNewestTrackingReport().getTimestamp() - track.getOldestTrackingReport().getTimestamp() > OBSERVATION_PERIOD_MINUTES*60*1000;
-    }
-
     static boolean isSustainedDrift(Track track) {
-        if (!isTrackingPeriodLongEnough(track)) {
+        if (!isTrackedForLongEnough(track)) {
             LOG.debug(nameOrMmsi(track.getShipName(), track.getMmsi()) + " not observed for long enough to consider sustained drift.");
             return false;
         }
 
-        final long t1 = track.getNewestTrackingReport().getTimestamp() - OBSERVATION_PERIOD_MINUTES*60*1000;
+        return isDriftPeriodLongEnough(track) && isDriftDistanceLongEnough(track);
+    }
 
+    static boolean isSignificantDeviation(float cog, float hdg) {
+        return absoluteDirectionalDifference(cog, hdg) > MIN_HDG_COG_DEVIATION_DEGREES;
+    }
+
+    private static boolean isDrifting(TrackingReport tr) {
+        return tr.getSpeedOverGround() >= SPEED_LOW_MARK && tr.getSpeedOverGround() <= SPEED_HIGH_MARK && isSignificantDeviation(tr.getCourseOverGround(), tr.getTrueHeading());
+    }
+
+    private static boolean isTrackedForLongEnough(Track track) {
+        return track.getNewestTrackingReport().getTimestamp() - track.getOldestTrackingReport().getTimestamp() > OBSERVATION_PERIOD_MINUTES*60*1000;
+    }
+
+    static boolean isDriftPeriodLongEnough(Track track) {
+        final long t1 = track.getNewestTrackingReport().getTimestamp() - OBSERVATION_PERIOD_MINUTES*60*1000;
         return track.getTrackingReports()
             .stream()
             .filter(tr -> tr.getTimestamp() >= t1)
-            .allMatch(tr -> tr.getSpeedOverGround() >= SPEED_LOW_MARK && tr.getSpeedOverGround() <= SPEED_HIGH_MARK && isSignificantDeviation(tr.getCourseOverGround(), tr.getTrueHeading()));
+            .allMatch(tr -> isDrifting(tr));
+    }
+
+    /**
+     * This method isolates the latest sequence of tracking reports with drift
+     * and returns the distance drifted in this sequence.
+     *
+     * @return
+     */
+    static boolean isDriftDistanceLongEnough(Track track) {
+        TrackingReport driftStart, driftEnd;
+
+        // Find driftEnd
+        driftEnd = track.getNewestTrackingReport();
+        if (!isDrifting(driftEnd)) {
+            return false;
+        }
+
+        // Find drift start
+        driftStart = driftEnd;
+        List<TrackingReport> trackingReports = track.getTrackingReports();
+        final int n = trackingReports.size();
+        for (int i = n - 1; i >= 0; i--) {
+            TrackingReport trackingReport = trackingReports.get(i);
+            if (isDrifting(trackingReport)) {
+                driftStart = trackingReport;
+            } else {
+                break;
+            }
+        }
+
+        // Calc distance drifted
+        final double distanceDriftedInMeters = driftStart.getPosition().rhumbLineDistanceTo(driftEnd.getPosition());
+
+        return distanceDriftedInMeters > OBSERVATION_DISTANCE_METERS;
     }
 
     private static float absoluteDirectionalDifference(float dir1, float dir2)
