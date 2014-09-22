@@ -28,9 +28,9 @@ import dk.dma.ais.abnormal.event.db.domain.Vessel;
 import dk.dma.ais.abnormal.event.db.domain.Zone;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistry;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.service.ServiceRegistry;
-import org.hibernate.service.ServiceRegistryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,33 +54,36 @@ public final class JpaSessionFactoryFactory {
         LOG.debug("Loading Hibernate configuration.");
 
         Configuration configuration = new Configuration()
-                .setProperty("hibernate.connection.driver_class", "org.h2.Driver")
-                .setProperty("hibernate.connection.url", buildH2ConnectionUrl(dbFilename))
-                .setProperty("hibernate.connection.username", "sa")
-                .setProperty("hibernate.connection.password", "")
-                .setProperty("hibernate.default_schema", "PUBLIC")
-                .setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect")
-                //.setProperty("hibernate.show_sql", "true")
-                .setProperty("hibernate.hbm2ddl.auto", "update")
-                .setProperty("hibernate.order_updates", "true")
-                .setProperty("hibernate.cache.provider_class", "org.hibernate.cache.EhCacheProvider")
-                .setProperty("hibernate.cache.use_second_level_cache", "true")
-                .setProperty("hibernate.cache.use_query_cache", "true")
-                .setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory")
-                .addAnnotatedClass(CourseOverGroundEvent.class)
-                .addAnnotatedClass(SpeedOverGroundEvent.class)
-                .addAnnotatedClass(ShipSizeOrTypeEvent.class)
-                .addAnnotatedClass(SuddenSpeedChangeEvent.class)
-                .addAnnotatedClass(DriftEvent.class)
-                .addAnnotatedClass(CloseEncounterEvent.class)
-                .addAnnotatedClass(Zone.class)
-                .addAnnotatedClass(Vessel.class)
-                .addAnnotatedClass(Behaviour.class)
-                .addAnnotatedClass(TrackingPoint.class);
+            .setProperty("hibernate.connection.driver_class", "org.h2.Driver")
+            .setProperty("hibernate.connection.url", buildH2ConnectionUrl(dbFilename))
+            .setProperty("hibernate.connection.username", "sa")
+            .setProperty("hibernate.connection.password", "")
+            .setProperty("hibernate.default_schema", "PUBLIC")
+            .setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect")
+            //.setProperty("hibernate.show_sql", "true")
+            .setProperty("hibernate.hbm2ddl.auto", "update")
+            .setProperty("hibernate.order_updates", "true")
+            .setProperty("hibernate.cache.provider_class", "org.hibernate.cache.EhCacheProvider")
+            .setProperty("hibernate.cache.use_second_level_cache", "true")
+            .setProperty("hibernate.cache.use_query_cache", "true")
+            .setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory")
+            .setProperty("hibernate.c3p0.min_size", "1")
+            .setProperty("hibernate.c3p0.max_size", "3")
+            .setProperty("hibernate.c3p0.timeout", "300")
+            .setProperty("hibernate.c3p0.max_statements", "50")
+            .setProperty("hibernate.c3p0.idle_test_period", "3000")
+            .addAnnotatedClass(CourseOverGroundEvent.class)
+            .addAnnotatedClass(SpeedOverGroundEvent.class)
+            .addAnnotatedClass(ShipSizeOrTypeEvent.class)
+            .addAnnotatedClass(SuddenSpeedChangeEvent.class)
+            .addAnnotatedClass(DriftEvent.class)
+            .addAnnotatedClass(CloseEncounterEvent.class)
+            .addAnnotatedClass(Zone.class)
+            .addAnnotatedClass(Vessel.class)
+            .addAnnotatedClass(Behaviour.class)
+            .addAnnotatedClass(TrackingPoint.class);
 
-        ServiceRegistryBuilder serviceRegistryBuilder = new ServiceRegistryBuilder();
-        serviceRegistryBuilder.applySettings(configuration.getProperties());
-        ServiceRegistry serviceRegistry = serviceRegistryBuilder.buildServiceRegistry();
+        StandardServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties()).build();
 
         LOG.info("Starting Hibernate.");
         SessionFactory sessionFactory = configuration.buildSessionFactory(serviceRegistry);
@@ -105,34 +108,37 @@ public final class JpaSessionFactoryFactory {
         LOG.debug("Loading Hibernate configuration.");
 
         Configuration configuration = new Configuration()
-                .setProperty("hibernate.connection.driver_class", "org.postgresql.Driver")
-                .setProperty("hibernate.connection.url", buildPgsqlConnectionUrl(dbHost, dbPort, dbName))
-                .setProperty("hibernate.connection.username", dbUsername)
-                .setProperty("hibernate.connection.password", dbPassword)
-                .setProperty("hibernate.default_schema", "PUBLIC")
-                .setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect")
-                //.setProperty("hibernate.show_sql", "true")
-                .setProperty("hibernate.hbm2ddl.auto", "update")
-                .setProperty("hibernate.order_updates", "true")
-                .setProperty("hibernate.connection_pool_size", "1")
-                .setProperty("hibernate.cache.provider_class", "org.hibernate.cache.EhCacheProvider")
-                .setProperty("hibernate.cache.use_second_level_cache", "true")
-                .setProperty("hibernate.cache.use_query_cache", "true")
-                .setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory")
-                .addAnnotatedClass(CourseOverGroundEvent.class)
-                .addAnnotatedClass(SpeedOverGroundEvent.class)
-                .addAnnotatedClass(ShipSizeOrTypeEvent.class)
-                .addAnnotatedClass(SuddenSpeedChangeEvent.class)
-                .addAnnotatedClass(DriftEvent.class)
-                .addAnnotatedClass(CloseEncounterEvent.class)
-                .addAnnotatedClass(Zone.class)
-                .addAnnotatedClass(Vessel.class)
-                .addAnnotatedClass(Behaviour.class)
-                .addAnnotatedClass(TrackingPoint.class);
+            .setProperty("hibernate.connection.driver_class", "org.postgresql.Driver")
+            .setProperty("hibernate.connection.url", buildPgsqlConnectionUrl(dbHost, dbPort, dbName))
+            .setProperty("hibernate.connection.username", dbUsername)
+            .setProperty("hibernate.connection.password", dbPassword)
+            .setProperty("hibernate.default_schema", "PUBLIC")
+            .setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect")
+            //.setProperty("hibernate.show_sql", "true")
+            .setProperty("hibernate.hbm2ddl.auto", "update")
+            .setProperty("hibernate.order_updates", "true")
+            .setProperty("hibernate.connection_pool_size", "1")
+            .setProperty("hibernate.cache.provider_class", "org.hibernate.cache.EhCacheProvider")
+            .setProperty("hibernate.cache.use_second_level_cache", "true")
+            .setProperty("hibernate.cache.use_query_cache", "true")
+            .setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory")
+            .setProperty("hibernate.c3p0.min_size", "1")
+            .setProperty("hibernate.c3p0.max_size", "3")
+            .setProperty("hibernate.c3p0.timeout", "300")
+            .setProperty("hibernate.c3p0.max_statements", "50")
+            .setProperty("hibernate.c3p0.idle_test_period", "3000")
+            .addAnnotatedClass(CourseOverGroundEvent.class)
+            .addAnnotatedClass(SpeedOverGroundEvent.class)
+            .addAnnotatedClass(ShipSizeOrTypeEvent.class)
+            .addAnnotatedClass(SuddenSpeedChangeEvent.class)
+            .addAnnotatedClass(DriftEvent.class)
+            .addAnnotatedClass(CloseEncounterEvent.class)
+            .addAnnotatedClass(Zone.class)
+            .addAnnotatedClass(Vessel.class)
+            .addAnnotatedClass(Behaviour.class)
+            .addAnnotatedClass(TrackingPoint.class);
 
-        ServiceRegistryBuilder serviceRegistryBuilder = new ServiceRegistryBuilder();
-        serviceRegistryBuilder.applySettings(configuration.getProperties());
-        ServiceRegistry serviceRegistry = serviceRegistryBuilder.buildServiceRegistry();
+        StandardServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties()).build();
 
         LOG.info("Starting Hibernate.");
         SessionFactory sessionFactory = null;
