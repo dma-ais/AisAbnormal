@@ -32,8 +32,11 @@ import dk.dma.ais.abnormal.tracker.TrackingReport;
 import dk.dma.ais.abnormal.tracker.events.PositionChangedEvent;
 import dk.dma.ais.abnormal.tracker.events.TrackStaleEvent;
 import dk.dma.enav.model.geometry.Position;
+import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.*;
 
 import java.util.Date;
 import java.util.List;
@@ -70,26 +73,22 @@ import static dk.dma.ais.abnormal.util.TrackPredicates.isVeryLongVessel;
 public class DriftAnalysis extends Analysis {
     private static final Logger LOG = LoggerFactory.getLogger(DriftAnalysis.class);
 
-    {
-        LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
-    }
-
     private final AppStatisticsService statisticsService;
 
     /** Track must have sustained sog below this mark to a cause drift event */
-    static final float SPEED_HIGH_MARK = 5.0f;
+    final float SPEED_HIGH_MARK;
 
     /** Track must have sustained sog above this mark to a cause drift event */
-    static final float SPEED_LOW_MARK = 1.0f;
+    final float SPEED_LOW_MARK;
 
     /** Minimum no. of degrees to consider heading/course deviation significant */
-    static final long MIN_HDG_COG_DEVIATION_DEGREES = 45;
+    final float MIN_HDG_COG_DEVIATION_DEGREES;
 
     /** Tracks must drift for this period of time before a drift event is raised */
-    static final int OBSERVATION_PERIOD_MINUTES = 10;
+    final int OBSERVATION_PERIOD_MINUTES;
 
     /** Tracks must drift for this distance before a drift event is raised */
-    static final double OBSERVATION_DISTANCE_METERS = 500f;
+    final float OBSERVATION_DISTANCE_METERS;
 
     private TreeSet<Integer> tracksPossiblyDrifting = new TreeSet<>();
 
@@ -98,10 +97,29 @@ public class DriftAnalysis extends Analysis {
     private int statCount = 0;
 
     @Inject
-    public DriftAnalysis(AppStatisticsService statisticsService, Tracker trackingService, EventRepository eventRepository) {
+    public DriftAnalysis(Configuration configuration, AppStatisticsService statisticsService, Tracker trackingService, EventRepository eventRepository) {
         super(eventRepository, trackingService, null);
         this.statisticsService = statisticsService;
         this.analysisName = this.getClass().getSimpleName();
+
+        SPEED_HIGH_MARK = configuration.getFloat(CONFKEY_ANALYSIS_DRIFT_SOG_MAX, 5.0f);
+        SPEED_LOW_MARK = configuration.getFloat(CONFKEY_ANALYSIS_DRIFT_SOG_MIN, 1.0f);
+        MIN_HDG_COG_DEVIATION_DEGREES = configuration.getFloat(CONFKEY_ANALYSIS_DRIFT_COGHDG, 45f);
+        OBSERVATION_PERIOD_MINUTES = configuration.getInt(CONFKEY_ANALYSIS_DRIFT_PERIOD, 10);
+        OBSERVATION_DISTANCE_METERS = configuration.getFloat(CONFKEY_ANALYSIS_DRIFT_DISTANCE, 500f);
+
+        LOG.info(toString());
+    }
+
+    @Override
+    public String toString() {
+        return "DriftAnalysis{" +
+                "SPEED_HIGH_MARK=" + SPEED_HIGH_MARK +
+                ", SPEED_LOW_MARK=" + SPEED_LOW_MARK +
+                ", MIN_HDG_COG_DEVIATION_DEGREES=" + MIN_HDG_COG_DEVIATION_DEGREES +
+                ", OBSERVATION_PERIOD_MINUTES=" + OBSERVATION_PERIOD_MINUTES +
+                ", OBSERVATION_DISTANCE_METERS=" + OBSERVATION_DISTANCE_METERS +
+                "} " + super.toString();
     }
 
     @AllowConcurrentEvents
@@ -173,7 +191,7 @@ public class DriftAnalysis extends Analysis {
         }
     }
 
-    static boolean isSustainedDrift(Track track) {
+    boolean isSustainedDrift(Track track) {
         if (!isTrackedForLongEnough(track)) {
             LOG.debug(nameOrMmsi(track.getShipName(), track.getMmsi()) + " not observed for long enough to consider sustained drift.");
             return false;
@@ -182,19 +200,19 @@ public class DriftAnalysis extends Analysis {
         return isDriftPeriodLongEnough(track) && isDriftDistanceLongEnough(track);
     }
 
-    static boolean isSignificantDeviation(float cog, float hdg) {
+    boolean isSignificantDeviation(float cog, float hdg) {
         return absoluteDirectionalDifference(cog, hdg) > MIN_HDG_COG_DEVIATION_DEGREES;
     }
 
-    private static boolean isDrifting(TrackingReport tr) {
+    private boolean isDrifting(TrackingReport tr) {
         return tr.getSpeedOverGround() >= SPEED_LOW_MARK && tr.getSpeedOverGround() <= SPEED_HIGH_MARK && isSignificantDeviation(tr.getCourseOverGround(), tr.getTrueHeading());
     }
 
-    private static boolean isTrackedForLongEnough(Track track) {
+    private boolean isTrackedForLongEnough(Track track) {
         return track.getNewestTrackingReport().getTimestamp() - track.getOldestTrackingReport().getTimestamp() > OBSERVATION_PERIOD_MINUTES*60*1000;
     }
 
-    static boolean isDriftPeriodLongEnough(Track track) {
+    boolean isDriftPeriodLongEnough(Track track) {
         final long t1 = track.getNewestTrackingReport().getTimestamp() - OBSERVATION_PERIOD_MINUTES*60*1000;
         return track.getTrackingReports()
             .stream()
@@ -208,7 +226,7 @@ public class DriftAnalysis extends Analysis {
      *
      * @return
      */
-    static boolean isDriftDistanceLongEnough(Track track) {
+    boolean isDriftDistanceLongEnough(Track track) {
         TrackingReport driftStart, driftEnd;
 
         // Find driftEnd

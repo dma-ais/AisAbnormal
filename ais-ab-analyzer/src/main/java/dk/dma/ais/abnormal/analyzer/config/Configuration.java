@@ -2,6 +2,7 @@ package dk.dma.ais.abnormal.analyzer.config;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Singleton;
+import org.apache.commons.configuration.ConversionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,11 @@ public final class Configuration {
     public static final String CONFKEY_FILTER_LOCATION_BBOX_SOUTH = "filter.location.bbox.south";
     public static final String CONFKEY_FILTER_LOCATION_BBOX_WEST = "filter.location.bbox.west";
     public static final String CONFKEY_FILTER_LOCATION_BBOX_EAST = "filter.location.bbox.east";
+    public static final String CONFKEY_ANALYSIS_DRIFT_PERIOD = "analysis.drift.period";
+    public static final String CONFKEY_ANALYSIS_DRIFT_DISTANCE = "analysis.drift.distance";
+    public static final String CONFKEY_ANALYSIS_DRIFT_SOG_MIN = "analysis.drift.sog.min";
+    public static final String CONFKEY_ANALYSIS_DRIFT_SOG_MAX = "analysis.drift.sog.max";
+    public static final String CONFKEY_ANALYSIS_DRIFT_COGHDG = "analysis.drift.coghdg";
     public static final String CONFKEY_STATISTICS_FILE = "statistics.file";
     public static final String CONFKEY_EVENTS_REPOSITORY_TYPE = "events.repository.type";
     public static final String CONFKEY_EVENTS_PGSQL_HOST = "events.pgsql.host";
@@ -159,7 +165,44 @@ public final class Configuration {
             }
         }
 
+        // Validate analysis - drift
+        if (!isValidPositiveFloat(configuration, CONFKEY_ANALYSIS_DRIFT_PERIOD)) return false;
+        if (!isValidPositiveFloat(configuration, CONFKEY_ANALYSIS_DRIFT_DISTANCE)) return false;
+        if (!isValidPositiveFloat(configuration, CONFKEY_ANALYSIS_DRIFT_COGHDG)) return false;
+        if (!isValidPositiveOrZeroFloat(configuration, CONFKEY_ANALYSIS_DRIFT_SOG_MIN)) return false;
+        if (!isValidPositiveOrZeroFloat(configuration, CONFKEY_ANALYSIS_DRIFT_SOG_MAX)) return false;
+
         //
+        return true;
+    }
+
+    private static boolean isValidPositiveFloat(org.apache.commons.configuration.Configuration configuration, String confKey) {
+        Float f;
+        try {
+            f = configuration.getFloat(confKey);
+        } catch(ConversionException e) {
+            LOG.error("Missing numeric floating point value for: " + confKey);
+            return false;
+        }
+        if (f <= 0.0f) {
+            LOG.error("Must be positive floating point number: " + confKey);
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean isValidPositiveOrZeroFloat(org.apache.commons.configuration.Configuration configuration, String confKey) {
+        Float f;
+        try {
+            f = configuration.getFloat(confKey);
+        } catch(ConversionException e) {
+            LOG.error("Missing numeric floating point value for: " + confKey);
+            return false;
+        }
+        if (f < 0.0f) {
+            LOG.error("Must be positive or zero floating point number: " + confKey);
+            return false;
+        }
         return true;
     }
 
