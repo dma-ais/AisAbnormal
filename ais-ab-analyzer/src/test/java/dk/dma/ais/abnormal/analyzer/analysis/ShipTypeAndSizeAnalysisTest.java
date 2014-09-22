@@ -29,11 +29,17 @@ import dk.dma.ais.abnormal.util.Categorizer;
 import dk.dma.ais.packet.AisPacket;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
 import dk.dma.enav.model.geometry.Position;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
 import org.junit.Test;
 
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SOG_CELL_SHIPCOUNT_MIN;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SOG_PD;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_TYPESIZE_CELL_SHIPCOUNT_MIN;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_TYPESIZE_PD;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -52,6 +58,7 @@ public class ShipTypeAndSizeAnalysisTest {
         "!BSVDM,2,1,1,A,53@ng7P1uN6PuLpl000I8TLN1=T@ITDp0000000u1Pr844@P07PSiBQ1,0*7B\r\n" +
         "!BSVDM,2,2,1,A,CcAVCTj0EP00000,2*53");
 
+    private Configuration configuration;
     private Tracker trackingService;
     private AppStatisticsService statisticsService;
     private StatisticDataRepository statisticsRepository;
@@ -91,6 +98,10 @@ public class ShipTypeAndSizeAnalysisTest {
         statistics2.setValue((short) 3, (short) 3, "shipCount", 954);
         statistics2.setValue((short) 4, (short) 2, "shipCount", 154);
         statistics2.setValue((short) 5, (short) 3, "shipCount", 34);
+
+        configuration = new PropertiesConfiguration();
+        configuration.setProperty(CONFKEY_ANALYSIS_TYPESIZE_CELL_SHIPCOUNT_MIN, 1000);
+        configuration.setProperty(CONFKEY_ANALYSIS_TYPESIZE_PD, 0.001);
     }
 
     @Test
@@ -108,7 +119,7 @@ public class ShipTypeAndSizeAnalysisTest {
         }});
 
         // Create object under test
-        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, statisticsRepository, trackingService, eventRepository, behaviourManager);
+        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(configuration, statisticsService, statisticsRepository, trackingService, eventRepository, behaviourManager);
         analysis.start();
 
         // Perform test
@@ -138,7 +149,7 @@ public class ShipTypeAndSizeAnalysisTest {
         }});
 
         // Create object under test
-        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, statisticsRepository, trackingService, eventRepository, behaviourManager);
+        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(configuration, statisticsService, statisticsRepository, trackingService, eventRepository, behaviourManager);
         analysis.start();
 
         // Perform test
@@ -168,7 +179,7 @@ public class ShipTypeAndSizeAnalysisTest {
         }});
 
         // Create object under test
-        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, statisticsRepository, trackingService, eventRepository, behaviourManager);
+        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(configuration, statisticsService, statisticsRepository, trackingService, eventRepository, behaviourManager);
         analysis.start();
 
         // Perform test
@@ -194,7 +205,7 @@ public class ShipTypeAndSizeAnalysisTest {
         context.checking(new Expectations() {{
             oneOf(behaviourManager).registerSubscriber(with(any(ShipTypeAndSizeAnalysis.class)));
         }});
-        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, statisticsRepository, trackingService, eventRepository, behaviourManager);
+        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(configuration, statisticsService, statisticsRepository, trackingService, eventRepository, behaviourManager);
 
         // Perform test - none of the required data are there
         context.checking(new Expectations() {{
@@ -247,7 +258,7 @@ public class ShipTypeAndSizeAnalysisTest {
         context.checking(new Expectations() {{
             oneOf(behaviourManager).registerSubscriber(with(any(ShipTypeAndSizeAnalysis.class)));
         }});
-        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, statisticsRepository, trackingService, eventRepository, behaviourManager);
+        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(configuration, statisticsService, statisticsRepository, trackingService, eventRepository, behaviourManager);
 
         // Perform test - none of the required data are there
         context.checking(new Expectations() {{
@@ -284,7 +295,7 @@ public class ShipTypeAndSizeAnalysisTest {
         context.checking(new Expectations() {{
             oneOf(behaviourManager).registerSubscriber(with(any(ShipTypeAndSizeAnalysis.class)));
         }});
-        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(statisticsService, statisticsRepository, trackingService, eventRepository, behaviourManager);
+        final ShipTypeAndSizeAnalysis analysis = new ShipTypeAndSizeAnalysis(configuration, statisticsService, statisticsRepository, trackingService, eventRepository, behaviourManager);
 
         // Perform test - none of the required data are there
         context.checking(new Expectations() {{

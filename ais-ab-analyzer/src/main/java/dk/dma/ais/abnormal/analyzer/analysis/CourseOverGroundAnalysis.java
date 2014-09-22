@@ -39,11 +39,14 @@ import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
 import dk.dma.ais.abnormal.tracker.events.TrackStaleEvent;
 import dk.dma.ais.abnormal.util.Categorizer;
 import dk.dma.enav.model.geometry.Position;
+import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_COG_CELL_SHIPCOUNT_MIN;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_COG_PD;
 import static dk.dma.ais.abnormal.event.db.domain.builders.CourseOverGroundEventBuilder.CourseOverGroundEvent;
 import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isClassB;
@@ -63,18 +66,27 @@ import static dk.dma.ais.abnormal.util.TrackPredicates.isUnknownTypeOrSize;
  */
 public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
     private static final Logger LOG = LoggerFactory.getLogger(CourseOverGroundAnalysis.class);
-    {
-        LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
-    }
 
     private final AppStatisticsService statisticsService;
 
-    static final int TOTAL_SHIP_COUNT_THRESHOLD = 1000;
+    private final int TOTAL_SHIP_COUNT_THRESHOLD;
+    private final float PD;
 
     @Inject
-    public CourseOverGroundAnalysis(AppStatisticsService statisticsService, StatisticDataRepository statisticsRepository, Tracker trackingService, EventRepository eventRepository, BehaviourManager behaviourManager) {
+    public CourseOverGroundAnalysis(Configuration configuration, AppStatisticsService statisticsService, StatisticDataRepository statisticsRepository, Tracker trackingService, EventRepository eventRepository, BehaviourManager behaviourManager) {
         super(eventRepository, statisticsRepository, trackingService, behaviourManager);
         this.statisticsService = statisticsService;
+        TOTAL_SHIP_COUNT_THRESHOLD = configuration.getInt(CONFKEY_ANALYSIS_COG_CELL_SHIPCOUNT_MIN, 1000);
+        PD = configuration.getFloat(CONFKEY_ANALYSIS_COG_PD, 0.001f);
+        LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
+    }
+
+    @Override
+    public String toString() {
+        return "CourseOverGroundAnalysis{" +
+                "TOTAL_SHIP_COUNT_THRESHOLD=" + TOTAL_SHIP_COUNT_THRESHOLD +
+                ", PD=" + PD +
+                "} " + super.toString();
     }
 
     @AllowConcurrentEvents
@@ -155,7 +167,7 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
     }
 
     /**
-     * If the probability p(d)<0.001 and total count>1000 then abnormal. p(d)=sum(count)/count for all sog_intervals for
+     * If the probability p(d)<PD and total count>TOTAL_SHIP_COUNT_THRESHOLD then abnormal. p(d)=sum(count)/count for all sog_intervals for
      * that shiptype and size.
      *
      * @param cellId
@@ -185,7 +197,7 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
 
         LOG.debug("pd = " + pd);
 
-        boolean isAbnormalCourseOverGround = pd < 0.001;
+        boolean isAbnormalCourseOverGround = pd < PD;
         if (isAbnormalCourseOverGround) {
             LOG.debug("Abnormal event detected.");
         } else {
@@ -242,35 +254,35 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
         LOG.info(description);
 
         Event event =
-                CourseOverGroundEvent()
-                        .shipType(shipTypeCategory)
-                        .shipLength(shipLengthCategory)
-                        .courseOverGround(courseOverGroundCategory)
-                        .title(title)
-                        .description(description)
-                        .startTime(positionTimestamp)
-                        .behaviour()
-                            .isPrimary(true)
-                            .vessel()
-                                .mmsi(mmsi)
-                                .imo(imo)
-                                .callsign(callsign)
-                                .type(shipType /* shipTypeCategory */)
-                                .toBow(shipDimensionToBow)
-                                .toStern(shipDimensionToStern)
-                                .toPort(shipDimensionToPort)
-                                .toStarboard(shipDimensionToStarboard)
-                                .name(name)
-                            .trackingPoint()
-                                .timestamp(positionTimestamp)
-                                .positionInterpolated(interpolated)
-                                .eventCertainty(certainty)
-                                .speedOverGround(sog)
-                                .courseOverGround(cog)
-                                .trueHeading(hdg)
-                                .latitude(position.getLatitude())
-                                .longitude(position.getLongitude())
-                .getEvent();
+            CourseOverGroundEvent()
+                .shipType(shipTypeCategory)
+                .shipLength(shipLengthCategory)
+                .courseOverGround(courseOverGroundCategory)
+                .title(title)
+                .description(description)
+                .startTime(positionTimestamp)
+                .behaviour()
+                    .isPrimary(true)
+                    .vessel()
+                        .mmsi(mmsi)
+                        .imo(imo)
+                        .callsign(callsign)
+                        .type(shipType /* shipTypeCategory */)
+                        .toBow(shipDimensionToBow)
+                        .toStern(shipDimensionToStern)
+                        .toPort(shipDimensionToPort)
+                        .toStarboard(shipDimensionToStarboard)
+                        .name(name)
+                    .trackingPoint()
+                        .timestamp(positionTimestamp)
+                        .positionInterpolated(interpolated)
+                        .eventCertainty(certainty)
+                        .speedOverGround(sog)
+                        .courseOverGround(cog)
+                        .trueHeading(hdg)
+                        .latitude(position.getLatitude())
+                        .longitude(position.getLongitude())
+            .getEvent();
 
         addPreviousTrackingPoints(event, track);
 
@@ -278,5 +290,4 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
 
         return event;
     }
-
 }

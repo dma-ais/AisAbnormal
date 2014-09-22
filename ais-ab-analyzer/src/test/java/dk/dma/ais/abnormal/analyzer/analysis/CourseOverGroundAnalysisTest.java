@@ -22,11 +22,16 @@ import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.CourseOverGroundStatisticData;
 import dk.dma.ais.abnormal.tracker.Tracker;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
 import org.junit.Test;
 
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_COG_CELL_SHIPCOUNT_MIN;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_COG_PD;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -36,8 +41,7 @@ public class CourseOverGroundAnalysisTest {
 
     private JUnit4Mockery context;
 
-    private long testCellId = 24930669189L;
-
+    private Configuration configuration;
     private Tracker trackingService;
     private AppStatisticsService statisticsService;
     private StatisticDataRepository statisticsRepository;
@@ -55,6 +59,10 @@ public class CourseOverGroundAnalysisTest {
         statisticsRepository = context.mock(StatisticDataRepository.class);
         eventRepository = context.mock(EventRepository.class);
         behaviourManager = context.mock(BehaviourManager.class);
+
+        configuration = new PropertiesConfiguration();
+        configuration.setProperty(CONFKEY_ANALYSIS_COG_CELL_SHIPCOUNT_MIN, 1000);
+        configuration.setProperty(CONFKEY_ANALYSIS_COG_PD, 0.001);
     }
 
     /**
@@ -81,14 +89,14 @@ public class CourseOverGroundAnalysisTest {
         final int sum  = statistics.getSumFor(CourseOverGroundStatisticData.STAT_SHIP_COUNT);
         final int n1    = statistics.getValue(2, 4, 1, CourseOverGroundStatisticData.STAT_SHIP_COUNT);
         final int n2    = statistics.getValue(2, 4, 2, CourseOverGroundStatisticData.STAT_SHIP_COUNT);
-        assertTrue(sum < CourseOverGroundAnalysis.TOTAL_SHIP_COUNT_THRESHOLD);
+        assertTrue(sum < configuration.getInt(CONFKEY_ANALYSIS_COG_CELL_SHIPCOUNT_MIN));
         assertTrue((float) n1 / (float) sum > 0.01);
         assertTrue((float) n2 / (float) sum < 0.01);
 
         context.checking(new Expectations() {{
             oneOf(behaviourManager).registerSubscriber(with(any(CourseOverGroundAnalysis.class)));
         }});
-        final CourseOverGroundAnalysis analysis = new CourseOverGroundAnalysis(statisticsService, statisticsRepository, trackingService, eventRepository, behaviourManager);
+        final CourseOverGroundAnalysis analysis = new CourseOverGroundAnalysis(configuration, statisticsService, statisticsRepository, trackingService, eventRepository, behaviourManager);
 
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with("CourseOverGroundAnalysis"), with(any(String.class)));
@@ -132,7 +140,8 @@ public class CourseOverGroundAnalysisTest {
         final float pd1 = (float) n1 / (float) sum;
         final float pd2 = (float) n2 / (float) sum;
         final float pd3 = (float) n3 / (float) sum;
-        assertTrue(sum > CourseOverGroundAnalysis.TOTAL_SHIP_COUNT_THRESHOLD);
+        assertTrue(sum > configuration.getInt(CONFKEY_ANALYSIS_COG_CELL_SHIPCOUNT_MIN));
+        assertEquals(configuration.getFloat(CONFKEY_ANALYSIS_COG_PD), 0.001, 1e-6);
         assertTrue(pd1 < 0.001);
         assertTrue(pd2 > 0.001);
         assertTrue(pd2 > 0.001);
@@ -140,7 +149,7 @@ public class CourseOverGroundAnalysisTest {
         context.checking(new Expectations() {{
             oneOf(behaviourManager).registerSubscriber(with(any(CourseOverGroundAnalysis.class)));
         }});
-        final CourseOverGroundAnalysis analysis = new CourseOverGroundAnalysis(statisticsService, statisticsRepository, trackingService, eventRepository, behaviourManager);
+        final CourseOverGroundAnalysis analysis = new CourseOverGroundAnalysis(configuration, statisticsService, statisticsRepository, trackingService, eventRepository, behaviourManager);
 
         context.checking(new Expectations() {{
             ignoring(statisticsService).incAnalysisStatistics(with("CourseOverGroundAnalysis"), with(any(String.class)));

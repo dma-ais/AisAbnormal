@@ -36,12 +36,15 @@ import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static dk.dma.ais.abnormal.analyzer.config.Configuration.*;
-
 import java.util.Date;
 import java.util.List;
 import java.util.TreeSet;
 
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_DRIFT_COGHDG;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_DRIFT_DISTANCE;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_DRIFT_PERIOD;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_DRIFT_SOG_MAX;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_DRIFT_SOG_MIN;
 import static dk.dma.ais.abnormal.util.AisDataHelper.isCourseOverGroundAvailable;
 import static dk.dma.ais.abnormal.util.AisDataHelper.isSpeedOverGroundAvailable;
 import static dk.dma.ais.abnormal.util.AisDataHelper.isTrueHeadingAvailable;
@@ -108,7 +111,7 @@ public class DriftAnalysis extends Analysis {
         OBSERVATION_PERIOD_MINUTES = configuration.getInt(CONFKEY_ANALYSIS_DRIFT_PERIOD, 10);
         OBSERVATION_DISTANCE_METERS = configuration.getFloat(CONFKEY_ANALYSIS_DRIFT_DISTANCE, 500f);
 
-        LOG.info(toString());
+        LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
 
     @Override

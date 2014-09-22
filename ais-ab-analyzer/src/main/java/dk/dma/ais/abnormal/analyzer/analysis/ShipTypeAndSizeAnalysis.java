@@ -39,11 +39,14 @@ import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
 import dk.dma.ais.abnormal.tracker.events.TrackStaleEvent;
 import dk.dma.ais.abnormal.util.Categorizer;
 import dk.dma.enav.model.geometry.Position;
+import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_TYPESIZE_CELL_SHIPCOUNT_MIN;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_TYPESIZE_PD;
 import static dk.dma.ais.abnormal.event.db.domain.builders.ShipSizeOrTypeEventBuilder.ShipSizeOrTypeEvent;
 import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isClassB;
@@ -63,18 +66,27 @@ import static dk.dma.ais.abnormal.util.TrackPredicates.isUnknownTypeOrSize;
  */
 public class ShipTypeAndSizeAnalysis extends StatisticBasedAnalysis {
     private static final Logger LOG = LoggerFactory.getLogger(ShipTypeAndSizeAnalysis.class);
-    {
-        LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
-    }
 
     private final AppStatisticsService statisticsService;
 
-    private static final int TOTAL_COUNT_THRESHOLD = 1000;
+    private final int TOTAL_SHIP_COUNT_THRESHOLD;
+    private final float PD;
 
     @Inject
-    public ShipTypeAndSizeAnalysis(AppStatisticsService statisticsService, StatisticDataRepository statisticsRepository, Tracker trackingService, EventRepository eventRepository, BehaviourManager behaviourManager) {
+    public ShipTypeAndSizeAnalysis(Configuration configuration, AppStatisticsService statisticsService, StatisticDataRepository statisticsRepository, Tracker trackingService, EventRepository eventRepository, BehaviourManager behaviourManager) {
         super(eventRepository, statisticsRepository, trackingService, behaviourManager);
         this.statisticsService = statisticsService;
+        TOTAL_SHIP_COUNT_THRESHOLD = configuration.getInt(CONFKEY_ANALYSIS_TYPESIZE_CELL_SHIPCOUNT_MIN, 1000);
+        PD = configuration.getFloat(CONFKEY_ANALYSIS_TYPESIZE_PD, 0.001f);
+        LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
+    }
+
+    @Override
+    public String toString() {
+        return "ShipTypeAndSizeAnalysis{" +
+                "TOTAL_SHIP_COUNT_THRESHOLD=" + TOTAL_SHIP_COUNT_THRESHOLD +
+                ", PD=" + PD +
+                "} " + super.toString();
     }
 
     @AllowConcurrentEvents
@@ -151,7 +163,7 @@ public class ShipTypeAndSizeAnalysis extends StatisticBasedAnalysis {
     }
 
     /**
-     * If the probability p(d)<0.001 and total count>1000 then abnormal. p(d)=sum(count)/count for all sog_intervals for
+     * If the probability p(d)<PD and total count>TOTAL_SHIP_COUNT_THRESHOLD then abnormal. p(d)=sum(count)/count for all sog_intervals for
      * that shiptype and size.
      *
      * @param cellId
@@ -166,7 +178,7 @@ public class ShipTypeAndSizeAnalysis extends StatisticBasedAnalysis {
 
         if (shipSizeAndTypeData instanceof ShipTypeAndSizeStatisticData) {
             Integer totalCount  = ((ShipTypeAndSizeStatisticData) shipSizeAndTypeData).getSumFor("shipCount");
-            if (totalCount > TOTAL_COUNT_THRESHOLD) {
+            if (totalCount > TOTAL_SHIP_COUNT_THRESHOLD) {
                 Integer shipCount = ((ShipTypeAndSizeStatisticData) shipSizeAndTypeData).getValue(shipTypeKey, shipSizeKey, ShipTypeAndSizeStatisticData.STAT_SHIP_COUNT);
                 if (shipCount == null) {
                     shipCount = 0;
@@ -180,7 +192,7 @@ public class ShipTypeAndSizeAnalysis extends StatisticBasedAnalysis {
 
         LOG.debug("pd = " + pd);
 
-        boolean isAbnormalCellForShipTypeAndSize = pd < 0.001;
+        boolean isAbnormalCellForShipTypeAndSize = pd < PD;
         if (isAbnormalCellForShipTypeAndSize) {
             LOG.debug("Abnormal event detected.");
         } else {

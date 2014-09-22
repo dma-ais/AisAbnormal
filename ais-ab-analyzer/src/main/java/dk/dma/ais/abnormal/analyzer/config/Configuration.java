@@ -26,6 +26,12 @@ public final class Configuration {
     public static final String CONFKEY_FILTER_LOCATION_BBOX_SOUTH = "filter.location.bbox.south";
     public static final String CONFKEY_FILTER_LOCATION_BBOX_WEST = "filter.location.bbox.west";
     public static final String CONFKEY_FILTER_LOCATION_BBOX_EAST = "filter.location.bbox.east";
+    public static final String CONFKEY_ANALYSIS_COG_CELL_SHIPCOUNT_MIN = "analysis.cog.cell.shipcount.min";
+    public static final String CONFKEY_ANALYSIS_COG_PD = "analysis.cog.pd";
+    public static final String CONFKEY_ANALYSIS_SOG_CELL_SHIPCOUNT_MIN = "analysis.sog.cell.shipcount.min";
+    public static final String CONFKEY_ANALYSIS_SOG_PD = "analysis.sog.pd";
+    public static final String CONFKEY_ANALYSIS_TYPESIZE_CELL_SHIPCOUNT_MIN = "analysis.typesize.cell.shipcount.min";
+    public static final String CONFKEY_ANALYSIS_TYPESIZE_PD = "analysis.typesize.pd";
     public static final String CONFKEY_ANALYSIS_DRIFT_PERIOD = "analysis.drift.period";
     public static final String CONFKEY_ANALYSIS_DRIFT_DISTANCE = "analysis.drift.distance";
     public static final String CONFKEY_ANALYSIS_DRIFT_SOG_MIN = "analysis.drift.sog.min";
