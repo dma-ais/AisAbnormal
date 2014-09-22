@@ -346,7 +346,7 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
             final int numAreaPolygons = areaPolygons.getLength();
             for (int i = 0; i < numAreaPolygons; i++) {
                 Node areaPolygon = areaPolygons.item(i);
-                LOG.info("XML reading area_polygon " + areaPolygon.getAttributes().getNamedItem("name").toString());
+                LOG.debug("XML reading area_polygon " + areaPolygon.getAttributes().getNamedItem("name").toString());
                 NodeList polygons = areaPolygon.getChildNodes();
                 int numPolygons = polygons.getLength();
                 for (int p = 0; p < numPolygons; p++) {
@@ -368,7 +368,7 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
                                     }
                                 }
                             }
-                            LOG.info("Blocking messages in bbox " + boundingBox.toString() + " " + (boundingBox.getMaxLat()-boundingBox.getMinLat()) + " " + (boundingBox.getMaxLon()-boundingBox.getMinLon()));
+                            LOG.info("Blocking messages in bbox " + areaPolygon.getAttributes().getNamedItem("name").toString() + ": " + boundingBox.toString() + " " + (boundingBox.getMaxLat()-boundingBox.getMinLat()) + " " + (boundingBox.getMaxLon()-boundingBox.getMinLon()));
                             boundingBoxes.add(boundingBox);
                         } catch (NumberFormatException e) {
                             LOG.error(e.getMessage(), e);
