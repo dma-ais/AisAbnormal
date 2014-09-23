@@ -27,6 +27,7 @@ import dk.dma.ais.packet.AisPacket;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
@@ -73,7 +74,7 @@ public class CloseEncounterAnalysisTest {
         trackingService = context.mock(Tracker.class);
         statisticsService = context.mock(AppStatisticsService.class);
         eventRepository = context.mock(EventRepository.class);
-        analysis = new CloseEncounterAnalysis( statisticsService, trackingService, eventRepository);
+        analysis = new CloseEncounterAnalysis(new PropertiesConfiguration(), statisticsService, trackingService, eventRepository);
 
         long timestamp = System.currentTimeMillis();
         long tooOld = timestamp - maxTimestampDeviationMillis - 1;

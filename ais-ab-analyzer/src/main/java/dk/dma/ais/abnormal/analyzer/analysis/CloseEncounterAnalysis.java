@@ -35,6 +35,7 @@ import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Ellipse;
 import dk.dma.enav.util.CoordinateConverter;
 import net.jcip.annotations.NotThreadSafe;
+import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +46,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Executor;
 
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_CLOSEENCOUNTER_RUN_PERIOD;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_CLOSEENCOUNTER_SOG_MIN;
 import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isEngagedInFishing;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isEngagedInTowing;
@@ -77,9 +80,6 @@ import static java.util.stream.Collectors.toSet;
 @NotThreadSafe
 public class CloseEncounterAnalysis extends Analysis {
     private static final Logger LOG = LoggerFactory.getLogger(CloseEncounterAnalysis.class);
-    {
-        LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
-    }
 
     private final AppStatisticsService statisticsService;
     private final String analysisName;
@@ -87,7 +87,12 @@ public class CloseEncounterAnalysis extends Analysis {
     /**
      * Minimum no. of msecs between runs of this analysis.
      */
-    private final static int ANALYSIS_PERIOD_MILLIS = 30 * 1000;
+    private final int ANALYSIS_PERIOD_MILLIS;
+
+    /**
+     * MMinimum speed over ground to consider close encounter (in knots)
+     */
+    private final float SOG_MIN;
 
     /**
      * The time when the analysis should next be run.
@@ -100,11 +105,24 @@ public class CloseEncounterAnalysis extends Analysis {
     private Executor executor = MoreExecutors.sameThreadExecutor(); // Executors.newSingleThreadExecutor();
 
     @Inject
-    public CloseEncounterAnalysis(AppStatisticsService statisticsService, Tracker trackingService, EventRepository eventRepository) {
+    public CloseEncounterAnalysis(Configuration configuration, AppStatisticsService statisticsService, Tracker trackingService, EventRepository eventRepository) {
         super(eventRepository, trackingService, null);
         this.statisticsService = statisticsService;
         this.analysisName = this.getClass().getSimpleName();
         this.nextRunTime = new Date(0L);
+
+        ANALYSIS_PERIOD_MILLIS = configuration.getInt(CONFKEY_ANALYSIS_CLOSEENCOUNTER_RUN_PERIOD, 30000) * 1000;
+        SOG_MIN = configuration.getFloat(CONFKEY_ANALYSIS_CLOSEENCOUNTER_SOG_MIN, 5.0f);
+
+        LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
+    }
+
+    @Override
+    public String toString() {
+        return "CloseEncounterAnalysis{" +
+                "ANALYSIS_PERIOD_MILLIS=" + ANALYSIS_PERIOD_MILLIS +
+                ", SOG_MIN=" + SOG_MIN +
+                "} " + super.toString();
     }
 
     @Subscribe
@@ -157,7 +175,7 @@ public class CloseEncounterAnalysis extends Analysis {
                     if (isEngagedInFishing.test(track) && isEngagedInFishing.test(nearByTrack)) {
                         return;
                     }
-                    if (! (track.getSpeedOverGround() > 5.0 || nearByTrack.getSpeedOverGround() > 5.0)) {
+                    if (! (track.getSpeedOverGround() > SOG_MIN || nearByTrack.getSpeedOverGround() > SOG_MIN)) {
                         return;
                     }
                     analyseCloseEncounter(track, nearByTrack);
@@ -166,7 +184,7 @@ public class CloseEncounterAnalysis extends Analysis {
     }
 
     void analyseCloseEncounter(Track track1, Track track2) {
-        if (track1.getSpeedOverGround() > 5.0 && ! isTrackPairAnalyzed(track1, track2)) {
+        if (track1.getSpeedOverGround() > SOG_MIN && ! isTrackPairAnalyzed(track1, track2)) {
 
             if (track1.getTimeOfLastPositionReport() < track2.getTimeOfLastPositionReport()) {
                 track1.predict(track2.getTimeOfLastPositionReport());

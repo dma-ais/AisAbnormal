@@ -34,6 +34,7 @@ import dk.dma.ais.abnormal.tracker.events.PositionChangedEvent;
 import dk.dma.ais.abnormal.tracker.events.TrackStaleEvent;
 import dk.dma.ais.abnormal.util.Categorizer;
 import dk.dma.enav.model.geometry.Position;
+import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +44,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
 
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.*;
 import static dk.dma.ais.abnormal.util.AisDataHelper.isSpeedOverGroundAvailable;
 import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isCargoVessel;
@@ -74,25 +76,21 @@ import static dk.dma.ais.abnormal.util.TrackPredicates.isVeryLongVessel;
 public class SuddenSpeedChangeAnalysis extends Analysis {
     private static final Logger LOG = LoggerFactory.getLogger(SuddenSpeedChangeAnalysis.class);
 
-    {
-        LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
-    }
-
     private final AppStatisticsService statisticsService;
 
     /** Track must come from SOG above this value to cause sudden speed change event */
-    static final float SPEED_HIGH_MARK = 7.0f;
+    final float SPEED_HIGH_MARK;
 
     /** Track must drop to SOG below this value to cause sudden speed change event */
-    static final float SPEED_LOW_MARK = 1.0f;
+    final float SPEED_LOW_MARK;
 
     /** Track must drop from above SPEED_HIGH_MARK to below SPEED_LOW_MARK in less than this amount of seconds to cause sudden speed change event */
-    static final int SUDDEN_TIME_SECS = 30;
+    final int SPEED_DECAY_SECS;
 
     /** No. of secs to sustain low speed before raising sudden speed change event */
-    static final long SUSTAIN_LOW_SPEED_SECS = 60;
+    final long SPEED_SUSTAIN_SECS;
 
-    static final float MAX_VALID_SPEED = (float) 102.2;
+    final float MAX_VALID_SPEED = (float) 102.2;
 
     private TreeSet<Integer> tracksWithSuddenSpeedDecrease = new TreeSet<>();
 
@@ -101,10 +99,27 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
     private int statCount = 0;
 
     @Inject
-    public SuddenSpeedChangeAnalysis(AppStatisticsService statisticsService, Tracker trackingService, EventRepository eventRepository) {
+    public SuddenSpeedChangeAnalysis(Configuration configuration, AppStatisticsService statisticsService, Tracker trackingService, EventRepository eventRepository) {
         super(eventRepository, trackingService, null);
         this.statisticsService = statisticsService;
         this.analysisName = this.getClass().getSimpleName();
+
+        SPEED_HIGH_MARK = configuration.getFloat(CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SOG_HIGHMARK, 7f);
+        SPEED_LOW_MARK = configuration.getFloat(CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SOG_LOWMARK, 1f);
+        SPEED_DECAY_SECS = configuration.getInt(CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_DROP_DECAY, 30);
+        SPEED_SUSTAIN_SECS = configuration.getInt(CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_DROP_SUSTAIN, 60);
+
+        LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
+    }
+
+    @Override
+    public String toString() {
+        return "SuddenSpeedChangeAnalysis{" +
+                "SPEED_HIGH_MARK=" + SPEED_HIGH_MARK +
+                ", SPEED_LOW_MARK=" + SPEED_LOW_MARK +
+                ", SPEED_DECAY_SECS=" + SPEED_DECAY_SECS +
+                ", SPEED_SUSTAIN_SECS=" + SPEED_SUSTAIN_SECS +
+                "} " + super.toString();
     }
 
     @AllowConcurrentEvents
@@ -177,7 +192,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
 
     /**
      * Evaluate whether this track has kept its speed below SPEED_LOW_MARK
-     * for a sustained period of at least SUSTAIN_LOW_SPEED_SECS seconds.
+     * for a sustained period of at least SPEED_SUSTAIN_SECS seconds.
      *
      * @param track
      * @return
@@ -189,7 +204,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
 
         Optional<Float> maxSog = track.getTrackingReports()
                 .stream()
-                .filter(tr -> tr.getTimestamp() >= track.getTimeOfLastPositionReport() - SUSTAIN_LOW_SPEED_SECS * 1000)
+                .filter(tr -> tr.getTimestamp() >= track.getTimeOfLastPositionReport() - SPEED_SUSTAIN_SECS * 1000)
                 .map(tr -> Float.valueOf(tr.getSpeedOverGround()))
                 .max(Comparator.<Float>naturalOrder());
 
@@ -201,7 +216,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
      * to the most recent speed report.
      *
      * A sudden speed decrease is a drop in SOG from above SPEED_HIGH_MARK to below
-     * SPEED_LOW_MARK in less than SUDDEN_TIME_SECS seconds.
+     * SPEED_LOW_MARK in less than SPEED_DECAY_SECS seconds.
      *
      * @param track
      * @return
@@ -214,7 +229,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
         long t1 = timeOfLastTrackingReportAboveHighMark(track.getTrackingReports());
         long t2 = track.getTimeOfLastPositionReport();
 
-        return t1 >= 0 && (t2 - t1) <= SUDDEN_TIME_SECS*1000;
+        return t1 >= 0 && (t2 - t1) <= SPEED_DECAY_SECS *1000;
     }
 
     private long timeOfLastTrackingReportAboveHighMark(List<TrackingReport> trackingReports) {

@@ -30,6 +30,8 @@ import dk.dma.ais.test.helpers.ArgumentCaptor;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.grid.Grid;
 import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
@@ -45,6 +47,7 @@ public class SuddenSpeedChangeAnalysisTest {
     private Tracker trackingService;
     private AppStatisticsService statisticsService;
     private EventRepository eventRepository;
+    private Configuration configuration;
     private Track track;
 
     // GatehouseSourceTag [baseMmsi=2190067, country=DK, region=, timestamp=Thu Apr 10 15:30:29 CEST 2014]
@@ -63,6 +66,9 @@ public class SuddenSpeedChangeAnalysisTest {
         statisticsService = context.mock(AppStatisticsService.class);
         eventRepository = context.mock(EventRepository.class);
 
+        //
+        configuration = new PropertiesConfiguration();
+
         // Create test data
         track = new Track(219000606);
         track.update(msg5); // Init static part
@@ -74,7 +80,7 @@ public class SuddenSpeedChangeAnalysisTest {
     @Test
     public void eventIsRaisedForSuddenSpeedChange() {
         // Create object under test
-        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(statisticsService, trackingService, eventRepository);
+        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(configuration, statisticsService, trackingService, eventRepository);
 
         // Perform test - none of the required data are there
         final ArgumentCaptor<SuddenSpeedChangeEvent> eventCaptor = ArgumentCaptor.forClass(SuddenSpeedChangeEvent.class);
@@ -113,7 +119,7 @@ public class SuddenSpeedChangeAnalysisTest {
     @Test
     public void speedMustStaySustainedBelowThresholdBeforeEventIsRaised() {
         // Create object under test
-        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(statisticsService, trackingService, eventRepository);
+        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(configuration, statisticsService, trackingService, eventRepository);
 
         // Perform test - none of the required data are there
         final ArgumentCaptor<SuddenSpeedChangeEvent> eventCaptor = ArgumentCaptor.forClass(SuddenSpeedChangeEvent.class);
@@ -165,7 +171,7 @@ public class SuddenSpeedChangeAnalysisTest {
     @Test
     public void eventIsRaisedForSuddenSpeedChangeSpanningSeveralMessages() {
         // Create object under test
-        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(statisticsService, trackingService, eventRepository);
+        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(configuration, statisticsService, trackingService, eventRepository);
 
         // Perform test - none of the required data are there
         final ArgumentCaptor<SuddenSpeedChangeEvent> eventCaptor = ArgumentCaptor.forClass(SuddenSpeedChangeEvent.class);
@@ -283,7 +289,7 @@ public class SuddenSpeedChangeAnalysisTest {
     @Test
     public void noEventIsRaisedForSlowSpeedChange() {
         // Create object under test
-        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(statisticsService, trackingService, eventRepository);
+        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(configuration, statisticsService, trackingService, eventRepository);
 
         // Perform test - none of the required data are there
         context.checking(new Expectations() {{
@@ -310,7 +316,7 @@ public class SuddenSpeedChangeAnalysisTest {
     @Test
     public void noEventIsRaisedForFastSpeedChangeAboveEightKnots() {
         // Create object under test
-        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(statisticsService, trackingService, eventRepository);
+        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(configuration, statisticsService, trackingService, eventRepository);
 
         // Perform test - none of the required data are there
         context.checking(new Expectations() {{
@@ -339,7 +345,7 @@ public class SuddenSpeedChangeAnalysisTest {
         track.update(track.getTimeOfLastPositionReport(), Position.create(56, 12), 45.0f, 12.2f, 45.0f);
 
         // Create object under test
-        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(statisticsService, trackingService, eventRepository);
+        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(configuration, statisticsService, trackingService, eventRepository);
 
         // Perform test - none of the required data are there
         context.checking(new Expectations() {{
@@ -359,7 +365,7 @@ public class SuddenSpeedChangeAnalysisTest {
         track.update(track.getTimeOfLastPositionReport(), Position.create(56, 12), 45.0f, 0.4f, 45.0f);
 
         // Create object under test
-        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(statisticsService, trackingService, eventRepository);
+        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(configuration, statisticsService, trackingService, eventRepository);
 
         // Perform test - none of the required data are there
         context.checking(new Expectations() {{
@@ -376,7 +382,7 @@ public class SuddenSpeedChangeAnalysisTest {
     @Test
     public void noEventIsRaisedWhenTrackHasBeenStale() {
         // Create object under test
-        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(statisticsService, trackingService, eventRepository);
+        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(configuration, statisticsService, trackingService, eventRepository);
 
         // Perform test - none of the required data are there
         context.checking(new Expectations() {{
@@ -407,7 +413,7 @@ public class SuddenSpeedChangeAnalysisTest {
     @Test
     public void noEventIsRaisedWhenSpeedIsUndefined() {
         // Create object under test
-        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(statisticsService, trackingService, eventRepository);
+        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(configuration, statisticsService, trackingService, eventRepository);
 
         // Perform test - none of the required data are there
         context.checking(new Expectations() {{
@@ -427,7 +433,7 @@ public class SuddenSpeedChangeAnalysisTest {
         track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
-        for (int t=0; t < SuddenSpeedChangeAnalysis.SUSTAIN_LOW_SPEED_SECS*2; t += 10) {
+        for (int t=0; t < analysis.SPEED_SUSTAIN_SECS*2; t += 10) {
             track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 2) * 1000 + t, Position.create(56, 12), 45.0f, 0.1f, 45.0f);
             analysis.onSpeedOverGroundUpdated(event);
         }
@@ -501,7 +507,7 @@ public class SuddenSpeedChangeAnalysisTest {
         // Create real tracker; not mock
         Tracker tracker = new EventEmittingTracker(new BaseConfiguration(), Grid.createSize(200), statisticsService);
         // Create object under test
-        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(statisticsService, tracker, eventRepository);
+        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(configuration, statisticsService, tracker, eventRepository);
 
         // Set expectations
         context.checking(new Expectations() {{
