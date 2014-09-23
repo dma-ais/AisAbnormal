@@ -18,6 +18,7 @@ package dk.dma.ais.abnormal.analyzer;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.name.Named;
 import dk.dma.ais.abnormal.analyzer.analysis.Analysis;
 import dk.dma.ais.abnormal.analyzer.analysis.CloseEncounterAnalysis;
 import dk.dma.ais.abnormal.analyzer.analysis.CourseOverGroundAnalysis;
@@ -31,19 +32,21 @@ import dk.dma.ais.filter.LocationFilter;
 import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisMessage5;
+import dk.dma.ais.message.AisStaticCommon;
 import dk.dma.ais.message.IPositionMessage;
 import dk.dma.ais.packet.AisPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * Handler for read AIS packets
  */
 public class PacketHandlerImpl implements PacketHandler {
 
-    static final Logger LOG = LoggerFactory.getLogger(PacketHandler.class);
+    static final Logger LOG = LoggerFactory.getLogger(PacketHandlerImpl.class);
     {
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
@@ -53,15 +56,22 @@ public class PacketHandlerImpl implements PacketHandler {
     private final ReplayDownSampleFilter downSampleFilter;
     private final GeoMaskFilter geoMaskFilter;
     private final LocationFilter locationFilter;
+    private final Predicate<AisPacket> shipNameFilter;
     private final Set<Analysis> analyses;
 
     @Inject
-    public PacketHandlerImpl(AppStatisticsService statisticsService, Tracker tracker, ReplayDownSampleFilter downSampleFilter, GeoMaskFilter geoMaskFilter, LocationFilter locationFilter) {
+    public PacketHandlerImpl(AppStatisticsService statisticsService,
+                             Tracker tracker,
+                             ReplayDownSampleFilter downSampleFilter,
+                             GeoMaskFilter geoMaskFilter,
+                             LocationFilter locationFilter,
+                             @Named("shipNameFilter") Predicate<AisPacket> shipNameFilter) {
         this.statisticsService = statisticsService;
         this.tracker = tracker;
         this.downSampleFilter = downSampleFilter;
         this.geoMaskFilter = geoMaskFilter;
         this.locationFilter = locationFilter;
+        this.shipNameFilter = shipNameFilter;
         this.analyses = initAnalyses();
 
         this.analyses.forEach(analysis -> analysis.start());
@@ -84,6 +94,18 @@ public class PacketHandlerImpl implements PacketHandler {
         }
 
         if (geoMaskFilter.rejectedByFilter(packet)) {
+            return;
+        }
+
+        if (shipNameFilter.test(packet)) {
+            if (LOG.isDebugEnabled()) {
+                AisMessage aisMessage = packet.tryGetAisMessage();
+                String name = null;
+                if (aisMessage instanceof AisStaticCommon) {
+                    name = ((AisStaticCommon) aisMessage).getName();
+                }
+                LOG.debug("Dropped packet of type " + aisMessage.getMsgId() + " for MMSI " + aisMessage.getUserId() + " due to name match. " + (name != null ? "Name=\""+name+"\"" : ""));
+            }
             return;
         }
 

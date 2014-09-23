@@ -21,6 +21,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManager;
 import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManagerImpl;
 import dk.dma.ais.abnormal.analyzer.reports.ReportJobFactory;
@@ -38,6 +39,7 @@ import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.filter.GeoMaskFilter;
 import dk.dma.ais.filter.LocationFilter;
 import dk.dma.ais.filter.ReplayDownSampleFilter;
+import dk.dma.ais.packet.AisPacket;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
 import dk.dma.enav.model.geometry.BoundingBox;
@@ -72,6 +74,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_AIS_DATASOURCE_DOWNSAMPLING;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_AIS_DATASOURCE_URL;
@@ -86,7 +89,9 @@ import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_FILTER_L
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_FILTER_LOCATION_BBOX_NORTH;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_FILTER_LOCATION_BBOX_SOUTH;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_FILTER_LOCATION_BBOX_WEST;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_FILTER_SHIPNAME_SKIP;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_STATISTICS_FILE;
+import static dk.dma.ais.packet.AisPacketFilters.parseExpressionFilter;
 
 /**
  * This is the Google Guice module class which defines creates objects to be injected by Guice.
@@ -163,15 +168,6 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
             LOG.error(e.getMessage(), e);
         }
         System.out.println("-----------------------------------------");
-    }
-
-    @Provides
-    ReplayDownSampleFilter provideReplayDownSampleFilter() {
-        Configuration configuration = getConfiguration();
-        int downsampling = configuration.getInt(CONFKEY_AIS_DATASOURCE_DOWNSAMPLING, 0);
-        ReplayDownSampleFilter filter = new ReplayDownSampleFilter(downsampling);
-        LOG.info("Created ReplayDownSampleFilter with down sampling period of " + downsampling + " secs.");
-        return filter;
     }
 
     @Provides
@@ -286,7 +282,15 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     }
 
     @Provides
-    @Singleton
+    ReplayDownSampleFilter provideReplayDownSampleFilter() {
+        Configuration configuration = getConfiguration();
+        int downsampling = configuration.getInt(CONFKEY_AIS_DATASOURCE_DOWNSAMPLING, 0);
+        ReplayDownSampleFilter filter = new ReplayDownSampleFilter(downsampling);
+        LOG.info("Created ReplayDownSampleFilter with down sampling period of " + downsampling + " secs.");
+        return filter;
+    }
+
+    @Provides
     GeoMaskFilter provideGeoMaskFilter() {
         List<BoundingBox> boundingBoxes = null;
 
@@ -302,7 +306,6 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     }
 
     @Provides
-    @Singleton
     LocationFilter provideLocationFilter() {
         Configuration configuration = getConfiguration();
 
@@ -334,6 +337,27 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
         }
 
         return filter;
+    }
+
+    @Provides
+    @Named("shipNameFilter")
+    Predicate<AisPacket> provideShipNameFilter() {
+        Configuration configuration = getConfiguration();
+        String[] shipNames = configuration.getStringArray(CONFKEY_FILTER_SHIPNAME_SKIP);
+        Predicate<AisPacket> filter = null;
+        if (shipNames != null && shipNames.length > 0 && !(shipNames.length == 1 && shipNames[0].trim().length() == 0)) {
+            String filterExpression = "";
+            for (int i = 0; i < shipNames.length; i++) {
+                filterExpression += "t.name ~ " + shipNames[i];
+                if (i != shipNames.length - 1) {
+                    filterExpression += " | ";
+                }
+            }
+            LOG.debug("filterExpression: " + filterExpression);
+            filter = parseExpressionFilter(filterExpression);
+            LOG.info("Created ship name filter: " + filterExpression);
+        }
+        return filter != null ? filter : aisPacket -> false;
     }
 
     private List<BoundingBox> parseGeoMaskXmlInputStream(InputStream is) {
