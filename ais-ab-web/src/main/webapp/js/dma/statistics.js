@@ -111,9 +111,13 @@ var statisticsModule = {
         var totalShipCountSog = cell.totalShipCount["SpeedOverGroundStatisticData"];
         var totalShipCount = ((totalShipCountType == undefined ? 0 : totalShipCountType) + (totalShipCountCog == undefined ? 0 : totalShipCountCog) + (totalShipCountSog == undefined ? 0 : totalShipCountSog))/3;
 
-        var strokeColor = "#aaaaaa";
-        if (totalShipCount >= 1000) {
-            strokeColor = "#66cc66";
+        var strokeColor;
+        if (totalShipCount >= 5000) {
+            strokeColor = "#66ff66";
+        } else if (totalShipCount >= 1000) {
+            strokeColor = "#33bb33";
+        } else {
+            strokeColor = "#aaaaaa";
         }
 
         var fillOpacity = fillOpacity = 0.05 + (Math.min(totalShipCount/500, 1))*0.5;
