@@ -180,7 +180,7 @@ public class DriftAnalysis extends Analysis {
         final float cog = track.getCourseOverGround();
         final float hdg = track.getTrueHeading();
 
-        if (sog >= SPEED_LOW_MARK && sog <= SPEED_HIGH_MARK && isSignificantDeviation(cog, hdg)) {
+        if (sog >= SPEED_LOW_MARK && sog <= SPEED_HIGH_MARK && isCourseHeadingDeviationIndicatingDrift(cog, hdg)) {
             LOG.debug(nameOrMmsi(track.getShipName(), mmsi) + " exhibits possible drift. Added to observation list.");
             tracksPossiblyDrifting.add(mmsi);
             if (isSustainedDrift(track)) {
@@ -203,12 +203,12 @@ public class DriftAnalysis extends Analysis {
         return isDriftPeriodLongEnough(track) && isDriftDistanceLongEnough(track);
     }
 
-    boolean isSignificantDeviation(float cog, float hdg) {
-        return absoluteDirectionalDifference(cog, hdg) > MIN_HDG_COG_DEVIATION_DEGREES;
+    boolean isCourseHeadingDeviationIndicatingDrift(float cog, float hdg) {
+        return absoluteDirectionalDifference(cog, hdg) > MIN_HDG_COG_DEVIATION_DEGREES && absoluteDirectionalDifference(180f + cog, hdg) > MIN_HDG_COG_DEVIATION_DEGREES;
     }
 
     private boolean isDrifting(TrackingReport tr) {
-        return tr.getSpeedOverGround() >= SPEED_LOW_MARK && tr.getSpeedOverGround() <= SPEED_HIGH_MARK && isSignificantDeviation(tr.getCourseOverGround(), tr.getTrueHeading());
+        return tr.getSpeedOverGround() >= SPEED_LOW_MARK && tr.getSpeedOverGround() <= SPEED_HIGH_MARK && isCourseHeadingDeviationIndicatingDrift(tr.getCourseOverGround(), tr.getTrueHeading());
     }
 
     private boolean isTrackedForLongEnough(Track track) {
@@ -257,8 +257,7 @@ public class DriftAnalysis extends Analysis {
         return distanceDriftedInMeters > OBSERVATION_DISTANCE_METERS;
     }
 
-    private static float absoluteDirectionalDifference(float dir1, float dir2)
-    {
+    private static float absoluteDirectionalDifference(float dir1, float dir2) {
         dir1 = directionInCompassRange(dir1);
         dir2 = directionInCompassRange(dir2);
 

@@ -50,31 +50,40 @@ public class DriftAnalysisTest {
 
     @Test
     public void testIsSignificantDeviation() {
-        assertFalse(driftAnalysis.isSignificantDeviation(0.0f, 0.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES - 1.0f));
-        assertFalse(driftAnalysis.isSignificantDeviation(0.0f, 0.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES));
-        assertTrue(driftAnalysis.isSignificantDeviation(0.0f, 0.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES + 1.0f));
+        testIsCourseHeadingDeviationIndicatingDrift(0f);
+    }
 
-        assertFalse(driftAnalysis.isSignificantDeviation(90.0f, 90.0f));
-        assertFalse(driftAnalysis.isSignificantDeviation(90.0f, 90.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES - 1.0f));
-        assertFalse(driftAnalysis.isSignificantDeviation(90.0f, 90.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES));
-        assertTrue(driftAnalysis.isSignificantDeviation(90.0f, 90.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES + 1.0f));
+    @Test
+    public void testIsSignificantDeviationDriftingBackwards() {
+        testIsCourseHeadingDeviationIndicatingDrift(180f);
+    }
 
-        assertFalse(driftAnalysis.isSignificantDeviation(180.0f, 180.0f));
-        assertFalse(driftAnalysis.isSignificantDeviation(180.0f, 180.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES - 1.0f));
-        assertFalse(driftAnalysis.isSignificantDeviation(180.0f, 180.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES));
-        assertTrue(driftAnalysis.isSignificantDeviation(180.0f, 180.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES + 1.0f));
+    private void testIsCourseHeadingDeviationIndicatingDrift(final float cogOffset) {
+        assertFalse(driftAnalysis.isCourseHeadingDeviationIndicatingDrift(cogOffset + 0.0f, 0.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES - 1.0f));
+        assertFalse(driftAnalysis.isCourseHeadingDeviationIndicatingDrift(cogOffset + 0.0f, 0.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES));
+        assertTrue(driftAnalysis.isCourseHeadingDeviationIndicatingDrift(cogOffset + 0.0f, 0.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES + 1.0f));
 
-        assertFalse(driftAnalysis.isSignificantDeviation(270.0f, 270.0f));
-        assertFalse(driftAnalysis.isSignificantDeviation(270.0f, 270.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES - 1.0f));
-        assertFalse(driftAnalysis.isSignificantDeviation(270.0f, 270.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES));
-        assertTrue(driftAnalysis.isSignificantDeviation(270.0f, 270.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES + 1.0f));
+        assertFalse(driftAnalysis.isCourseHeadingDeviationIndicatingDrift(cogOffset + 90.0f, 90.0f));
+        assertFalse(driftAnalysis.isCourseHeadingDeviationIndicatingDrift(cogOffset + 90.0f, 90.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES - 1.0f));
+        assertFalse(driftAnalysis.isCourseHeadingDeviationIndicatingDrift(cogOffset + 90.0f, 90.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES));
+        assertTrue(driftAnalysis.isCourseHeadingDeviationIndicatingDrift(cogOffset + 90.0f, 90.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES + 1.0f));
 
-        assertFalse(driftAnalysis.isSignificantDeviation(0.0f, 0.0f));
-        assertFalse(driftAnalysis.isSignificantDeviation(0.0f, 359.9f));
-        assertFalse(driftAnalysis.isSignificantDeviation(0.1f, 359.9f));
-        assertFalse(driftAnalysis.isSignificantDeviation(0.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES/2.0f, 0.0f - driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES/2.0f));
-        assertFalse(driftAnalysis.isSignificantDeviation(0.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES/2.0f - 1, 0.0f - driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES/2.0f));
-        assertTrue(driftAnalysis.isSignificantDeviation(0.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES/2.0f, 0.0f - driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES/2.0f - 1));
+        assertFalse(driftAnalysis.isCourseHeadingDeviationIndicatingDrift(cogOffset + 180.0f, 180.0f));
+        assertFalse(driftAnalysis.isCourseHeadingDeviationIndicatingDrift(cogOffset + 180.0f, 180.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES - 1.0f));
+        assertFalse(driftAnalysis.isCourseHeadingDeviationIndicatingDrift(cogOffset + 180.0f, 180.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES));
+        assertTrue(driftAnalysis.isCourseHeadingDeviationIndicatingDrift(cogOffset + 180.0f, 180.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES + 1.0f));
+
+        assertFalse(driftAnalysis.isCourseHeadingDeviationIndicatingDrift(cogOffset + 270.0f, 270.0f));
+        assertFalse(driftAnalysis.isCourseHeadingDeviationIndicatingDrift(cogOffset + 270.0f, 270.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES - 1.0f));
+        assertFalse(driftAnalysis.isCourseHeadingDeviationIndicatingDrift(cogOffset + 270.0f, 270.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES));
+        assertTrue(driftAnalysis.isCourseHeadingDeviationIndicatingDrift(cogOffset + 270.0f, 270.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES + 1.0f));
+
+        assertFalse(driftAnalysis.isCourseHeadingDeviationIndicatingDrift(cogOffset + 0.0f, 0.0f));
+        assertFalse(driftAnalysis.isCourseHeadingDeviationIndicatingDrift(cogOffset + 0.0f, 359.9f));
+        assertFalse(driftAnalysis.isCourseHeadingDeviationIndicatingDrift(cogOffset + 0.1f, 359.9f));
+        assertFalse(driftAnalysis.isCourseHeadingDeviationIndicatingDrift(cogOffset + 0.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES / 2.0f, 0.0f - driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES / 2.0f));
+        assertFalse(driftAnalysis.isCourseHeadingDeviationIndicatingDrift(cogOffset + 0.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES / 2.0f - 1, 0.0f - driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES / 2.0f));
+        assertTrue(driftAnalysis.isCourseHeadingDeviationIndicatingDrift(cogOffset + 0.0f + driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES / 2.0f, 0.0f - driftAnalysis.MIN_HDG_COG_DEVIATION_DEGREES / 2.0f - 1));
     }
 
     @Test
