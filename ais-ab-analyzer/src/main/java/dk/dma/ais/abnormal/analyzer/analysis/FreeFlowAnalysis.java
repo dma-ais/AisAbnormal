@@ -29,6 +29,8 @@ import dk.dma.enav.model.geometry.BoundingBox;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Ellipse;
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.enav.util.CoordinateConverter;
+import dk.dma.enav.util.geometry.Point;
 import net.jcip.annotations.NotThreadSafe;
 import org.apache.commons.configuration.Configuration;
 import org.joda.time.DateTime;
@@ -53,6 +55,7 @@ import static dk.dma.ais.abnormal.util.TrackPredicates.isTankerVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isVeryLongVessel;
 import static dk.dma.enav.safety.SafetyZones.createEllipse;
 import static dk.dma.enav.util.compass.CompassUtils.absoluteDirectionalDifference;
+import static dk.dma.enav.util.compass.CompassUtils.compass2cartesian;
 import static java.lang.System.nanoTime;
 
 /**
@@ -71,8 +74,14 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
     private final AppStatisticsService statisticsService;
     private final String analysisName;
     private BoundingBox areaToBeAnalysed = null;
+
+    /** Major axis of ellipse is xL times vessel's length-over-all */
     private final int xL;
+
+    /** Minor axis of ellipse is xB times vessel's beam */
     private final int xB;
+
+    /** Vessels' courses over ground must be within this no. of degrees to be paired in analysis */
     private final float dCog;
 
     @Inject
@@ -141,7 +150,7 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
         LOG.debug("Performing free flow analysis of " + t0.getMmsi());
 
         final float cog0 = t0.getCourseOverGround();
-        final Position pos0 = t0.getPosition();
+        final Position pos0 = centerOfVessel(t0.getPosition(), t0.getTrueHeading(), t0.getShipDimensionStern(), t0.getShipDimensionBow(), t0.getShipDimensionPort(), t0.getShipDimensionStarboard());
 
         Set<Track> tracksSailingSameDirection = allTracks
             .stream()
@@ -175,7 +184,7 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
                 LOG.debug(new DateTime(t0.getTimeOfLastPositionReport()) + " " + "MMSI " + t0.getMmsi() + " " + t0.getShipName() + " " + t0.getShipType());
                 List<FreeFlowData.TrackInsideEllipse> trks = Lists.newArrayList();
                 for (Track t1 : tracksSailingSameDirectionAndContainedInEllipse) {
-                    final Position pos1 = t1.getPosition();
+                    final Position pos1 = centerOfVessel(t1.getPosition(), t1.getTrueHeading(), t1.getShipDimensionStern(), t1.getShipDimensionBow(), t1.getShipDimensionPort(), t1.getShipDimensionStarboard());
                     final int d = (int) pos0.distanceTo(pos1, CoordinateSystem.CARTESIAN);
                     final int b = (int) pos0.rhumbLineBearingTo(pos1);
                     trks.add(new FreeFlowData.TrackInsideEllipse(t1.getMmsi(), t1.getShipName(), t1.getShipType(), t1.getVesselLength(), b, d));
@@ -188,8 +197,6 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
                     lock.unlock();
                 }
             }
-
-            LOG.debug("---");
         }
     }
 
@@ -216,6 +223,43 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
             }
         }
         return track;
+    }
+
+    /**
+     * Given an AIS position, the vessel's heading and dimensions from position sensor to bow, stern, starboard, and port
+     * compute the vessel's center point.
+     *
+     * @param aisPosition
+     * @param hdg
+     * @param dimStern
+     * @param dimBow
+     * @param dimPort
+     * @param dimStarboard
+     * @return
+     */
+    static Position centerOfVessel(Position aisPosition, float hdg, int dimStern, int dimBow, int dimPort, int dimStarboard) {
+        // Compute direction of half axis alpha
+        final double thetaDeg = compass2cartesian(hdg);
+
+        // Transform latitude/longitude to cartesian coordinates
+        final Position geodeticReference = aisPosition;
+        final CoordinateConverter coordinateConverter = new CoordinateConverter(geodeticReference.getLongitude(), geodeticReference.getLatitude());
+        final double trackLatitude = aisPosition.getLatitude();
+        final double trackLongitude = aisPosition.getLongitude();
+        final double x = coordinateConverter.lon2x(trackLongitude, trackLatitude);
+        final double y = coordinateConverter.lat2y(trackLongitude, trackLatitude);
+
+        // Cartesion point of AIS position
+        final Point pAis = new Point(x, y);
+
+        // Compute cartesian center of vessel
+        final Point pc = new Point((dimBow + dimStern)/2 - dimStern, (dimPort+dimStarboard)/2 - dimStarboard);
+
+        // Rotate to comply with hdg
+        final Point pcr = pc.rotate(pAis, thetaDeg);
+
+        // Convert back to geodesic coordinates
+        return Position.create(coordinateConverter.y2Lat(pcr.getX(), pcr.getY()), coordinateConverter.x2Lon(pcr.getX(), pcr.getY()));
     }
 
     @Override
