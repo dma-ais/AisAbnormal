@@ -150,7 +150,7 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
         LOG.debug("Performing free flow analysis of " + t0.getMmsi());
 
         final float cog0 = t0.getCourseOverGround();
-        final Position pos0 = centerOfVessel(t0.getPosition(), t0.getTrueHeading(), t0.getShipDimensionStern(), t0.getShipDimensionBow(), t0.getShipDimensionPort(), t0.getShipDimensionStarboard());
+        final Position pc0 = centerOfVessel(t0.getPosition(), t0.getTrueHeading(), t0.getShipDimensionStern(), t0.getShipDimensionBow(), t0.getShipDimensionPort(), t0.getShipDimensionStarboard());
 
         Set<Track> tracksSailingSameDirection = allTracks
             .stream()
@@ -160,8 +160,8 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
 
         if (tracksSailingSameDirection.size() > 0) {
             Ellipse ellipse = createEllipse(
-                    pos0,
-                    pos0,
+                    pc0,
+                    pc0,
                     cog0,
                     t0.getVesselLength(),
                     t0.getVesselBeam(),
@@ -182,17 +182,20 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
             if (tracksSailingSameDirectionAndContainedInEllipse.size() > 0) {
                 LOG.debug("There are " + tracksSailingSameDirectionAndContainedInEllipse.size() + " tracks inside ellipse of " + t0.getMmsi() + " " + t0.getShipName());
                 LOG.debug(new DateTime(t0.getTimeOfLastPositionReport()) + " " + "MMSI " + t0.getMmsi() + " " + t0.getShipName() + " " + t0.getShipType());
-                List<FreeFlowData.TrackInsideEllipse> trks = Lists.newArrayList();
+                List<FreeFlowData.TrackInsideEllipse> tracksInsideEllipse = Lists.newArrayList();
                 for (Track t1 : tracksSailingSameDirectionAndContainedInEllipse) {
-                    final Position pos1 = centerOfVessel(t1.getPosition(), t1.getTrueHeading(), t1.getShipDimensionStern(), t1.getShipDimensionBow(), t1.getShipDimensionPort(), t1.getShipDimensionStarboard());
-                    final int d = (int) pos0.distanceTo(pos1, CoordinateSystem.CARTESIAN);
-                    final int b = (int) pos0.rhumbLineBearingTo(pos1);
-                    trks.add(new FreeFlowData.TrackInsideEllipse(t1.getMmsi(), t1.getShipName(), t1.getShipType(), t1.getVesselLength(), b, d));
-                    LOG.debug("- MMSI " + t1.getMmsi() + " " + t1.getShipName() + " " + t1.getShipType() + " " + d + " " + b);
+                    final Position pc1 = centerOfVessel(t1.getPosition(), t1.getTrueHeading(), t1.getShipDimensionStern(), t1.getShipDimensionBow(), t1.getShipDimensionPort(), t1.getShipDimensionStarboard());
+                    try {
+                        tracksInsideEllipse.add(new FreeFlowData.TrackInsideEllipse(t1.clone(), pc1));
+                    } catch (CloneNotSupportedException e) {
+                        LOG.error(e.getMessage(), e);
+                    }
                 }
                 lock.lock();
                 try {
-                    tmpData.add(new FreeFlowData(new DateTime(t0.getTimeOfLastPositionReport()), t0.getMmsi(), t0.getShipName(), t0.getShipType(), t0.getVesselLength(), trks));
+                    tmpData.add(new FreeFlowData(t0.clone(), pc0, tracksInsideEllipse));
+                } catch (CloneNotSupportedException e) {
+                    LOG.error(e.getMessage(), e);
                 } finally {
                     lock.unlock();
                 }
@@ -287,86 +290,45 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
     public List<FreeFlowData> tmpData = new ArrayList<>();
 
     public static class FreeFlowData {
-        private final DateTime timestamp;
-        private final int mmsi;
-        private final String name;
-        private final int type;
-        private final int loa;
-        private final List<TrackInsideEllipse> tracks;
+        private final Track trackSnapshot;
+        private final Position trackCenterPosition;
+
+        private final List<TrackInsideEllipse> tracksInsideEllipse;
 
         public static class TrackInsideEllipse {
-            private final int mmsi;
-            private final String name;
-            private final int type;
-            private final int loa;
-            private final int bearing;
-            private final int distance;
+            private final Track trackSnapshot;
+            private final Position trackCenterPosition;
 
-            private TrackInsideEllipse(int mmsi, String name, int type, int loa, int bearing, int distance) {
-                this.mmsi = mmsi;
-                this.name = name;
-                this.type = type;
-                this.loa = loa;
-                this.bearing = bearing;
-                this.distance = distance;
+            private TrackInsideEllipse(Track trackSnapshot, Position trackCenterPosition) {
+                this.trackSnapshot = trackSnapshot;
+                this.trackCenterPosition = trackCenterPosition;
             }
 
-            public int getMmsi() {
-                return mmsi;
+            public Track getTrackSnapshot() {
+                return trackSnapshot;
             }
 
-            public String getName() {
-                return name;
-            }
-
-            public int getType() {
-                return type;
-            }
-
-            public int getLoa() {
-                return loa;
-            }
-
-            public int getBearing() {
-                return bearing;
-            }
-
-            public int getDistance() {
-                return distance;
+            public Position getTrackCenterPosition() {
+                return trackCenterPosition;
             }
         }
 
-        private FreeFlowData(DateTime timestamp, int mmsi, String name, int type, int loa, List<TrackInsideEllipse> tracks) {
-            this.timestamp = timestamp;
-            this.mmsi = mmsi;
-            this.name = name;
-            this.type = type;
-            this.loa = loa;
-            this.tracks = tracks;
+        private FreeFlowData(Track trackSnapshot, Position trackCenterPosition, List<TrackInsideEllipse> tracksInsideEllipse) {
+            this.trackSnapshot = trackSnapshot;
+            this.trackCenterPosition = trackCenterPosition;
+            this.tracksInsideEllipse = tracksInsideEllipse;
         }
 
-        public DateTime getTimestamp() {
-            return timestamp;
+        public Track getTrackSnapshot() {
+            return trackSnapshot;
         }
 
-        public int getMmsi() {
-            return mmsi;
+        public Position getTrackCenterPosition() {
+            return trackCenterPosition;
         }
 
-        public String getName() {
-            return name;
-        }
-
-        public int getType() {
-            return type;
-        }
-
-        public int getLoa() {
-            return loa;
-        }
-
-        public List<TrackInsideEllipse> getTracks() {
-            return tracks;
+        public List<TrackInsideEllipse> getTracksInsideEllipse() {
+            return tracksInsideEllipse;
         }
     }
 }
