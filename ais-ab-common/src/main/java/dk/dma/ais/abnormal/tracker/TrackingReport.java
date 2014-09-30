@@ -30,9 +30,9 @@ import java.util.Map;
  * and whereabouts.
  */
 @NotThreadSafe
-public abstract class TrackingReport {
+public abstract class TrackingReport implements Cloneable {
 
-    private final Map<String, Object> properties = new HashMap<>(2);
+    private Map<String, Object> properties = new HashMap<>(2);
 
     public Object getProperty(String propertyName) {
         return properties.get(propertyName);
@@ -44,6 +44,14 @@ public abstract class TrackingReport {
 
     public void removeProperty(String propertyName) {
         properties.remove(propertyName);
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        TrackingReport clone = (TrackingReport) super.clone();
+        clone.properties = new HashMap<>(2);
+        properties.forEach((k,v) -> properties.put(k,v));
+        return clone;
     }
 
     // ---
