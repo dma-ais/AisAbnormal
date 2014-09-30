@@ -88,18 +88,29 @@ public class ReportScheduler {
 
     private void addDailyEventsReportJob() {
         try {
-            JobDetail job = newJob(RecentEventsReportJob.class)
+            Trigger trigger1 = newTrigger()
+                    .withIdentity("DailyEventsReportJobTrigger")
+                    .startNow()
+                            // sec min hour dom mon dow year
+                    .withSchedule(cronSchedule(configuration.getString(CONFKEY_REPORTS_RECENTEVENTS_CRON, "0/30 * * * * ?")))
+                    .build();
+
+            JobDetail job1 = newJob(RecentEventsReportJob.class)
                 .withIdentity("DailyEventsReportJob")
                 .build();
+            scheduler.scheduleJob(job1, trigger1);
 
-            Trigger trigger = newTrigger()
-                .withIdentity("DailyEventsReportJobTrigger")
-                .startNow()
-                // sec min hour dom mon dow year
-                .withSchedule(cronSchedule(configuration.getString(CONFKEY_REPORTS_RECENTEVENTS_CRON, "0/30 * * * * ?")))
+            Trigger trigger2 = newTrigger()
+                    .withIdentity("FreeFlowAnalysisReportJobTrigger")
+                    .startNow()
+                            // sec min hour dom mon dow year
+                    .withSchedule(cronSchedule("0/30 * * * * ?"))
+                    .build();
+
+            JobDetail job2 = newJob(FreeFlowAnalysisReportJob.class)
+                .withIdentity("FreeFlowAnalysisReportJob")
                 .build();
-
-            scheduler.scheduleJob(job, trigger);
+            scheduler.scheduleJob(job2, trigger2);
         } catch (SchedulerException se) {
             LOG.error(se.getMessage(), se);
         }

@@ -66,8 +66,8 @@
 			</dependency>
 			<dependency>
 				<groupId>dk.dma.enav</groupId>
-				<artifactId>enav-model</artifactId>
-				<version>0.4</version>
+				<artifactId>enav-parent</artifactId>
+				<version>0.5-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>dk.dma.ais.lib</groupId>

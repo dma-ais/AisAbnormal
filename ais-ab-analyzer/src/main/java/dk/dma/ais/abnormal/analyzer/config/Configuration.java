@@ -40,6 +40,11 @@ public final class Configuration {
     public static final String CONFKEY_ANALYSIS_DRIFT_COGHDG = "analysis.drift.coghdg";
     public static final String CONFKEY_ANALYSIS_CLOSEENCOUNTER_RUN_PERIOD = "analysis.closeencounter.run.period";
     public static final String CONFKEY_ANALYSIS_CLOSEENCOUNTER_SOG_MIN = "analysis.closeencounter.sog.min";
+    public static final String CONFKEY_ANALYSIS_FREEFLOW_RUN_PERIOD = "analysis.freeflow.run.period";
+    public static final String CONFKEY_ANALYSIS_FREEFLOW_BBOX = "analysis.freeflow.bbox";
+    public static final String CONFKEY_ANALYSIS_FREEFLOW_XL = "analysis.freeflow.xl";
+    public static final String CONFKEY_ANALYSIS_FREEFLOW_XB = "analysis.freeflow.xb";
+    public static final String CONFKEY_ANALYSIS_FREEFLOW_DCOG = "analysis.freeflow.dcog";
     public static final String CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SOG_HIGHMARK = "analysis.suddenspeedchange.sog.highmark";
     public static final String CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SOG_LOWMARK = "analysis.suddenspeedchange.sog.lowmark";
     public static final String CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_DROP_DECAY = "analysis.suddenspeedchange.drop.decay";
@@ -184,6 +189,27 @@ public final class Configuration {
         if (!isValidPositiveFloat(configuration, CONFKEY_ANALYSIS_DRIFT_COGHDG)) return false;
         if (!isValidPositiveOrZeroFloat(configuration, CONFKEY_ANALYSIS_DRIFT_SOG_MIN)) return false;
         if (!isValidPositiveOrZeroFloat(configuration, CONFKEY_ANALYSIS_DRIFT_SOG_MAX)) return false;
+
+        // Validate analysis - free flow
+        List<Object> bbox = configuration.getList(CONFKEY_ANALYSIS_FREEFLOW_BBOX);
+        if (bbox != null && bbox.size() != 0) {
+            if (bbox.size() != 4) {
+                LOG.error("There must be 4 comma-separated values for: " + CONFKEY_ANALYSIS_FREEFLOW_BBOX);
+                return false;
+            }
+            for (Object o : bbox) {
+                if (o == null) {
+                    LOG.error("Value may not be null: " + CONFKEY_ANALYSIS_FREEFLOW_BBOX);
+                    return false;
+                }
+                try {
+                    Float.valueOf(o.toString());
+                } catch (NumberFormatException e) {
+                    LOG.error("Illegal floating point format: " + o.toString() + " for: " + CONFKEY_ANALYSIS_FREEFLOW_BBOX);
+                    return false;
+                }
+            }
+        }
 
         //
         return true;
