@@ -17,6 +17,7 @@ package dk.dma.ais.abnormal.analyzer.reports;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import dk.dma.ais.abnormal.analyzer.AbnormalAnalyzerAppModule;
 import dk.dma.ais.abnormal.analyzer.analysis.FreeFlowAnalysis;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.enav.model.geometry.CoordinateSystem;
@@ -82,13 +83,17 @@ public class FreeFlowAnalysisReportJob implements Job {
         LOG.debug("FreeFlowAnalysisReportJob triggered");
 
         DateTime t2 = new DateTime();
-        DateTime t1 = lastRun >= 0 ? new DateTime(lastRun) : t2.minusHours(24);
+        DateTime t1 = lastRun >= 0 ? new DateTime(lastRun) : new DateTime(AbnormalAnalyzerAppModule.STARTUP_TIMESTAMP);
         lastRun = t2.getMillis();
 
         List<FreeFlowAnalysis.FreeFlowData> tmpData = freeFlowAnalysis.getTmpData();
-
-        String reportBody = generateReportBody(t1.toDate(), t2.toDate(), tmpData);
-        reportMailer.send("Free flow analysis", reportBody);
+        if (tmpData.size() > 0) {
+            String reportBody = generateReportBody(t1.toDate(), t2.toDate(), tmpData);
+            reportMailer.send("Free flow analysis", reportBody);
+            LOG.debug("Mail from FreeFlowAnalysisReportJob sent");
+        } else {
+            LOG.info("Nothing to report.");
+        }
 
         LOG.debug("FreeFlowAnalysisReportJob finished");
     }
@@ -108,7 +113,7 @@ public class FreeFlowAnalysisReportJob implements Job {
             String.format("%-25s %-9s %-20s %-2s %-3s %-3s %-3s %-3s %-3s %-25s %-3s %-4s%n",
             "TIMESTAMP", "MMSI", "NAME", "TP", "LOA", "BM", "COG", "HDG", "SOG", "POS", "BRG", "DST")
         );
-        email.append("----------------------------------------------------------------------------------------------------------------------\n");
+        email.append("------------------------------------------------------------------------------------------------------------------\n");
 
         for (FreeFlowAnalysis.FreeFlowData freeFlowData : data) {
             Track t0 = freeFlowData.getTrackSnapshot();
@@ -153,7 +158,7 @@ public class FreeFlowAnalysisReportJob implements Job {
             email.append('\n');
         }
 
-        email.append("======================================================================================================================\n");
+        email.append("==================================================================================================================\n");
         email.append("\n");
 
         email.append("</pre>");

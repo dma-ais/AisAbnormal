@@ -40,7 +40,9 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.concurrent.GuardedBy;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
@@ -176,7 +178,7 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
 
             List<Track> tracksSailingSameDirectionAndContainedInEllipse = tracksSailingSameDirection
                     .stream()
-                    .filter(t -> ellipse.contains(t.getPosition()))
+                    .filter(t -> ellipse.contains(centerOfVessel(t.getPosition(), t.getTrueHeading(), t.getShipDimensionStern(), t.getShipDimensionBow(), t.getShipDimensionPort(), t.getShipDimensionStarboard())))
                     .collect(Collectors.toList());
 
             if (tracksSailingSameDirectionAndContainedInEllipse.size() > 0) {
@@ -184,23 +186,43 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
                 LOG.debug(new DateTime(t0.getTimeOfLastPositionReport()) + " " + "MMSI " + t0.getMmsi() + " " + t0.getShipName() + " " + t0.getShipType());
                 List<FreeFlowData.TrackInsideEllipse> tracksInsideEllipse = Lists.newArrayList();
                 for (Track t1 : tracksSailingSameDirectionAndContainedInEllipse) {
-                    final Position pc1 = centerOfVessel(t1.getPosition(), t1.getTrueHeading(), t1.getShipDimensionStern(), t1.getShipDimensionBow(), t1.getShipDimensionPort(), t1.getShipDimensionStarboard());
-                    try {
-                        tracksInsideEllipse.add(new FreeFlowData.TrackInsideEllipse(t1.clone(), pc1));
-                    } catch (CloneNotSupportedException e) {
-                        LOG.error(e.getMessage(), e);
+                    if (! reportedRecently(t0, t1, t0.getTimeOfLastPositionReport())) {
+                        final Position pc1 = centerOfVessel(t1.getPosition(), t1.getTrueHeading(), t1.getShipDimensionStern(), t1.getShipDimensionBow(), t1.getShipDimensionPort(), t1.getShipDimensionStarboard());
+                        try {
+                            tracksInsideEllipse.add(new FreeFlowData.TrackInsideEllipse(t1.clone(), pc1));
+                            markReported(t0, t1, t0.getTimeOfLastPositionReport());
+                        } catch (CloneNotSupportedException e) {
+                            LOG.error(e.getMessage(), e);
+                        }
                     }
                 }
-                lock.lock();
-                try {
-                    tmpData.add(new FreeFlowData(t0.clone(), pc0, tracksInsideEllipse));
-                } catch (CloneNotSupportedException e) {
-                    LOG.error(e.getMessage(), e);
-                } finally {
-                    lock.unlock();
+                if (tracksInsideEllipse.size() > 0) {
+                    lock.lock();
+                    try {
+                        tmpData.add(new FreeFlowData(t0.clone(), pc0, tracksInsideEllipse));
+                    } catch (CloneNotSupportedException e) {
+                        LOG.error(e.getMessage(), e);
+                    } finally {
+                        lock.unlock();
+                    }
+                } else {
+                    LOG.debug("Nothing new to report.");
                 }
             }
         }
+    }
+
+    private Map<String, Long> reported = new HashMap<>();
+
+    private void markReported(Track t0, Track t1, long timestamp) {
+        String key = String.valueOf(t0.getMmsi()) + "/" + String.valueOf(t1.getMmsi());
+        reported.put(key, timestamp);
+    }
+
+    private boolean reportedRecently(Track t0, Track t1, long timestamp) {
+        String key = String.valueOf(t0.getMmsi()) + "/" + String.valueOf(t1.getMmsi());
+        Long lastReport = reported.get(key);
+        return lastReport != null && timestamp-lastReport < 60*1000*1000;
     }
 
     private boolean isVesselTypeToBeAnalysed(Track track) {
@@ -272,6 +294,10 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
 
     // --- Below: Temporary code - will be replaced when business logic is determined
 
+    private ReentrantLock lock = new ReentrantLock();
+
+    @GuardedBy(value = "lock")
+    public List<FreeFlowData> tmpData = new ArrayList<>();
 
     public List<FreeFlowData> getTmpData() {
         lock.lock();
@@ -283,11 +309,6 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
             lock.unlock();
         }
     }
-
-    ReentrantLock lock = new ReentrantLock();
-
-    @GuardedBy(value = "lock")
-    public List<FreeFlowData> tmpData = new ArrayList<>();
 
     public static class FreeFlowData {
         private final Track trackSnapshot;
