@@ -29,10 +29,13 @@ public final class Configuration {
     public static final String CONFKEY_FILTER_SHIPNAME_SKIP = "filter.shipname.skip";
     public static final String CONFKEY_ANALYSIS_COG_CELL_SHIPCOUNT_MIN = "analysis.cog.cell.shipcount.min";
     public static final String CONFKEY_ANALYSIS_COG_PD = "analysis.cog.pd";
+    public static final String CONFKEY_ANALYSIS_COG_SHIPLENGTH_MIN = "analysis.cog.loa.min";
     public static final String CONFKEY_ANALYSIS_SOG_CELL_SHIPCOUNT_MIN = "analysis.sog.cell.shipcount.min";
     public static final String CONFKEY_ANALYSIS_SOG_PD = "analysis.sog.pd";
+    public static final String CONFKEY_ANALYSIS_SOG_SHIPLENGTH_MIN = "analysis.sog.loa.min";
     public static final String CONFKEY_ANALYSIS_TYPESIZE_CELL_SHIPCOUNT_MIN = "analysis.typesize.cell.shipcount.min";
     public static final String CONFKEY_ANALYSIS_TYPESIZE_PD = "analysis.typesize.pd";
+    public static final String CONFKEY_ANALYSIS_TYPESIZE_SHIPLENGTH_MIN = "analysis.typesize.loa.min";
     public static final String CONFKEY_ANALYSIS_DRIFT_PERIOD = "analysis.drift.period";
     public static final String CONFKEY_ANALYSIS_DRIFT_DISTANCE = "analysis.drift.distance";
     public static final String CONFKEY_ANALYSIS_DRIFT_SOG_MIN = "analysis.drift.sog.min";

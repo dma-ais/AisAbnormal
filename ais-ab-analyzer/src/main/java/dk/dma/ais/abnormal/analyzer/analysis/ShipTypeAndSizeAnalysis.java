@@ -47,6 +47,7 @@ import java.util.Date;
 
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_TYPESIZE_CELL_SHIPCOUNT_MIN;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_TYPESIZE_PD;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_TYPESIZE_SHIPLENGTH_MIN;
 import static dk.dma.ais.abnormal.event.db.domain.builders.ShipSizeOrTypeEventBuilder.ShipSizeOrTypeEvent;
 import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isClassB;
@@ -71,6 +72,7 @@ public class ShipTypeAndSizeAnalysis extends StatisticBasedAnalysis {
 
     private final int TOTAL_SHIP_COUNT_THRESHOLD;
     private final float PD;
+    private final int SHIP_LENGTH_MIN;
 
     @Inject
     public ShipTypeAndSizeAnalysis(Configuration configuration, AppStatisticsService statisticsService, StatisticDataRepository statisticsRepository, Tracker trackingService, EventRepository eventRepository, BehaviourManager behaviourManager) {
@@ -78,6 +80,7 @@ public class ShipTypeAndSizeAnalysis extends StatisticBasedAnalysis {
         this.statisticsService = statisticsService;
         TOTAL_SHIP_COUNT_THRESHOLD = configuration.getInt(CONFKEY_ANALYSIS_TYPESIZE_CELL_SHIPCOUNT_MIN, 1000);
         PD = configuration.getFloat(CONFKEY_ANALYSIS_TYPESIZE_PD, 0.001f);
+        SHIP_LENGTH_MIN = configuration.getInt(CONFKEY_ANALYSIS_TYPESIZE_SHIPLENGTH_MIN, 50);
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
 
@@ -86,6 +89,7 @@ public class ShipTypeAndSizeAnalysis extends StatisticBasedAnalysis {
         return "ShipTypeAndSizeAnalysis{" +
                 "TOTAL_SHIP_COUNT_THRESHOLD=" + TOTAL_SHIP_COUNT_THRESHOLD +
                 ", PD=" + PD +
+                ", SHIP_LENGTH_MIN=" + SHIP_LENGTH_MIN +
                 "} " + super.toString();
     }
 
@@ -105,20 +109,22 @@ public class ShipTypeAndSizeAnalysis extends StatisticBasedAnalysis {
         Integer shipLength = track.getVesselLength();
 
         if (cellId == null) {
-            // LOG.warn("cellId is unexpectedly null (mmsi " + mmsi + ")");
             statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Unknown mmsi");
             return;
         }
 
         if (shipType == null) {
-            // LOG.debug("shipType is null - probably no static data received yet (mmsi " + mmsi + ")");
             statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Unknown ship type");
             return;
         }
 
         if (shipLength == null) {
-            // LOG.debug("shipLength is null - probably no static data received yet (mmsi " + mmsi + ")");
             statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Unknown ship length");
+            return;
+        }
+
+        if (shipLength < SHIP_LENGTH_MIN) {
+            statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "LOA < " + SHIP_LENGTH_MIN);
             return;
         }
 

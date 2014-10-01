@@ -47,6 +47,7 @@ import java.util.Date;
 
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_COG_CELL_SHIPCOUNT_MIN;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_COG_PD;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_COG_SHIPLENGTH_MIN;
 import static dk.dma.ais.abnormal.event.db.domain.builders.CourseOverGroundEventBuilder.CourseOverGroundEvent;
 import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isClassB;
@@ -71,6 +72,7 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
 
     private final int TOTAL_SHIP_COUNT_THRESHOLD;
     private final float PD;
+    private final int SHIP_LENGTH_MIN;
 
     @Inject
     public CourseOverGroundAnalysis(Configuration configuration, AppStatisticsService statisticsService, StatisticDataRepository statisticsRepository, Tracker trackingService, EventRepository eventRepository, BehaviourManager behaviourManager) {
@@ -78,6 +80,7 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
         this.statisticsService = statisticsService;
         TOTAL_SHIP_COUNT_THRESHOLD = configuration.getInt(CONFKEY_ANALYSIS_COG_CELL_SHIPCOUNT_MIN, 1000);
         PD = configuration.getFloat(CONFKEY_ANALYSIS_COG_PD, 0.001f);
+        SHIP_LENGTH_MIN = configuration.getInt(CONFKEY_ANALYSIS_COG_SHIPLENGTH_MIN, 50);
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
 
@@ -86,6 +89,7 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
         return "CourseOverGroundAnalysis{" +
                 "TOTAL_SHIP_COUNT_THRESHOLD=" + TOTAL_SHIP_COUNT_THRESHOLD +
                 ", PD=" + PD +
+                ", SHIP_LENGTH_MIN=" + SHIP_LENGTH_MIN +
                 "} " + super.toString();
     }
 
@@ -106,7 +110,7 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
         Float courseOverGround = track.getCourseOverGround();
 
         if (cellId == null) {
-            statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Unknown mmsi");
+            statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Unknown cell id");
             return;
         }
 
@@ -122,6 +126,11 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
 
         if (courseOverGround == null) {
             statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Unknown course over ground");
+            return;
+        }
+
+        if (shipLength < SHIP_LENGTH_MIN) {
+            statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "LOA < " + SHIP_LENGTH_MIN);
             return;
         }
 
