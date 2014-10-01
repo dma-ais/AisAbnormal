@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_REPORTS_ENABLED;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_REPORTS_FREEFLOW_CRON;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_REPORTS_RECENTEVENTS_CRON;
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
@@ -91,25 +92,25 @@ public class ReportScheduler {
             Trigger trigger1 = newTrigger()
                     .withIdentity("DailyEventsReportJobTrigger")
                     .startNow()
-                            // sec min hour dom mon dow year
                     .withSchedule(cronSchedule(configuration.getString(CONFKEY_REPORTS_RECENTEVENTS_CRON, "0/30 * * * * ?")))
                     .build();
 
             JobDetail job1 = newJob(RecentEventsReportJob.class)
                 .withIdentity("DailyEventsReportJob")
                 .build();
+
             scheduler.scheduleJob(job1, trigger1);
 
             Trigger trigger2 = newTrigger()
                     .withIdentity("FreeFlowAnalysisReportJobTrigger")
                     .startNow()
-                            // sec min hour dom mon dow year
-                    .withSchedule(cronSchedule("0/30 * * * * ?"))
+                    .withSchedule(cronSchedule(configuration.getString(CONFKEY_REPORTS_FREEFLOW_CRON, "0/30 * * * * ?")))
                     .build();
 
             JobDetail job2 = newJob(FreeFlowAnalysisReportJob.class)
                 .withIdentity("FreeFlowAnalysisReportJob")
                 .build();
+
             scheduler.scheduleJob(job2, trigger2);
         } catch (SchedulerException se) {
             LOG.error(se.getMessage(), se);

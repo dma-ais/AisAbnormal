@@ -49,6 +49,7 @@ import java.util.stream.Collectors;
 
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_FREEFLOW_BBOX;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_FREEFLOW_DCOG;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_FREEFLOW_MIN_REPORTING_PERIOD_MINUTES;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_FREEFLOW_RUN_PERIOD;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_FREEFLOW_XB;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_FREEFLOW_XL;
@@ -86,6 +87,9 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
     /** Vessels' courses over ground must be within this no. of degrees to be paired in analysis */
     private final float dCog;
 
+    /** A vessel pair can only be reported this often */
+    private final int minReportingIntervalMillis;
+
     @Inject
     public FreeFlowAnalysis(Configuration configuration, AppStatisticsService statisticsService, Tracker trackingService, EventRepository eventRepository) {
         super(eventRepository, trackingService, null);
@@ -95,6 +99,7 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
         this.xL = configuration.getInt(CONFKEY_ANALYSIS_FREEFLOW_XL, 8);
         this.xB = configuration.getInt(CONFKEY_ANALYSIS_FREEFLOW_XB, 8);
         this.dCog = configuration.getFloat(CONFKEY_ANALYSIS_FREEFLOW_DCOG, 15f);
+        this.minReportingIntervalMillis = configuration.getInt(CONFKEY_ANALYSIS_FREEFLOW_MIN_REPORTING_PERIOD_MINUTES, 60) * 60 * 1000;
 
         List<Object> bboxConfig = configuration.getList(CONFKEY_ANALYSIS_FREEFLOW_BBOX);
         if (bboxConfig != null) {
@@ -112,7 +117,13 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
 
     @Override
     public String toString() {
-        return "FreeFlowAnalysis{} " + super.toString();
+        return "FreeFlowAnalysis{" +
+                "areaToBeAnalysed=" + areaToBeAnalysed +
+                ", xL=" + xL +
+                ", xB=" + xB +
+                ", dCog=" + dCog +
+                ", minReportingIntervalMillis=" + minReportingIntervalMillis +
+                "} " + super.toString();
     }
 
     protected void performAnalysis() {
@@ -222,7 +233,7 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
     private boolean reportedRecently(Track t0, Track t1, long timestamp) {
         String key = String.valueOf(t0.getMmsi()) + "/" + String.valueOf(t1.getMmsi());
         Long lastReport = reported.get(key);
-        return lastReport != null && timestamp-lastReport < 60*1000*1000;
+        return lastReport != null && timestamp-lastReport < minReportingIntervalMillis;
     }
 
     private boolean isVesselTypeToBeAnalysed(Track track) {

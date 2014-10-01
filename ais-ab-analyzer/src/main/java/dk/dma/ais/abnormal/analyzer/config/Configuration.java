@@ -45,6 +45,7 @@ public final class Configuration {
     public static final String CONFKEY_ANALYSIS_FREEFLOW_XL = "analysis.freeflow.xl";
     public static final String CONFKEY_ANALYSIS_FREEFLOW_XB = "analysis.freeflow.xb";
     public static final String CONFKEY_ANALYSIS_FREEFLOW_DCOG = "analysis.freeflow.dcog";
+    public static final String CONFKEY_ANALYSIS_FREEFLOW_MIN_REPORTING_PERIOD_MINUTES = "analysis.freeflow.reportingperiod.min";
     public static final String CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SOG_HIGHMARK = "analysis.suddenspeedchange.sog.highmark";
     public static final String CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SOG_LOWMARK = "analysis.suddenspeedchange.sog.lowmark";
     public static final String CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_DROP_DECAY = "analysis.suddenspeedchange.drop.decay";
@@ -61,6 +62,7 @@ public final class Configuration {
     public static final String CONFKEY_AIS_DATASOURCE_DOWNSAMPLING = "ais.datasource.downsampling";
     public static final String CONFKEY_REPORTS_ENABLED = "reports.enabled";
     public static final String CONFKEY_REPORTS_RECENTEVENTS_CRON = "reports.recentevents.cron";
+    public static final String CONFKEY_REPORTS_FREEFLOW_CRON = "reports.freeflow.cron";
     public static final String CONFKEY_REPORTS_MAILER_SMTP_HOST = "reports.mailer.smtp.host";
     public static final String CONFKEY_REPORTS_MAILER_SMTP_PORT = "reports.mailer.smtp.port";
     public static final String CONFKEY_REPORTS_MAILER_SMTP_USER = "reports.mailer.smtp.user";
