@@ -36,6 +36,9 @@ import org.slf4j.LoggerFactory;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+
+import static dk.dma.ais.abnormal.util.AisDataHelper.trimAisString;
 
 /**
  * This class is a Job which is executed to generate a "recent events" report.
@@ -99,7 +102,7 @@ public class FreeFlowAnalysisReportJob implements Job {
     }
 
     private String generateReportBody(Date date0, Date date1, List<FreeFlowAnalysis.FreeFlowData> data) {
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("dd-MM-yyyy HH:mm:ss Z");
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("dd-MM-yyyy HH:mm:ss");
         StringBuffer email = new StringBuffer();
 
         email.append("<html>");
@@ -109,29 +112,15 @@ public class FreeFlowAnalysisReportJob implements Job {
 
         email.append("<pre>");
 
-        email.append(
-            String.format("%-25s %-9s %-20s %-2s %-3s %-3s %-3s %-3s %-3s %-25s %-3s %-4s%n",
-            "TIMESTAMP", "MMSI", "NAME", "TP", "LOA", "BM", "COG", "HDG", "SOG", "POS", "BRG", "DST")
-        );
-        email.append("------------------------------------------------------------------------------------------------------------------\n");
+        email.append("TIMESTAMP (GMT), ");
+        email.append("MMSI1, NAME1, TP1, LOA1, BM1, COG1, HDG1, SOG1, LAT1, LON1, ");
+        email.append("MMSI2, NAME2, TP2, LOA2, BM2, COG2, HDG2, SOG2, LAT2, LON2, ");
+        email.append("BRG, DST");
+        email.append("\n");
 
         for (FreeFlowAnalysis.FreeFlowData freeFlowData : data) {
             Track t0 = freeFlowData.getTrackSnapshot();
             Position p0 = freeFlowData.getTrackCenterPosition();
-
-            email.append("<b>");
-            email.append(String.format("%-25s ", fmt.withZoneUTC().print(t0.getTimeOfLastPositionReport())));
-            email.append(String.format("%9d ", t0.getMmsi()));
-            email.append(String.format("%-20s ", t0.getShipName()));
-            email.append(String.format("%2d ", t0.getShipType()));
-            email.append(String.format("%3d ", t0.getVesselLength()));
-            email.append(String.format("%3d ", t0.getVesselBeam()));
-            email.append(String.format("%3.0f ", t0.getCourseOverGround()));
-            email.append(String.format("%3.0f ", t0.getTrueHeading()));
-            email.append(String.format("%3.0f ", t0.getSpeedOverGround()));
-            email.append(String.format("%-25s ", p0.toString()));
-            email.append("</b>");
-            email.append('\n');
 
             List<FreeFlowAnalysis.FreeFlowData.TrackInsideEllipse> tracks = freeFlowData.getTracksInsideEllipse();
             for (FreeFlowAnalysis.FreeFlowData.TrackInsideEllipse track : tracks) {
@@ -141,25 +130,32 @@ public class FreeFlowAnalysisReportJob implements Job {
                 int d = (int) p0.distanceTo(p1, CoordinateSystem.CARTESIAN);
                 int b = (int) p0.rhumbLineBearingTo(p1);
 
-                email.append(String.format("%-25s ", fmt.withZoneUTC().print(t1.getTimeOfLastPositionReport())));
-                email.append(String.format("%9d ", t1.getMmsi()));
-                email.append(String.format("%-20s ", t1.getShipName()));
-                email.append(String.format("%2d ", t1.getShipType()));
-                email.append(String.format("%3d ", t1.getVesselLength()));
-                email.append(String.format("%3d ", t1.getVesselBeam()));
-                email.append(String.format("%3.0f ", t1.getCourseOverGround()));
-                email.append(String.format("%3.0f ", t1.getTrueHeading()));
-                email.append(String.format("%3.0f ", t1.getSpeedOverGround()));
-                email.append(String.format("%-25s ", p1.toString()));
-                email.append(String.format("%3d ", b));
-                email.append(String.format("%4d ", d));
+                email.append(String.format(Locale.ENGLISH, "%s, ", fmt.withZoneUTC().print(t0.getTimeOfLastPositionReport())));
+                email.append(String.format(Locale.ENGLISH, "%d, ", t0.getMmsi()));
+                email.append(String.format(Locale.ENGLISH, "%s, ", trimAisString(t0.getShipName())));
+                email.append(String.format(Locale.ENGLISH, "%d, ", t0.getShipType()));
+                email.append(String.format(Locale.ENGLISH, "%d, ", t0.getVesselLength()));
+                email.append(String.format(Locale.ENGLISH, "%d, ", t0.getVesselBeam()));
+                email.append(String.format(Locale.ENGLISH, "%.0f, ", t0.getCourseOverGround()));
+                email.append(String.format(Locale.ENGLISH, "%.0f, ", t0.getTrueHeading()));
+                email.append(String.format(Locale.ENGLISH, "%.0f, ", t0.getSpeedOverGround()));
+                email.append(String.format(Locale.ENGLISH, "%.4f, %.4f, ", p0.getLatitude(), p0.getLongitude()));
+
+                email.append(String.format(Locale.ENGLISH, "%d, ", t1.getMmsi()));
+                email.append(String.format(Locale.ENGLISH, "%s, ", trimAisString(t1.getShipName())));
+                email.append(String.format(Locale.ENGLISH, "%d, ", t1.getShipType()));
+                email.append(String.format(Locale.ENGLISH, "%d, ", t1.getVesselLength()));
+                email.append(String.format(Locale.ENGLISH, "%d, ", t1.getVesselBeam()));
+                email.append(String.format(Locale.ENGLISH, "%.0f, ", t1.getCourseOverGround()));
+                email.append(String.format(Locale.ENGLISH, "%.0f, ", t1.getTrueHeading()));
+                email.append(String.format(Locale.ENGLISH, "%.0f, ", t1.getSpeedOverGround()));
+                email.append(String.format(Locale.ENGLISH, "%.4f, %.4f, ", p1.getLatitude(), p1.getLongitude()));
+                email.append(String.format(Locale.ENGLISH, "%d, ", b));
+                email.append(String.format(Locale.ENGLISH, "%d ", d));
+
                 email.append('\n');
             }
-            email.append('\n');
         }
-
-        email.append("==================================================================================================================\n");
-        email.append("\n");
 
         email.append("</pre>");
         email.append("</html>");
