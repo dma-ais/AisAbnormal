@@ -10,6 +10,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -190,5 +191,24 @@ public class TrackTest {
         assertEquals(55.960722, track.getNewestTrackingReport().getPosition().getLatitude(), 1e-6);
         assertEquals(11.929867, track.getNewestTrackingReport().getPosition().getLongitude(), 1e-6);
         assertEquals(new GregorianCalendar(2014, 02, 11, 12, 42, 00).getTimeInMillis(), track.getTimeOfLastPositionReport(), 1e-10);
+    }
+
+    @Test
+    public void testClone() throws CloneNotSupportedException {
+        Track track = new Track(219000606);
+        track.update(msg5);
+        track.update(1000000000, Position.create(56, 12), 45.0f, 10.1f, 10.1f);
+
+        Track clone = track.clone();
+
+        assertTrue(clone != track);
+        assertEquals(clone.toString(), track.toString());
+        assertEquals(clone.getTrackingReports().size(), track.getTrackingReports().size());
+        assertEquals(clone.getNewestTrackingReport(), track.getNewestTrackingReport());
+
+        track.update(1000001000, Position.create(56.1, 12.1), 45.1f, 10.2f, 10.2f);
+        assertNotEquals(clone.toString(), track.toString());
+        assertEquals(clone.getTrackingReports().size() + 1, track.getTrackingReports().size());
+        assertNotEquals(clone.getNewestTrackingReport(), track.getNewestTrackingReport());
     }
 }

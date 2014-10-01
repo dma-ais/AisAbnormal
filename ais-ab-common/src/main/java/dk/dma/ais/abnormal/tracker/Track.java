@@ -55,16 +55,16 @@ import static java.util.Comparator.comparingLong;
  *
  */
 @ThreadSafe
-public final class Track {
+public final class Track implements Cloneable {
 
     public static final String CELL_ID = "cellId";
     public static final String SAFETY_ZONE = "safetyZone";
     public static final String EXTENT = "extent";
 
-    private final Lock trackLock = new ReentrantLock();
+    private Lock trackLock = new ReentrantLock();
 
     private static final Comparator<TrackingReport> byTimestamp = comparingLong(TrackingReport::getTimestamp);
-    private static final Supplier<TreeSet<TrackingReport>> treeSetSupplier = () -> new TreeSet<TrackingReport>(byTimestamp);
+    private static final Supplier<TreeSet<TrackingReport>> treeSetSupplier = () -> new TreeSet<>(byTimestamp);
     private boolean positionReportPurgeEnable = true;
 
     public final static int MAX_AGE_POSITION_REPORTS_MINUTES = 20;
@@ -125,15 +125,54 @@ public final class Track {
         this.mmsi = mmsi;
     }
 
-    /*
-     * Update this track with a new AisPacket. The MMSI no. inside the packet must match this Track's MMSI no.
-     * and in order to maintain low insertion-cost only packets newer than the previously received are accepted.
-     *
-     * This update will be treated as an update received from a real AIS source and the packet will be stored for
-     * a period of time to support replay.
-     *
-     * @param p
+    /**
+     * Deep copy/clone a track
      */
+    @Override
+    public Track clone() throws CloneNotSupportedException {
+        Track clone = (Track) super.clone();
+
+        // Do not share locks
+        clone.trackLock = new ReentrantLock();
+
+        // Deep copy collection
+        TreeSet<TrackingReport> trackingReportsClone = treeSetSupplier.get();
+        clone.trackingReports.forEach(tr -> trackingReportsClone.add(tr));
+        clone.trackingReports = trackingReportsClone;
+
+        return clone;
+    }
+
+    @Override
+    public String toString() {
+        return "Track{" +
+                "positionReportPurgeEnable=" + positionReportPurgeEnable +
+                ", mmsi=" + mmsi +
+                ", trackingReports=" + trackingReports +
+                ", properties=" + properties +
+                ", lastStaticReport=" + lastStaticReport +
+                ", shipType=" + shipType +
+                ", shipName='" + shipName + '\'' +
+                ", callsign='" + callsign + '\'' +
+                ", imo=" + imo +
+                ", shipDimensionBow=" + shipDimensionBow +
+                ", shipDimensionStern=" + shipDimensionStern +
+                ", shipDimensionPort=" + shipDimensionPort +
+                ", shipDimensionStarboard=" + shipDimensionStarboard +
+                ", timeOfLastUpdate=" + timeOfLastUpdate +
+                ", timeOfLastPositionReport=" + timeOfLastPositionReport +
+                '}';
+    }
+
+    /*
+         * Update this track with a new AisPacket. The MMSI no. inside the packet must match this Track's MMSI no.
+         * and in order to maintain low insertion-cost only packets newer than the previously received are accepted.
+         *
+         * This update will be treated as an update received from a real AIS source and the packet will be stored for
+         * a period of time to support replay.
+         *
+         * @param p
+         */
     public void update(AisPacket p) {
         checkAisPacket(p);
         AisMessage msg = p.tryGetAisMessage();

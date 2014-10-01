@@ -60,6 +60,7 @@ import static dk.dma.ais.abnormal.util.TrackPredicates.isSpecialCraft;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isTankerVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isUnknownTypeOrSize;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isVeryLongVessel;
+import static dk.dma.enav.util.compass.CompassUtils.absoluteDirectionalDifference;
 
 /**
  * This analysis detects vessels with indication for drift.
@@ -255,34 +256,6 @@ public class DriftAnalysis extends Analysis {
         final double distanceDriftedInMeters = driftStart.getPosition().rhumbLineDistanceTo(driftEnd.getPosition());
 
         return distanceDriftedInMeters > OBSERVATION_DISTANCE_METERS;
-    }
-
-    private static float absoluteDirectionalDifference(float dir1, float dir2) {
-        dir1 = directionInCompassRange(dir1);
-        dir2 = directionInCompassRange(dir2);
-
-        float diff = dir1>dir2 ? dir1-dir2 : dir2-dir1;
-
-        if (diff >= 180.0) {
-            diff = 360.0f - diff;
-        }
-
-        return diff;
-    }
-
-    /**
-     * Convert the input to a number of degrees lying inside the compass
-     * circle. E.g. -45 -> 315 or 370 -> 10.
-     *
-     * @param degrees
-     * @return
-     */
-    private static float directionInCompassRange(float degrees) {
-        degrees = degrees % 360.0f;
-        if (degrees < 0.0) {
-            degrees += 360.0f;
-        }
-        return degrees;
     }
 
     @Override

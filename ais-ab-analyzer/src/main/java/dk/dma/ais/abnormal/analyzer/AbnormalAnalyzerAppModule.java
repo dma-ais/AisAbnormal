@@ -104,6 +104,8 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
 
+    public final static long STARTUP_TIMESTAMP = System.currentTimeMillis();
+
     private final Path configFile;
 
     public AbnormalAnalyzerAppModule(Path configFile) {

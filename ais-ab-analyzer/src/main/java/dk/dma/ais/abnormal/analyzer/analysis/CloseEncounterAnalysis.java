@@ -16,8 +16,6 @@
 
 package dk.dma.ais.abnormal.analyzer.analysis;
 
-import com.google.common.eventbus.Subscribe;
-import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.event.db.EventRepository;
@@ -29,7 +27,6 @@ import dk.dma.ais.abnormal.tracker.InterpolatedTrackingReport;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.abnormal.tracker.TrackingReport;
-import dk.dma.ais.abnormal.tracker.events.TimeEvent;
 import dk.dma.ais.abnormal.util.Categorizer;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Ellipse;
@@ -44,7 +41,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.Executor;
 
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_CLOSEENCOUNTER_RUN_PERIOD;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_CLOSEENCOUNTER_SOG_MIN;
@@ -78,67 +74,35 @@ import static java.util.stream.Collectors.toSet;
  * @author Thomas Borg Salling <tbsalling@tbsalling.dk>
  */
 @NotThreadSafe
-public class CloseEncounterAnalysis extends Analysis {
+public class CloseEncounterAnalysis extends PeriodicAnalysis {
     private static final Logger LOG = LoggerFactory.getLogger(CloseEncounterAnalysis.class);
 
     private final AppStatisticsService statisticsService;
     private final String analysisName;
 
     /**
-     * Minimum no. of msecs between runs of this analysis.
-     */
-    private final int ANALYSIS_PERIOD_MILLIS;
-
-    /**
      * MMinimum speed over ground to consider close encounter (in knots)
      */
-    private final float SOG_MIN;
-
-    /**
-     * The time when the analysis should next be run.
-     */
-    private Date nextRunTime;
-
-    /**
-     * Executor to perform the actual work.
-     */
-    private Executor executor = MoreExecutors.sameThreadExecutor(); // Executors.newSingleThreadExecutor();
+    private final float sogMin;
 
     @Inject
     public CloseEncounterAnalysis(Configuration configuration, AppStatisticsService statisticsService, Tracker trackingService, EventRepository eventRepository) {
         super(eventRepository, trackingService, null);
         this.statisticsService = statisticsService;
         this.analysisName = this.getClass().getSimpleName();
-        this.nextRunTime = new Date(0L);
-
-        ANALYSIS_PERIOD_MILLIS = configuration.getInt(CONFKEY_ANALYSIS_CLOSEENCOUNTER_RUN_PERIOD, 30000) * 1000;
-        SOG_MIN = configuration.getFloat(CONFKEY_ANALYSIS_CLOSEENCOUNTER_SOG_MIN, 5.0f);
-
+        this.sogMin = configuration.getFloat(CONFKEY_ANALYSIS_CLOSEENCOUNTER_SOG_MIN, 5.0f);
+        setAnalysisPeriodMillis(configuration.getInt(CONFKEY_ANALYSIS_CLOSEENCOUNTER_RUN_PERIOD, 30000) * 1000);
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
 
     @Override
     public String toString() {
         return "CloseEncounterAnalysis{" +
-                "ANALYSIS_PERIOD_MILLIS=" + ANALYSIS_PERIOD_MILLIS +
-                ", SOG_MIN=" + SOG_MIN +
+                "sogMin=" + sogMin +
                 "} " + super.toString();
     }
 
-    @Subscribe
-    public void onMark(TimeEvent timeEvent) {
-        LOG.debug(timeEvent.toString());
-
-        Date now = new Date(timeEvent.getTimestamp());
-
-        if (nextRunTime.before(now)) {
-            executor.execute(() -> performAnalysis());
-            nextRunTime = new Date(now.getTime() + ANALYSIS_PERIOD_MILLIS);
-            LOG.debug("nextRunTime: " + nextRunTime);
-        }
-    }
-
-    private void performAnalysis() {
+    protected void performAnalysis() {
         LOG.debug("Starting " + analysisName);
         final long systemTimeMillisBeforeAnalysis = System.currentTimeMillis();
 
@@ -175,7 +139,7 @@ public class CloseEncounterAnalysis extends Analysis {
                     if (isEngagedInFishing.test(track) && isEngagedInFishing.test(nearByTrack)) {
                         return;
                     }
-                    if (! (track.getSpeedOverGround() > SOG_MIN || nearByTrack.getSpeedOverGround() > SOG_MIN)) {
+                    if (! (track.getSpeedOverGround() > sogMin || nearByTrack.getSpeedOverGround() > sogMin)) {
                         return;
                     }
                     analyseCloseEncounter(track, nearByTrack);
@@ -184,7 +148,7 @@ public class CloseEncounterAnalysis extends Analysis {
     }
 
     void analyseCloseEncounter(Track track1, Track track2) {
-        if (track1.getSpeedOverGround() > SOG_MIN && ! isTrackPairAnalyzed(track1, track2)) {
+        if (track1.getSpeedOverGround() > sogMin && ! isTrackPairAnalyzed(track1, track2)) {
 
             if (track1.getTimeOfLastPositionReport() < track2.getTimeOfLastPositionReport()) {
                 track1.predict(track2.getTimeOfLastPositionReport());

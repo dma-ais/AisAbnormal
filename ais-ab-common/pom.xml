@@ -30,11 +30,6 @@
             <version>0.1-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-			<groupId>dk.dma.enav</groupId>
-			<artifactId>enav-model</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>

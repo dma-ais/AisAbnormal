@@ -23,6 +23,7 @@ import dk.dma.ais.abnormal.analyzer.analysis.Analysis;
 import dk.dma.ais.abnormal.analyzer.analysis.CloseEncounterAnalysis;
 import dk.dma.ais.abnormal.analyzer.analysis.CourseOverGroundAnalysis;
 import dk.dma.ais.abnormal.analyzer.analysis.DriftAnalysis;
+import dk.dma.ais.abnormal.analyzer.analysis.FreeFlowAnalysis;
 import dk.dma.ais.abnormal.analyzer.analysis.ShipTypeAndSizeAnalysis;
 import dk.dma.ais.abnormal.analyzer.analysis.SpeedOverGroundAnalysis;
 import dk.dma.ais.abnormal.analyzer.analysis.SuddenSpeedChangeAnalysis;
@@ -104,7 +105,7 @@ public class PacketHandlerImpl implements PacketHandler {
                 if (aisMessage instanceof AisStaticCommon) {
                     name = ((AisStaticCommon) aisMessage).getName();
                 }
-                LOG.debug("Dropped packet of type " + aisMessage.getMsgId() + " for MMSI " + aisMessage.getUserId() + " due to name match. " + (name != null ? "Name=\""+name+"\"" : ""));
+                LOG.debug("Dropped packet of type " + aisMessage.getMsgId() + " for MMSI " + aisMessage.getUserId() + " due to name match. " + (name != null ? "Name=\"" + name + "\"" : ""));
             }
             return;
         }
@@ -145,6 +146,7 @@ public class PacketHandlerImpl implements PacketHandler {
             .add(injector.getInstance(SuddenSpeedChangeAnalysis.class))
             .add(injector.getInstance(DriftAnalysis.class))
             .add(injector.getInstance(CloseEncounterAnalysis.class))
+            .add(injector.getInstance(FreeFlowAnalysis.class))
             .build();
 
         return analyses;
