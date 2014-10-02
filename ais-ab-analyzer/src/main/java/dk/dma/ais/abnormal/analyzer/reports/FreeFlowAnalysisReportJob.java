@@ -132,7 +132,7 @@ public class FreeFlowAnalysisReportJob implements Job {
 
                 email.append(String.format(Locale.ENGLISH, "%s, ", fmt.withZoneUTC().print(t0.getTimeOfLastPositionReport())));
                 email.append(String.format(Locale.ENGLISH, "%d, ", t0.getMmsi()));
-                email.append(String.format(Locale.ENGLISH, "%s, ", trimAisString(t0.getShipName())));
+                email.append(String.format(Locale.ENGLISH, "%s, ", trimAisString(t0.getShipName()).replace(',',' ')));
                 email.append(String.format(Locale.ENGLISH, "%d, ", t0.getShipType()));
                 email.append(String.format(Locale.ENGLISH, "%d, ", t0.getVesselLength()));
                 email.append(String.format(Locale.ENGLISH, "%d, ", t0.getVesselBeam()));
@@ -142,7 +142,7 @@ public class FreeFlowAnalysisReportJob implements Job {
                 email.append(String.format(Locale.ENGLISH, "%.4f, %.4f, ", p0.getLatitude(), p0.getLongitude()));
 
                 email.append(String.format(Locale.ENGLISH, "%d, ", t1.getMmsi()));
-                email.append(String.format(Locale.ENGLISH, "%s, ", trimAisString(t1.getShipName())));
+                email.append(String.format(Locale.ENGLISH, "%s, ", trimAisString(t1.getShipName()).replace(',',' ')));
                 email.append(String.format(Locale.ENGLISH, "%d, ", t1.getShipType()));
                 email.append(String.format(Locale.ENGLISH, "%d, ", t1.getVesselLength()));
                 email.append(String.format(Locale.ENGLISH, "%d, ", t1.getVesselBeam()));
