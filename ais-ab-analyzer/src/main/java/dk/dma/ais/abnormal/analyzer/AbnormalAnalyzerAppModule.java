@@ -110,7 +110,6 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
 
     public AbnormalAnalyzerAppModule(Path configFile) {
         this.configFile = configFile;
-        provideConfiguration();
     }
 
     @Override
