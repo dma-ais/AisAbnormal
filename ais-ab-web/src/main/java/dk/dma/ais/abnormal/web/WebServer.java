@@ -23,7 +23,9 @@ import org.eclipse.jetty.rewrite.handler.RewritePatternRule;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,6 +99,14 @@ public class WebServer {
 
         // Enable Jersey debug output
         context.setInitParameter("com.sun.jersey.config.statistic.Trace", "true");
+
+        // Enable CORS - cross origin resource sharing
+        FilterHolder cors = new FilterHolder();
+        cors.setInitParameter("allowedOrigins", "https?://localhost:*, https?://*.e-navigation.net:*");
+        cors.setInitParameter("allowedHeaders", "*");
+        cors.setInitParameter("allowedMethods", "OPTIONS,GET,PUT,POST,DELETE,HEAD");
+        cors.setFilter(new CrossOriginFilter());
+        context.addFilter(cors, "*", EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC, DispatcherType.INCLUDE));
 
         // Little hack to satisfy OpenLayers URLs in DMA context
         RewritePatternRule openlayersRewriteRule = new RewritePatternRule();

@@ -53,6 +53,11 @@
 			<artifactId>jetty-servlet</artifactId>
 			<version>${dependencies.jetty.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-servlets</artifactId>
+			<version>${dependencies.jetty.version}</version>
+		</dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-rewrite</artifactId>
