@@ -192,7 +192,7 @@ var mapModule = {
     },
 
     kmlGenTitleForEvent: function(jsonEvent) {
-        return jsonEvent.title;
+        return '[' + jsonEvent.id + '] ' + jsonEvent.title;
     },
 
     kmlGenDescriptionForEvent: function(jsonEvent) {
