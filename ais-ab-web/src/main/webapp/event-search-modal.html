@@ -17,25 +17,37 @@
                         <div id="event-search-tab-by-other" class="tab-pane active">
                             <form class="form-horizontal" role="form">
                                 <div class="form-group">
-                                    <label for="search-event-from" class="col-sm-2 control-label">From</label>
-                                    <div class="col-sm-4">
-                                        <input class="form-control" id="search-event-from" placeholder="dd/mm/yyyy hh:mm">
+                                    <div class="row">
+                                        <label for="search-event-from" class="col-sm-2 control-label">From</label>
+                                        <div class="col-sm-4">
+                                            <input class="form-control" id="search-event-from" placeholder="dd/mm/yyyy hh:mm">
+                                        </div>
+                                        <label for="search-event-to" class="col-sm-2 control-label">To</label>
+                                        <div class="col-sm-4">
+                                            <input class="form-control" id="search-event-to" placeholder="dd/mm/yyyy hh:mm">
+                                        </div>
                                     </div>
-                                    <label for="search-event-to" class="col-sm-2 control-label">To</label>
-                                    <div class="col-sm-4">
-                                        <input class="form-control" id="search-event-to" placeholder="dd/mm/yyyy hh:mm">
+                                    <div class="row">
+                                        <div class="col-sm-2" />
+                                        <div class="col-sm-1">
+                                            <img src="img/24h.jpg" id="search-event-24h" height="32px" width="32px" data-toggle='tooltip' title="Set filter period to last 24h"/>
+                                        </div>
                                     </div>
-                                    <label for="search-event-type" class="col-sm-2 control-label">Event type</label>
-                                    <div class="col-sm-4">
-                                        <select class="form-control" id="search-event-type" />
+                                    <div class="row">
+                                        <label for="search-event-type" class="col-sm-2 control-label">Type</label>
+                                        <div class="col-sm-4">
+                                            <select class="form-control" id="search-event-type" />
+                                        </div>
+                                        <label for="search-event-vessel" class="col-sm-2 control-label">Vessel</label>
+                                        <div class="col-sm-4">
+                                            <input class="form-control" id="search-event-vessel" placeholder="name/cs/imo">
+                                        </div>
                                     </div>
-                                    <label for="search-event-vessel" class="col-sm-2 control-label">Vessel</label>
-                                    <div class="col-sm-4">
-                                        <input class="form-control" id="search-event-vessel" placeholder="name/cs/imo">
-                                    </div>
-                                    <label for="search-event-inarea" class="col-sm-2 control-label">In area</label>
-                                    <div class="col-sm-4">
-                                        <input class="form-control" id="search-event-inarea" type="checkbox">
+                                    <div class="row">
+                                        <label for="search-event-inarea" class="col-sm-2 control-label">In area</label>
+                                        <div class="col-sm-4">
+                                            <input class="form-control" id="search-event-inarea" type="checkbox">
+                                        </div>
                                     </div>
                                 </div>
                                 <button type="button" class="btn btn-default" id="event-search-by-other"><span class="glyphicon glyphicon-search"></span>Search</button>

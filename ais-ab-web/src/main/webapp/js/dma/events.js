@@ -15,6 +15,7 @@ var eventModule = {
 
     onEventSearchModalLoaded: function() {
         $('.tabs#event-search-tabs').tabs();
+        $('#search-event-24h').click(eventModule.setEventSearchPeriod24h);
         $('#event-search-by-id').click(eventModule.findEventById);
         $('#event-search-by-other').click(eventModule.findEventByCriteria);
 
@@ -74,25 +75,30 @@ var eventModule = {
 
     formatDate: function(d) {
         var curr_date = d.getDate();
+        if (curr_date < 10)
+            curr_date = "0" + curr_date;
         var curr_month = d.getMonth();
         curr_month++;
+        if (curr_month < 10)
+            curr_month = "0" + curr_month;
         var curr_year = d.getFullYear();
         var curr_hour = d.getHours();
         if (curr_hour < 10)
-        {
             curr_hour = "0" + curr_hour;
-        }
         var curr_min = d.getMinutes();
         if (curr_min < 10)
-        {
             curr_min = "0" + curr_min;
-        }
-        var curr_sec = d.getSeconds();
-        if (curr_sec < 10)
-        {
-            curr_sec = "0" + curr_sec;
-        }
-        return curr_date + "-" + curr_month + "-" + curr_year + " " + curr_hour + ":" + curr_min + ":" + curr_sec;
+        return curr_date + "/" + curr_month + "/" + curr_year + " " + curr_hour + ":" + curr_min;
+    },
+
+    parseDate: function(dateString) {
+        var match = /^(\d?\d)\/(\d?\d)\/(\d{4}) (\d?\d):(\d\d)/.exec(dateString);
+        var dom = Number(match[1]);
+        var mon = Number(match[2])-1;
+        var year = Number(match[3]);
+        var hour = Number(match[4]);
+        var min = Number(match[5]);
+        return new Date(year, mon, dom, hour, min);
     },
 
     setSearchStarted: function(statusText) {
@@ -244,6 +250,27 @@ var eventModule = {
             }).fail(function (jqXHR, textStatus) {
                 eventModule.setSearchCompleted("Search error: " + textStatus);
             });
+        }
+    },
+
+    setEventSearchPeriod24h: function() {
+        var from = $('#search-event-from');
+        var to = $('#search-event-to');
+
+        if (!from.val().trim()) {
+            if (!to.val().trim()) {
+                var now = new Date();
+                to.val(eventModule.formatDate(now));
+                from.val(eventModule.formatDate(new Date(now - 24*60*60*1000)));
+            } else {
+                var toTime = eventModule.parseDate(to.val());
+                from.val(eventModule.formatDate(new Date(toTime.getTime() - 24*60*60*1000)));
+            }
+        } else {
+            if (!to.val().trim()) {
+                var fromTime = eventModule.parseDate(from.val());
+                to.val(eventModule.formatDate(new Date(fromTime.getTime() + 24*60*60*1000)));
+            }
         }
     },
 
