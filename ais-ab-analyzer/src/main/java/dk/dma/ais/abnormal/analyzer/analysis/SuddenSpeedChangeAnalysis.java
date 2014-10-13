@@ -43,9 +43,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
-import static dk.dma.ais.abnormal.analyzer.config.Configuration.*;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_DROP_DECAY;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_DROP_SUSTAIN;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SOG_HIGHMARK;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SOG_LOWMARK;
 import static dk.dma.ais.abnormal.util.AisDataHelper.isSpeedOverGroundAvailable;
+import static dk.dma.ais.abnormal.util.AisDataHelper.nameMmsiOrMmsi;
 import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isCargoVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isClassB;
@@ -174,18 +179,24 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
         final Float speedOverGround = track.getSpeedOverGround();
 
         if (speedOverGround != null && speedOverGround <= SPEED_LOW_MARK) {
-            if (!tracksWithSuddenSpeedDecrease.contains(mmsi) && isSuddenSpeedDecrease(track)) {
-                LOG.debug(nameOrMmsi(track.getShipName(), mmsi) + " experienced sudden speed decrease. Added to observation list.");
-                tracksWithSuddenSpeedDecrease.add(mmsi);
-            } else if (tracksWithSuddenSpeedDecrease.contains(mmsi) && isSustainedSpeedDecrease(track)) {
-                LOG.debug(nameOrMmsi(track.getShipName(), mmsi) + " experienced sustained speed decrease. Event raised.");
-                raiseAndLowerSuddenSpeedChangeEvent(track);
-                tracksWithSuddenSpeedDecrease.remove(mmsi);
+            if (!tracksWithSuddenSpeedDecrease.contains(mmsi)) {
+                if (isSuddenSpeedDecrease(track)) {
+                    LOG.debug(nameOrMmsi(track.getShipName(), mmsi) + " experienced sudden speed decrease. Added to observation list.");
+                    track.setPositionReportPurgeEnable(false);
+                    tracksWithSuddenSpeedDecrease.add(mmsi);
+                }
+            } else {
+                if (isSustainedReportedSpeedDecrease(track) && isSustainedCalculatedSpeedDecrease(track)) {
+                    LOG.debug(nameOrMmsi(track.getShipName(), mmsi) + " experienced sustained speed decrease. Event raised.");
+                    raiseAndLowerSuddenSpeedChangeEvent(track);
+                    tracksWithSuddenSpeedDecrease.remove(mmsi);
+                }
             }
         } else {
             if (tracksWithSuddenSpeedDecrease.contains(mmsi)) {
                 LOG.debug(nameOrMmsi(track.getShipName(), mmsi) + " speed above low mark. Removed from observation list.");
                 tracksWithSuddenSpeedDecrease.remove(mmsi);
+                track.setPositionReportPurgeEnable(true);
             }
         }
     }
@@ -194,21 +205,62 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
      * Evaluate whether this track has kept its speed below SPEED_LOW_MARK
      * for a sustained period of at least SPEED_SUSTAIN_SECS seconds.
      *
+     * Based on the vessel's own reported SOG.
+     *
      * @param track
      * @return
      */
-    private boolean isSustainedSpeedDecrease(Track track) {
-        if (track.getSpeedOverGround() > SPEED_LOW_MARK) {
-            throw new IllegalArgumentException("track.speedOverGround > SPEED_LOW_MARK");
-        }
-
+    private boolean isSustainedReportedSpeedDecrease(Track track) {
         Optional<Float> maxSog = track.getTrackingReports()
-                .stream()
-                .filter(tr -> tr.getTimestamp() >= track.getTimeOfLastPositionReport() - SPEED_SUSTAIN_SECS * 1000)
-                .map(tr -> Float.valueOf(tr.getSpeedOverGround()))
-                .max(Comparator.<Float>naturalOrder());
+            .stream()
+            .filter(tr -> tr.getTimestamp() >= track.getTimeOfLastPositionReport() - SPEED_SUSTAIN_SECS * 1000)
+            .map(tr -> Float.valueOf(tr.getSpeedOverGround()))
+            .max(Comparator.<Float>naturalOrder());
 
         return maxSog.isPresent() ? maxSog.get() <= SPEED_LOW_MARK : false;
+    }
+
+    /**
+     * Evaluate whether this track has kept its speed below SPEED_LOW_MARK
+     * for a sustained period of at least SPEED_SUSTAIN_SECS seconds.
+     *
+     * Based on calculated SOG from the vessel's reported positions.
+     *
+     * @param track
+     * @return
+     */
+    private boolean isSustainedCalculatedSpeedDecrease(Track track) {
+        List<TrackingReport> trackingReports = track.getTrackingReports()
+            .stream()
+            .filter(tr -> tr.getTimestamp() >= track.getTimeOfLastPositionReport() - SPEED_SUSTAIN_SECS * 1000)
+            .collect(Collectors.toList());
+
+        final int n = trackingReports.size();
+        boolean calculatedSogsAllBelowLowMark = true;
+        for (int i=0; i<n-1 && calculatedSogsAllBelowLowMark == true; i++) {
+            TrackingReport tr1 = trackingReports.get(i);
+            TrackingReport tr2 = trackingReports.get(i+1);
+
+            Position p1 = tr1.getPosition();
+            Position p2 = tr2.getPosition();
+
+            double dp = p2.rhumbLineDistanceTo(p1);
+            double dt = (tr2.getTimestamp() - tr1.getTimestamp()) / 1e3;
+
+            double v = dp/dt; // meters per second
+            double vKnots = v * 1.9438444924406046; // 1 m/s = 1.9438444924406046 knots
+
+            if (vKnots > SPEED_LOW_MARK) {
+                calculatedSogsAllBelowLowMark = false;
+                LOG.debug("Calculated sog = " + vKnots + " is larger than " + SPEED_LOW_MARK);
+            }
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(nameMmsiOrMmsi(track.getShipName(), track.getMmsi()) + ": " + (calculatedSogsAllBelowLowMark ? "Calculated sog's are all below " + SPEED_LOW_MARK : "Not all calculated sog's are all below " + SPEED_LOW_MARK));
+        }
+
+        return calculatedSogsAllBelowLowMark;
     }
 
     /**
