@@ -38,7 +38,7 @@ public class AbnormalAnalyzerAppModuleTest {
         List<BoundingBox> boundingBoxes = geoMaskFilter.getSuppressedBoundingBoxes();
 
         assertNotNull(boundingBoxes);
-        assertEquals(129, boundingBoxes.size());
+        assertEquals(258, boundingBoxes.size());
 
         assertEquals(56.13767740, boundingBoxes.get(0).getMinLat(), 1e-8);
         assertEquals(56.17285020, boundingBoxes.get(0).getMaxLat(), 1e-8);
