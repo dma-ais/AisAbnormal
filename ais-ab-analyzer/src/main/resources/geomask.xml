@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <areas>
     <area_polygon guid = "{21caae4d-bf80-4c74-b2d4-c99b6cf61705}" name = "Aarhus_0" depth = "50" filename = "">
         <polygon>
@@ -1755,6 +1756,1776 @@
             </item>
         </polygon>
     </area_polygon>
+    <area_polygon guid = "{be0223b5-b004-4dc6-81b4-5fb5b98830e7}" name = "Kiel_0" depth = "50" filename = "">
+        <polygon>
+            <item guid = "{b69f7222-7287-4d5d-b92f-39cbda306d4a}" lat = "54.2940423" lon = "10.0788884">
+            </item>
+            <item guid = "{fb842fe9-118d-4584-99e8-2ac900a5e136}" lat = "54.4728474" lon = "10.0844666">
+            </item>
+            <item guid = "{9f8a5556-6d45-4be6-88fb-7b714d051930}" lat = "54.4725749" lon = "10.3111133">
+            </item>
+            <item guid = "{1bccafee-184b-4966-8faa-b61f55d96667}" lat = "54.2942025" lon = "10.3068898">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{d709b4b9-3732-4bec-a808-4e3ed987929a}" name = "Aspoe" depth = "50" filename = "">
+        <polygon>
+            <item guid = "{00637fe4-b7d4-460d-8524-885f1350b743}" lat = "56.1303353" lon = "15.5474336">
+            </item>
+            <item guid = "{5fbe793c-972a-40ec-81e8-dde7766703ef}" lat = "56.1205907" lon = "15.5478707">
+            </item>
+            <item guid = "{501c9402-f60f-457f-8295-5044cc35c595}" lat = "56.1203204" lon = "15.565481">
+            </item>
+            <item guid = "{286afb25-ee2b-4bb5-8000-e44aec2330cd}" lat = "56.1304305" lon = "15.5651383">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{460366a4-bd52-4d87-8edc-bce85f7c29ea}" name = "Wattenmeer" depth = "50" filename = "">
+        <polygon>
+            <item guid = "{371c7c16-3a81-49fa-b4d6-2db1784f4fc5}" lat = "54.1705942" lon = "9.09173252">
+            </item>
+            <item guid = "{4c4817f3-5d3c-46ea-9c81-f1ac3b192dbe}" lat = "54.8752122" lon = "9.08965509">
+            </item>
+            <item guid = "{54721be4-7f71-44cd-b5e3-45e26c4841b9}" lat = "54.8800761" lon = "8.27990548">
+            </item>
+            <item guid = "{880bb62c-0e63-4b60-b874-1977f2f0f23b}" lat = "54.1741604" lon = "8.29917463">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{8d49dbd0-847f-4204-bdb1-08e338f63534}" name = "Allinge_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{2cf85a04-ab8b-4266-9f0a-27e134d00d4d}" lat = "55.2787533" lon = "14.8001379">
+            </item>
+            <item guid = "{3ac31b11-4306-4f97-a231-91cf6303549c}" lat = "55.2774705" lon = "14.8020935">
+            </item>
+            <item guid = "{48b2afc0-a952-40da-838f-8d431587001f}" lat = "55.278236" lon = "14.8036412">
+            </item>
+            <item guid = "{b2247c61-53fc-41b9-9492-7ad70265009d}" lat = "55.2794977" lon = "14.8015837">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{83da22dc-3542-4949-b360-bbd752d9a4b1}" name = "Aarhus_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{cdfdc4cc-9f17-4a7d-8d6a-6edc7fb8ca48}" lat = "56.1622571" lon = "10.2288809">
+            </item>
+            <item guid = "{a2e7c08f-6c82-418a-bcec-4a048dd9e08c}" lat = "56.1647414" lon = "10.2240224">
+            </item>
+            <item guid = "{b8aaabb9-9888-4348-8e31-88caec201a20}" lat = "56.1599306" lon = "10.2150384">
+            </item>
+            <item guid = "{b666c9d6-66f9-409e-90bd-c599a359ce7e}" lat = "56.1578782" lon = "10.219272">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{b28c912e-08f1-40b5-8594-94cb112cf425}" name = "Fredericia_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{79753f71-8c9f-4134-a69d-82f26552289a}" lat = "55.555993" lon = "9.73718511">
+            </item>
+            <item guid = "{acb0b248-5513-4ca4-bdcf-ede234699be9}" lat = "55.5578306" lon = "9.73257576">
+            </item>
+            <item guid = "{310782d7-ce16-41fa-b2e1-7ad82abc29ea}" lat = "55.5597654" lon = "9.73567961">
+            </item>
+            <item guid = "{e310a4fc-2094-4d91-90d6-955e0027cc22}" lat = "55.5576259" lon = "9.74101681">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{0bae57a1-f39c-41e8-982b-8bb5d7332bdb}" name = "Fredericia_2" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{5794859c-78cc-4c36-835d-0414ef5fbd92}" lat = "55.5577458" lon = "9.74480818">
+            </item>
+            <item guid = "{bee9454c-35b6-412f-b470-4f13b5eca844}" lat = "55.5615626" lon = "9.74483593">
+            </item>
+            <item guid = "{ee9a6cf7-a9bb-4961-b558-0ef135f34032}" lat = "55.561742" lon = "9.75802043">
+            </item>
+            <item guid = "{bd936659-140b-4aeb-bb93-03536d35de27}" lat = "55.558291" lon = "9.75813517">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{e7f578e5-417c-4016-a778-aadac3ab18cc}" name = "Koege_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{d1c1ca26-e244-462b-8efe-1e7942599ad1}" lat = "55.4544289" lon = "12.1987047">
+            </item>
+            <item guid = "{2040b9a8-ef40-4890-beac-5f97611af854}" lat = "55.4553591" lon = "12.194208">
+            </item>
+            <item guid = "{78a81b15-2cc6-4ed1-808d-c5ee4de7fdf8}" lat = "55.4565779" lon = "12.194208">
+            </item>
+            <item guid = "{6a21a835-5a5f-41a0-938b-6f82ed16aae1}" lat = "55.4573636" lon = "12.1994404">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{11e79be6-3b1b-419f-869f-b868a991ac5a}" name = "Koege_2" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{2ea01c08-5d55-4f10-bd10-cec7e1b7324f}" lat = "55.4525205" lon = "12.1984216">
+            </item>
+            <item guid = "{9858c133-de76-4125-aafa-1f46d3d1c367}" lat = "55.4523759" lon = "12.1852435">
+            </item>
+            <item guid = "{e54defc8-dbaf-41d3-a6c2-1102d22e94bd}" lat = "55.4553749" lon = "12.1856388">
+            </item>
+            <item guid = "{0cab4224-e784-40c3-bbda-4e0dda201ee0}" lat = "55.4542685" lon = "12.1984501">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{aa5de62f-8625-4958-8b4a-c484e38ae001}" name = "Middelfart_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{43c202e2-f569-4339-9db3-5e9422272b19}" lat = "55.5077075" lon = "9.73874216">
+            </item>
+            <item guid = "{2956c9d0-fe42-4ab1-a020-fc5f2588a875}" lat = "55.5076394" lon = "9.74492181">
+            </item>
+            <item guid = "{70db8eed-cb51-42f7-9fbd-ef12f20485e3}" lat = "55.5065277" lon = "9.74485317">
+            </item>
+            <item guid = "{cb8eb198-f77a-4853-99b1-e45c6e80f616}" lat = "55.5065958" lon = "9.7387249">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{83a67ef0-36e1-42e5-a7ed-4b78f3d1415f}" name = "Aarhus_2" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{3bbf2368-11ef-42ac-9cdd-e6272aa7e444}" lat = "56.1447525" lon = "10.2150072">
+            </item>
+            <item guid = "{b620d520-f84d-4798-9e5c-104cf2fea784}" lat = "56.1577596" lon = "10.2275068">
+            </item>
+            <item guid = "{c72fec5b-159e-45f8-b2ff-98d03d686462}" lat = "56.1579967" lon = "10.2266024">
+            </item>
+            <item guid = "{bdc8eb75-c5ce-4f82-8cd9-ad047f2a1cc9}" lat = "56.1565745" lon = "10.2221335">
+            </item>
+            <item guid = "{5f732f52-0dad-47ad-bf7f-2a80ab0679ed}" lat = "56.1464113" lon = "10.2108583">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{01ca8082-d914-4042-9980-b67b40e6fbba}" name = "Aarhus_3" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{56d1df22-ab8c-4a16-93ef-f18cb6b5109e}" lat = "56.1600471" lon = "10.214388">
+            </item>
+            <item guid = "{a338e907-7114-49e0-a1ba-1092ec8da4e2}" lat = "56.1529506" lon = "10.2113125">
+            </item>
+            <item guid = "{cd444349-1019-436a-abc4-787991b93db7}" lat = "56.1515992" lon = "10.215473">
+            </item>
+            <item guid = "{925dee14-f9bf-4ea9-b9ab-127d23abd2ef}" lat = "56.1568854" lon = "10.2207162">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{a94d2697-278b-4498-8356-41069948c22a}" name = "Aarhus_4" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{7faa6c0f-99a3-454c-9233-6316968ed918}" lat = "56.1424271" lon = "10.2159478">
+            </item>
+            <item guid = "{2c6a0e16-a903-401a-b748-45c3b6550492}" lat = "56.1554839" lon = "10.2279612">
+            </item>
+            <item guid = "{3f93591d-4a7f-48ec-8649-f0af45e291bc}" lat = "56.1588643" lon = "10.2453991">
+            </item>
+            <item guid = "{f8b5b2cc-c310-4b97-bf18-64ae64f93b08}" lat = "56.1557723" lon = "10.2486624">
+            </item>
+            <item guid = "{cfb79c39-0a20-497d-b2de-d81cdfd61834}" lat = "56.140136" lon = "10.2216273">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{6bdad226-a4f6-4450-b4bd-e2a46aa6cf5a}" name = "StatoilKalundborg_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{ca44e7d2-7412-4647-ba15-75fb6f6464b9}" lat = "55.6639151" lon = "11.0690184">
+            </item>
+            <item guid = "{2e5cddb7-202d-4fd1-bcbc-1afca6f8a59a}" lat = "55.666461" lon = "11.0707591">
+            </item>
+            <item guid = "{43a174cf-c30a-45e1-bf63-3aacc3c08a46}" lat = "55.6662426" lon = "11.0835269">
+            </item>
+            <item guid = "{671d68c7-0871-4239-8df9-1802b7540e9f}" lat = "55.6662799" lon = "11.0867308">
+            </item>
+            <item guid = "{9be6e20f-6190-4daf-9fef-72b0207018e5}" lat = "55.6675628" lon = "11.0888351">
+            </item>
+            <item guid = "{42f163e2-7be8-431e-8be5-60e46c1a2d7d}" lat = "55.6673683" lon = "11.0973916">
+            </item>
+            <item guid = "{c1be00f0-53fc-402c-9f73-1d8fe39e5ff3}" lat = "55.6608219" lon = "11.0970011">
+            </item>
+            <item guid = "{27746e58-ff18-4718-a62d-24d5686db494}" lat = "55.6612965" lon = "11.0708241">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{6a5edbd3-6d6e-479c-8572-fb3f77a7e223}" name = "Kalundborg_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{2441b90f-cb3a-4d8f-b9c7-a4df8bd58ebc}" lat = "55.676128" lon = "11.1086468">
+            </item>
+            <item guid = "{b02d08e2-e020-4620-9f9f-572727b41472}" lat = "55.6685912" lon = "11.1051735">
+            </item>
+            <item guid = "{35c9e2f3-da9e-45c2-a10e-1d37ceeb8e98}" lat = "55.6675972" lon = "11.1027845">
+            </item>
+            <item guid = "{b0474dd1-2a15-4b5d-ab5e-b7bcc21d2f26}" lat = "55.6689774" lon = "11.0901596">
+            </item>
+            <item guid = "{91b4f9da-9d8e-499c-8db4-d6ae40a18b27}" lat = "55.6749116" lon = "11.0714061">
+            </item>
+            <item guid = "{d1d85975-7063-4fd8-a302-04213b184aea}" lat = "55.6792958" lon = "11.0677773">
+            </item>
+            <item guid = "{e669a523-2141-432b-82b5-5f9e86459ebe}" lat = "55.6812225" lon = "11.0717698">
+            </item>
+            <item guid = "{3d17db85-6d87-4273-ac53-add244bf12fd}" lat = "55.6806313" lon = "11.0791799">
+            </item>
+            <item guid = "{7eccecee-ea20-4ea3-8b84-cf0045aac2c1}" lat = "55.6769287" lon = "11.1057174">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{8c5f91af-d4ae-4569-9c0e-c5ca15c0c24e}" name = "Stigsnæs_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{f60eb2a6-790f-4b1a-8867-b10a57039c5d}" lat = "55.2010654" lon = "11.2464535">
+            </item>
+            <item guid = "{4161b136-eb29-4ae9-8501-f8395fc2b91d}" lat = "55.2049863" lon = "11.2555118">
+            </item>
+            <item guid = "{eb3a94ca-25bf-446e-aeb5-c9abfecc35d3}" lat = "55.2114043" lon = "11.246757">
+            </item>
+            <item guid = "{01983b52-f1a6-45b7-aa7e-75ce414cf847}" lat = "55.2080056" lon = "11.237647">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{d60a3c90-842e-4889-b759-258da5deaf8c}" name = "GulfHavn_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{3276c097-84f4-4061-820f-c857537ed418}" lat = "55.2043183" lon = "11.2565296">
+            </item>
+            <item guid = "{697245c5-bdb6-4843-958e-5fba6712cb58}" lat = "55.2010075" lon = "11.2493541">
+            </item>
+            <item guid = "{96bd7515-b80c-4eeb-9973-9dbca05327dd}" lat = "55.1949087" lon = "11.2575975">
+            </item>
+            <item guid = "{111801d8-64c7-4cee-aef0-e96b2ecd26b1}" lat = "55.198219" lon = "11.2651287">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{dbcd0c18-238b-452b-bb76-35760cba8fc0}" name = "Fakseladeplads_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{66057308-8fea-4394-93fb-ce588a96e408}" lat = "55.2141631" lon = "12.1612012">
+            </item>
+            <item guid = "{ace57f8e-43b3-46ac-b749-2e5f1cd18404}" lat = "55.2135307" lon = "12.1616727">
+            </item>
+            <item guid = "{6b06e604-a86b-44c6-81f1-a87dbaf65c24}" lat = "55.2139814" lon = "12.1655209">
+            </item>
+            <item guid = "{c19b91f1-5996-47a1-9eb1-104b8af07d89}" lat = "55.2146938" lon = "12.165075">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{5632b2e1-b1d6-44d3-b528-04ebd20dabec}" name = "Gedser_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{bd1c9f9c-c9a0-4d36-8d16-7c1b584e4dc7}" lat = "54.5738632" lon = "11.9244963">
+            </item>
+            <item guid = "{1cd52d7b-198e-4e72-985d-46cfbb4325b9}" lat = "54.5721343" lon = "11.9243444">
+            </item>
+            <item guid = "{091b345c-2892-45f5-9fb4-e7a029ba07a3}" lat = "54.5718308" lon = "11.9285687">
+            </item>
+            <item guid = "{6cccf269-8a72-4c94-9e2a-64f5b87da838}" lat = "54.57378" lon = "11.9298699">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{81d80328-daa5-49b0-bb1b-1d6a2e0f4973}" name = "Rødby_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{3c6fbfea-8825-4fe5-9efa-f7590ac0ad2f}" lat = "54.6566057" lon = "11.3515077">
+            </item>
+            <item guid = "{c8066c0d-bf8e-4472-a0e4-aa5f3bf7ca1b}" lat = "54.6575406" lon = "11.3499309">
+            </item>
+            <item guid = "{5699f840-8213-4406-86e9-fa5241b1a3ee}" lat = "54.6556365" lon = "11.3464623">
+            </item>
+            <item guid = "{98b96a73-f80d-48ae-8d0b-415b242b83e4}" lat = "54.6546788" lon = "11.3479405">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{de4a1035-a5ca-4ef5-98e6-a46eeeaafa4a}" name = "Rødby_2" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{f6896b01-1e7c-40f0-bcfa-8108078c877b}" lat = "54.6537895" lon = "11.3472705">
+            </item>
+            <item guid = "{ce6e9be0-7b2e-45a1-8810-06d20c5788de}" lat = "54.6515321" lon = "11.3510545">
+            </item>
+            <item guid = "{d6dac5c5-6d92-42a6-9ae6-dce959097a70}" lat = "54.6529686" lon = "11.3547595">
+            </item>
+            <item guid = "{e11015a5-0bfe-4d92-94dd-850ca15a4344}" lat = "54.6554199" lon = "11.3502661">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{b3c51ad1-f653-49cf-9572-ef1e8a039cee}" name = "Nakskov_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{206464ca-7bc0-4ca0-aa6c-283ed55afa09}" lat = "54.8345946" lon = "11.1183652">
+            </item>
+            <item guid = "{e8f44b44-1382-4756-a1d1-3525d6d2b64f}" lat = "54.8290497" lon = "11.1194961">
+            </item>
+            <item guid = "{a6cdf4ef-dc0c-47a1-b01d-fda75522c151}" lat = "54.8295971" lon = "11.1290456">
+            </item>
+            <item guid = "{fd8ad763-dd81-437f-8ad1-786f748933b2}" lat = "54.8270533" lon = "11.1392364">
+            </item>
+            <item guid = "{4fb021b3-2b3a-48b3-b37e-4f52144f3c30}" lat = "54.8288129" lon = "11.1392625">
+            </item>
+            <item guid = "{c0bcf75f-9088-42ca-93ca-a9a3a3f9e86b}" lat = "54.8346394" lon = "11.1251432">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{3aab73f5-3991-4d2c-9aa4-3181b00c6d8c}" name = "NykøbingFalster_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{2ec3114c-861b-439d-9688-ccd5d94fd3c5}" lat = "54.7612384" lon = "11.8682572">
+            </item>
+            <item guid = "{1e9bf4c4-032b-4416-9131-bdd7812de466}" lat = "54.7634996" lon = "11.8672012">
+            </item>
+            <item guid = "{2d3e77e4-e31e-4a0b-81c1-85e5d7e20397}" lat = "54.7699145" lon = "11.8624478">
+            </item>
+            <item guid = "{43fc72b2-c661-4fa1-8308-f1fc94c7c951}" lat = "54.7711012" lon = "11.8664512">
+            </item>
+            <item guid = "{73cec829-2142-4498-9b66-486aca7a7ec2}" lat = "54.7719832" lon = "11.8661732">
+            </item>
+            <item guid = "{db9eaaf1-de7a-411c-aec2-28d8afc489e5}" lat = "54.7730256" lon = "11.8626424">
+            </item>
+            <item guid = "{48abb325-3a23-47b9-9714-02fc7d2ccd60}" lat = "54.7718869" lon = "11.8588058">
+            </item>
+            <item guid = "{cd6a1539-438b-4f0c-ab08-e936d4090407}" lat = "54.7611262" lon = "11.8664783">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{406ed4a5-5ba9-4ca4-bf17-1c3b6fc6fd53}" name = "Korsør_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{552ce318-3a3c-4b35-a75a-512bc3610ee2}" lat = "55.3335983" lon = "11.1274911">
+            </item>
+            <item guid = "{07e67d7f-2fd2-4e87-9d47-f64975c17723}" lat = "55.3344083" lon = "11.1329612">
+            </item>
+            <item guid = "{943253a3-0adc-4342-b783-26d7337ad440}" lat = "55.3359" lon = "11.1332859">
+            </item>
+            <item guid = "{9da7ce93-e179-4e4d-acf6-9bc435674dbf}" lat = "55.335843" lon = "11.1397803">
+            </item>
+            <item guid = "{ecf1bba3-d1ec-4322-94ef-9abb84886ba9}" lat = "55.3351036" lon = "11.1474485">
+            </item>
+            <item guid = "{961c2180-2f7a-4bfe-995f-89b7678b175d}" lat = "55.3298612" lon = "11.1478713">
+            </item>
+            <item guid = "{1d998247-e5f9-4f85-8432-a68727fec965}" lat = "55.3308422" lon = "11.1386557">
+            </item>
+            <item guid = "{c4c3a7f5-a5d6-42ab-89dd-9edbd8302c94}" lat = "55.332675" lon = "11.1368326">
+            </item>
+            <item guid = "{32b8fb81-50a0-4515-adf0-9dd02f1c3c43}" lat = "55.3315952" lon = "11.1295395">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{11cbca4d-f1bd-4f4a-a3f2-8fbf4703909c}" name = "Hundested_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{e0ff64e9-1a35-4d62-a41a-427008c3f447}" lat = "55.957297" lon = "11.8486109">
+            </item>
+            <item guid = "{211f2112-355f-4480-ba47-4895ede41c04}" lat = "55.9602574" lon = "11.847869">
+            </item>
+            <item guid = "{53882e57-c5c3-48ab-9057-903fdc5d8a97}" lat = "55.9601925" lon = "11.846802">
+            </item>
+            <item guid = "{0263e1e3-856f-4e3a-9c83-fe894f18980b}" lat = "55.9572321" lon = "11.8475208">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{e1e2c92d-c930-4acf-bbd1-6695529151fa}" name = "Frederiksværk_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{445bf24d-d412-4d21-9272-07563d1a162d}" lat = "55.9601562" lon = "12.0092947">
+            </item>
+            <item guid = "{6311b488-ed13-4102-a1a7-13ba3a2f542a}" lat = "55.9637145" lon = "12.0107274">
+            </item>
+            <item guid = "{a6f49a4c-2e6a-47c6-bfaa-304398ca9457}" lat = "55.9640437" lon = "12.0134834">
+            </item>
+            <item guid = "{00c04958-6f2c-4b2d-a6d0-081afe3fd847}" lat = "55.9627067" lon = "12.0167171">
+            </item>
+            <item guid = "{93c392f0-7ba5-4695-950e-15b18ea7cebe}" lat = "55.961884" lon = "12.0171947">
+            </item>
+            <item guid = "{18d3d662-c6a3-4531-88c2-e2fffdb20c78}" lat = "55.9591484" lon = "12.0117199">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{2c1a4d90-d8d3-4d57-8e41-15eef0d8632c}" name = "Odense_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{0baf01d3-84b8-45f1-a2bc-5792cff9bc14}" lat = "55.4055938" lon = "10.3732464">
+            </item>
+            <item guid = "{045fa2e1-1f4a-42e8-aa4d-00860bb89c9e}" lat = "55.4264348" lon = "10.375588">
+            </item>
+            <item guid = "{c8dc1749-bac0-4069-a70b-eacb202e44bb}" lat = "55.4331817" lon = "10.4007537">
+            </item>
+            <item guid = "{6143ed45-49c6-4882-ae04-256bca9c5820}" lat = "55.4368156" lon = "10.417437">
+            </item>
+            <item guid = "{f349160b-65af-43c0-820f-afb431f0b2bf}" lat = "55.4338934" lon = "10.4232131">
+            </item>
+            <item guid = "{340379db-4c3b-4c08-a774-c955593d66d5}" lat = "55.4261206" lon = "10.4004745">
+            </item>
+            <item guid = "{127f5e99-3a36-45c7-887b-c6fddf1bdb18}" lat = "55.4059579" lon = "10.3887144">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{3731e21d-13c5-4ae3-a217-ab70de0b452f}" name = "Lindø_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{822241d0-f90a-4896-9ae5-e3f3750a16c0}" lat = "55.4623093" lon = "10.5269269">
+            </item>
+            <item guid = "{61c826f5-68b9-4ed6-8af6-463b5df57e09}" lat = "55.4769971" lon = "10.5445362">
+            </item>
+            <item guid = "{0ce8ee9c-6953-4341-9eea-0d3c05754994}" lat = "55.4816317" lon = "10.5323953">
+            </item>
+            <item guid = "{fc9348f7-3a89-4a18-ae56-545b1b6532f9}" lat = "55.4672273" lon = "10.5144739">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{ac9a2859-dc4a-41f1-b52f-f49816af2cd3}" name = "Vejle_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{75e3395c-5913-43c5-bda1-c6af4d230966}" lat = "55.7028847" lon = "9.56214987">
+            </item>
+            <item guid = "{75080ee8-c04d-422a-b395-ecd78fa99f33}" lat = "55.7059426" lon = "9.54186443">
+            </item>
+            <item guid = "{a79de1bc-d4fb-43d9-99ab-bc39f7b2c34f}" lat = "55.707693" lon = "9.54265">
+            </item>
+            <item guid = "{d93263d7-8fcc-47ec-92e5-35878ef5fc0d}" lat = "55.7044874" lon = "9.5628614">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{cd3724a7-ceef-427f-826d-ed831a745531}" name = "Grenå_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{c96f84fa-7ea9-40db-bd95-21d05986b74e}" lat = "56.4161723" lon = "10.9272368">
+            </item>
+            <item guid = "{7a73fc09-074e-464c-98a6-b07025059ad0}" lat = "56.41699" lon = "10.9241056">
+            </item>
+            <item guid = "{1a491a67-d80e-47fa-a4fb-b9514d050a88}" lat = "56.4134938" lon = "10.9211782">
+            </item>
+            <item guid = "{379a5981-c3e6-4adb-8a31-34c863a54a5f}" lat = "56.4079843" lon = "10.9215149">
+            </item>
+            <item guid = "{3822420a-7ecd-4b38-9c86-4619ee3d5477}" lat = "56.407965" lon = "10.9275921">
+            </item>
+            <item guid = "{9288a51b-15bc-4956-a7b0-47ce3227968c}" lat = "56.4102459" lon = "10.9287293">
+            </item>
+            <item guid = "{5be015a0-618b-46bc-bcc2-b7f25e768f3b}" lat = "56.4113666" lon = "10.9262413">
+            </item>
+            <item guid = "{3205f8fd-a98c-472f-8c6a-1374acbd0837}" lat = "56.4144563" lon = "10.9264252">
+            </item>
+            <item guid = "{5b6fb49a-c20b-452f-b761-ede198934346}" lat = "56.4152582" lon = "10.9272659">
+            </item>
+            <item guid = "{fe44d44e-3bbf-43fc-b08d-94611bb8ece1}" lat = "56.4149695" lon = "10.9286865">
+            </item>
+            <item guid = "{6859b3bb-ef54-4a04-bd1e-993880934621}" lat = "56.4216088" lon = "10.9341954">
+            </item>
+            <item guid = "{68054ad0-8b87-47ed-9488-10d3076267f1}" lat = "56.422138" lon = "10.9320207">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{ba043698-9d51-481c-a214-a18f67f169c9}" name = "Frederikshavn_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{f1defd78-d9f5-4582-92c2-80c067efea08}" lat = "57.4302428" lon = "10.5346389">
+            </item>
+            <item guid = "{d3f05b22-cdd6-448a-95ef-90c1052d0eaf}" lat = "57.4297088" lon = "10.5408889">
+            </item>
+            <item guid = "{db8a4354-1911-44c3-b9da-a6c070506e92}" lat = "57.4318259" lon = "10.5491252">
+            </item>
+            <item guid = "{26dbdd5b-501b-414d-90e6-c091222c178e}" lat = "57.434143" lon = "10.5449442">
+            </item>
+            <item guid = "{eb6df669-f94f-47fd-9a33-7aa5bafdcdc2}" lat = "57.435881" lon = "10.547883">
+            </item>
+            <item guid = "{0667fd73-e97e-4a4a-ae6c-2159ef852873}" lat = "57.4358811" lon = "10.551857">
+            </item>
+            <item guid = "{22310479-3533-48ba-8994-5a2c8a887b2d}" lat = "57.4364158" lon = "10.5537199">
+            </item>
+            <item guid = "{ea8069ae-5668-4681-b725-c7971b6a5aae}" lat = "57.4389335" lon = "10.5542996">
+            </item>
+            <item guid = "{ba77156c-e0b6-4f52-9cc9-a131aac4c815}" lat = "57.4397133" lon = "10.5557487">
+            </item>
+            <item guid = "{927be18d-8052-4bf5-ba5a-9b035abbf814}" lat = "57.4443478" lon = "10.5481306">
+            </item>
+            <item guid = "{57a15822-ea00-446e-b2b4-eba84ee4966f}" lat = "57.4375068" lon = "10.5376576">
+            </item>
+            <item guid = "{13062d15-8c9a-428c-bd19-4e26ffda9e91}" lat = "57.4335851" lon = "10.5352997">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{930a705a-43a8-4e3c-990e-db20e85e8855}" name = "Skagen_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{73af973f-1280-46c9-ab79-1e76c8391a9e}" lat = "57.7158094" lon = "10.5796787">
+            </item>
+            <item guid = "{1317f112-e4e0-41db-ab32-d6d2c01be495}" lat = "57.7148832" lon = "10.5838188">
+            </item>
+            <item guid = "{a6f4eedc-d19e-47cc-87e2-a752634b51c1}" lat = "57.7175713" lon = "10.5906495">
+            </item>
+            <item guid = "{63d1d3b5-0a10-4aa2-9209-6c56520852ad}" lat = "57.7182725" lon = "10.5945879">
+            </item>
+            <item guid = "{f3f858ee-1325-4257-a2e9-f893f57ea3fc}" lat = "57.716486" lon = "10.5957317">
+            </item>
+            <item guid = "{50e1fc5a-2fd3-41a1-9518-171b6fd929d6}" lat = "57.7176837" lon = "10.598803">
+            </item>
+            <item guid = "{adc539ec-1db5-4f00-9ef8-dad0a45f6199}" lat = "57.7194965" lon = "10.6020362">
+            </item>
+            <item guid = "{90d7b894-c7d8-424c-b50d-20127f2f597f}" lat = "57.7206092" lon = "10.604386">
+            </item>
+            <item guid = "{48a2138e-3427-4ede-9eb4-bda7895524af}" lat = "57.7231257" lon = "10.6010164">
+            </item>
+            <item guid = "{82238b71-aea7-4625-81a4-09a3ce585446}" lat = "57.7202091" lon = "10.5900928">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{b377a163-b008-456c-99f8-75497da3e423}" name = "Frederikshavn_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{e2716841-a3b8-4395-aae7-0cfecaa8ddb2}" lat = "57.5912851" lon = "9.95181852">
+            </item>
+            <item guid = "{fe4c0b4d-60e0-4d69-ac8d-8dfd76bcf034}" lat = "57.5945535" lon = "9.95794575">
+            </item>
+            <item guid = "{13f7cd9e-ddac-4dcd-ba4d-3f3c07e8c1fa}" lat = "57.5951373" lon = "9.96230107">
+            </item>
+            <item guid = "{b3e900b0-8b48-465a-b39d-d2ccb69c4e06}" lat = "57.5944871" lon = "9.96276782">
+            </item>
+            <item guid = "{bda24dc8-e5b4-4c73-8974-2d1942d89d77}" lat = "57.5943371" lon = "9.9689276">
+            </item>
+            <item guid = "{8fa137c0-3e02-44e3-9e67-39e608bf0f7b}" lat = "57.5943704" lon = "9.9729719">
+            </item>
+            <item guid = "{919ae651-f4c6-4ebf-9136-29872f06a912}" lat = "57.5943702" lon = "9.9764251">
+            </item>
+            <item guid = "{7e84260c-a81b-4cd5-8756-cb93d6f41481}" lat = "57.5956038" lon = "9.97863426">
+            </item>
+            <item guid = "{951b9774-c42f-472b-b289-1f8a37339b92}" lat = "57.5923019" lon = "9.98557043">
+            </item>
+            <item guid = "{c3cc725b-298a-40f9-a6a9-7077edb136a7}" lat = "57.5911182" lon = "9.98572539">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{154c2d5f-f52e-4514-9fdc-bf6b72ba2cfa}" name = "Hanstholm_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{ab66f0fd-9816-4691-9954-e41ec5a8759c}" lat = "57.1165699" lon = "8.59061938">
+            </item>
+            <item guid = "{c6bf09be-7700-4b0b-9e02-32831fb8b2cd}" lat = "57.1177264" lon = "8.58933474">
+            </item>
+            <item guid = "{f556f22b-6dc4-470b-9aed-fb9c66895468}" lat = "57.1197166" lon = "8.59165287">
+            </item>
+            <item guid = "{7d9e074b-ad6e-4149-afb3-c0390bef1fe4}" lat = "57.1215875" lon = "8.59039938">
+            </item>
+            <item guid = "{ff5dc407-eace-4e65-a4bd-0584ac58f391}" lat = "57.1247512" lon = "8.60001873">
+            </item>
+            <item guid = "{90f0208f-47ce-4158-b00a-7efd68f05d2e}" lat = "57.1207369" lon = "8.60431066">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{fc6efbd2-2843-414b-ac7c-8164284a08bc}" name = "Thyborøn_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{1cb836ef-3787-4344-a167-a4c00b0c8a00}" lat = "56.6922328" lon = "8.22026903">
+            </item>
+            <item guid = "{7eefa27d-1685-44ea-87c8-876e11d437c6}" lat = "56.6932408" lon = "8.22618174">
+            </item>
+            <item guid = "{b95afc30-3a2c-4f9b-a153-7bea14598591}" lat = "56.6959727" lon = "8.2248764">
+            </item>
+            <item guid = "{c8420db2-3530-4324-b213-ef2e3f5c97e6}" lat = "56.6968236" lon = "8.2252841">
+            </item>
+            <item guid = "{cf1b3192-e1e2-4b84-85e1-d6989a742ffd}" lat = "56.6990852" lon = "8.22442729">
+            </item>
+            <item guid = "{28169862-1b24-4af9-93fe-9f1626f3f281}" lat = "56.7013693" lon = "8.22434534">
+            </item>
+            <item guid = "{45707127-f82d-43b4-9a67-a2deccdcae5a}" lat = "56.7020858" lon = "8.22422285">
+            </item>
+            <item guid = "{010671c1-ed3e-4e85-890f-9a72ba191293}" lat = "56.7031159" lon = "8.22499769">
+            </item>
+            <item guid = "{104eb558-1aba-44ab-bf19-73201b7e5176}" lat = "56.7062285" lon = "8.22324312">
+            </item>
+            <item guid = "{5daf0d04-caf9-40ff-9a12-26ea48d6227c}" lat = "56.7060044" lon = "8.22116271">
+            </item>
+            <item guid = "{7ce011bf-6bd2-457d-8122-3cd17d6286b8}" lat = "56.703586" lon = "8.22144885">
+            </item>
+            <item guid = "{97f4824b-321a-4ab5-99a0-a87063aa6095}" lat = "56.7008535" lon = "8.21553532">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{1cc6d28c-1c73-43a0-a60d-38c0b52366be}" name = "Åbenrå_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{9e49798f-f064-413f-a58f-ecc209c64e7e}" lat = "55.0401462" lon = "9.42302926">
+            </item>
+            <item guid = "{09497189-c8f5-4304-91c1-55e5b3a2ffea}" lat = "55.0404432" lon = "9.42687359">
+            </item>
+            <item guid = "{6a6bd891-025b-4efe-aed3-0af206b3e968}" lat = "55.0383966" lon = "9.42755537">
+            </item>
+            <item guid = "{f375b27e-9c4e-49d3-aedf-6713907d8eb0}" lat = "55.0385373" lon = "9.42859138">
+            </item>
+            <item guid = "{897da051-2f46-4fc7-8185-236abfd167e6}" lat = "55.0414431" lon = "9.42760968">
+            </item>
+            <item guid = "{b07a5b99-c37d-4314-bd5f-f8c545c6c81a}" lat = "55.0411148" lon = "9.42272916">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{5dce3cc1-36e0-4ba0-b92d-6ee7a0bd5b97}" name = "Åbenrå_2" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{f2049889-e4f6-4cbd-a97d-fe5229ea2735}" lat = "55.0416931" lon = "9.42722794">
+            </item>
+            <item guid = "{f8074984-81be-4c4d-b90e-c8578406b030}" lat = "55.0416772" lon = "9.42275631">
+            </item>
+            <item guid = "{7c45a86a-8d1f-4758-9994-9e7ef762a68c}" lat = "55.0426771" lon = "9.42270159">
+            </item>
+            <item guid = "{e4917fc9-e198-4409-bf5b-a5675d625350}" lat = "55.0426148" lon = "9.42725513">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{38340f0d-d08a-4853-859e-74dcce8c01e4}" name = "Åbenrå_3" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{a0d2a261-c8a4-4599-8ea5-6c54cefaadde}" lat = "55.0427085" lon = "9.42722786">
+            </item>
+            <item guid = "{63d8eb9d-953e-42bb-8e55-d3a96363c09a}" lat = "55.0469423" lon = "9.42613674">
+            </item>
+            <item guid = "{a100e4a3-fa76-4524-9634-9f68e0537164}" lat = "55.0470674" lon = "9.42837284">
+            </item>
+            <item guid = "{79e07698-bf66-46d3-905c-d57428ff5afc}" lat = "55.0429117" lon = "9.42951826">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{47bb7356-c490-4e1f-b405-dd972289da4f}" name = "Nyborg_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{fafdfb0e-27cf-418e-a6bd-90c02d381b2c}" lat = "55.2965806" lon = "10.7884975">
+            </item>
+            <item guid = "{433e7349-8b4c-415a-b72e-8d4d69e35e8e}" lat = "55.3054835" lon = "10.7883239">
+            </item>
+            <item guid = "{18c44e27-37de-4099-b915-81acc4d4cfc5}" lat = "55.3100642" lon = "10.7892856">
+            </item>
+            <item guid = "{84de4a47-0a99-46a4-8cef-798a38f51838}" lat = "55.3099356" lon = "10.7942732">
+            </item>
+            <item guid = "{3de8a04f-8f2d-4395-af51-3a849aa6d52d}" lat = "55.3057103" lon = "10.7988647">
+            </item>
+            <item guid = "{df30ea67-6850-420b-826b-d53d9addcc11}" lat = "55.3031943" lon = "10.8064018">
+            </item>
+            <item guid = "{c81b44d1-12a3-4c40-80f6-49c3a909558b}" lat = "55.3000653" lon = "10.8099148">
+            </item>
+            <item guid = "{61598088-b7ca-49d9-91ee-3c9546e0ed54}" lat = "55.2972562" lon = "10.8173867">
+            </item>
+            <item guid = "{19a6d36d-c78f-4679-9121-5880940f0c54}" lat = "55.2949151" lon = "10.8147944">
+            </item>
+            <item guid = "{a2efdea0-6ef0-4d90-8de2-36337650dbcc}" lat = "55.2961825" lon = "10.8102034">
+            </item>
+            <item guid = "{eb159264-cab4-4acf-baa6-96d2074d847f}" lat = "55.2979786" lon = "10.8100911">
+            </item>
+            <item guid = "{222dc3ea-e064-4d38-98de-926fa7f9bd46}" lat = "55.2989041" lon = "10.8069682">
+            </item>
+            <item guid = "{04706c83-df1b-4b58-8c8b-7d333d1ac929}" lat = "55.3023879" lon = "10.8029451">
+            </item>
+            <item guid = "{5ecf535e-8391-45a1-b2b1-6f96dea49786}" lat = "55.3036135" lon = "10.7971082">
+            </item>
+            <item guid = "{b84195e5-aaf0-4523-b260-ddc5bc38ab97}" lat = "55.3025807" lon = "10.7907618">
+            </item>
+            <item guid = "{e3617e7a-7407-4504-a3d2-2f8720c5fdae}" lat = "55.2995163" lon = "10.7907062">
+            </item>
+            <item guid = "{994bbe55-3777-4d6b-a7aa-9dd0fc16374e}" lat = "55.2965164" lon = "10.7908205">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{8a89daca-f807-4c7c-a7b2-af395c76809c}" name = "København_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{95e33fac-94e6-47d9-b6de-961015fa9780}" lat = "55.689345" lon = "12.6219585">
+            </item>
+            <item guid = "{0e9d6268-e656-41bd-b484-badb472748bc}" lat = "55.6874817" lon = "12.6226391">
+            </item>
+            <item guid = "{2ba1e2cc-0e2f-4529-8aba-2077c59a1cf1}" lat = "55.6839742" lon = "12.6151539">
+            </item>
+            <item guid = "{ec8f33c7-0981-455a-a3f3-15c5b5b29f37}" lat = "55.6673141" lon = "12.6309954">
+            </item>
+            <item guid = "{1e37401e-d027-494d-a0ed-f605eec91e30}" lat = "55.6701074" lon = "12.6436288">
+            </item>
+            <item guid = "{a86197c6-da96-4a61-a1a8-bd36d763f47e}" lat = "55.6759156" lon = "12.6483942">
+            </item>
+            <item guid = "{3a16b007-b34f-4537-b282-c22d01f4de05}" lat = "55.6912626" lon = "12.6336259">
+            </item>
+            <item guid = "{6aa39f3e-ddd1-4b18-9e56-79bafff44f91}" lat = "55.6925781" lon = "12.6313899">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{07e4fdd3-d9f8-4a72-97f9-a8b180e41e18}" name = "København_2" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{c48f9474-730d-44ef-aac0-5a333c4fa804}" lat = "55.721972" lon = "12.6406965">
+            </item>
+            <item guid = "{d657066d-4c6a-49bb-b338-1c693312cc83}" lat = "55.7257548" lon = "12.6307727">
+            </item>
+            <item guid = "{f7d794fe-1412-4d2f-b293-3d40899e699d}" lat = "55.7207685" lon = "12.6162731">
+            </item>
+            <item guid = "{b54a9bf3-52a8-4def-8edf-744e5081dba4}" lat = "55.7230699" lon = "12.6088777">
+            </item>
+            <item guid = "{d6380f7d-7a49-4cd3-a1c9-27d3bb42372a}" lat = "55.7164922" lon = "12.5966205">
+            </item>
+            <item guid = "{e11ded83-7614-41c3-a038-fd96a02c944b}" lat = "55.710792" lon = "12.5929271">
+            </item>
+            <item guid = "{82c9ba11-7d06-425f-8fc4-721447c2f205}" lat = "55.704873" lon = "12.5914718">
+            </item>
+            <item guid = "{3f0227bf-f5fd-4b58-8465-53b7a4019e7e}" lat = "55.6994249" lon = "12.5915535">
+            </item>
+            <item guid = "{f4b9856e-686e-4d0d-a199-e079101c430f}" lat = "55.6943576" lon = "12.5931501">
+            </item>
+            <item guid = "{3d047906-0b17-478a-848b-58d5183720e9}" lat = "55.6886808" lon = "12.5949174">
+            </item>
+            <item guid = "{88f50277-3334-410a-b201-d6e1ef0f7a19}" lat = "55.6887778" lon = "12.6003228">
+            </item>
+            <item guid = "{d45a493a-1e90-46f6-81a0-3570e7ec2d1b}" lat = "55.6919212" lon = "12.6015166">
+            </item>
+            <item guid = "{d19dd625-df17-45f0-aba8-91160bdeca84}" lat = "55.6957702" lon = "12.6023688">
+            </item>
+            <item guid = "{b50feb62-3542-4a68-9893-5fadac330eea}" lat = "55.6980475" lon = "12.6026525">
+            </item>
+            <item guid = "{81d8c2f7-a188-49e4-a485-e35eddcf5c58}" lat = "55.7006455" lon = "12.6028793">
+            </item>
+            <item guid = "{c976aa9d-0dc3-4a2a-9566-1cc1f6a9639a}" lat = "55.7030831" lon = "12.6030493">
+            </item>
+            <item guid = "{bd20d758-bd9d-4c47-9fed-8a716b50bb7e}" lat = "55.7043982" lon = "12.6032196">
+            </item>
+            <item guid = "{fe7b29aa-ac13-4a8e-b498-e9ebfb7bd409}" lat = "55.7062588" lon = "12.6068622">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{0af87db4-8284-4c6e-881b-d285d782194e}" name = "Masnedø_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{e09078df-5176-4c8b-a568-38b140cf3e8b}" lat = "54.9978725" lon = "11.8828784">
+            </item>
+            <item guid = "{7fd8bad9-68ff-4270-a48a-0903df1116ff}" lat = "54.9964154" lon = "11.8869197">
+            </item>
+            <item guid = "{e107ce24-baa1-4899-a7d2-0bef71c6fe7f}" lat = "54.9970512" lon = "11.8875201">
+            </item>
+            <item guid = "{065f2d84-5a6e-4d66-a835-019bbdc2c14c}" lat = "54.9984686" lon = "11.8834557">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{264e2b46-4434-4549-8db7-0967c7167aa5}" name = "Næstved_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{f9b383a2-8fe7-4f2b-9a58-88fefe8e4372}" lat = "55.2204301" lon = "11.7487091">
+            </item>
+            <item guid = "{3eb52990-fecf-440d-9f3a-c16d2d9edc21}" lat = "55.2285311" lon = "11.7549459">
+            </item>
+            <item guid = "{49c9f6f4-f4e9-44b3-bd2e-119e413800d9}" lat = "55.2272505" lon = "11.7594312">
+            </item>
+            <item guid = "{24167448-a8a7-422a-9f90-f5a645aedb4d}" lat = "55.2221338" lon = "11.7568097">
+            </item>
+            <item guid = "{eb408e92-ff18-41ff-be43-e900de009150}" lat = "55.2187233" lon = "11.7529442">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{63d6c6c5-cca0-483e-90a8-5d54e63bf1ed}" name = "Svendborg_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{928d3ccc-f1b9-4df3-a826-94ceca013a35}" lat = "55.0572224" lon = "10.6170534">
+            </item>
+            <item guid = "{8c1877cf-d696-47a0-a3ea-cd7ee4cd766d}" lat = "55.057619" lon = "10.6179394">
+            </item>
+            <item guid = "{ded0144f-e400-45c1-b4cf-0ff708ce8459}" lat = "55.0581741" lon = "10.6187147">
+            </item>
+            <item guid = "{4c5d60df-0b00-4300-8fe6-b2e7a3d55c08}" lat = "55.0586023" lon = "10.6194622">
+            </item>
+            <item guid = "{d1244fb1-34b8-476b-8080-cec9b77102e4}" lat = "55.0583961" lon = "10.6203206">
+            </item>
+            <item guid = "{08642a54-9017-4a45-823c-fbb063407a57}" lat = "55.0589354" lon = "10.6219543">
+            </item>
+            <item guid = "{bef29d8f-7cec-4e3b-b923-59d0d9ff13c2}" lat = "55.0603468" lon = "10.6217881">
+            </item>
+            <item guid = "{862c1e9f-a589-47cd-b37c-c36499c9ceb3}" lat = "55.0610446" lon = "10.6195728">
+            </item>
+            <item guid = "{8e0c23ae-5044-4bd7-82a6-adc4466fa7ec}" lat = "55.0620912" lon = "10.6173296">
+            </item>
+            <item guid = "{fd8da25e-0ae2-4b6d-9db0-2454b8458171}" lat = "55.0626778" lon = "10.614671">
+            </item>
+            <item guid = "{cc17ca68-6224-4886-ba11-1594f3576b1b}" lat = "55.061298" lon = "10.6137852">
+            </item>
+            <item guid = "{919ca796-107c-4eee-87f6-baed98c09cc2}" lat = "55.0593632" lon = "10.6140625">
+            </item>
+            <item guid = "{c3a2e5bb-31b4-435c-8aed-600e3020ca58}" lat = "55.0579884" lon = "10.6144526">
+            </item>
+            <item guid = "{6b9acfb5-df92-4074-abf8-266be4cc540f}" lat = "55.0573967" lon = "10.614506">
+            </item>
+            <item guid = "{5930060f-33e6-4c42-9975-f30e617711a1}" lat = "55.056477" lon = "10.6148047">
+            </item>
+            <item guid = "{d3904c03-fce8-44bc-8949-584fa6eeb25e}" lat = "55.0559444" lon = "10.6148174">
+            </item>
+            <item guid = "{0855630e-319a-4ace-9616-cde151e90db1}" lat = "55.0552174" lon = "10.6146918">
+            </item>
+            <item guid = "{8e96d8a8-ebc4-4bd7-a5ec-7100c79f5785}" lat = "55.0552102" lon = "10.6148803">
+            </item>
+            <item guid = "{77e50da5-376e-4e12-aa95-3df1dcdeba8f}" lat = "55.0556565" lon = "10.6150813">
+            </item>
+            <item guid = "{cfec711b-b6b4-4164-94b1-f1591e7361c2}" lat = "55.0560164" lon = "10.6150938">
+            </item>
+            <item guid = "{2dbfc288-6a2e-4a83-a6e1-01b04cba6f95}" lat = "55.0566569" lon = "10.6151063">
+            </item>
+            <item guid = "{05388023-7145-494f-8d2e-46b2fd7efcd5}" lat = "55.0572327" lon = "10.6149429">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{8ba36ab5-9a56-459d-bfb3-cdf854b5615d}" name = "Skærbækværket_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{95f8b5e0-7d76-410f-a379-b59ca34b3841}" lat = "55.5121613" lon = "9.60752704">
+            </item>
+            <item guid = "{65206104-35b1-4a09-aac8-e1e3c81174c7}" lat = "55.5121617" lon = "9.62199385">
+            </item>
+            <item guid = "{1b535a10-84a0-40c8-821f-8e79ae19a07c}" lat = "55.5090754" lon = "9.62209539">
+            </item>
+            <item guid = "{8388c7f2-052d-439a-a7a4-bb6f18b97105}" lat = "55.5091184" lon = "9.60760425">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{e4a9391a-f96a-4710-8033-cce349ce557d}" name = "Horsens_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{6ee2c147-a9a1-4906-a4bd-26cf7194eeb5}" lat = "55.8577859" lon = "9.85845744">
+            </item>
+            <item guid = "{a25d2360-fcf9-467b-9e59-0c259bd3bca1}" lat = "55.8560051" lon = "9.87115892">
+            </item>
+            <item guid = "{9f0b1b3b-e652-4c03-9eb7-969cfe05b0ca}" lat = "55.8550269" lon = "9.87763374">
+            </item>
+            <item guid = "{873661ef-892b-4160-9e61-87e9fe42c6e3}" lat = "55.8512179" lon = "9.88336079">
+            </item>
+            <item guid = "{bcb90dca-b17d-4abb-845f-6c7673956ca3}" lat = "55.8498203" lon = "9.87912775">
+            </item>
+            <item guid = "{877a4ec8-752a-4120-8b42-ca3c3e50fe34}" lat = "55.851882" lon = "9.87601524">
+            </item>
+            <item guid = "{824eb9e1-ad8b-4c3d-9cac-7c85bebe58cb}" lat = "55.8548155" lon = "9.85708931">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{ac8a813c-3642-4bfa-ae15-fdca2fc8c76e}" name = "Studstrupværket_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{39a9d1a3-20bc-43c2-9dd2-a5b60b395e2d}" lat = "56.2518478" lon = "10.3451074">
+            </item>
+            <item guid = "{62f203a2-1d7a-4136-8bd0-a98c98d34e0d}" lat = "56.2532961" lon = "10.3477445">
+            </item>
+            <item guid = "{cbe7f207-66bd-47fb-aec2-b04c3d305af6}" lat = "56.2485472" lon = "10.3547765">
+            </item>
+            <item guid = "{c944b257-61e6-4275-968b-830fa87fe075}" lat = "56.2472843" lon = "10.3522001">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{ad81e297-2499-4453-a845-a42b8b31d7ff}" name = "Ålborg_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{22102de4-f607-4e0b-82e6-3e449fcebe3b}" lat = "57.0592939" lon = "9.90256829">
+            </item>
+            <item guid = "{77a5a5b9-00ec-4dff-9acc-c3f133df7b3d}" lat = "57.0584955" lon = "9.90685314">
+            </item>
+            <item guid = "{08f27d4f-172b-4065-a41e-4fc7fe755958}" lat = "57.0573491" lon = "9.9103069">
+            </item>
+            <item guid = "{2f89b380-7c65-4700-860a-7c7f074b58ef}" lat = "57.0562718" lon = "9.91260955">
+            </item>
+            <item guid = "{0b0dd333-a946-44bd-9017-c76c23a55306}" lat = "57.0548122" lon = "9.91548775">
+            </item>
+            <item guid = "{7fd36078-3281-42c9-bdb7-2aa6986e5130}" lat = "57.0534222" lon = "9.91938858">
+            </item>
+            <item guid = "{d3d89603-6f36-42a6-90dc-c275e5bcf93f}" lat = "57.0523448" lon = "9.92213822">
+            </item>
+            <item guid = "{d8946d83-ea77-460d-bb7f-fabbb68c0c16}" lat = "57.0509546" lon = "9.92584676">
+            </item>
+            <item guid = "{ed05cced-9987-4959-a46e-3ece49d977cd}" lat = "57.049912" lon = "9.92974667">
+            </item>
+            <item guid = "{34291211-1c3c-4b67-bc93-d32524c7006a}" lat = "57.0494604" lon = "9.93396584">
+            </item>
+            <item guid = "{ca282fc7-3b30-4e01-8709-6d609f3c1b0e}" lat = "57.0497387" lon = "9.93780127">
+            </item>
+            <item guid = "{29f4a1e3-4e78-40bd-b228-8337a3a697b4}" lat = "57.0503647" lon = "9.94265955">
+            </item>
+            <item guid = "{a4370f91-181d-49b8-b0c2-bbabcd74a833}" lat = "57.0514425" lon = "9.94681485">
+            </item>
+            <item guid = "{4ff0c6b3-6fa0-4b9a-ac26-2260f9861306}" lat = "57.052555" lon = "9.94988359">
+            </item>
+            <item guid = "{569e2b99-2cc2-4fa6-bdde-ca5c70c99fab}" lat = "57.053876" lon = "9.95256898">
+            </item>
+            <item guid = "{c520daf3-492f-4d4d-be95-f991c6f524b3}" lat = "57.0552665" lon = "9.95614966">
+            </item>
+            <item guid = "{80497fc1-350f-48e6-8277-0baa6e565c67}" lat = "57.0575607" lon = "9.96056223">
+            </item>
+            <item guid = "{84ca4cab-492c-4e36-939d-2533f626fdeb}" lat = "57.0606114" lon = "9.96607592">
+            </item>
+            <item guid = "{2f597708-2079-4974-b297-a4ac4acd6095}" lat = "57.0545975" lon = "9.96607251">
+            </item>
+            <item guid = "{72fd8f7f-01c9-4f52-a5c4-d9013739e475}" lat = "57.0468035" lon = "9.96642187">
+            </item>
+            <item guid = "{580bd490-6ddd-44ea-b71c-de6c14a3883e}" lat = "57.0460469" lon = "9.9029662">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{14cb0d54-ee58-4b0d-8786-44f05a3b7122}" name = "Ålborg_2" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{b6827b07-5950-4923-be3f-884e6b3bfd2b}" lat = "57.0615889" lon = "9.90307736">
+            </item>
+            <item guid = "{1e5c007f-584c-4b16-bbad-e43fa20cbe77}" lat = "57.0602688" lon = "9.90704324">
+            </item>
+            <item guid = "{3530c89f-ddb6-4065-bf53-07bf3eed9903}" lat = "57.0588794" lon = "9.91196801">
+            </item>
+            <item guid = "{24a7239e-ea4f-49b8-9c65-638124d6a325}" lat = "57.0577677" lon = "9.91625283">
+            </item>
+            <item guid = "{10317e26-5f27-4557-8231-dae3fe125a27}" lat = "57.0567598" lon = "9.91785198">
+            </item>
+            <item guid = "{a6c2a4d5-9541-420e-8c57-8edcba71295b}" lat = "57.0557868" lon = "9.92098546">
+            </item>
+            <item guid = "{d3126e39-0fc1-472e-a371-31de1731fe21}" lat = "57.0549527" lon = "9.92309577">
+            </item>
+            <item guid = "{664944d1-59bf-4d2b-a36f-080925d38a71}" lat = "57.0544662" lon = "9.92501402">
+            </item>
+            <item guid = "{e5da05ec-a426-42cd-8c0c-0a71db39880e}" lat = "57.0543274" lon = "9.92744353">
+            </item>
+            <item guid = "{9afe5efc-565c-4476-8cec-f527aa8eb6ca}" lat = "57.0539105" lon = "9.93038458">
+            </item>
+            <item guid = "{78001a48-72b1-4d0d-bce1-ae585a3b8619}" lat = "57.0531112" lon = "9.93402889">
+            </item>
+            <item guid = "{4de87758-a597-4124-9747-eb217dd234b9}" lat = "57.0528331" lon = "9.935819">
+            </item>
+            <item guid = "{a5024fb7-16b9-4557-adb8-b333341d18bf}" lat = "57.0530071" lon = "9.93869584">
+            </item>
+            <item guid = "{04a41b1a-167c-4484-bf27-e16ef6b09171}" lat = "57.0535635" lon = "9.94086945">
+            </item>
+            <item guid = "{cb45766c-ca1f-4fcb-b20c-89c72777f259}" lat = "57.0543979" lon = "9.94412998">
+            </item>
+            <item guid = "{4c2368ad-c0cf-4b54-a097-105c8da578cd}" lat = "57.0552671" lon = "9.94630377">
+            </item>
+            <item guid = "{e332429c-9b57-42c2-970c-c19ab4266e64}" lat = "57.0558581" lon = "9.94898911">
+            </item>
+            <item guid = "{b416b6b1-1275-4a36-8294-46b6286f310c}" lat = "57.0564143" lon = "9.95084336">
+            </item>
+            <item guid = "{1aa3c4ad-2d85-4553-b436-5954f3fb9b91}" lat = "57.0571791" lon = "9.95314528">
+            </item>
+            <item guid = "{77f845b1-af5d-48a9-a204-f22528cb90d3}" lat = "57.0575961" lon = "9.95544717">
+            </item>
+            <item guid = "{01bf0eab-743a-466d-8448-61bf0bed81be}" lat = "57.0581871" lon = "9.9564704">
+            </item>
+            <item guid = "{a6b36f2b-550b-413f-8733-a32fd0d540c5}" lat = "57.0590563" lon = "9.95698225">
+            </item>
+            <item guid = "{1eb98626-6cbd-40c3-b167-c55d5b9c940b}" lat = "57.0605861" lon = "9.95698283">
+            </item>
+            <item guid = "{fb272a05-a6f0-41d0-810a-3372c6db7587}" lat = "57.0624983" lon = "9.95832643">
+            </item>
+            <item guid = "{9ce7197c-960d-43a3-9132-17a62658cf0f}" lat = "57.0646886" lon = "9.9594145">
+            </item>
+            <item guid = "{5ce4d32d-d67c-4952-8680-89aae1361f4f}" lat = "57.0666356" lon = "9.95986305">
+            </item>
+            <item guid = "{9ca420f1-8783-424a-8481-f79612b0647a}" lat = "57.068374" lon = "9.96056737">
+            </item>
+            <item guid = "{933d6bf9-7f6a-4243-a56a-58ec86f9fd21}" lat = "57.0702862" lon = "9.96107996">
+            </item>
+            <item guid = "{e72d4704-e7a2-421f-9b6f-3e2e1e69c28d}" lat = "57.0716768" lon = "9.96255178">
+            </item>
+            <item guid = "{1eeda586-52c0-43ef-a269-76c654fd5f4e}" lat = "57.0722286" lon = "9.9038335">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{8f89c47c-5597-42d7-b3ff-d9764b66b5a1}" name = "Nordjyllandsværket_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{d4b509f5-062c-4927-831d-20c807bcf2b7}" lat = "57.074831" lon = "10.0340312">
+            </item>
+            <item guid = "{702921cd-1a47-4543-8ab0-d86c4cc555c7}" lat = "57.0696524" lon = "10.040399">
+            </item>
+            <item guid = "{217aac23-024b-4fe2-9b5c-42af2113e36e}" lat = "57.0712542" lon = "10.0453992">
+            </item>
+            <item guid = "{e182ec61-c940-45be-93ea-374facfc4876}" lat = "57.0766619" lon = "10.0386107">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{30fe1c3f-c810-467e-ae30-c66eae0fa1a1}" name = "Randers_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{d56ca3ca-15be-46c5-9570-099aacd6b69e}" lat = "56.4603759" lon = "10.0375697">
+            </item>
+            <item guid = "{025955b8-a332-451d-85fd-546424b916b9}" lat = "56.4667364" lon = "10.0644266">
+            </item>
+            <item guid = "{e44b68b9-13cb-49d3-90ad-fc625a756cc4}" lat = "56.4606356" lon = "10.069662">
+            </item>
+            <item guid = "{492ff8cb-b04c-4708-98ac-6cdb39894c91}" lat = "56.4536722" lon = "10.0416015">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{ad05f51e-d442-498a-970a-9b69e548f5ef}" name = "Struer_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{fab03c4f-078a-4967-9d5c-b8cf9f5a8df6}" lat = "56.4952562" lon = "8.5973893">
+            </item>
+            <item guid = "{7a783a18-cf5e-4855-8e86-5d517c1edbbe}" lat = "56.4951793" lon = "8.60388662">
+            </item>
+            <item guid = "{b93d1cac-388e-43a3-8786-12f8cb5286db}" lat = "56.4920684" lon = "8.60400315">
+            </item>
+            <item guid = "{ae4ce305-ba51-47a8-ae25-0f01db91006b}" lat = "56.4921838" lon = "8.59727349">
+            </item>
+            <item guid = "{cac0b583-8e27-4c3c-9738-bbf25ce23711}" lat = "56.4939064" lon = "8.59752929">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{868f3861-2d66-41aa-8549-837bfe8e971c}" name = "Thisted_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{70532974-c068-4961-9a1a-e9a01368f8fa}" lat = "56.9551536" lon = "8.69345436">
+            </item>
+            <item guid = "{955b6309-a75e-4614-91e8-c72227178793}" lat = "56.9551818" lon = "8.70236274">
+            </item>
+            <item guid = "{eb3780b7-b787-4227-99fc-e453ab901801}" lat = "56.9520239" lon = "8.70249898">
+            </item>
+            <item guid = "{3a5b5ce3-b9e6-4224-855b-845a1bdf9ef8}" lat = "56.9520145" lon = "8.69905856">
+            </item>
+            <item guid = "{31c93f6d-0ddc-49a4-b4fb-8c049ed9fe10}" lat = "56.9535005" lon = "8.69568601">
+            </item>
+            <item guid = "{d7550707-c46c-4d31-b876-7ab2f78e086c}" lat = "56.9534818" lon = "8.69345476">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{0ce43f13-3c63-4184-a990-4d2e9d9dd82a}" name = "Esbjerg_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{f760d0d2-c321-4537-b4ae-1d8569f4b365}" lat = "55.4850131" lon = "8.42442341">
+            </item>
+            <item guid = "{392815d4-a8e7-4bb7-9739-5a3f2b1d4617}" lat = "55.4797984" lon = "8.40897">
+            </item>
+            <item guid = "{3371709d-e8c9-4ee5-ba52-e7c9881b5665}" lat = "55.4757329" lon = "8.41301927">
+            </item>
+            <item guid = "{987221c2-d964-4e36-8f6f-05d5508f509c}" lat = "55.4736484" lon = "8.41890655">
+            </item>
+            <item guid = "{257af1d7-31d5-4678-a6b4-95035f307d49}" lat = "55.4715113" lon = "8.42203412">
+            </item>
+            <item guid = "{58cf6f1b-29fb-46c4-b1ab-48ecd6a609e4}" lat = "55.4687486" lon = "8.42442572">
+            </item>
+            <item guid = "{8ac7da3c-7187-4ff0-b859-4de6de3a2576}" lat = "55.4664028" lon = "8.42681696">
+            </item>
+            <item guid = "{50331700-2b92-4694-ba72-fe6d67c693b7}" lat = "55.4637964" lon = "8.42966767">
+            </item>
+            <item guid = "{d5fd3d18-5e4f-47f2-ae8c-43dfa75c3d8a}" lat = "55.4602515" lon = "8.43095491">
+            </item>
+            <item guid = "{0f9f87f2-fa2b-4f75-976d-8669edba7c42}" lat = "55.4586354" lon = "8.43536798">
+            </item>
+            <item guid = "{1a7adb60-d6c3-4069-ab79-c347d712d3da}" lat = "55.457332" lon = "8.43830977">
+            </item>
+            <item guid = "{a398e623-c5f8-4c76-b66a-6b7a2dc9ee2d}" lat = "55.4553505" lon = "8.4444688">
+            </item>
+            <item guid = "{9950aa45-949c-4ba9-bd8d-c9cb065605bd}" lat = "55.4545682" lon = "8.44685869">
+            </item>
+            <item guid = "{f887a85a-23b4-4beb-8a56-51310144fda9}" lat = "55.4533162" lon = "8.45255765">
+            </item>
+            <item guid = "{75bc37cc-84dd-4e01-ab33-c39b4422b2b3}" lat = "55.4524816" lon = "8.45531493">
+            </item>
+            <item guid = "{52cab305-75f5-4d0e-8b4b-e18570aa2155}" lat = "55.4513334" lon = "8.46092148">
+            </item>
+            <item guid = "{df3d1128-2b4d-4ce8-8626-5a572592ce73}" lat = "55.4502377" lon = "8.46468934">
+            </item>
+            <item guid = "{80d919bb-75df-46d9-8e39-64bb2a23d27f}" lat = "55.4488803" lon = "8.47121425">
+            </item>
+            <item guid = "{e1c7f33b-4f4d-4c16-baf3-041096cd1394}" lat = "55.4478878" lon = "8.47682">
+            </item>
+            <item guid = "{ca79f30e-72a5-4894-b4c5-7c414f4b09cb}" lat = "55.4471042" lon = "8.48113898">
+            </item>
+            <item guid = "{8c27abe3-2968-4f60-9d47-1fa56f064718}" lat = "55.4472069" lon = "8.48472372">
+            </item>
+            <item guid = "{bfb40803-6e54-4a64-b5e5-3c527221cd7e}" lat = "55.4491339" lon = "8.48858692">
+            </item>
+            <item guid = "{76c9689c-f041-49b4-8ae5-ffae583dfdba}" lat = "55.4521553" lon = "8.49291186">
+            </item>
+            <item guid = "{3c4183ea-3904-4b6a-a891-32093748bf9a}" lat = "55.4552817" lon = "8.49558287">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{9fa46654-c247-462f-85fb-49bfb0f1b115}" name = "Avedøreværket_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{2aa041dc-f83a-47f4-9c56-362cbb711a68}" lat = "55.6025552" lon = "12.4807567">
+            </item>
+            <item guid = "{018db062-b875-4656-a8b4-e93eb142fd9c}" lat = "55.5986843" lon = "12.4800158">
+            </item>
+            <item guid = "{8abb0633-2a29-4880-bc86-18702879b080}" lat = "55.5980399" lon = "12.4916629">
+            </item>
+            <item guid = "{098aee7b-1a29-4cf8-9a48-2125c085f932}" lat = "55.6019108" lon = "12.4923479">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{7bd132c1-c1d7-4ede-85a4-f9ebef888d26}" name = "Holbæk_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{1d36dc70-3ef5-48fc-be71-0d923536a59b}" lat = "55.7217835" lon = "11.7129021">
+            </item>
+            <item guid = "{db7f67a3-2be8-4a42-a03b-f007a2f319d2}" lat = "55.7210756" lon = "11.7222629">
+            </item>
+            <item guid = "{6ca0dcb4-f974-4b98-9abf-f635ed3ae979}" lat = "55.7196723" lon = "11.7219136">
+            </item>
+            <item guid = "{c5cceb16-bb64-445e-9054-10f4d917d829}" lat = "55.7204589" lon = "11.7125531">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{08c6ebc1-a607-4729-9a52-f991a9ca39a5}" name = "Rønne_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{69e31763-c1ea-4fe4-8b7a-4faf45f4871e}" lat = "55.1004818" lon = "14.6871153">
+            </item>
+            <item guid = "{8fd3897f-75a0-499e-a810-5ab12b0cf7e1}" lat = "55.1005993" lon = "14.6992814">
+            </item>
+            <item guid = "{bcbdb62a-51b4-48a8-a958-beaf3f58d4c8}" lat = "55.0928914" lon = "14.699245">
+            </item>
+            <item guid = "{7d22e556-4d33-41b1-a947-30e91c357f1e}" lat = "55.0928526" lon = "14.6886275">
+            </item>
+            <item guid = "{6a6498d5-8489-4ea4-90a3-9048eade17fc}" lat = "55.0959986" lon = "14.6893491">
+            </item>
+            <item guid = "{60537a84-7afa-462e-9a50-08df789a146f}" lat = "55.0971981" lon = "14.686703">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{356822d0-0cb6-4af4-a899-09e29db2eace}" name = "Skive_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{11d7d324-2a4c-4d4c-bec0-e033b08d7359}" lat = "56.5704308" lon = "9.0516186">
+            </item>
+            <item guid = "{1952f8ab-d310-487d-a537-abdf8e467479}" lat = "56.5691805" lon = "9.0517708">
+            </item>
+            <item guid = "{29b041dd-23c7-4ef9-9721-82244bc22124}" lat = "56.569425" lon = "9.05524464">
+            </item>
+            <item guid = "{9ca03918-0dfb-40ad-b607-a6b2023a0309}" lat = "56.5706543" lon = "9.05511791">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{948891f1-4473-4446-8918-2e758929c05b}" name = "Hobro_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{dba76d01-cd33-49fc-99b6-37a5f550dada}" lat = "56.6392318" lon = "9.79848279">
+            </item>
+            <item guid = "{5a4ee84c-d04e-4ff2-81e9-f7b9c2f6b6b6}" lat = "56.6408031" lon = "9.80329945">
+            </item>
+            <item guid = "{94431fd6-967b-4f6e-9fb4-c7a9b9afa912}" lat = "56.6386477" lon = "9.80530656">
+            </item>
+            <item guid = "{98c36760-619f-4cd3-9b86-11f500229b69}" lat = "56.6370375" lon = "9.80023039">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{aeec51e7-49de-4954-a145-9edc9aac8dbb}" name = "Kolding_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{a444861c-919d-4c79-85f5-9dc6e7bee0bf}" lat = "55.4912163" lon = "9.48055194">
+            </item>
+            <item guid = "{6c563e01-a133-425a-a82a-34df18303fac}" lat = "55.4945666" lon = "9.49791728">
+            </item>
+            <item guid = "{e1e8a137-6955-4a81-bd0b-882ded46b555}" lat = "55.4915449" lon = "9.49944678">
+            </item>
+            <item guid = "{5773a69c-0491-4328-a4a3-621d1127884c}" lat = "55.4885462" lon = "9.48228924">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{056aee70-47a4-4804-8780-bf5a23e6bfc5}" name = "Assens_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{eeaaf839-acea-4464-8692-1a905361187a}" lat = "55.2726868" lon = "9.88644732">
+            </item>
+            <item guid = "{6ad8b328-7473-4063-9220-c971fa533558}" lat = "55.2720688" lon = "9.88595659">
+            </item>
+            <item guid = "{01f4a64b-fe26-440b-bdcf-dc7f56b0a5dc}" lat = "55.2677432" lon = "9.88711862">
+            </item>
+            <item guid = "{b3c97888-dd1b-4983-a24e-32d1af7cff55}" lat = "55.2677872" lon = "9.89034664">
+            </item>
+            <item guid = "{b7fa607a-a4ee-4542-9034-69bb36db0f69}" lat = "55.2729957" lon = "9.88983073">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{f3e13aa5-63ba-4ebe-a4c2-95a8d82ae483}" name = "Rudkøbing_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{320c6bce-20b5-403d-9be4-afea31a2836f}" lat = "54.9375631" lon = "10.7054314">
+            </item>
+            <item guid = "{d328ec11-a811-4f22-aac4-528cd5a2bd9e}" lat = "54.9385279" lon = "10.7036623">
+            </item>
+            <item guid = "{c2740fbe-e02c-46cd-b95d-9d0351eb3b21}" lat = "54.9392054" lon = "10.7046807">
+            </item>
+            <item guid = "{026ded21-9989-435c-9076-8bc919da484c}" lat = "54.9397495" lon = "10.7061281">
+            </item>
+            <item guid = "{d1a71ea1-b48a-4839-a32d-6aa8dca5589c}" lat = "54.9388257" lon = "10.7076292">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{d01107ef-7193-4df4-abe6-92d0ec0f2ba7}" name = "Rudkøbing_2" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{971c5337-a21a-4695-a27e-fe999ac3aefa}" lat = "54.938109" lon = "10.7021505">
+            </item>
+            <item guid = "{9a10fb29-c1ed-4115-983c-69c24a897b9b}" lat = "54.9372911" lon = "10.7025413">
+            </item>
+            <item guid = "{c2ce0661-b1a5-42eb-a4c4-fe975d8186f7}" lat = "54.937243" lon = "10.7037417">
+            </item>
+            <item guid = "{7f32643e-5482-49dc-b9f5-77f47357d022}" lat = "54.9383496" lon = "10.7036859">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{54c83be2-183b-4a40-a088-3d5cd346ba4d}" name = "Bandholm_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{4ee30a3c-9a2b-4e1b-9a11-2c83092c40dd}" lat = "54.8372988" lon = "11.4867107">
+            </item>
+            <item guid = "{de7e3c15-a528-47c4-98d5-b11420325de4}" lat = "54.8393324" lon = "11.4907181">
+            </item>
+            <item guid = "{43cc46e3-d278-4e64-a126-e05049acf28b}" lat = "54.8390829" lon = "11.4920395">
+            </item>
+            <item guid = "{a7ff29ef-ae08-4345-b828-025057e96c75}" lat = "54.8379102" lon = "11.4932959">
+            </item>
+            <item guid = "{946dee31-f7e8-4210-ac19-f554840012cd}" lat = "54.8358892" lon = "11.4888553">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{4efaaa69-2a95-4dd4-ab41-3720afacca3b}" name = "Aggersund_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{f2ad76b4-2de4-4682-9821-77f523b6b911}" lat = "56.9973526" lon = "9.2930423">
+            </item>
+            <item guid = "{19261a23-fd77-456b-9e4a-0225e461c9e7}" lat = "56.9976562" lon = "9.29358291">
+            </item>
+            <item guid = "{fc73ec50-6450-4822-9dcb-8f742ad2c727}" lat = "56.9972757" lon = "9.2941806">
+            </item>
+            <item guid = "{61992b7b-dcd2-40d3-9fc0-3fc0598c0c45}" lat = "56.9970215" lon = "9.29355605">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{71ff4f21-3e21-49c2-ab28-74265181cd5b}" name = "Augustenborg_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{62834355-657a-4818-aa1b-c0bb2e7718ce}" lat = "54.9442414" lon = "9.8696848">
+            </item>
+            <item guid = "{659276e3-0c00-4e93-9151-324e316abac5}" lat = "54.9446417" lon = "9.87335192">
+            </item>
+            <item guid = "{7eb78b4b-251a-4652-9fa4-8fd9551bf63b}" lat = "54.9439019" lon = "9.87363975">
+            </item>
+            <item guid = "{5edd61e4-2a3e-4b2a-b869-6296802de17c}" lat = "54.9434406" lon = "9.87004846">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{c9f31f88-d231-40be-ab09-17e104302e44}" name = "Bagenkop_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{bc869fdb-97bb-43c0-a811-e0ba813a900f}" lat = "54.750565" lon = "10.6699242">
+            </item>
+            <item guid = "{1e4a432d-8e5e-4ade-8fb3-d3cce7330f57}" lat = "54.750279" lon = "10.672009">
+            </item>
+            <item guid = "{4b4ca4dd-5906-415b-bc86-24a712c74c73}" lat = "54.7502494" lon = "10.6739058">
+            </item>
+            <item guid = "{53793509-96fc-4b44-aa97-306087c5c44f}" lat = "54.752498" lon = "10.6753072">
+            </item>
+            <item guid = "{32f40aab-5e70-4330-9b1a-118252e48d7b}" lat = "54.7530503" lon = "10.6735128">
+            </item>
+            <item guid = "{adb47c93-2f10-40d6-9714-1188a8739e30}" lat = "54.7530602" lon = "10.6717868">
+            </item>
+            <item guid = "{55779a1b-e869-468a-891e-71dab9f4ccbf}" lat = "54.7521035" lon = "10.6708298">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{0b961f5d-8eff-4b94-8304-b36000f6579b}" name = "Avedøre_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{dbb8d54d-a064-4e5d-97bd-19e969ee6008}" lat = "55.6117842" lon = "12.4997497">
+            </item>
+            <item guid = "{432f62b5-71cd-400f-88af-415648d1c50d}" lat = "55.6116443" lon = "12.5023411">
+            </item>
+            <item guid = "{a6575c56-a77e-4012-bac6-e0579750b6e7}" lat = "55.6101934" lon = "12.5027017">
+            </item>
+            <item guid = "{cf9b003d-5dbb-4e77-b0f9-0072fdcd9af6}" lat = "55.6103588" lon = "12.4998851">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{2e977278-76f1-4c8c-96d8-18946df45d51}" name = "Christiansø_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{fe0cffee-a6a5-4606-81d9-9fae22ba6a8e}" lat = "55.3211484" lon = "15.1846758">
+            </item>
+            <item guid = "{57b3cc78-e2d4-4155-bf2f-7bd5610ea9ba}" lat = "55.3211056" lon = "15.1864417">
+            </item>
+            <item guid = "{55094fa3-db42-401b-b64c-f8657d8d9b02}" lat = "55.3189108" lon = "15.1867297">
+            </item>
+            <item guid = "{f6ceec72-11fe-428f-8f6a-95a868350765}" lat = "55.3188823" lon = "15.1851142">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{13a59f19-2fa4-43aa-b644-cbd12747b770}" name = "Dragør_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{5b2f3f2f-e171-4b9b-b97d-3e12569b1198}" lat = "55.5949096" lon = "12.67438">
+            </item>
+            <item guid = "{ffbd5540-b790-4587-af98-0064d9a7323d}" lat = "55.5947914" lon = "12.6800849">
+            </item>
+            <item guid = "{398d8ca3-bad9-4a1e-8fae-a6b73cbfc111}" lat = "55.594333" lon = "12.6812887">
+            </item>
+            <item guid = "{d3e472e7-3c3b-46b6-839a-e5410d4c0ae9}" lat = "55.5923664" lon = "12.6811578">
+            </item>
+            <item guid = "{44ff9747-37e8-4289-83f5-380dd81a4807}" lat = "55.5924254" lon = "12.6743542">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{d123fe61-b8a2-4752-bc64-0da50509c9f6}" name = "Ebeltoft_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{e747d398-2f2d-4f4b-8dfd-50d34deb90b1}" lat = "56.198723" lon = "10.6747028">
+            </item>
+            <item guid = "{b363b8ef-8fc8-4611-9453-6ac887a752d3}" lat = "56.1939619" lon = "10.6712483">
+            </item>
+            <item guid = "{993ef908-7c48-4443-9020-d80c5cd2a2ee}" lat = "56.1891571" lon = "10.6696786">
+            </item>
+            <item guid = "{e0d33864-8395-4a8d-a636-26c572b25e02}" lat = "56.1900306" lon = "10.6659891">
+            </item>
+            <item guid = "{7d4e9cee-58a1-4812-a014-4db2ab168db5}" lat = "56.1930227" lon = "10.6678334">
+            </item>
+            <item guid = "{308079b3-f7b7-4caf-a581-cd897b25f9e7}" lat = "56.1945297" lon = "10.6679902">
+            </item>
+            <item guid = "{40787bd7-ab4e-4423-969b-096c3828bc4f}" lat = "56.1972815" lon = "10.6685002">
+            </item>
+            <item guid = "{b2d29d3c-8e8b-4c13-a141-46bd95e7a93e}" lat = "56.1992254" lon = "10.6723866">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{22f4d8a9-7617-45b8-93ed-df3f12a0fe94}" name = "EbeltoftFærgehavn_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{bf774752-e15d-44fe-8a7c-81bdb80c0aa5}" lat = "56.1523696" lon = "10.666594">
+            </item>
+            <item guid = "{beb9dfcf-eda0-40ff-a5ae-378d68801fed}" lat = "56.1539563" lon = "10.6641071">
+            </item>
+            <item guid = "{42b9f5c3-eca2-42d0-a5cf-a56095eb0c26}" lat = "56.1568609" lon = "10.6670765">
+            </item>
+            <item guid = "{f161cbba-a689-4135-82c6-e9c3499d0b75}" lat = "56.1550859" lon = "10.6711086">
+            </item>
+            <item guid = "{13b3775a-2174-487c-8f6c-8fcb8e4f284c}" lat = "56.1530689" lon = "10.6699256">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{e0a19783-8575-473a-8e89-24c17f04c7bf}" name = "Gråsten_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{f57bcc69-38fe-4b40-bd67-d97eabfc8652}" lat = "54.9078459" lon = "9.59757947">
+            </item>
+            <item guid = "{e0d9e0bd-dbf9-4576-b75c-d5abb1ea0bbe}" lat = "54.909171" lon = "9.59701362">
+            </item>
+            <item guid = "{b14f6a76-a695-4998-a121-f59bf57f272c}" lat = "54.9100022" lon = "9.60084827">
+            </item>
+            <item guid = "{6c15a4dd-0979-45a3-985c-9b6a5028fe7c}" lat = "54.9095926" lon = "9.60187503">
+            </item>
+            <item guid = "{a0156e62-d923-4e61-b17d-d30dc9059294}" lat = "54.9075327" lon = "9.59822904">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{5035112a-00e0-4cc4-8ee8-906baecb3a94}" name = "Gråsten_2" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{9df38935-eff2-4ee7-ae73-908ebe8ef89a}" lat = "54.9135558" lon = "9.60057591">
+            </item>
+            <item guid = "{3fd2d5f7-0b3a-45e3-a41e-4b75f79f4ec2}" lat = "54.9121825" lon = "9.60177037">
+            </item>
+            <item guid = "{1a65f2f8-8cfc-49bc-ad42-8ca804116a6d}" lat = "54.911797" lon = "9.6004292">
+            </item>
+            <item guid = "{c7518cb5-28c7-40b7-af87-2701746bff25}" lat = "54.9130137" lon = "9.59910897">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{ef9c4c20-7464-4450-8980-5312ed158d5b}" name = "Fur_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{ace80734-43d6-43c3-a359-ac5a5adb7667}" lat = "56.8035768" lon = "9.01890092">
+            </item>
+            <item guid = "{86149bf6-d8e5-46f7-8880-ca60bed02e9a}" lat = "56.804357" lon = "9.02148001">
+            </item>
+            <item guid = "{36622111-5afb-4b57-8beb-a9a8d77fba8e}" lat = "56.8037767" lon = "9.02213948">
+            </item>
+            <item guid = "{5b47c78c-cc57-4ffb-b90d-2312a38ffdd9}" lat = "56.8043699" lon = "9.02351739">
+            </item>
+            <item guid = "{3cd04858-7bd7-44a5-bba6-be709f75d9a4}" lat = "56.8039701" lon = "9.02395309">
+            </item>
+            <item guid = "{4b0c362d-cd62-485a-89d6-829fa2c65f5a}" lat = "56.8024291" lon = "9.01998437">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{2ac9cf53-fec1-431b-bde9-14e7b20ae8ce}" name = "Gilleleje_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{c979ab7c-742b-4ff6-994b-79535d672165}" lat = "56.1257326" lon = "12.306687">
+            </item>
+            <item guid = "{8626ad71-afc5-4d2f-bfae-f5d6d2087d18}" lat = "56.1285823" lon = "12.3085758">
+            </item>
+            <item guid = "{814de837-fd89-4482-8ae4-4ec8be1b6548}" lat = "56.1278743" lon = "12.3131679">
+            </item>
+            <item guid = "{918a43f7-4f4d-46fa-a9ef-37aeff0916d8}" lat = "56.1246434" lon = "12.3137861">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{0849e985-6416-4cc3-8a4f-2317e2b763bc}" name = "Egernsund_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{ec08d6d1-9fd3-4f7d-8bca-8ef17f229d79}" lat = "54.9071946" lon = "9.6000899">
+            </item>
+            <item guid = "{6ec94a0f-80ea-4a90-8154-2fce490c4514}" lat = "54.9080927" lon = "9.60070361">
+            </item>
+            <item guid = "{fce75141-3838-4841-b41a-566840dd2a7c}" lat = "54.9083653" lon = "9.60117785">
+            </item>
+            <item guid = "{eaeb0c9d-2c8a-44b7-89c2-b1b6df5feaef}" lat = "54.908654" lon = "9.60204263">
+            </item>
+            <item guid = "{13fb67bb-5ef7-4b2a-af82-5c5b8841ad9c}" lat = "54.9087822" lon = "9.60287953">
+            </item>
+            <item guid = "{96802a8f-bb11-46f3-ae79-7132ac4dfa00}" lat = "54.9091671" lon = "9.60338169">
+            </item>
+            <item guid = "{d37ce519-0451-4fa4-b586-3b60909dd013}" lat = "54.9097765" lon = "9.60424655">
+            </item>
+            <item guid = "{a6672c45-3356-49e0-84b0-fbd535441fd7}" lat = "54.9102736" lon = "9.60499983">
+            </item>
+            <item guid = "{f9b345ac-7b5e-461e-87f2-176f18469d25}" lat = "54.9107066" lon = "9.60575312">
+            </item>
+            <item guid = "{21371b98-9f22-4061-8dc6-e183b63dc918}" lat = "54.9110914" lon = "9.60717596">
+            </item>
+            <item guid = "{2313140c-cbc5-4372-8072-c218f0baa4a4}" lat = "54.9112356" lon = "9.60826401">
+            </item>
+            <item guid = "{a868a895-ed2e-4456-b8be-f8487d7af637}" lat = "54.9114119" lon = "9.60971474">
+            </item>
+            <item guid = "{f34d087e-905c-47f6-99fb-e225a8760860}" lat = "54.9115081" lon = "9.61038431">
+            </item>
+            <item guid = "{2d0fc881-73f3-4f15-a381-e452b296cc41}" lat = "54.9116202" lon = "9.61225352">
+            </item>
+            <item guid = "{a0c57cb9-b1d6-4f7d-a61b-48a7ba699ac9}" lat = "54.9117964" lon = "9.61356479">
+            </item>
+            <item guid = "{0b180662-5616-47ff-8721-9b7d6a37394f}" lat = "54.9117963" lon = "9.6150155">
+            </item>
+            <item guid = "{9c7ffcbf-b2af-432e-a646-86ca95d458ad}" lat = "54.9070173" lon = "9.61465105">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{0ec10d43-dd5b-4edc-a37f-fdd85aabce9c}" name = "Gudhjem_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{c5f53570-32ed-413c-a731-1a110a05ad89}" lat = "55.2125236" lon = "14.9706606">
+            </item>
+            <item guid = "{e499e426-14e3-4378-9046-b8b9a403e89e}" lat = "55.2131622" lon = "14.9714271">
+            </item>
+            <item guid = "{049225d0-d022-432e-a3dc-70ce1861bcdd}" lat = "55.2122875" lon = "14.9735123">
+            </item>
+            <item guid = "{ea3a4f86-9f08-4b03-9068-dcfa76b84168}" lat = "55.2116402" lon = "14.9727304">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{b38fa3a1-5ea9-4def-a9f0-02f66915a7a3}" name = "Tejn_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{d78f804e-95da-457c-8e68-8dadfd36c606}" lat = "55.2486224" lon = "14.8333194">
+            </item>
+            <item guid = "{8eeb4526-87f8-45af-a281-7daf58cadd9a}" lat = "55.2497686" lon = "14.8344759">
+            </item>
+            <item guid = "{e9d0ffc7-0780-4a62-886b-955aa300fbd9}" lat = "55.2486375" lon = "14.8374724">
+            </item>
+            <item guid = "{0b1adb23-7b16-4cb2-aae2-412fe8034988}" lat = "55.2489296" lon = "14.8380244">
+            </item>
+            <item guid = "{e430c1ff-d17e-4348-b892-d0c935877e59}" lat = "55.248173" lon = "14.8398642">
+            </item>
+            <item guid = "{be135d1c-af45-484d-9492-34c27a52b9f9}" lat = "55.246862" lon = "14.838642">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{c080cb38-c4f7-4787-a405-95435b178bf6}" name = "Nexø_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{315fde96-ecd3-4ad9-a855-3672b38b8e98}" lat = "55.057459" lon = "15.1349088">
+            </item>
+            <item guid = "{d5166454-2785-41b5-818b-47137c537a4a}" lat = "55.0658404" lon = "15.1336853">
+            </item>
+            <item guid = "{eff2c4ff-d0d1-423c-9718-a299a7af40bd}" lat = "55.0659387" lon = "15.1372264">
+            </item>
+            <item guid = "{47693d97-039d-4add-b4e8-8e9ca90792db}" lat = "55.0575205" lon = "15.1382989">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{272f6814-b232-4710-b3d5-8dd7503cceab}" name = "Hasle_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{996d1eb1-e57b-4f96-af82-00c861447378}" lat = "55.1839504" lon = "14.7014676">
+            </item>
+            <item guid = "{988a4be8-e4ac-43e8-970d-3e45d8e3dbb6}" lat = "55.1865013" lon = "14.7016424">
+            </item>
+            <item guid = "{27b2ca25-2aa6-4fb9-99a8-c6fc500ec57b}" lat = "55.1891187" lon = "14.7007659">
+            </item>
+            <item guid = "{bc524c3a-db90-43bc-8494-8d7e6c585ef0}" lat = "55.1898358" lon = "14.7038616">
+            </item>
+            <item guid = "{8325795a-749c-4fcc-afd1-b37fa5435fd2}" lat = "55.1867515" lon = "14.7055264">
+            </item>
+            <item guid = "{9a681f72-4809-421c-8275-da98ce10a32c}" lat = "55.1838672" lon = "14.7052345">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{ea531ed9-f7be-4644-afee-84f069783835}" name = "Hammerhavn_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{4385ce6b-62ea-48d4-aab2-6cffc8d228d8}" lat = "55.279152" lon = "14.7547457">
+            </item>
+            <item guid = "{59acc11b-a275-42cf-9d31-e226cab023da}" lat = "55.2775798" lon = "14.7548035">
+            </item>
+            <item guid = "{af51cd1a-0d38-48b8-bc06-9691041da99a}" lat = "55.2772312" lon = "14.7549537">
+            </item>
+            <item guid = "{330099bb-ee3b-4f4d-a154-8e5d39e26a72}" lat = "55.2764944" lon = "14.7555542">
+            </item>
+            <item guid = "{4bad38c5-2ede-4bef-ab06-ed93966d6135}" lat = "55.2764089" lon = "14.758037">
+            </item>
+            <item guid = "{27b8940c-9131-4a1b-8b99-70977118f0dd}" lat = "55.2791059" lon = "14.7580141">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{c046a514-da7d-49e4-9406-3ac72c98fb99}" name = "Haderslev_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{aafb663f-931e-4a80-a3fe-182d0052e4bc}" lat = "55.2469715" lon = "9.49372188">
+            </item>
+            <item guid = "{c0c7e686-feea-4363-8202-a0a6693e5ef1}" lat = "55.2471155" lon = "9.49763098">
+            </item>
+            <item guid = "{1cbcf928-20a3-4c8e-b9a7-9e306a82b0be}" lat = "55.2475469" lon = "9.50172925">
+            </item>
+            <item guid = "{0362d52d-377a-48f9-b50b-7c04d1d724c1}" lat = "55.2486611" lon = "9.5058907">
+            </item>
+            <item guid = "{f03c6c63-0e3b-4210-ba3e-699f85da36ea}" lat = "55.2495236" lon = "9.50875973">
+            </item>
+            <item guid = "{0bfda411-f89e-40fb-b05d-c5d5d37206e0}" lat = "55.2500086" lon = "9.5121963">
+            </item>
+            <item guid = "{27ea167d-3e3f-4f0c-b0a1-d1b900d9972e}" lat = "55.2526323" lon = "9.51213382">
+            </item>
+            <item guid = "{b2a9e096-2976-49f9-afb3-6cd8242a53d6}" lat = "55.2520935" lon = "9.50563868">
+            </item>
+            <item guid = "{e79ac2f4-8493-485b-937b-2ca617efaee0}" lat = "55.2506918" lon = "9.50078328">
+            </item>
+            <item guid = "{b493b64b-286d-461d-9a94-1658d220d091}" lat = "55.2492899" lon = "9.49690555">
+            </item>
+            <item guid = "{996a6c8b-33e5-471a-869e-3edb64025f8c}" lat = "55.2485889" lon = "9.49435202">
+            </item>
+            <item guid = "{b1205e3b-6517-4ff6-8286-0424ab598004}" lat = "55.2480138" lon = "9.49328027">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{45af117a-0354-4cd5-8ab4-1ca645f7845a}" name = "Enstedværket_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{026f4a7c-005a-4b54-acd2-15efe2544102}" lat = "55.0272647" lon = "9.43455856">
+            </item>
+            <item guid = "{4dc9a9ca-0a53-4ff9-833b-1997177196ec}" lat = "55.0236503" lon = "9.43468644">
+            </item>
+            <item guid = "{eb8192a4-6e5e-4687-94dd-d00d309175a1}" lat = "55.0244269" lon = "9.4499207">
+            </item>
+            <item guid = "{70746c2e-1778-4a49-988d-37a9b87a103d}" lat = "55.0280656" lon = "9.4494133">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{27903cc1-1037-4f03-bee9-6f04d47bcf75}" name = "Hadsund_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{06f22cd0-3b4d-4157-8e5a-cf23eb69e988}" lat = "56.7086419" lon = "10.1044709">
+            </item>
+            <item guid = "{748dd9fd-f636-49b7-82d4-f397645032c4}" lat = "56.7094348" lon = "10.1059434">
+            </item>
+            <item guid = "{9cb4984e-b01a-4878-94fd-8e688113a7e5}" lat = "56.7103676" lon = "10.1076142">
+            </item>
+            <item guid = "{b21bd3d3-dd53-494f-9bfb-25d2ab38d279}" lat = "56.7112693" lon = "10.1095399">
+            </item>
+            <item guid = "{30fb68cd-6913-457a-bf82-5f3b2382ca94}" lat = "56.7120621" lon = "10.1111542">
+            </item>
+            <item guid = "{e852eba1-633e-458d-a054-38284a153ced}" lat = "56.7126684" lon = "10.1124854">
+            </item>
+            <item guid = "{580bf20a-7d58-421c-814e-ff2585b6c394}" lat = "56.7129793" lon = "10.1135334">
+            </item>
+            <item guid = "{4e5d82e0-c22e-457d-a07f-f4ca4c1b9364}" lat = "56.7135078" lon = "10.1149212">
+            </item>
+            <item guid = "{89fb3419-2b33-4c6d-8977-24a13e020a01}" lat = "56.7140519" lon = "10.1161958">
+            </item>
+            <item guid = "{ded9a0eb-f877-490d-a384-3c6debfc1696}" lat = "56.7146426" lon = "10.1174138">
+            </item>
+            <item guid = "{5203e1cb-1d90-4d1a-9655-3f37bcfc318d}" lat = "56.71514" lon = "10.1193683">
+            </item>
+            <item guid = "{ca8ff136-6362-4b08-b516-072a5c738133}" lat = "56.7156062" lon = "10.1211529">
+            </item>
+            <item guid = "{2993063d-2ea4-4df4-81bb-2fe5f5e7bd77}" lat = "56.7160258" lon = "10.1228525">
+            </item>
+            <item guid = "{895ddcd5-6f32-40f4-836a-2f77dd98d0f8}" lat = "56.7162278" lon = "10.1244672">
+            </item>
+            <item guid = "{1ef383d2-cdfb-41e0-96f9-65b44560df15}" lat = "56.7164764" lon = "10.1261102">
+            </item>
+            <item guid = "{ce6b9e46-1de7-498a-b634-fe02f37d80a1}" lat = "56.7167716" lon = "10.1272717">
+            </item>
+            <item guid = "{7ab692cb-af44-4ca9-b195-f62be0508d34}" lat = "56.7187459" lon = "10.1267341">
+            </item>
+            <item guid = "{32ec5c88-b3e4-46c2-8916-9e80efe2a6a7}" lat = "56.7180159" lon = "10.1171592">
+            </item>
+            <item guid = "{6ea58aaf-3e36-497b-8e1f-147a971d65b8}" lat = "56.7158862" lon = "10.1104741">
+            </item>
+            <item guid = "{b2bd8bbe-9b52-4e31-b579-a9f270ad7455}" lat = "56.7098697" lon = "10.1018367">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{6ffe3661-e681-4b89-be85-2c2b0b02907f}" name = "Hals_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{a4274777-d363-46a3-8df9-0784418df193}" lat = "56.9906897" lon = "10.3036794">
+            </item>
+            <item guid = "{1914ad81-3bfe-4c45-b8d5-0d9ca2f9f3bb}" lat = "56.9891879" lon = "10.3112943">
+            </item>
+            <item guid = "{0ccb2fa7-ec41-4a05-9072-71ca947c6fa9}" lat = "56.9912084" lon = "10.3123775">
+            </item>
+            <item guid = "{7e6999d1-aeb8-4dd7-acd0-6328552d4aa3}" lat = "56.9924421" lon = "10.304631">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{ef7e6d6f-4294-438b-a2bd-4168fdc6a74e}" name = "Havneby_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{d7e5fc22-70da-4e36-9443-53ad94fccf05}" lat = "55.0890175" lon = "8.56417579">
+            </item>
+            <item guid = "{3a0270ac-8dd1-4a09-b260-e3f812b4a0ef}" lat = "55.0850508" lon = "8.56395108">
+            </item>
+            <item guid = "{438ec91b-6d77-4735-941d-14afc74aa078}" lat = "55.0850508" lon = "8.57002646">
+            </item>
+            <item guid = "{cc179b6f-2d4f-4610-a92a-b2d4e45cd394}" lat = "55.0856432" lon = "8.57079156">
+            </item>
+            <item guid = "{ad681b4b-2fa7-4616-9697-c69e69dd5f16}" lat = "55.0878326" lon = "8.57083676">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{8917310c-97dd-4c97-a3b1-7d9a186d91dd}" name = "Helsingør_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{126e5744-6a16-43b9-a198-031932e292b0}" lat = "56.0326948" lon = "12.6139074">
+            </item>
+            <item guid = "{66cef535-0ec1-49f3-b2d2-23f6ff7a51aa}" lat = "56.0326289" lon = "12.6179548">
+            </item>
+            <item guid = "{597dd164-20cb-4313-9f87-44792dd82a20}" lat = "56.0343951" lon = "12.6200523">
+            </item>
+            <item guid = "{01d4d8d9-ac8f-420c-8c80-c2212f115e27}" lat = "56.0354845" lon = "12.6198159">
+            </item>
+            <item guid = "{031e0850-334b-43c2-8293-29c3febf77c0}" lat = "56.036739" lon = "12.6197864">
+            </item>
+            <item guid = "{ba8c7568-db4a-4eeb-8c82-e291a3f30a04}" lat = "56.0378944" lon = "12.6193727">
+            </item>
+            <item guid = "{a7753380-6b28-48d4-bb40-1fa3acbecacc}" lat = "56.0388022" lon = "12.6172452">
+            </item>
+            <item guid = "{9b6150ee-4355-461e-9787-59a79912c894}" lat = "56.0389012" lon = "12.6140245">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{61390368-deae-45ec-80b3-454b82853f06}" name = "Kalvehave_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{9b2b16d1-54ed-4251-9779-daa95622bb4f}" lat = "54.9956191" lon = "12.1647517">
+            </item>
+            <item guid = "{c0851863-ca04-4877-a587-2a4d5b967b83}" lat = "54.9934634" lon = "12.1640901">
+            </item>
+            <item guid = "{9fda3bae-caf1-4432-98b4-ea432d268f9c}" lat = "54.9930767" lon = "12.1697577">
+            </item>
+            <item guid = "{41b5bd20-f101-4711-8296-258c9c784880}" lat = "54.994022" lon = "12.1698202">
+            </item>
+            <item guid = "{38a31b51-a917-451c-b1bb-0cf4b6a10996}" lat = "54.9953828" lon = "12.1685969">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{ffea8597-dc4a-4e55-bcf3-26d3e90518ff}" name = "Kerteminde_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{ceeda4f5-efcc-4403-aa10-5947d4e8d0b9}" lat = "55.4486205" lon = "10.6572873">
+            </item>
+            <item guid = "{3241e525-6e9a-48b1-9af3-d6e73ce48baa}" lat = "55.4472164" lon = "10.6588087">
+            </item>
+            <item guid = "{e7e3674b-e031-48f7-8902-e419ea200516}" lat = "55.4484004" lon = "10.6640077">
+            </item>
+            <item guid = "{fc999c43-61e0-4189-a493-b7647c17fa99}" lat = "55.4493032" lon = "10.6668726">
+            </item>
+            <item guid = "{52cbf092-cfde-49f4-a813-d38d9bf03ac5}" lat = "55.4513092" lon = "10.6653514">
+            </item>
+            <item guid = "{ca9728cf-2940-4bf1-9800-50f72089c76b}" lat = "55.4505265" lon = "10.6605763">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{58855d18-b4c5-4a52-b293-f8f285443f03}" name = "Klintholm_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{99ab3638-5af5-4288-bd06-fbaaeecc79ca}" lat = "54.9557216" lon = "12.4624164">
+            </item>
+            <item guid = "{ea051a26-d97b-43b0-96db-ee5b8f913efb}" lat = "54.9543914" lon = "12.461797">
+            </item>
+            <item guid = "{20eae0e8-ec32-4323-9269-a197835691e7}" lat = "54.9516227" lon = "12.4640597">
+            </item>
+            <item guid = "{1c7f53cb-1de4-4581-bdff-4289627967b1}" lat = "54.9511896" lon = "12.4669955">
+            </item>
+            <item guid = "{d3ffc9df-e6d8-432e-a535-c6c8e0d80451}" lat = "54.9542985" lon = "12.4690428">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{b9ecf673-387c-4bd0-b3dc-ba6ab551ed1f}" name = "Stege_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{d8fe77bb-b353-4ccb-8425-9362280dac15}" lat = "54.9835721" lon = "12.2761176">
+            </item>
+            <item guid = "{b94b9e1a-b680-433b-beac-a649d27acf0b}" lat = "54.9851861" lon = "12.2781379">
+            </item>
+            <item guid = "{442a65a9-33da-42c1-817b-ea00d358cb26}" lat = "54.9814581" lon = "12.2862586">
+            </item>
+            <item guid = "{97aa88b2-db93-4537-a6d4-99b4d8dee309}" lat = "54.9800488" lon = "12.2847532">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{ed55b986-7966-44a8-a13a-d61cb9da4374}" name = "Kollund_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{f99ceef3-dfd0-4738-9a3b-25bb9536c0e5}" lat = "54.8376573" lon = "9.44507695">
+            </item>
+            <item guid = "{54496e1c-e27f-4bf8-8fbe-4ff31afa02ee}" lat = "54.8369727" lon = "9.44508874">
+            </item>
+            <item guid = "{06e5aad1-b5c8-4295-a503-5473738375f3}" lat = "54.8369591" lon = "9.44701901">
+            </item>
+            <item guid = "{ce87f587-989b-4563-aedc-cf6e85b20b31}" lat = "54.8376912" lon = "9.44696017">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{682720d2-8600-48af-843f-7d3c88bbc9d5}" name = "HvideSande_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{e4b04201-6499-4db7-8390-a7cd11928ded}" lat = "56.0055486" lon = "8.11730218">
+            </item>
+            <item guid = "{d91f3b19-0c50-4b5d-bc34-890453f0c093}" lat = "56.0100361" lon = "8.13415509">
+            </item>
+            <item guid = "{f79a0c06-8f86-42e2-9510-0c16079eb7dd}" lat = "56.0089142" lon = "8.13746558">
+            </item>
+            <item guid = "{575d443f-7ad1-47d5-9cc7-d9b9ae31c298}" lat = "56.0065305" lon = "8.13836798">
+            </item>
+            <item guid = "{69ed286f-6ab9-4e40-9254-ffcdff17dc2b}" lat = "56.0019314" lon = "8.12081401">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{d446af06-e55a-4094-b710-33126c74f628}" name = "HvideSande_2" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{7f505f97-1c1e-4422-9925-606e77ea17db}" lat = "56.0011462" lon = "8.12141601">
+            </item>
+            <item guid = "{06f924ce-8e60-432b-85c8-8861017b8d11}" lat = "56.0029693" lon = "8.13024249">
+            </item>
+            <item guid = "{4c0f8c05-a320-4e99-822c-52a420c2353b}" lat = "55.9996041" lon = "8.1353075">
+            </item>
+            <item guid = "{6ca0d701-7d3a-477b-9e91-7128af076ba2}" lat = "55.9971924" lon = "8.13320109">
+            </item>
+            <item guid = "{f36bf488-e976-487e-9973-6775d558b108}" lat = "55.9993794" lon = "8.12061406">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{5dc2513e-e6f8-4ea9-86d9-71f0ea5ec032}" name = "Ringkøbing_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{8c9b6ea3-4379-4f28-af0c-00f411f8bed1}" lat = "56.0857874" lon = "8.24566179">
+            </item>
+            <item guid = "{014a74e3-2cc1-4614-9e7f-4381231c281a}" lat = "56.0850105" lon = "8.24430009">
+            </item>
+            <item guid = "{a9594bc9-b171-4e0c-825b-f6445e5574a2}" lat = "56.086081" lon = "8.24089622">
+            </item>
+            <item guid = "{43eddec7-194d-4ce0-8f19-4a6869656b4e}" lat = "56.085494" lon = "8.23990595">
+            </item>
+            <item guid = "{5888fb54-86be-41f7-87f6-e43754cef4e4}" lat = "56.0868062" lon = "8.23687326">
+            </item>
+            <item guid = "{d8536b47-b9cf-4778-baf2-fbcf3a4099ec}" lat = "56.0882738" lon = "8.23687318">
+            </item>
+            <item guid = "{0a940173-b146-481a-8f67-dedb65dc484a}" lat = "56.089586" lon = "8.23848242">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{3b044c3f-7864-4ef6-8482-16e90be1a653}" name = "KyndbyVærket_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{0ad14ba7-4cc0-4bfb-bc06-62c6e143cd7d}" lat = "55.8143139" lon = "11.8764969">
+            </item>
+            <item guid = "{6f0aaeab-4580-4c2f-849c-51984784471b}" lat = "55.8089352" lon = "11.8758846">
+            </item>
+            <item guid = "{f8dd6eb0-3420-45b2-ad6e-8270582fc531}" lat = "55.8087416" lon = "11.8806702">
+            </item>
+            <item guid = "{cfcab1d0-0aba-418a-aded-72c493ded510}" lat = "55.8141848" lon = "11.8809003">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{c8f77bee-f4e4-496b-bdde-e0f3db197030}" name = "Kragenæs_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{49339650-0b08-413b-8784-bc618af18899}" lat = "54.9169063" lon = "11.3569266">
+            </item>
+            <item guid = "{a6673b01-80b1-45a5-bf36-10ccc4e69307}" lat = "54.9129017" lon = "11.3574598">
+            </item>
+            <item guid = "{12009fc1-633c-4ac3-84ba-f786cd53ca77}" lat = "54.9130606" lon = "11.3602622">
+            </item>
+            <item guid = "{72718d32-648a-4704-951f-0bf2d5520339}" lat = "54.9156471" lon = "11.3595517">
+            </item>
+            <item guid = "{acf488e5-350c-4ba9-99d1-190376e15d90}" lat = "54.9158059" lon = "11.3616636">
+            </item>
+            <item guid = "{5fe0a0d7-6501-41d5-84ca-4fd9ea833d35}" lat = "54.9170765" lon = "11.3615452">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{f4e7af7c-53c3-451f-83e4-2dacc726c64f}" name = "Lohals_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{37c772e4-be70-4b94-8156-1abe181ca421}" lat = "55.136182" lon = "10.9009943">
+            </item>
+            <item guid = "{ff3e8045-acec-46f5-9d4b-4d7741313035}" lat = "55.1327496" lon = "10.9003418">
+            </item>
+            <item guid = "{aaabb14e-b32e-47ac-9c1c-c09f7eac8fa9}" lat = "55.1325507" lon = "10.9027781">
+            </item>
+            <item guid = "{c01eade8-acae-4d3d-8fcd-64f3317bb1f0}" lat = "55.1361322" lon = "10.9033439">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{ec2623de-de45-4196-8ebd-6a751fa7ed83}" name = "Lundeborg_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{6da850dc-2331-4e64-967d-03972ba7a0f5}" lat = "55.1398876" lon = "10.7847172">
+            </item>
+            <item guid = "{eadafc13-9de3-4a5b-9cd6-eaeb39ad68ec}" lat = "55.1378582" lon = "10.7845957">
+            </item>
+            <item guid = "{7b314696-2030-46ae-a273-9464d3c68e1c}" lat = "55.1375802" lon = "10.7852401">
+            </item>
+            <item guid = "{e4abc1fd-87a6-41cd-84be-3d0c011a5780}" lat = "55.137747" lon = "10.7860912">
+            </item>
+            <item guid = "{a4bab778-432c-4d8a-9311-e8b9d7e46749}" lat = "55.138171" lon = "10.7866991">
+            </item>
+            <item guid = "{d48d997a-7ff8-4210-b84d-e52a62c9d9c7}" lat = "55.1386088" lon = "10.7869788">
+            </item>
+            <item guid = "{0abd3296-1a31-44ce-a8e5-2299df2fc018}" lat = "55.139832" lon = "10.7870396">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{50108758-e4f0-42c2-8d48-70dcb14179a1}" name = "Korshavn_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{d344ae39-83fb-4f32-890b-0fa61f5bb536}" lat = "55.6045134" lon = "10.6073663">
+            </item>
+            <item guid = "{b02d655f-462c-457e-952b-a8832fcd7388}" lat = "55.605001" lon = "10.6093353">
+            </item>
+            <item guid = "{ed5703ce-038b-4b22-8653-f64332903177}" lat = "55.6037211" lon = "10.6101715">
+            </item>
+            <item guid = "{1ef6838a-f065-4fe5-a530-09c844d726c4}" lat = "55.6034925" lon = "10.6080407">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{9df878bc-8777-4f96-9e22-3596c126e51c}" name = "Lyø_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{e07b837a-6d7b-440e-979b-0484c0cc7d5e}" lat = "55.0533348" lon = "10.1573371">
+            </item>
+            <item guid = "{0a392845-a387-4a1d-b86b-e53a1e543f75}" lat = "55.0511286" lon = "10.1561676">
+            </item>
+            <item guid = "{2d77cd5c-12cf-41b7-8e95-4835c1787b0f}" lat = "55.0505731" lon = "10.1587065">
+            </item>
+            <item guid = "{c8742dae-3261-43bd-9eaf-0f8479b99bd5}" lat = "55.0528609" lon = "10.1599047">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{e79b4394-2b2f-41e8-8756-6a0c8cd2c213}" name = "Fynshav_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{5ca4db79-d31f-4636-a6e4-bd6d8ed079f5}" lat = "54.996104" lon = "9.98571974">
+            </item>
+            <item guid = "{635035c2-524a-47ed-a252-e39cafcae855}" lat = "54.9924015" lon = "9.98172154">
+            </item>
+            <item guid = "{c260d7d6-3fad-4ad0-a922-b4d0529f1927}" lat = "54.9906135" lon = "9.98628638">
+            </item>
+            <item guid = "{4441b764-f759-4260-ac6f-3ec471c11cbf}" lat = "54.9930517" lon = "9.98826981">
+            </item>
+            <item guid = "{5ecbea06-7f40-4430-bda9-25dc0a2dfbf0}" lat = "54.9939367" lon = "9.98641237">
+            </item>
+            <item guid = "{a465ebcf-e024-4351-8fe2-6f1f09ebce0f}" lat = "54.9953815" lon = "9.98782918">
+            </item>
+        </polygon>
+    </area_polygon>
     <area_polygon guid = "{52aaadd5-4222-40e0-9f54-0fd99feef64f}" name = "Mommark_0" depth = "0" filename = "">
         <polygon>
             <item guid = "{8c08f2ad-8b7a-4087-abcc-08f39b03d1a2}" lat = "54.9331727" lon = "10.0434001">
@@ -1764,6 +3535,438 @@
             <item guid = "{440f16d8-41ce-4abf-939f-b019dbeeaf32}" lat = "54.9314516" lon = "10.0449683">
             </item>
             <item guid = "{a9c58c2f-3fe6-43f3-a3ec-d088c267b361}" lat = "54.9315995" lon = "10.0433768">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{662169c4-79af-4592-97a6-e0b2ffb0d609}" name = "Kongsdal_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{e15eebeb-397d-45b7-a5a1-b344faa3f37c}" lat = "56.6838311" lon = "10.0698707">
+            </item>
+            <item guid = "{96cc2476-961d-4046-b6ea-a0f9a3f3eb1c}" lat = "56.6847639" lon = "10.0710204">
+            </item>
+            <item guid = "{d0492c14-a89e-49b5-9c15-00ddd266dc31}" lat = "56.6839866" lon = "10.074399">
+            </item>
+            <item guid = "{4f84942d-d395-40e7-b13d-2369ba8c23a4}" lat = "56.6827916" lon = "10.0730369">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{da108511-a80a-4aa3-a594-1386627ef308}" name = "Dania_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{dc4fa44a-8f64-4df0-87a0-b2dd501433a2}" lat = "56.6916425" lon = "10.0529283">
+            </item>
+            <item guid = "{00b34e75-414c-42f0-8dc5-fc883a156465}" lat = "56.6906125" lon = "10.048511">
+            </item>
+            <item guid = "{c7bcc820-30ee-472e-8308-23904c81ea69}" lat = "56.6892973" lon = "10.0495753">
+            </item>
+            <item guid = "{6d6faf0a-9fe2-4007-acdf-fce9cc1359a9}" lat = "56.6903201" lon = "10.0539525">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{3b7a5c2f-6073-45cf-a523-837dcffc2763}" name = "Glatved_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{76f7ac29-33c8-4c9a-978f-251d060a2e3f}" lat = "56.3015092" lon = "10.8639425">
+            </item>
+            <item guid = "{97df914c-58df-48c0-98ae-38f9a60ca158}" lat = "56.3013095" lon = "10.8681157">
+            </item>
+            <item guid = "{279d935f-8725-4f46-9081-ffa33a645b61}" lat = "56.299014" lon = "10.8680074">
+            </item>
+            <item guid = "{248cb988-bafb-44fe-9e8e-07e8adf1667a}" lat = "56.2991539" lon = "10.8637985">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{ff876c0c-50e1-4ed7-b543-009b4e19742b}" name = "Løgstør_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{c57de859-5d38-4526-a802-b6a1b889b885}" lat = "56.9706346" lon = "9.25694301">
+            </item>
+            <item guid = "{bc467e7e-fae3-465e-badb-23c978b55dd9}" lat = "56.9694979" lon = "9.24934941">
+            </item>
+            <item guid = "{712e8c4b-e854-4aab-b8e0-64cfc59b446f}" lat = "56.9687247" lon = "9.24665144">
+            </item>
+            <item guid = "{8ceda630-ee51-4223-8c59-b53cbea5c4be}" lat = "56.9680424" lon = "9.24448202">
+            </item>
+            <item guid = "{2af33ae2-12ad-48ac-8231-2efd77985a6e}" lat = "56.9671933" lon = "9.24300801">
+            </item>
+            <item guid = "{fbcf4a01-d4bd-4516-9c6b-7072a7351f05}" lat = "56.9663443" lon = "9.24189563">
+            </item>
+            <item guid = "{2fd51b14-8ee7-4b1e-b41e-8ceff96f06b0}" lat = "56.9654649" lon = "9.24097798">
+            </item>
+            <item guid = "{3311e63f-4076-48e5-b9e1-1ec31aafe35f}" lat = "56.9645249" lon = "9.24053317">
+            </item>
+            <item guid = "{3ff3c941-a8d0-4c0f-b064-1dacaa219eb2}" lat = "56.9641459" lon = "9.24139536">
+            </item>
+            <item guid = "{efae8b3a-91f6-45e1-9a12-da9c01b534f6}" lat = "56.9702707" lon = "9.25738796">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{f30a656d-b309-4a97-b5b2-354a07887da6}" name = "NykøbingMors_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{8c684968-3ea6-4e6e-90aa-7961ab3880ec}" lat = "56.7927127" lon = "8.86148108">
+            </item>
+            <item guid = "{30c6a4ee-15aa-4e41-b6f7-12e726c98b83}" lat = "56.7961412" lon = "8.86379054">
+            </item>
+            <item guid = "{5cafec8c-d48b-4d80-b8cd-d4e1a36b213c}" lat = "56.7950962" lon = "8.87041926">
+            </item>
+            <item guid = "{ceb7bcab-ade3-44c6-b73b-d8627098fa59}" lat = "56.7910445" lon = "8.86807578">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{bd3e92ad-9906-4958-aab3-624f6c097034}" name = "Sakskøbing_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{edc110a5-f34c-4f7e-9412-d8fedfb27988}" lat = "54.8044566" lon = "11.625782">
+            </item>
+            <item guid = "{b28df108-9caf-464c-80b2-ec36931c7da3}" lat = "54.8075941" lon = "11.6309359">
+            </item>
+            <item guid = "{9d5cd707-07aa-4536-9622-0480cdcfcd3b}" lat = "54.802824" lon = "11.6402982">
+            </item>
+            <item guid = "{e01bd84e-5256-4e3b-aaea-7f0bd2846d9c}" lat = "54.7995195" lon = "11.6363053">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{091c1f59-0e12-4fec-86e9-b8e2b67f006a}" name = "Marstal_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{f7bb27c8-db0d-473b-b1a5-43525b56e87f}" lat = "54.8576664" lon = "10.520063">
+            </item>
+            <item guid = "{ab391134-46a4-4586-9bbf-9585c84cde9f}" lat = "54.8515233" lon = "10.5215612">
+            </item>
+            <item guid = "{258c828e-d416-45a1-8f2c-73116ed2dcc3}" lat = "54.8515234" lon = "10.5239949">
+            </item>
+            <item guid = "{9942e147-eec7-4eb1-a89c-cfa334a9931f}" lat = "54.8577742" lon = "10.5228715">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{57370889-98ec-4eb0-b7ee-8c772653e271}" name = "Ærøskøbing_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{fb75108d-fc02-4c3f-8592-28c3fc7a4cf8}" lat = "54.8917413" lon = "10.4120152">
+            </item>
+            <item guid = "{6c396051-dba6-440e-b113-3ffd80d72927}" lat = "54.8920741" lon = "10.4138902">
+            </item>
+            <item guid = "{dc5c68a8-eba8-42cb-a26f-ac7d3128af2e}" lat = "54.8899041" lon = "10.4152096">
+            </item>
+            <item guid = "{fe5d8161-ac70-4d16-b420-4b0410f49175}" lat = "54.8892384" lon = "10.4131958">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{ea728a25-2e6d-4737-bfb7-0c3ae40147c2}" name = "Nysted_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{a9c928f5-e14a-4bf9-ad8d-392a428ac3b2}" lat = "54.664854" lon = "11.7275121">
+            </item>
+            <item guid = "{e2af8792-15f5-4db1-a72a-a03b5ca8bd0e}" lat = "54.6639367" lon = "11.7286737">
+            </item>
+            <item guid = "{82ffd146-4e38-44b0-ae1b-334cafadb5b5}" lat = "54.663252" lon = "11.7292545">
+            </item>
+            <item guid = "{81683ef9-7c38-4162-b1b0-1e761010b90b}" lat = "54.6626447" lon = "11.7296789">
+            </item>
+            <item guid = "{9850f312-b670-483d-8d7c-bbcf179dad83}" lat = "54.6616887" lon = "11.7299692">
+            </item>
+            <item guid = "{6f93cc5a-a231-46b5-810c-cb6cc87ef93a}" lat = "54.6617404" lon = "11.7313094">
+            </item>
+            <item guid = "{dacf5c51-a5b0-4554-abba-9bc45d26d21c}" lat = "54.6632649" lon = "11.7312872">
+            </item>
+            <item guid = "{f19026c6-1676-4410-a814-c481b97646da}" lat = "54.6641176" lon = "11.7309298">
+            </item>
+            <item guid = "{0c23251a-88d9-4d62-b8f3-6b0c35870d6e}" lat = "54.6652674" lon = "11.728562">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{a29c9708-a68e-4d06-bc0f-19d1140db6bd}" name = "Onsevig_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{339cebd8-8769-42f7-a676-b1cda9abea35}" lat = "54.9470869" lon = "11.106199">
+            </item>
+            <item guid = "{b54cae42-c541-4de8-bd1f-00af4f5530fd}" lat = "54.9468514" lon = "11.1069167">
+            </item>
+            <item guid = "{e751be31-6d75-4dfc-a258-cfc911676294}" lat = "54.9462725" lon = "11.1090525">
+            </item>
+            <item guid = "{f8b625b9-dd1d-4564-94fc-4a53745d8801}" lat = "54.9471458" lon = "11.1096847">
+            </item>
+            <item guid = "{ce590283-6e2a-4cfa-88e6-7b3f8a9334d3}" lat = "54.9477543" lon = "11.1071729">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{ef15f8cc-f904-453e-9d65-d3f0abf668e9}" name = "Rødvig_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{fead4c44-5a55-4db5-a6f8-a14c5431864a}" lat = "55.253367" lon = "12.3713043">
+            </item>
+            <item guid = "{45502b13-887f-4fe0-a643-ebb6dd023d0e}" lat = "55.2548784" lon = "12.3723815">
+            </item>
+            <item guid = "{ba380edf-4577-48cc-81cd-6a8f3eb9fe9b}" lat = "55.2535795" lon = "12.3783273">
+            </item>
+            <item guid = "{3e154078-a7aa-4a74-bee6-fbf479bcbb1c}" lat = "55.252021" lon = "12.3761727">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{b880230e-c826-4071-90a1-981db1d36c27}" name = "Stevns_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{2b8fbcf2-a067-4b86-8809-3863722407af}" lat = "55.3243164" lon = "12.453189">
+            </item>
+            <item guid = "{c77dce68-bbe6-4b15-9f26-f80de15c9715}" lat = "55.3205474" lon = "12.4530025">
+            </item>
+            <item guid = "{012c22a1-8e52-4149-ac3d-025c260adbdc}" lat = "55.320335" lon = "12.4588802">
+            </item>
+            <item guid = "{78c7403d-e11a-46b5-ab55-2bd3f6b94ed3}" lat = "55.3240774" lon = "12.4591138">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{4b2202c8-de52-4f86-bc28-06f9066c272e}" name = "Svaneke_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{769b8298-3ab0-4198-bee1-5d1971f941e8}" lat = "55.1370874" lon = "15.1443576">
+            </item>
+            <item guid = "{f546f443-fe52-4c8b-acb0-836b060cf307}" lat = "55.136376" lon = "15.1467491">
+            </item>
+            <item guid = "{7cf64fe8-c267-46e9-8f0d-cfa4d36015f1}" lat = "55.1347931" lon = "15.1453647">
+            </item>
+            <item guid = "{dbd91d5f-a60b-453a-bf12-ee212ed73c7c}" lat = "55.1356244" lon = "15.1432389">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{d069a25d-3339-4bf2-95c3-0083945a1d04}" name = "Spodsbjerg_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{07080fea-4f61-4075-9b48-01361b5767e7}" lat = "54.9322826" lon = "10.8299043">
+            </item>
+            <item guid = "{ca7acac6-adc0-4806-92d0-9882818d9fda}" lat = "54.9317999" lon = "10.8321763">
+            </item>
+            <item guid = "{e3e1dc34-d35a-43bd-a80a-39c4e0389c07}" lat = "54.9323543" lon = "10.8346038">
+            </item>
+            <item guid = "{59c9f7a6-be6b-497c-84b0-82682534ef76}" lat = "54.9342497" lon = "10.8358175">
+            </item>
+            <item guid = "{5292a803-4ca5-4ab4-a798-04b565a893a4}" lat = "54.935251" lon = "10.8361288">
+            </item>
+            <item guid = "{5cb0594c-37be-46f7-ab4c-216073a29516}" lat = "54.9358589" lon = "10.8328607">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{c5d2ac7f-3bc3-4d90-9902-813aa4ed67dc}" name = "Søby_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{04a39274-568b-4cf3-b379-8fe1214b2e5a}" lat = "54.9443092" lon = "10.2549278">
+            </item>
+            <item guid = "{4a6a58d1-a2d2-4a99-84f3-911abeb4e92a}" lat = "54.9420426" lon = "10.2537272">
+            </item>
+            <item guid = "{64112fc6-ed6c-4560-b50d-90f221502149}" lat = "54.9405811" lon = "10.2618189">
+            </item>
+            <item guid = "{453f6fc2-3822-4ad1-b114-e0dda96002c1}" lat = "54.9428804" lon = "10.2627054">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{435ef248-d0a4-4db9-8b75-68b0d5e89f55}" name = "Sønderborg_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{a4412a61-c844-4c19-8365-f51e58bde033}" lat = "54.9181375" lon = "9.76985362">
+            </item>
+            <item guid = "{6c6e1cf8-bdea-4a97-8e42-906b11dd92d9}" lat = "54.9174615" lon = "9.7729183">
+            </item>
+            <item guid = "{4c631e50-9433-4adb-ba8b-16b2d0bc92d9}" lat = "54.9171591" lon = "9.77496136">
+            </item>
+            <item guid = "{9a587c8d-5e9e-476e-8cfa-d593417b74ba}" lat = "54.9166787" lon = "9.77691152">
+            </item>
+            <item guid = "{b95de4b3-7812-41e5-a19f-29efb8bcf091}" lat = "54.9162695" lon = "9.77852114">
+            </item>
+            <item guid = "{4ed1b1b4-fcb9-46ee-bdfd-034fa32b2322}" lat = "54.9156823" lon = "9.78031643">
+            </item>
+            <item guid = "{6d44761c-106c-4d6d-8782-29ca53e47957}" lat = "54.9153264" lon = "9.78090451">
+            </item>
+            <item guid = "{2d359636-7a2b-41a9-bd08-cd1339425c06}" lat = "54.9148638" lon = "9.78136875">
+            </item>
+            <item guid = "{7fa347b1-254e-46cb-9a62-71e77cb167c3}" lat = "54.9140098" lon = "9.78198769">
+            </item>
+            <item guid = "{d1ecb56f-f3f8-453a-bb96-30a02e695d0e}" lat = "54.9129422" lon = "9.78279227">
+            </item>
+            <item guid = "{900bd812-b95c-440d-883e-93a060587bbf}" lat = "54.9121059" lon = "9.78390636">
+            </item>
+            <item guid = "{94d12185-1279-43c9-9319-f68aa268ac0c}" lat = "54.911412" lon = "9.78437048">
+            </item>
+            <item guid = "{a17b3244-0445-4799-b353-853ef2642327}" lat = "54.9104156" lon = "9.78477262">
+            </item>
+            <item guid = "{e48acd5d-7a9c-4340-9c4e-b0128602524a}" lat = "54.9096506" lon = "9.78486529">
+            </item>
+            <item guid = "{680b1c47-0354-449d-b65f-23f7214f6091}" lat = "54.9087966" lon = "9.78489604">
+            </item>
+            <item guid = "{e8e6ad85-6eb8-4d6a-ab66-c52cd31e3678}" lat = "54.9081917" lon = "9.78458642">
+            </item>
+            <item guid = "{149831f3-54a6-40d1-9b10-5c2c7ccedc47}" lat = "54.9077647" lon = "9.78368884">
+            </item>
+            <item guid = "{6a95d700-41c3-4275-8d7c-e9b7cef3eb65}" lat = "54.9075157" lon = "9.78248183">
+            </item>
+            <item guid = "{2c71e41a-3a76-4494-b89d-59cdefa18816}" lat = "54.9068575" lon = "9.78220319">
+            </item>
+            <item guid = "{a6bbbfef-b471-4b5c-88ec-b384d72b50f9}" lat = "54.9064479" lon = "9.78684516">
+            </item>
+            <item guid = "{bb2e07ef-ce81-4271-b818-f1ed981d0358}" lat = "54.9181194" lon = "9.78635312">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{a9fe4020-aa4e-426f-814e-f6a5ed7ad50a}" name = "Sønderborg_2" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{79eafaed-b241-47eb-abe3-061d3f30bb32}" lat = "54.9181015" lon = "9.76428156">
+            </item>
+            <item guid = "{8aa8e86a-5dbf-4ace-8c4a-1021f7d2a68e}" lat = "54.9181194" lon = "9.76536501">
+            </item>
+            <item guid = "{5e9935b3-dbb3-40ce-9db2-f80917ff8762}" lat = "54.917052" lon = "9.76644871">
+            </item>
+            <item guid = "{66f257c6-f06d-4f70-98f7-ba7d4e03fc4c}" lat = "54.9163226" lon = "9.76750133">
+            </item>
+            <item guid = "{7db551e2-d0a3-42b3-9d3f-9bbdff89279e}" lat = "54.9160202" lon = "9.76852289">
+            </item>
+            <item guid = "{4755d726-b2a9-4605-a672-9b46b740fdc3}" lat = "54.9158246" lon = "9.77010158">
+            </item>
+            <item guid = "{3f883e4f-f29f-4583-81b4-a07374fa887f}" lat = "54.9156467" lon = "9.77121595">
+            </item>
+            <item guid = "{2334d7a8-c7df-48c2-8523-f7296374b3fd}" lat = "54.9153799" lon = "9.77248509">
+            </item>
+            <item guid = "{9b8f7a89-b891-43c0-9818-066d243f3448}" lat = "54.9151842" lon = "9.77390897">
+            </item>
+            <item guid = "{a88cece8-28e8-41e3-840e-3d2a8bfa4482}" lat = "54.9148284" lon = "9.77567333">
+            </item>
+            <item guid = "{da0fbcc1-4249-4ed4-9b8d-ed9ee44a0332}" lat = "54.9146504" lon = "9.77703527">
+            </item>
+            <item guid = "{875927eb-4150-496a-baab-d2039737f2ae}" lat = "54.9143302" lon = "9.77839719">
+            </item>
+            <item guid = "{9f516c7c-9b50-449a-b14b-17fadf83f2a7}" lat = "54.9140988" lon = "9.77932576">
+            </item>
+            <item guid = "{8eefaca7-70ed-4998-9bc0-954341125257}" lat = "54.9136006" lon = "9.78009952">
+            </item>
+            <item guid = "{648b1fc7-d615-4f1d-88b7-ce9b1d103a31}" lat = "54.9129957" lon = "9.78093516">
+            </item>
+            <item guid = "{f21db892-795f-4e06-92e4-88777795bd85}" lat = "54.9123729" lon = "9.7814303">
+            </item>
+            <item guid = "{2ef90b2e-1e6f-4b6a-bcc1-579e9ba89062}" lat = "54.9118036" lon = "9.78195639">
+            </item>
+            <item guid = "{1aeac0ab-05dc-4f6e-9840-4f2e416721ea}" lat = "54.9113588" lon = "9.78254438">
+            </item>
+            <item guid = "{fc371d53-8c77-4ba0-b3be-3b613912870e}" lat = "54.9109495" lon = "9.78285381">
+            </item>
+            <item guid = "{08a96f1a-710a-4af4-93e8-9add9c37592c}" lat = "54.91006" lon = "9.78263701">
+            </item>
+            <item guid = "{cf6f49de-3ba6-44e1-bc0f-d6c11b039231}" lat = "54.9089747" lon = "9.78189404">
+            </item>
+            <item guid = "{0e7ba3e6-bc70-4331-8d02-12319c9bdb4f}" lat = "54.9085299" lon = "9.78155354">
+            </item>
+            <item guid = "{3daeb4b7-aa92-4571-9682-c33384f7b07e}" lat = "54.9079606" lon = "9.78124398">
+            </item>
+            <item guid = "{9aaf26d5-5b9f-4603-8fb1-653827bf4ec0}" lat = "54.9074802" lon = "9.78090349">
+            </item>
+            <item guid = "{11eb1e5c-f070-4566-aa78-e4a62df80e2a}" lat = "54.9071956" lon = "9.78031545">
+            </item>
+            <item guid = "{9282adbb-e7c8-4db0-8e01-5055474eeb7d}" lat = "54.9068398" lon = "9.77997499">
+            </item>
+            <item guid = "{1ff6ec8c-96a5-47c1-9bc5-989e3b9337fa}" lat = "54.907302" lon = "9.76527493">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{81ae1e58-b95c-413e-b6c6-f68757870a63}" name = "VordingborgNord_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{327d7c8f-ff56-4fc9-99af-4544044d2608}" lat = "55.0052547" lon = "11.9113066">
+            </item>
+            <item guid = "{18c4d8fe-be64-4d27-8c38-1500749c72c0}" lat = "55.0042089" lon = "11.911255">
+            </item>
+            <item guid = "{e8b4b6df-2f96-4687-93c8-b2f1a0f30e7d}" lat = "55.0039049" lon = "11.9134017">
+            </item>
+            <item guid = "{4f208965-dba8-4b95-9f41-dbb9bffb12bc}" lat = "55.003764" lon = "11.9141777">
+            </item>
+            <item guid = "{94dd034b-a7d2-4714-ada0-e5eb6af0105c}" lat = "55.0036305" lon = "11.9159881">
+            </item>
+            <item guid = "{b0976a03-99ef-4602-8e78-0867ab43d4b3}" lat = "55.0030594" lon = "11.916777">
+            </item>
+            <item guid = "{f7b57c7a-8546-4584-aefb-1db720bbadc0}" lat = "55.0025476" lon = "11.9202814">
+            </item>
+            <item guid = "{e5c8122c-17c8-401d-8fd2-5183e80d451e}" lat = "55.0039567" lon = "11.9207212">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{9dd41eac-e979-494c-9018-f35843fc6f36}" name = "Stubbekøbing_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{55e7b499-716e-4846-b968-7f8a53adc9d7}" lat = "54.8930245" lon = "12.0430158">
+            </item>
+            <item guid = "{72b34318-3319-4883-8f78-dbb9a9f0f547}" lat = "54.8915314" lon = "12.0425">
+            </item>
+            <item guid = "{bbf10393-8ad7-4458-b850-5ae2e020e469}" lat = "54.8904979" lon = "12.0489902">
+            </item>
+            <item guid = "{668e3237-7094-4027-b9d2-4d463d2abdfe}" lat = "54.8920388" lon = "12.0496892">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{f66aab26-a079-4a6c-a000-0900b73afe6d}" name = "VordingborgSyd_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{f8efb235-4bf5-4e1d-b0bf-f0a55173b115}" lat = "54.995531" lon = "11.8981631">
+            </item>
+            <item guid = "{47a23c87-5bd2-480a-83d6-28c283d381f9}" lat = "54.994429" lon = "11.8971461">
+            </item>
+            <item guid = "{663f650c-6d29-450c-bf0e-17ece7b6efec}" lat = "54.9938869" lon = "11.8988924">
+            </item>
+            <item guid = "{e476cf2b-ccc3-43e1-85ee-eb0ea2270944}" lat = "54.9949711" lon = "11.9000327">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{660f4583-366c-47f2-8361-f958098d764e}" name = "Kolby_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{93d9f4c3-b7ef-4fd8-aa34-c2328c468c7f}" lat = "55.7973977" lon = "10.5274168">
+            </item>
+            <item guid = "{1283599b-21ed-4eee-8dd5-9045982b52c8}" lat = "55.7955107" lon = "10.5271971">
+            </item>
+            <item guid = "{7aed3a43-3e40-4986-97ec-0327801c8961}" lat = "55.795039" lon = "10.5275368">
+            </item>
+            <item guid = "{cc5c1286-2534-4386-aed9-9f12ec758fe1}" lat = "55.7946122" lon = "10.5285957">
+            </item>
+            <item guid = "{f927bb86-d32f-4aa9-846d-a3c511fed24f}" lat = "55.7950502" lon = "10.5309333">
+            </item>
+            <item guid = "{dcc99c49-df22-4517-8003-e5c70762a053}" lat = "55.7978469" lon = "10.5308735">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{92fcf7aa-bffc-4f4a-823d-56347c771ee5}" name = "Vang_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{7e5cdf9a-dd09-415e-bfa3-69ec52465cb1}" lat = "55.2483664" lon = "14.7350099">
+            </item>
+            <item guid = "{ef40c0ab-c38a-4acc-9d12-8d1c07df4036}" lat = "55.249274" lon = "14.7362279">
+            </item>
+            <item guid = "{0c2db4d7-8e5e-489f-b5c5-b3e920d24a23}" lat = "55.2488639" lon = "14.7372926">
+            </item>
+            <item guid = "{29996e6d-d251-4966-a384-b036564a36f5}" lat = "55.2479619" lon = "14.7360553">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{4d4c3d54-8470-4f46-9aef-1352adb1740f}" name = "ÅlborgPortland_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{60b42393-6de6-425f-83f3-66028aa35319}" lat = "57.0613809" lon = "9.96740357">
+            </item>
+            <item guid = "{edcd0f38-cb05-40c0-b333-f18978ce302d}" lat = "57.0694142" lon = "9.97369195">
+            </item>
+            <item guid = "{f98bb7cd-65c3-4eeb-9730-1698602109e0}" lat = "57.0687395" lon = "9.97811637">
+            </item>
+            <item guid = "{eca83caf-70d1-4fe1-9580-83ec35fddeb6}" lat = "57.0601772" lon = "9.9720922">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{aee18101-9339-485a-96c4-6bea4761ec1c}" name = "Mariager_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{464cf276-af9f-42ed-ac2f-1c29f0c484f6}" lat = "56.6547536" lon = "9.98010408">
+            </item>
+            <item guid = "{b093752a-e264-4ab1-8c8c-de168a6528ee}" lat = "56.6547402" lon = "9.98448778">
+            </item>
+            <item guid = "{82207b12-333c-4bfc-8730-b5b10ed3d7c5}" lat = "56.6527699" lon = "9.98456023">
+            </item>
+            <item guid = "{81b39b15-2034-49e7-95e5-e45de42cb936}" lat = "56.6527566" lon = "9.98000723">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{8cb26e8a-60ad-4d79-b47f-ac67f1db4ab2}" name = "Tårs_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{dda7a4f5-2419-413d-b4e1-95558b6514c7}" lat = "54.8787199" lon = "11.0223265">
+            </item>
+            <item guid = "{f8286f31-d9b1-4ff4-bb2a-1bb595ed1de4}" lat = "54.8740692" lon = "11.0226061">
+            </item>
+            <item guid = "{5b2075f7-82a7-4bea-9dde-9da668fdc2c5}" lat = "54.8741444" lon = "11.0339822">
+            </item>
+            <item guid = "{bd1f0887-ea8a-428d-9b9e-360744db5d0c}" lat = "54.8788965" lon = "11.033616">
+            </item>
+        </polygon>
+    </area_polygon>
+    <area_polygon guid = "{e9713021-aca4-451e-8a57-9b81c25e3cf0}" name = "KongsdalCement_1" depth = "0" filename = "">
+        <polygon>
+            <item guid = "{f09a568c-d168-42ac-8dcc-8826dde401b7}" lat = "56.6824151" lon = "10.0357626">
+            </item>
+            <item guid = "{40b03c58-f7ec-4e05-9a23-701795134fe9}" lat = "56.6842333" lon = "10.0385703">
+            </item>
+            <item guid = "{9fe1d694-d8cd-48d7-a36d-a0d371946b98}" lat = "56.6832221" lon = "10.0409506">
+            </item>
+            <item guid = "{f452aedf-c5ff-4185-acb9-491dd17c0766}" lat = "56.6814245" lon = "10.0381614">
             </item>
         </polygon>
     </area_polygon>
