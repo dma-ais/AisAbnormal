@@ -10,7 +10,6 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>dk.dma.ais.abnormal</groupId>
 	<artifactId>ais-ab-web</artifactId>
 	<packaging>jar</packaging>
 	<name>AisAbnormal Web</name>
@@ -24,7 +23,14 @@
 		<dependency>
 			<groupId>dk.dma.ais.abnormal</groupId>
 			<artifactId>ais-ab-common</artifactId>
-		</dependency>
+            <exclusions>
+                <!-- javax.inject is added by org.glassfish.jersey.media:jersey-media-json-jackson -->
+                <exclusion>
+                    <groupId>javax.inject</groupId>
+                    <artifactId>javax.inject</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 		<dependency>
 			<groupId>dk.dma.ais.abnormal</groupId>
 			<artifactId>ais-ab-stat-db</artifactId>
@@ -32,17 +38,18 @@
 		<dependency>
 			<groupId>dk.dma.ais.abnormal</groupId>
 			<artifactId>ais-ab-event-db</artifactId>
-		</dependency>		
-		<dependency>
-			<groupId>org.glassfish.jersey.containers</groupId>
-			<artifactId>jersey-container-servlet</artifactId>
-			<version>${dependencies.jersey.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.glassfish.jersey.media</groupId>
 			<artifactId>jersey-media-json-jackson</artifactId>
 			<version>${dependencies.jersey.version}</version>
-		</dependency>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.ws.rs</groupId>
+                    <artifactId>javax.ws.rs-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-server</artifactId>
@@ -63,11 +70,6 @@
             <artifactId>jetty-rewrite</artifactId>
             <version>9.1.0.v20131115</version>
         </dependency>
-		<dependency>
-			<groupId>dk.dma.web</groupId>
-			<artifactId>dma-web-rest</artifactId>
-			<version>0.1-SNAPSHOT</version>
-		</dependency>
         <dependency>
             <groupId>com.beust</groupId>
             <artifactId>jcommander</artifactId>
@@ -86,7 +88,14 @@
         <dependency>
             <groupId>com.sun.jersey.contribs</groupId>
             <artifactId>jersey-guice</artifactId>
-            <version>1.17.1</version>
+            <version>1.18.1</version>
+            <exclusions>
+                <!-- javax.inject is added by org.glassfish.jersey.media:jersey-media-json-jackson -->
+                <exclusion>
+                    <groupId>javax.inject</groupId>
+                    <artifactId>javax.inject</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>xml-apis</groupId>
