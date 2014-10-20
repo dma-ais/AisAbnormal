@@ -52,12 +52,6 @@ public class JpaEventRepository implements EventRepository {
         this.sessionFactory = sessionFactory;
     }
 
-    @Override
-    protected void finalize() {
-        LOG.info("Closing database session factory.");
-        sessionFactory.close();
-    }
-
     private Session getSession() {
         Session session = sessionFactory.openSession();
         if (readonly) {

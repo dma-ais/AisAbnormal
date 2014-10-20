@@ -16,6 +16,7 @@
 
 package dk.dma.ais.abnormal.web;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.Singleton;
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.List;
 
 
 public final class RestModule extends ServletModule {
@@ -47,6 +49,8 @@ public final class RestModule extends ServletModule {
     private final String eventDataDbName;
     private final String eventDataDbUsername;
     private final String eventDataDbPassword;
+
+    private List<SessionFactory> sessionFactoryList = Lists.newArrayList();
 
     public RestModule(String repositoryFilename, String pathToEventDatabase, String eventRepositoryType, String eventDataDbHost, Integer eventDataDbPort, String eventDataDbName, String eventDataDbUsername, String eventDataDbPassword) {
         this.repositoryFilename = repositoryFilename;
@@ -107,7 +111,15 @@ public final class RestModule extends ServletModule {
             throw new IllegalArgumentException("eventRepositoryType: " + eventRepositoryType);
         }
 
+        sessionFactoryList.add(sessionFactory);
+
         return new JpaEventRepository(sessionFactory, true);
+    }
+
+    @Override
+    protected void finalize() {
+        LOG.info("Closing database session factories.");
+        sessionFactoryList.stream().forEach(sf -> sf.close());
     }
 
 }
