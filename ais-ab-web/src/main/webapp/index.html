@@ -1,5 +1,5 @@
 <!doctype html>
-<html xmlns:ng="http://angularjs.org" ng-app>
+<html ng-app>
 <head>
 	<title>Danish Maritime Authority</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,11 +11,13 @@
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/openlayers/2.13.1/OpenLayers.js"></script>
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.21/angular.min.js"></script>
 
+    <script type="text/javascript" src="js/bowser.min.js"></script>
     <script type="text/javascript" src="js/jquery.contextmenu.js"></script>
     <script type="text/javascript" src="js/jquery.ticker.js"></script>
     <script type="text/javascript" src="js/jquery.tablesorter.min.js"></script>
     <script type="text/javascript" src="js/jquery.tablesorter.pager.min.js"></script>
     <script type="text/javascript" src="js/jquery.tablesorter.widgets.min.js"></script>
+
     <script type="text/javascript" src="js/dma/ticker.js"></script>
     <script type="text/javascript" src="js/dma/events.js"></script>
     <script type="text/javascript" src="js/dma/statistics.js"></script>
@@ -34,12 +36,9 @@
 </head>
 <body>
 <div id="wrap" class="container">
-    <div>
-        <div id="event-search-modal-wrapper" ng-controller="EventSearchModalController" ng-include src="'event-search-modal.html'" onload="onload();"></div>
-    </div>
-    <div>
-        <div id="event-kmlgen-modal-wrapper" ng-controller="KmlGenModalController" ng-include src="'event-kmlgen-modal.html'" onload="onload();"></div>
-    </div>
+    <div id="browser-incompatible-modal-wrapper" ng-controller="BrowserIncompatibleModalController" ng-include src="'browser-incompatible-modal.html'" onload="onload();"></div>
+    <div id="event-search-modal-wrapper" ng-controller="EventSearchModalController" ng-include src="'event-search-modal.html'" onload="onload();"></div>
+    <div id="event-kmlgen-modal-wrapper" ng-controller="KmlGenModalController" ng-include src="'event-kmlgen-modal.html'" onload="onload();"></div>
     <div id="main-column-right">
         <div class="appinfo">
             <a href="http://www.dma.dk" target="_blank"><img src="img/dma.png" /></a>
@@ -134,6 +133,16 @@
         </div>
     </div>
     <script>
+        function BrowserIncompatibleModalController($scope) {
+            $scope.onload = function() {
+                this.browserName = bowser.name;
+                this.browserVersion = bowser.version;
+                if (! bowser.webkit) {
+                    $('#browser-incompatible-modal').modal('show');
+                }
+            }
+        }
+
         function CellsController($scope) {
             $scope.cellsEnable = true;
             $scope.$watch('cellsEnable', function(newValue, oldValue) {
