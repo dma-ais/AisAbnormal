@@ -19,7 +19,6 @@ package dk.dma.ais.abnormal.event.db.domain;
 import com.google.common.collect.ImmutableSet;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.Index;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.CascadeType;
@@ -30,6 +29,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.HashSet;
@@ -43,6 +43,13 @@ import java.util.Set;
  * An Event is also related to at least one vessel. Some event types can be related to further vessels or to
  * other Events.
  */
+@Table(
+        indexes = {
+                @javax.persistence.Index(name="INDEX_EVENT_STARTTIME", columnList = "startTime"),
+                @javax.persistence.Index(name="INDEX_EVENT_ENDTIME", columnList = "endTime"),
+                @javax.persistence.Index(name="INDEX_EVENT_SUPPRESSED", columnList = "suppressed")
+        }
+)
 @Entity
 public abstract class Event {
 
@@ -57,15 +64,12 @@ public abstract class Event {
 
     /** Time on which the event started. */
     @NotNull
-    @Index(name="INDEX_EVENT_STARTTIME")
     private Date startTime;
 
     /** Time on which the event ended. */
-    @Index(name="INDEX_EVENT_ENDTIME")
     private Date endTime;
 
     /** True if this event is suppressed by an operator who concludes that this isn't an event */
-    @Index(name="INDEX_EVENT_SUPPRESSED")
     private boolean suppressed = false;
 
     /** The behaviour observed in connection with this event */
@@ -174,7 +178,7 @@ public abstract class Event {
 
     public enum State {
         ONGOING,
-        PAST;
-    };
+        PAST
+    }
 
 }

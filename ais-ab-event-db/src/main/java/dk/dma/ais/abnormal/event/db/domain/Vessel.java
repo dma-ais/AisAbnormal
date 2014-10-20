@@ -16,15 +16,20 @@
 
 package dk.dma.ais.abnormal.event.db.domain;
 
-import org.hibernate.annotations.Index;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
+@Table(
+    indexes = {
+        @Index(name="INDEX_VESSEL_MMSI", columnList = "mmsi")
+    }
+)
 @Entity
 public class Vessel implements Serializable {
 
@@ -34,7 +39,6 @@ public class Vessel implements Serializable {
 
     /** Vessel's MMSI number */
     @NotNull
-    @Index(name = "INDEX_VESSEL_MMSI")
     private int mmsi;
 
     /** Vessel's hull name */
