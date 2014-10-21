@@ -54,6 +54,8 @@ public class JpaEventRepository implements EventRepository {
 
     private Session getSession() {
         Session session = sessionFactory.openSession();
+        LOG.debug("Database session acquired: " + session);
+
         if (readonly) {
             session.setDefaultReadOnly(true);
         }
@@ -71,6 +73,7 @@ public class JpaEventRepository implements EventRepository {
             events = query.list();
         } finally {
             session.close();
+            LOG.debug("Database session closed: " + session);
         }
 
         return events;
@@ -85,6 +88,7 @@ public class JpaEventRepository implements EventRepository {
             session.getTransaction().commit();
         } finally {
             session.close();
+            LOG.debug("Database session closed: " + session);
         }
     }
 
@@ -96,6 +100,7 @@ public class JpaEventRepository implements EventRepository {
             event = (Event) session.get(Event.class, eventId);
         } finally {
             session.close();
+            LOG.debug("Database session closed: " + session);
         }
         return event;
     }
@@ -202,6 +207,7 @@ public class JpaEventRepository implements EventRepository {
             LOG.debug("Found " + events.size() + " matching events in " + (t1-t0) + " msecs.");
         } finally {
             session.close();
+            LOG.debug("Database session closed: " + session);
         }
 
         return events;
@@ -228,6 +234,7 @@ public class JpaEventRepository implements EventRepository {
             events = query.list();
         } finally {
             session.close();
+            LOG.debug("Database session closed: " + session);
         }
 
         LOG.debug("Found " + events.size() + " matching events.");
@@ -246,6 +253,7 @@ public class JpaEventRepository implements EventRepository {
             events = query.list();
         } finally {
             session.close();
+            LOG.debug("Database session closed: " + session);
         }
 
         return events;
@@ -273,6 +281,7 @@ public class JpaEventRepository implements EventRepository {
 
         } finally {
             session.close();
+            LOG.debug("Database session closed: " + session);
         }
 
         return event;
