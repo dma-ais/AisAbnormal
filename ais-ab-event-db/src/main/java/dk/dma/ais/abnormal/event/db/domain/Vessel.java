@@ -27,7 +27,10 @@ import java.io.Serializable;
 
 @Table(
     indexes = {
-        @Index(name="INDEX_VESSEL_MMSI", columnList = "mmsi")
+        @Index(name="INDEX_VESSEL_MMSI", columnList = "mmsi"),
+        @Index(name="INDEX_VESSEL_IMO", columnList = "imo"),
+        @Index(name="INDEX_VESSEL_NAME", columnList = "name"),
+        @Index(name="INDEX_VESSEL_CALLSIGN", columnList = "callsign")
     }
 )
 @Entity
