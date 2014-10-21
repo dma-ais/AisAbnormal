@@ -16,7 +16,7 @@
 	<description>AisAbnormal web module</description>
 
 	<properties>
-		<dependencies.jersey.version>2.4</dependencies.jersey.version>
+		<dependencies.jersey.version>9.2.3.v20140905</dependencies.jersey.version>
 	</properties>
 
 	<dependencies>
@@ -42,7 +42,7 @@
 		<dependency>
 			<groupId>org.glassfish.jersey.media</groupId>
 			<artifactId>jersey-media-json-jackson</artifactId>
-			<version>${dependencies.jersey.version}</version>
+			<version>2.7</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.ws.rs</groupId>
@@ -68,7 +68,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-rewrite</artifactId>
-            <version>9.1.0.v20131115</version>
+            <version>${dependencies.jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>com.beust</groupId>
