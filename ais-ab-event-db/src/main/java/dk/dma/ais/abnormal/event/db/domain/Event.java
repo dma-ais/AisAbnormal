@@ -28,6 +28,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -44,11 +45,11 @@ import java.util.Set;
  * other Events.
  */
 @Table(
-        indexes = {
-                @javax.persistence.Index(name="INDEX_EVENT_STARTTIME", columnList = "startTime"),
-                @javax.persistence.Index(name="INDEX_EVENT_ENDTIME", columnList = "endTime"),
-                @javax.persistence.Index(name="INDEX_EVENT_SUPPRESSED", columnList = "suppressed")
-        }
+    indexes = {
+        @Index(name="INDEX_EVENT_STARTTIME", columnList = "startTime"),
+        @Index(name="INDEX_EVENT_ENDTIME", columnList = "endTime"),
+        @Index(name="INDEX_EVENT_SUPPRESSED", columnList = "suppressed")
+    }
 )
 @Entity
 public abstract class Event {
@@ -72,6 +73,7 @@ public abstract class Event {
     /** True if this event is suppressed by an operator who concludes that this isn't an event */
     private boolean suppressed = false;
 
+    // TODO create index on event_behaviour(event_id);
     /** The behaviour observed in connection with this event */
     @OneToMany(cascade = CascadeType.ALL)
     @Fetch(FetchMode.JOIN)

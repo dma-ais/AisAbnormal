@@ -23,6 +23,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -31,10 +32,10 @@ import java.util.Date;
  * A historic position recorded in conjunction with an abnormal event.
  */
 @Table(
-        indexes = {
-                @javax.persistence.Index(name="INDEX_TRACKINGPOINT_LATITUDE", columnList = "latitude"),
-                @javax.persistence.Index(name="INDEX_TRACKINGPOINT_LONGITUDE", columnList = "longitude")
-        }
+    indexes = {
+        @Index(name="INDEX_TRACKINGPOINT_LATITUDE", columnList = "latitude"),
+        @Index(name="INDEX_TRACKINGPOINT_LONGITUDE", columnList = "longitude")
+    }
 )
 @Entity
 public class TrackingPoint implements Comparable<TrackingPoint> {

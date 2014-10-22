@@ -88,6 +88,7 @@ public class Behaviour {
     @OneToOne(optional = false, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Vessel vessel;
 
+    // TODO create index on behaviour_trackingpoint (behaviour_id);
     @NotNull
     @OneToMany(cascade = CascadeType.ALL)
     @Fetch(FetchMode.JOIN)
