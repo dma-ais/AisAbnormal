@@ -30,7 +30,7 @@ var eventModule = {
                 $('#search-event-type').append('<option value="' + eventType + '">' + desc + '</option>');
             });
         }).fail(function (jqXHR, textStatus) {
-            console.error("Failed to load event types: " + textStatus);
+            console.error("Failed to load event types: " + textStatus + " " + jqXHR.status + " " + jqXHR.statusText);
         });
 
         $("#event-search-modal .search-results .search-show-all").hide();
@@ -137,35 +137,40 @@ var eventModule = {
     },
 
     addSearchResult: function(event) {
-        var eventStart = eventModule.formatTimestamp(event.startTime);
-        var eventType = event.eventType.replace('Event','');
-        var shipType = event.behaviours[0].vessel.type;
-        var shipLength = event.behaviours[0].vessel.toBow + event.behaviours[0].vessel.toStern;
-        var shipName = event.behaviours[0].vessel.name;
+        try {
+            var eventStart = eventModule.formatTimestamp(event.startTime);
+            var eventType = event.eventType.replace('Event', '');
+            var shipType = event.behaviours[0].vessel.type;
+            var shipLength = event.behaviours[0].vessel.toBow + event.behaviours[0].vessel.toStern;
+            var shipName = event.behaviours[0].vessel.name;
 
-        var searchResultHtml  = "<tr id='event-search-result-event-" + event.id + "'>";
-        searchResultHtml += "<td class='glyphicon-1'><span id='result-remove-" + event.id + "' class='glyphicon glyphicon-remove-sign' data-toggle='tooltip' title='Permanently suppress event'></span></td>";
-        searchResultHtml += "<td class='text-right'>" + event.id + "</td>";
-        searchResultHtml += "<td>" + eventModule.camelCaseToSentenceCase(eventType); + "</td>";
-        searchResultHtml += "<td>" + eventStart + "</td>";
-        searchResultHtml += "<td class='text-right'>" + shipType + "</td>";
-        searchResultHtml += "<td class='text-right'>" + shipLength + "</td>";
-        searchResultHtml += "<td>" + shipName + "</td>";
-        searchResultHtml += "<td class='glyphicon-1'><span id='result-show-" + event.id + "' class='glyphicon glyphicon-globe' data-toggle='tooltip' title='Show event on map'></span></td>";
-        searchResultHtml += "</tr>";
+            var searchResultHtml = "<tr id='event-search-result-event-" + event.id + "'>";
+            searchResultHtml += "<td class='glyphicon-1'><span id='result-remove-" + event.id + "' class='glyphicon glyphicon-remove-sign' data-toggle='tooltip' title='Permanently suppress event'></span></td>";
+            searchResultHtml += "<td class='text-right'>" + event.id + "</td>";
+            searchResultHtml += "<td>" + eventModule.camelCaseToSentenceCase(eventType);
+            +"</td>";
+            searchResultHtml += "<td>" + eventStart + "</td>";
+            searchResultHtml += "<td class='text-right'>" + shipType + "</td>";
+            searchResultHtml += "<td class='text-right'>" + shipLength + "</td>";
+            searchResultHtml += "<td>" + shipName + "</td>";
+            searchResultHtml += "<td class='glyphicon-1'><span id='result-show-" + event.id + "' class='glyphicon glyphicon-globe' data-toggle='tooltip' title='Show event on map'></span></td>";
+            searchResultHtml += "</tr>";
 
-        $('#event-search-modal .search-results .search-data tbody').append(searchResultHtml);
+            $('#event-search-modal .search-results .search-data tbody').append(searchResultHtml);
 
-        $("#event-search-modal .search-results #result-show-" + event.id).on("click", function() {
-            eventModule.visualizeEvent(event);
-            $('#event-search-modal').modal('hide');
-        });
+            $("#event-search-modal .search-results #result-show-" + event.id).on("click", function () {
+                eventModule.visualizeEvent(event);
+                $('#event-search-modal').modal('hide');
+            });
 
-        $("#event-search-modal .search-results #result-remove-" + event.id).on("click", function() {
-            eventModule.suppressEvent(event);
-        });
+            $("#event-search-modal .search-results #result-remove-" + event.id).on("click", function () {
+                eventModule.suppressEvent(event);
+            });
 
-        eventModule.searchResults.push(event);
+            eventModule.searchResults.push(event);
+        } catch(e) {
+            console.log(e);
+        }
     },
 
     findEventByCriteria: function () {
@@ -222,7 +227,7 @@ var eventModule = {
 
                 eventModule.setSearchCompleted("Found " + events.length + " matching events in " + (end_time-start_time) + " msecs.");
             }).fail(function (jqXHR, textStatus) {
-                eventModule.setSearchCompleted("Search error: " + textStatus);
+                eventModule.setSearchCompleted("Search failed. Try to narrow your search for fewer expected results. [" + jqXHR.status + " " + jqXHR.statusText + "]");
             });
         } else {
             $('div#event-search-warning').empty();
@@ -248,7 +253,7 @@ var eventModule = {
                 eventModule.addSearchResult(event);
                 eventModule.setSearchCompleted("Found " + (event ? "":"no ") + "matching event.");
             }).fail(function (jqXHR, textStatus) {
-                eventModule.setSearchCompleted("Search error: " + textStatus);
+                eventModule.setSearchCompleted("Search failed [" + jqXHR.status + " " + jqXHR.statusText + "].");
             });
         }
     },
@@ -314,7 +319,8 @@ var eventModule = {
         $.getJSON(eventResource).done(function (event) {
             eventModule.visualizeEvent(event);
         }).fail(function (jqXHR, textStatus) {
-            console.error("Error: " + textStatus);
+            console.error("Search failed [" + jqXHR.status + " " + jqXHR.statusText + "].");
+
         });
     },
 
@@ -330,7 +336,7 @@ var eventModule = {
             $('#event-search-result-event-' + event.id).remove();
         }).fail(function (jqXHR, textStatus) {
             console.log(jqXHR);
-            eventModule.setSearchCompleted("Search error: " + textStatus);
+            eventModule.setSearchCompleted("Error [" + jqXHR.status + " " + jqXHR.statusText + "].");
         });
     },
 
