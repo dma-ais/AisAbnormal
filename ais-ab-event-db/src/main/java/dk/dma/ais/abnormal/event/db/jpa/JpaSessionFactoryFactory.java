@@ -135,8 +135,8 @@ public final class JpaSessionFactoryFactory {
             .setProperty("hibernate.c3p0.max_statements", "50")
             .setProperty("hibernate.c3p0.idle_test_period", "300")
             .setProperty("hibernate.c3p0.numHelperThreads", "16")
+            .setProperty("hibernate.c3p0.unreturnedConnectionTimeout", "55")
             //.setProperty("hibernate.c3p0.debugUnreturnedConnectionStackTraces", "true")
-            //.setProperty("hibernate.c3p0.unreturnedConnectionTimeout", "30")
             .addAnnotatedClass(CourseOverGroundEvent.class)
             .addAnnotatedClass(SpeedOverGroundEvent.class)
             .addAnnotatedClass(ShipSizeOrTypeEvent.class)
@@ -151,8 +151,7 @@ public final class JpaSessionFactoryFactory {
         StandardServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties()).build();
 
         LOG.info("Starting Hibernate.");
-        SessionFactory sessionFactory = null;
-        sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+        SessionFactory sessionFactory = configuration.buildSessionFactory(serviceRegistry);
         testConnection(sessionFactory);
         LOG.info("Hibernate started.");
 
