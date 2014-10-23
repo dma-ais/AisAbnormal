@@ -21,6 +21,7 @@ import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import dk.dma.ais.abnormal.analyzer.analysis.DriftAnalysis;
+import dk.dma.ais.abnormal.analyzer.analysis.SuddenSpeedChangeAnalysis;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.tracker.EventEmittingTracker;
 import dk.dma.ais.abnormal.tracker.Tracker;
@@ -57,6 +58,7 @@ public final class AbnormalAnalyzerAppTestModule extends AbstractModule {
     @Override
     public void configure() {
         bind(DriftAnalysis.class).in(Scopes.SINGLETON);
+        bind(SuddenSpeedChangeAnalysis.class).in(Scopes.SINGLETON);
         bind(Tracker.class).to(EventEmittingTracker.class).in(Scopes.SINGLETON);
     }
 

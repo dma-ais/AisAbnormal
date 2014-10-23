@@ -16,26 +16,30 @@
 
 package dk.dma.ais.abnormal.analyzer.analysis;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import dk.dma.ais.abnormal.analyzer.AbnormalAnalyzerAppTestModule;
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.SuddenSpeedChangeEvent;
-import dk.dma.ais.abnormal.tracker.EventEmittingTracker;
 import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.abnormal.tracker.events.PositionChangedEvent;
 import dk.dma.ais.abnormal.tracker.events.TrackStaleEvent;
 import dk.dma.ais.packet.AisPacket;
+import dk.dma.ais.reader.AisReader;
+import dk.dma.ais.reader.AisReaders;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.enav.model.geometry.grid.Grid;
-import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.InputStream;
+import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -43,11 +47,14 @@ import static org.junit.Assert.assertTrue;
 public class SuddenSpeedChangeAnalysisTest {
 
     private JUnit4Mockery context;
+    private Injector injector;
 
-    private Tracker trackingService;
-    private AppStatisticsService statisticsService;
-    private EventRepository eventRepository;
+    private SuddenSpeedChangeAnalysis analysis;
     private Configuration configuration;
+    private AppStatisticsService statisticsService;
+    private Tracker trackingService;
+    private EventRepository eventRepository;
+
     private Track track;
 
     // GatehouseSourceTag [baseMmsi=2190067, country=DK, region=, timestamp=Thu Apr 10 15:30:29 CEST 2014]
@@ -61,34 +68,26 @@ public class SuddenSpeedChangeAnalysisTest {
     public void prepareTest() {
         context = new JUnit4Mockery();
 
-        // Mock dependencies
-        trackingService = context.mock(Tracker.class);
-        statisticsService = context.mock(AppStatisticsService.class);
-        eventRepository = context.mock(EventRepository.class);
+        injector = Guice.createInjector(
+            new AbnormalAnalyzerAppTestModule(context)
+        );
 
-        //
-        configuration = new PropertiesConfiguration();
+        analysis = injector.getInstance(SuddenSpeedChangeAnalysis.class);
+        statisticsService = injector.getInstance(AppStatisticsService.class);
+        trackingService = injector.getInstance(Tracker.class);
+        eventRepository = injector.getInstance(EventRepository.class);
 
         // Create test data
         track = new Track(219000606);
         track.update(msg5); // Init static part
-
-        // These are needed to create an event object in the database:
-        //track.update(1370589743L, Position.create(56, 12), 45.0f, 10.1f, 45.0f);
     }
 
     @Test
     public void eventIsRaisedForSuddenSpeedChange() {
-        // Create object under test
-        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(configuration, statisticsService, trackingService, eventRepository);
-
         // Perform test - none of the required data are there
         final ArgumentCaptor<SuddenSpeedChangeEvent> eventCaptor = ArgumentCaptor.forClass(SuddenSpeedChangeEvent.class);
 
         context.checking(new Expectations() {{
-            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
-            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
-            oneOf(trackingService).registerSubscriber(analysis);
             exactly(2).of(eventRepository).findOngoingEventByVessel(219000606, SuddenSpeedChangeEvent.class);
             oneOf(eventRepository).save(with(eventCaptor.getMatcher()));
         }});
@@ -118,16 +117,10 @@ public class SuddenSpeedChangeAnalysisTest {
 
     @Test
     public void speedMustStaySustainedBelowThresholdBeforeEventIsRaised() {
-        // Create object under test
-        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(configuration, statisticsService, trackingService, eventRepository);
-
         // Perform test - none of the required data are there
         final ArgumentCaptor<SuddenSpeedChangeEvent> eventCaptor = ArgumentCaptor.forClass(SuddenSpeedChangeEvent.class);
 
         context.checking(new Expectations() {{
-            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
-            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
-            oneOf(trackingService).registerSubscriber(analysis);
             exactly(2).of(eventRepository).findOngoingEventByVessel(219000606, SuddenSpeedChangeEvent.class);
             oneOf(eventRepository).save(with(eventCaptor.getMatcher()));
         }});
@@ -170,16 +163,10 @@ public class SuddenSpeedChangeAnalysisTest {
 
     @Test
     public void eventIsRaisedForSuddenSpeedChangeSpanningSeveralMessages() {
-        // Create object under test
-        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(configuration, statisticsService, trackingService, eventRepository);
-
         // Perform test - none of the required data are there
         final ArgumentCaptor<SuddenSpeedChangeEvent> eventCaptor = ArgumentCaptor.forClass(SuddenSpeedChangeEvent.class);
 
         context.checking(new Expectations() {{
-            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
-            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
-            oneOf(trackingService).registerSubscriber(analysis);
             ignoring(eventRepository).findOngoingEventByVessel(219000606, SuddenSpeedChangeEvent.class);
             never(eventRepository).save(with(eventCaptor.getMatcher()));
         }});
@@ -191,9 +178,6 @@ public class SuddenSpeedChangeAnalysisTest {
 
         track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 13.9f, 45.0f);
         context.checking(new Expectations() {{
-            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
-            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
-            never(trackingService).registerSubscriber(analysis);
             ignoring(eventRepository).findOngoingEventByVessel(219000606, SuddenSpeedChangeEvent.class);
             never(eventRepository).save(with(eventCaptor.getMatcher()));
         }});
@@ -202,9 +186,6 @@ public class SuddenSpeedChangeAnalysisTest {
 
         track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 13.3f, 45.0f);
         context.checking(new Expectations() {{
-            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
-            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
-            never(trackingService).registerSubscriber(analysis);
             ignoring(eventRepository).findOngoingEventByVessel(219000606, SuddenSpeedChangeEvent.class);
             never(eventRepository).save(with(eventCaptor.getMatcher()));
         }});
@@ -213,9 +194,6 @@ public class SuddenSpeedChangeAnalysisTest {
 
         track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 11.7f, 45.0f);
         context.checking(new Expectations() {{
-            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
-            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
-            never(trackingService).registerSubscriber(analysis);
             ignoring(eventRepository).findOngoingEventByVessel(219000606, SuddenSpeedChangeEvent.class);
             never(eventRepository).save(with(eventCaptor.getMatcher()));
         }});
@@ -224,9 +202,6 @@ public class SuddenSpeedChangeAnalysisTest {
 
         track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 8.3f, 45.0f);
         context.checking(new Expectations() {{
-            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
-            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
-            never(trackingService).registerSubscriber(analysis);
             ignoring(eventRepository).findOngoingEventByVessel(219000606, SuddenSpeedChangeEvent.class);
             never(eventRepository).save(with(eventCaptor.getMatcher()));
         }});
@@ -235,9 +210,6 @@ public class SuddenSpeedChangeAnalysisTest {
 
         track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 5.0f, 45.0f);
         context.checking(new Expectations() {{
-            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
-            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
-            never(trackingService).registerSubscriber(analysis);
             ignoring(eventRepository).findOngoingEventByVessel(219000606, SuddenSpeedChangeEvent.class);
             never(eventRepository).save(with(eventCaptor.getMatcher()));
         }});
@@ -246,9 +218,6 @@ public class SuddenSpeedChangeAnalysisTest {
 
         track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 1.9f, 45.0f);
         context.checking(new Expectations() {{
-            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
-            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
-            never(trackingService).registerSubscriber(analysis);
             ignoring(eventRepository).findOngoingEventByVessel(219000606, SuddenSpeedChangeEvent.class);
             never(eventRepository).save(with(eventCaptor.getMatcher()));
         }});
@@ -258,9 +227,6 @@ public class SuddenSpeedChangeAnalysisTest {
         for (int i=0; i<6; i++) { // Sustain low speed
             track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 0.0f, 45.0f);
             context.checking(new Expectations() {{
-                ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
-                ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
-                never(trackingService).registerSubscriber(analysis);
                 ignoring(eventRepository).findOngoingEventByVessel(219000606, SuddenSpeedChangeEvent.class);
                 never(eventRepository).save(with(eventCaptor.getMatcher()));
             }});
@@ -270,9 +236,6 @@ public class SuddenSpeedChangeAnalysisTest {
 
         track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 0.2f, 45.0f);
         context.checking(new Expectations() {{
-            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
-            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
-            never(trackingService).registerSubscriber(analysis);
             ignoring(eventRepository).findOngoingEventByVessel(219000606, SuddenSpeedChangeEvent.class);
             oneOf(eventRepository).save(with(eventCaptor.getMatcher()));
         }});
@@ -288,15 +251,9 @@ public class SuddenSpeedChangeAnalysisTest {
 
     @Test
     public void noEventIsRaisedForSlowSpeedChange() {
-        // Create object under test
-        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(configuration, statisticsService, trackingService, eventRepository);
-
         // Perform test - none of the required data are there
         context.checking(new Expectations() {{
-            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
-            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
             never(eventRepository).findOngoingEventByVessel(219000606, SuddenSpeedChangeEvent.class);
-            oneOf(trackingService).registerSubscriber(analysis);
             never(eventRepository).save(with(any(Event.class)));
         }});
         analysis.start();
@@ -315,14 +272,8 @@ public class SuddenSpeedChangeAnalysisTest {
 
     @Test
     public void noEventIsRaisedForFastSpeedChangeAboveEightKnots() {
-        // Create object under test
-        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(configuration, statisticsService, trackingService, eventRepository);
-
         // Perform test - none of the required data are there
         context.checking(new Expectations() {{
-            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
-            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
-            oneOf(trackingService).registerSubscriber(analysis);
             never(eventRepository).save(with(any(Event.class)));
         }});
         analysis.start();
@@ -344,14 +295,8 @@ public class SuddenSpeedChangeAnalysisTest {
         PositionChangedEvent event = new PositionChangedEvent(track, null);
         track.update(track.getTimeOfLastPositionReport(), Position.create(56, 12), 45.0f, 12.2f, 45.0f);
 
-        // Create object under test
-        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(configuration, statisticsService, trackingService, eventRepository);
-
         // Perform test - none of the required data are there
         context.checking(new Expectations() {{
-            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
-            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
-            oneOf(trackingService).registerSubscriber(analysis);
             never(eventRepository).save(with(any(Event.class)));
         }});
         analysis.start();
@@ -364,14 +309,8 @@ public class SuddenSpeedChangeAnalysisTest {
         PositionChangedEvent event = new PositionChangedEvent(track, null);
         track.update(track.getTimeOfLastPositionReport(), Position.create(56, 12), 45.0f, 0.4f, 45.0f);
 
-        // Create object under test
-        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(configuration, statisticsService, trackingService, eventRepository);
-
         // Perform test - none of the required data are there
         context.checking(new Expectations() {{
-            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
-            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
-            oneOf(trackingService).registerSubscriber(analysis);
             never(eventRepository).save(with(any(Event.class)));
         }});
         analysis.start();
@@ -381,14 +320,8 @@ public class SuddenSpeedChangeAnalysisTest {
 
     @Test
     public void noEventIsRaisedWhenTrackHasBeenStale() {
-        // Create object under test
-        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(configuration, statisticsService, trackingService, eventRepository);
-
         // Perform test - none of the required data are there
         context.checking(new Expectations() {{
-            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
-            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
-            oneOf(trackingService).registerSubscriber(analysis);
             never(eventRepository).save(with(any(Event.class)));
         }});
         analysis.start();
@@ -412,14 +345,8 @@ public class SuddenSpeedChangeAnalysisTest {
 
     @Test
     public void noEventIsRaisedWhenSpeedIsUndefined() {
-        // Create object under test
-        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(configuration, statisticsService, trackingService, eventRepository);
-
         // Perform test - none of the required data are there
         context.checking(new Expectations() {{
-            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
-            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
-            oneOf(trackingService).registerSubscriber(analysis);
             never(eventRepository).save(with(any(Event.class)));
         }});
         analysis.start();
@@ -504,16 +431,8 @@ public class SuddenSpeedChangeAnalysisTest {
             "!BSVDM,1,1,,A,1:02Ih00000d=<tOp9@JWqMJ0@JT,0*75"          //  0.0 knots  t = 80.090 sec
         };
 
-        // Create real tracker; not mock
-        Tracker tracker = new EventEmittingTracker(new BaseConfiguration(), Grid.createSize(200), statisticsService);
-        // Create object under test
-        final SuddenSpeedChangeAnalysis analysis = new SuddenSpeedChangeAnalysis(configuration, statisticsService, tracker, eventRepository);
-
         // Set expectations
         context.checking(new Expectations() {{
-            ignoring(trackingService).registerSubscriber(analysis);
-            ignoring(statisticsService).setAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)), with(any(Long.class)));
-            ignoring(statisticsService).incAnalysisStatistics(with(SuddenSpeedChangeAnalysis.class.getSimpleName()), with(any(String.class)));
             exactly(2).of(eventRepository).findOngoingEventByVessel(with(671128000), with(SuddenSpeedChangeEvent.class));
             exactly(1).of(eventRepository).save(with(any(SuddenSpeedChangeEvent.class)));
         }});
@@ -522,11 +441,35 @@ public class SuddenSpeedChangeAnalysisTest {
         analysis.start();
 
         for (int i = 0; i < NMEA_TEST_STRINGS.length; i++) {
-            tracker.update(AisPacket.from(NMEA_TEST_STRINGS[i]));
+            trackingService.update(AisPacket.from(NMEA_TEST_STRINGS[i]));
         }
 
         // Assert expectations met
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void canDetectLotusSuddenSpeedChangeOnOct05_2014() {
+        Tracker tracker = injector.getInstance(Tracker.class);
+        EventRepository eventRepository = injector.getInstance(EventRepository.class);
+
+        InputStream testDataStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("ais/219165000_ssc_1.ais");
+        AisReader aisReader = AisReaders.createReaderFromInputStream(testDataStream);
+
+        final ArgumentCaptor<SuddenSpeedChangeEvent> eventCaptor = ArgumentCaptor.forClass(SuddenSpeedChangeEvent.class);
+        context.checking(new Expectations() {{
+            atLeast(1).of(eventRepository).findOngoingEventByVessel(219165000, SuddenSpeedChangeEvent.class);
+            atLeast(1).of(eventRepository).save(with(eventCaptor.getMatcher()));
+        }});
+
+        analysis.start();
+        aisReader.registerPacketHandler(aisPacket -> {
+            tracker.update(aisPacket);
+        });
+        aisReader.run();
+
+        context.assertIsSatisfied();
+        assertTrue(eventCaptor.getCapturedObject().getDescription().startsWith("Sudden speed change of LOTUS"));
+        assertEquals(new Date(1412525411424L), eventCaptor.getCapturedObject().getStartTime());
+    }
 }
