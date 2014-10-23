@@ -19,25 +19,36 @@ package dk.dma.ais.abnormal.analyzer.analysis;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import dk.dma.ais.abnormal.analyzer.AbnormalAnalyzerAppTestModule;
+import dk.dma.ais.abnormal.event.db.EventRepository;
+import dk.dma.ais.abnormal.event.db.domain.DriftEvent;
 import dk.dma.ais.abnormal.tracker.Track;
+import dk.dma.ais.abnormal.tracker.Tracker;
+import dk.dma.ais.reader.AisReader;
+import dk.dma.ais.reader.AisReaders;
+import dk.dma.ais.test.helpers.ArgumentCaptor;
 import dk.dma.enav.model.geometry.Position;
+import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.InputStream;
+import java.util.Date;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class DriftAnalysisTest {
 
     private DriftAnalysis driftAnalysis;
-
-    public JUnit4Mockery context;
+    private Injector injector;
+    private JUnit4Mockery context;
 
     @Before
     public void initDriftAnalysis() {
         context = new JUnit4Mockery();
-        Injector injector = Guice.createInjector(
+        injector = Guice.createInjector(
                 new AbnormalAnalyzerAppTestModule(context)
         );
         driftAnalysis = injector.getInstance(DriftAnalysis.class);
@@ -241,5 +252,52 @@ public class DriftAnalysisTest {
         track.update(t0 + i*dt, Position.create(56.0 + i*0.0001, 12.0 + i*0.0001), -54.0f, (float) (driftAnalysis.SPEED_LOW_MARK + 0.5), 45.1f);
         System.out.println("Track drifted " + track.getNewestTrackingReport().getPosition().rhumbLineDistanceTo(track.getOldestTrackingReport().getPosition()) + " meters in " + i*dt/1000/60 + " minutes");
         assertTrue(driftAnalysis.isSustainedDrift(track));
+    }
+
+    @Test
+    public void doesNotDetectStocMarciasDriftOnOct02_2014() {
+        Tracker tracker = injector.getInstance(Tracker.class);
+        EventRepository eventRepository = injector.getInstance(EventRepository.class);
+
+        InputStream testDataStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("ais/212123000_drift_1.ais");
+        AisReader aisReader = AisReaders.createReaderFromInputStream(testDataStream);
+
+        context.checking(new Expectations() {{
+            never(eventRepository).findOngoingEventByVessel(212123000, DriftEvent.class);
+            never(eventRepository).save(with(any(DriftEvent.class)));
+        }});
+
+        driftAnalysis.start();
+        aisReader.registerPacketHandler(aisPacket -> {
+            tracker.update(aisPacket);
+        });
+        aisReader.run();
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void detectsFriosDriftOnSep28_2014() {
+        Tracker tracker = injector.getInstance(Tracker.class);
+        EventRepository eventRepository = injector.getInstance(EventRepository.class);
+
+        InputStream testDataStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("ais/538004030_drift_1.ais");
+        AisReader aisReader = AisReaders.createReaderFromInputStream(testDataStream);
+
+        final ArgumentCaptor<DriftEvent> eventCaptor = ArgumentCaptor.forClass(DriftEvent.class);
+        context.checking(new Expectations() {{
+            atLeast(1).of(eventRepository).findOngoingEventByVessel(538004030, DriftEvent.class);
+            atLeast(1).of(eventRepository).save(with(eventCaptor.getMatcher()));
+        }});
+
+        driftAnalysis.start();
+        aisReader.registerPacketHandler(aisPacket -> {
+            tracker.update(aisPacket);
+        });
+        aisReader.run();
+
+        context.assertIsSatisfied();
+        assertTrue(eventCaptor.getCapturedObject().getDescription().startsWith("FRIO is drifting"));
+        assertEquals(new Date(1411923004556L), eventCaptor.getCapturedObject().getStartTime());
     }
 }

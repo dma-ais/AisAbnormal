@@ -22,15 +22,14 @@ import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import dk.dma.ais.abnormal.analyzer.analysis.DriftAnalysis;
 import dk.dma.ais.abnormal.event.db.EventRepository;
+import dk.dma.ais.abnormal.tracker.EventEmittingTracker;
 import dk.dma.ais.abnormal.tracker.Tracker;
+import dk.dma.enav.model.geometry.grid.Grid;
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.nio.file.Files;
 
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_DRIFT_COGHDG;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_DRIFT_DISTANCE;
@@ -58,6 +57,7 @@ public final class AbnormalAnalyzerAppTestModule extends AbstractModule {
     @Override
     public void configure() {
         bind(DriftAnalysis.class).in(Scopes.SINGLETON);
+        bind(Tracker.class).to(EventEmittingTracker.class).in(Scopes.SINGLETON);
     }
 
     @Provides
@@ -74,14 +74,20 @@ public final class AbnormalAnalyzerAppTestModule extends AbstractModule {
 
     @Provides
     @Singleton
-    Tracker provideTracker() {
-        return context.mock(Tracker.class);
+    Grid provideGrid() {
+        return Grid.create(200);
     }
 
     @Provides
     @Singleton
-    AppStatisticsService provideStatisticsService() {
-        return context.mock(AppStatisticsService.class);
+    dk.dma.ais.abnormal.analyzer.AppStatisticsService provideStatisticsService1() {
+        return new dk.dma.ais.abnormal.analyzer.AppStatisticsServiceImpl();
+    }
+
+    @Provides
+    @Singleton
+    dk.dma.ais.abnormal.application.statistics.AppStatisticsService provideStatisticsService2() {
+        return new dk.dma.ais.abnormal.application.statistics.AppStatisticsServiceImpl();
     }
 
     @Provides
