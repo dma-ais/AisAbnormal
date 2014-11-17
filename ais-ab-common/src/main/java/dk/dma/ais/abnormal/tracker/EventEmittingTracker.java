@@ -29,6 +29,7 @@ import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisTargetType;
 import dk.dma.ais.message.IVesselPositionMessage;
 import dk.dma.ais.packet.AisPacket;
+import dk.dma.ais.proprietary.IProprietarySourceTag;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.PositionTime;
 import dk.dma.enav.model.geometry.grid.Cell;
@@ -61,8 +62,10 @@ import java.util.function.Consumer;
  *
  * The tracker will emit events to its subscribes when certain tracking related events occur. Examples of such
  * events are cell changes (a target entered a new grid cell), position changes, track goes stale (has not been
- * updated for a duration of time), heart beats (periodic time events).
+ * updated for a duration of time), heart beats (TimeEvents).
  *
+ * The heart beat mechanism is based on timestamps from the data stream and therefore quite unprecise.
+ * Significant slack must be expected.
  */
 @ThreadSafe
 public class EventEmittingTracker implements Tracker {
@@ -114,7 +117,7 @@ public class EventEmittingTracker implements Tracker {
     /**
      * The approximate no. of milliseconds between each TimeEvent.
      */
-    static final int TIME_EVENT_PERIOD_MILLIS = 60000;
+    static final int TIME_EVENT_PERIOD_MILLIS = 1000;
 
     /**
      * Initialize the tracker with use of an external configuration; e.g. from a configuration file.
@@ -144,6 +147,15 @@ public class EventEmittingTracker implements Tracker {
 
     private void performUpdate(long timeOfCurrentUpdate, AisMessage aisMessage, Consumer<Track> trackUpdater) {
         final int mmsi = aisMessage.getUserId();
+
+        if (LOG.isDebugEnabled()) {
+            IProprietarySourceTag sourceTag = aisMessage.getSourceTag();
+            if (sourceTag != null) {
+                LOG.debug("Received " + sourceTag.getTimestamp() + " " + aisMessage);
+            } else {
+                LOG.debug("Received " + aisMessage);
+            }
+        }
 
         if (! isOnBlackList(mmsi)) {
             if (isOnObservationList(mmsi)) {
@@ -187,7 +199,8 @@ public class EventEmittingTracker implements Tracker {
             }
         }
 
-        mark(new Date(timeOfCurrentUpdate));
+        mark(timeOfCurrentUpdate);
+        tryFireTimeEvent(timeOfCurrentUpdate);
     }
 
     private void firePositionRelatedEvents(Track track, TrackingReport oldTrackingReport, TrackingReport newTrackingReport) {
@@ -414,15 +427,13 @@ public class EventEmittingTracker implements Tracker {
     }
 
     /**
-     * Occasionally check how far we have come in the data stream, and fire a TimeEvent event to the EventBus
-     * approximately every TIME_EVENT_PERIOD_MILLIS msecs. The mechanism is based on timestamps from the data
-     * stream and therefore quite unprecise. Significant slack must be expected.
+     * Occasionally write a mark to show how far we have come in the data stream.
      *
-     * @param timestamp timestamp of current message.
+     * @param timestampMillis current time.
      */
-    private void mark(Date timestamp) {
-        // Put marks in the log
+    private void mark(long timestampMillis) {
         if ((markTrigger & 0xffff) == 0) {
+            Date timestamp = new Date(timestampMillis);
             Calendar markCalendar = Calendar.getInstance();
             markCalendar.setTime(timestamp);
             int t = markCalendar.get(Calendar.HOUR_OF_DAY);
@@ -431,9 +442,16 @@ public class EventEmittingTracker implements Tracker {
                 LOG.info("Now processing stream at time " + timestamp);
             }
         }
+        markTrigger++;
+    }
 
-        // Fire TimeEvents
-        long timestampMillis = timestamp.getTime();
+    /**
+     * Fire a TimeEvent event to the EventBus if at least TIME_EVENT_PERIOD_MILLIS msecs have
+     * passed since the last TimeEvent was emitted.
+     *
+     * @param timestampMillis current time.
+     */
+    private void tryFireTimeEvent(long timestampMillis) {
         long millisSinceLastTimeEvent = timestampMillis - lastTimeEventMillis;
 
         if (millisSinceLastTimeEvent >= TIME_EVENT_PERIOD_MILLIS) {
@@ -444,8 +462,5 @@ public class EventEmittingTracker implements Tracker {
                 LOG.debug("TimeEvent emitted at time " + timeEvent.getTimestamp() + " msecs (" + timeEvent.getMillisSinceLastMark() + " msecs since last).");
             }
         }
-
-        markTrigger++;
     }
-
 }
