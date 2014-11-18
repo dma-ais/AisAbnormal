@@ -88,59 +88,61 @@ var statisticsModule = {
     },
 
     addCell: function (cell) {
-        var cellCoords = new Array();
-
-        point = new OpenLayers.Geometry.Point(cell.west, cell.north);
-        point.transform(mapModule.projectionWGS84, mapModule.map.getProjectionObject());
-        cellCoords.push(point);
-
-        point = new OpenLayers.Geometry.Point(cell.east, cell.north);
-        point.transform(mapModule.projectionWGS84, mapModule.map.getProjectionObject());
-        cellCoords.push(point);
-
-        point = new OpenLayers.Geometry.Point(cell.east, cell.south);
-        point.transform(mapModule.projectionWGS84, mapModule.map.getProjectionObject());
-        cellCoords.push(point);
-
-        point = new OpenLayers.Geometry.Point(cell.west, cell.south);
-        point.transform(mapModule.projectionWGS84, mapModule.map.getProjectionObject());
-        cellCoords.push(point);
-
         var totalShipCountType = cell.totalShipCount["ShipTypeAndSizeStatisticData"];
         var totalShipCountCog = cell.totalShipCount["CourseOverGroundStatisticData"];
         var totalShipCountSog = cell.totalShipCount["SpeedOverGroundStatisticData"];
         var totalShipCount = ((totalShipCountType == undefined ? 0 : totalShipCountType) + (totalShipCountCog == undefined ? 0 : totalShipCountCog) + (totalShipCountSog == undefined ? 0 : totalShipCountSog))/3;
 
-        var strokeColor;
-        if (totalShipCount >= 5000) {
-            strokeColor = "#66ff66";
-        } else if (totalShipCount >= 1000) {
-            strokeColor = "#33bb33";
-        } else {
-            strokeColor = "#aaaaaa";
+        if (totalShipCountType >= 1000 || totalShipCountCog >= 1000 || totalShipCountSog >= 1000) {
+            var cellCoords = new Array();
+
+            point = new OpenLayers.Geometry.Point(cell.west, cell.north);
+            point.transform(mapModule.projectionWGS84, mapModule.map.getProjectionObject());
+            cellCoords.push(point);
+
+            point = new OpenLayers.Geometry.Point(cell.east, cell.north);
+            point.transform(mapModule.projectionWGS84, mapModule.map.getProjectionObject());
+            cellCoords.push(point);
+
+            point = new OpenLayers.Geometry.Point(cell.east, cell.south);
+            point.transform(mapModule.projectionWGS84, mapModule.map.getProjectionObject());
+            cellCoords.push(point);
+
+            point = new OpenLayers.Geometry.Point(cell.west, cell.south);
+            point.transform(mapModule.projectionWGS84, mapModule.map.getProjectionObject());
+            cellCoords.push(point);
+
+            var strokeColor;
+            if (totalShipCount >= 5000) {
+                strokeColor = "#66ff66";
+            } else if (totalShipCount >= 1000) {
+                strokeColor = "#33bb33";
+            } else {
+                strokeColor = "#aaaaaa";
+            }
+
+            var fillOpacity = fillOpacity = 0.05 + (Math.min(totalShipCount / 500, 1)) * 0.5;
+
+            var strokeOpacity = fillOpacity;
+
+            var cellStyle = {
+                strokeColor: strokeColor,
+                strokeWidth: 2,
+                strokeDashstyle: "solid",
+                strokeOpacity: strokeOpacity,
+                pointRadius: 6,
+                pointerEvents: "visiblePainted", // http://www.w3.org/TR/SVG11/interact.html#PointerEventsProperty
+                title: "Cell " + cell.cellId,
+                fillOpacity: fillOpacity
+            };
+
+            var cellGeometry = new OpenLayers.Geometry.LinearRing(cellCoords);
+            cellFeature = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Polygon([cellGeometry]), cell, cellStyle);
+            cellFeature.fid = cell.cellId;
+
+            var gridLayer = mapModule.getGridLayer();
+            gridLayer.addFeatures([cellFeature]);
         }
-
-        var fillOpacity = fillOpacity = 0.05 + (Math.min(totalShipCount/500, 1))*0.5;
-
-        var strokeOpacity = fillOpacity;
-
-        var cellStyle = {
-            strokeColor: strokeColor,
-            strokeWidth: 2,
-            strokeDashstyle: "solid",
-            strokeOpacity: strokeOpacity,
-            pointRadius: 6,
-            pointerEvents: "visiblePainted", // http://www.w3.org/TR/SVG11/interact.html#PointerEventsProperty
-            title: "Cell " + cell.cellId,
-            fillOpacity: fillOpacity
-        };
-
-        var cellGeometry = new OpenLayers.Geometry.LinearRing(cellCoords);
-        cellFeature = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Polygon([cellGeometry]), cell, cellStyle);
-        cellFeature.fid = cell.cellId;
-
-        var gridLayer = mapModule.getGridLayer();
-        gridLayer.addFeatures([cellFeature]);
     },
 
     userOutputClearCellData: function () {
