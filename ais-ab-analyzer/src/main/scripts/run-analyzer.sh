@@ -1,2 +1,2 @@
 #!/bin/sh
-java -jar ais-ab-analyzer-0.1-SNAPSHOT.jar -config $1
+java -Dlog4j.configuration=$2 -jar ais-ab-analyzer-0.1-SNAPSHOT.jar -config $1
