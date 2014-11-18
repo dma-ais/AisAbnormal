@@ -28,9 +28,7 @@ import dk.dma.ais.abnormal.analyzer.analysis.ShipTypeAndSizeAnalysis;
 import dk.dma.ais.abnormal.analyzer.analysis.SpeedOverGroundAnalysis;
 import dk.dma.ais.abnormal.analyzer.analysis.SuddenSpeedChangeAnalysis;
 import dk.dma.ais.abnormal.tracker.Tracker;
-import dk.dma.ais.filter.GeoMaskFilter;
-import dk.dma.ais.filter.LocationFilter;
-import dk.dma.ais.filter.ReplayDownSampleFilter;
+import dk.dma.ais.filter.IPacketFilter;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisMessage5;
 import dk.dma.ais.message.AisStaticCommon;
@@ -54,24 +52,20 @@ public class PacketHandlerImpl implements PacketHandler {
 
     private final AppStatisticsService statisticsService;
     private final Tracker tracker;
-    private final ReplayDownSampleFilter downSampleFilter;
-    private final GeoMaskFilter geoMaskFilter;
-    private final LocationFilter locationFilter;
+
+    private final Set<IPacketFilter> filters;
     private final Predicate<AisPacket> shipNameFilter;
+
     private final Set<Analysis> analyses;
 
     @Inject
     public PacketHandlerImpl(AppStatisticsService statisticsService,
                              Tracker tracker,
-                             ReplayDownSampleFilter downSampleFilter,
-                             GeoMaskFilter geoMaskFilter,
-                             LocationFilter locationFilter,
+                             Set<IPacketFilter> filters,
                              @Named("shipNameFilter") Predicate<AisPacket> shipNameFilter) {
         this.statisticsService = statisticsService;
         this.tracker = tracker;
-        this.downSampleFilter = downSampleFilter;
-        this.geoMaskFilter = geoMaskFilter;
-        this.locationFilter = locationFilter;
+        this.filters = filters;
         this.shipNameFilter = shipNameFilter;
         this.analyses = initAnalyses();
 
@@ -86,15 +80,17 @@ public class PacketHandlerImpl implements PacketHandler {
     public void accept(final AisPacket packet) {
         statisticsService.incUnfilteredPacketCount();
 
-        if (downSampleFilter.rejectedByFilter(packet)) {
-            return;
-        }
+        final boolean[] rejected = {false};
+        filters.forEach(f -> {
+            if (!rejected[0] && f.rejectedByFilter(packet)) {
+                rejected[0] = true;
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Packet dropped due to " + f.getClass().getSimpleName() + ": " + packet.getStringMessage());
+                }
+            }
+        });
 
-        if (locationFilter.rejectedByFilter(packet)) {
-            return;
-        }
-
-        if (geoMaskFilter.rejectedByFilter(packet)) {
+        if (rejected[0]) {
             return;
         }
 
@@ -108,6 +104,10 @@ public class PacketHandlerImpl implements PacketHandler {
                 LOG.debug("Dropped packet of type " + aisMessage.getMsgId() + " for MMSI " + aisMessage.getUserId() + " due to name match. " + (name != null ? "Name=\"" + name + "\"" : ""));
             }
             return;
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Packet passed: " + packet.getStringMessage());
         }
 
         statisticsService.incFilteredPacketCount();

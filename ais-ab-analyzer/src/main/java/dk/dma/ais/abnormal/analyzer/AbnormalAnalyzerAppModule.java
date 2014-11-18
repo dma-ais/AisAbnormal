@@ -16,6 +16,7 @@
 
 package dk.dma.ais.abnormal.analyzer;
 
+import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -36,7 +37,9 @@ import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeStatisticData;
 import dk.dma.ais.abnormal.stat.db.mapdb.StatisticDataRepositoryMapDB;
 import dk.dma.ais.abnormal.tracker.EventEmittingTracker;
 import dk.dma.ais.abnormal.tracker.Tracker;
+import dk.dma.ais.filter.ExpressionFilter;
 import dk.dma.ais.filter.GeoMaskFilter;
+import dk.dma.ais.filter.IPacketFilter;
 import dk.dma.ais.filter.LocationFilter;
 import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.packet.AisPacket;
@@ -85,6 +88,7 @@ import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_P
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_PGSQL_PORT;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_PGSQL_USERNAME;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_REPOSITORY_TYPE;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_FILTER_CUSTOM_EXPRESSION;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_FILTER_LOCATION_BBOX_EAST;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_FILTER_LOCATION_BBOX_NORTH;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_FILTER_LOCATION_BBOX_SOUTH;
@@ -182,11 +186,11 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
                 sessionFactory = JpaSessionFactoryFactory.newH2SessionFactory(new File(configuration.getString(CONFKEY_EVENTS_H2_FILE)));
             } else if ("pgsql".equalsIgnoreCase(eventRepositoryType)) {
                 sessionFactory = JpaSessionFactoryFactory.newPostgresSessionFactory(
-                        configuration.getString(CONFKEY_EVENTS_PGSQL_HOST),
-                        configuration.getInt(CONFKEY_EVENTS_PGSQL_PORT, 8432),
-                        configuration.getString(CONFKEY_EVENTS_PGSQL_NAME),
-                        configuration.getString(CONFKEY_EVENTS_PGSQL_USERNAME),
-                        configuration.getString(CONFKEY_EVENTS_PGSQL_PASSWORD)
+                    configuration.getString(CONFKEY_EVENTS_PGSQL_HOST),
+                    configuration.getInt(CONFKEY_EVENTS_PGSQL_PORT, 8432),
+                    configuration.getString(CONFKEY_EVENTS_PGSQL_NAME),
+                    configuration.getString(CONFKEY_EVENTS_PGSQL_USERNAME),
+                    configuration.getString(CONFKEY_EVENTS_PGSQL_PASSWORD)
                 );
             } else {
                 throw new IllegalArgumentException("eventRepositoryType: " + eventRepositoryType);
@@ -281,6 +285,26 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
         }
         return grid;
     }
+
+    @Provides
+    Set<IPacketFilter> provideFilters() {
+        return Sets.newHashSet(
+            provideReplayDownSampleFilter(),
+            provideGeoMaskFilter(),
+            provideLocationFilter(),
+            provideExpressionFilter()
+        );
+    }
+
+    @Provides
+    ExpressionFilter provideExpressionFilter() {
+        Configuration configuration = getConfiguration();
+        String filterExpression = configuration.getString(CONFKEY_FILTER_CUSTOM_EXPRESSION);
+        ExpressionFilter expressionFilter = new ExpressionFilter(filterExpression);
+        LOG.info("Created ExpressionFilter with expression: " + filterExpression);
+        return expressionFilter;
+    }
+
 
     @Provides
     ReplayDownSampleFilter provideReplayDownSampleFilter() {
