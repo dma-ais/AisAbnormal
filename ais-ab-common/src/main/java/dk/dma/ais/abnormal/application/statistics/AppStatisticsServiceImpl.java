@@ -55,12 +55,7 @@ public class AppStatisticsServiceImpl implements AppStatisticsService {
     @Override
     public void start() {
         LOG.debug("Starting statistics service.");
-        scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-            dumpStatistics();
-            }
-        }, 0 /* logInterval */, logInterval, TimeUnit.SECONDS);
+        scheduledExecutorService.scheduleAtFixedRate(() -> dumpStatistics(), 0 /* logInterval */, logInterval, TimeUnit.SECONDS);
         LOG.info("Statistics service started.");
     }
 
