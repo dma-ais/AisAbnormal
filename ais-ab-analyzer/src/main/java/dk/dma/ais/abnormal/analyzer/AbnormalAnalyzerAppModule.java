@@ -96,6 +96,7 @@ import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_FILTER_L
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_FILTER_SHIPNAME_SKIP;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_STATISTICS_FILE;
 import static dk.dma.ais.packet.AisPacketFilters.parseExpressionFilter;
+import static org.apache.commons.lang.StringUtils.isBlank;
 
 /**
  * This is the Google Guice module class which defines creates objects to be injected by Guice.
@@ -297,14 +298,18 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     }
 
     @Provides
-    ExpressionFilter provideExpressionFilter() {
+    IPacketFilter provideExpressionFilter() {
         Configuration configuration = getConfiguration();
         String filterExpression = configuration.getString(CONFKEY_FILTER_CUSTOM_EXPRESSION);
-        ExpressionFilter expressionFilter = new ExpressionFilter(filterExpression);
+        IPacketFilter expressionFilter;
+        if (isBlank(filterExpression)) {
+            expressionFilter = aisPacket -> false;
+        } else {
+            expressionFilter = new ExpressionFilter(filterExpression);
+        }
         LOG.info("Created ExpressionFilter with expression: " + filterExpression);
         return expressionFilter;
     }
-
 
     @Provides
     ReplayDownSampleFilter provideReplayDownSampleFilter() {
