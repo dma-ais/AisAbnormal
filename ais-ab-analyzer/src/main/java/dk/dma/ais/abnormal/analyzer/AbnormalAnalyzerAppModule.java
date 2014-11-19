@@ -64,6 +64,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -77,10 +78,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
 
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_AIS_DATASOURCE_DOWNSAMPLING;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_AIS_DATASOURCE_URL;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_APPL_STATISTICS_DUMP_PERIOD;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_H2_FILE;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_PGSQL_HOST;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_PGSQL_NAME;
@@ -109,6 +112,8 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
 
+    private final ReentrantLock lock = new ReentrantLock();
+
     public final static long STARTUP_TIMESTAMP = System.currentTimeMillis();
 
     private final Path configFile;
@@ -120,8 +125,6 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     @Override
     public void configure() {
         bind(AbnormalAnalyzerApp.class).in(Singleton.class);
-        bind(AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
-        bind(dk.dma.ais.abnormal.application.statistics.AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
         bind(PacketHandler.class).to(PacketHandlerImpl.class).in(Singleton.class);
         bind(Tracker.class).to(EventEmittingTracker.class).in(Singleton.class);
         bind(BehaviourManager.class).to(BehaviourManagerImpl.class).in(Singleton.class);
@@ -174,6 +177,33 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
             LOG.error(e.getMessage(), e);
         }
         System.out.println("-----------------------------------------");
+    }
+
+    @Provides
+    @Singleton
+    AppStatisticsService provideAppStatisticsService() {
+        return getOrCreateAppStatisticsService();
+    }
+
+    @Provides
+    @Singleton
+    dk.dma.ais.abnormal.application.statistics.AppStatisticsService provideAppStatisticsService2() {
+        return getOrCreateAppStatisticsService();  // TODO how to make guide inject subclass into dependency on parent class?
+    }
+
+    @GuardedBy("lock")
+    private AppStatisticsService appStatisticsService;
+
+    private AppStatisticsService getOrCreateAppStatisticsService() {
+        try {
+            lock.lock();
+            if (appStatisticsService == null) {
+                appStatisticsService = new AppStatisticsServiceImpl(getConfiguration().getInteger(CONFKEY_APPL_STATISTICS_DUMP_PERIOD, 3600));
+            }
+        } finally {
+            lock.unlock();
+        }
+        return appStatisticsService;
     }
 
     @Provides
@@ -298,6 +328,7 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     }
 
     @Provides
+    @Named("expressionFilter")
     IPacketFilter provideExpressionFilter() {
         Configuration configuration = getConfiguration();
         String filterExpression = configuration.getString(CONFKEY_FILTER_CUSTOM_EXPRESSION);

@@ -22,6 +22,7 @@ public final class Configuration {
     private static final Logger LOG = LoggerFactory.getLogger(Configuration.class);
 
     public static final String CONFKEY_BLACKLIST_MMSI = "blacklist.mmsi";
+    public static final String CONFKEY_APPL_STATISTICS_DUMP_PERIOD = "application.stats.dump.period";
     public static final String CONFKEY_FILTER_LOCATION_BBOX_NORTH = "filter.location.bbox.north";
     public static final String CONFKEY_FILTER_LOCATION_BBOX_SOUTH = "filter.location.bbox.south";
     public static final String CONFKEY_FILTER_LOCATION_BBOX_WEST = "filter.location.bbox.west";

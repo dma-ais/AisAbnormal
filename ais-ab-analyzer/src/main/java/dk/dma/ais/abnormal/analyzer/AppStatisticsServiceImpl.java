@@ -15,7 +15,6 @@
  */
 package dk.dma.ais.abnormal.analyzer;
 
-import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Class for holding information on the file processing process
  */
-@Singleton
 public class AppStatisticsServiceImpl extends dk.dma.ais.abnormal.application.statistics.AppStatisticsServiceImpl implements AppStatisticsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AppStatisticsServiceImpl.class);
@@ -38,6 +36,10 @@ public class AppStatisticsServiceImpl extends dk.dma.ais.abnormal.application.st
     private Map<String, HashMap<String, Long>> allAnalysisStatistics = new ConcurrentHashMap<>();
 
     public AppStatisticsServiceImpl() {
+    }
+
+    public AppStatisticsServiceImpl(int dumpPeriodSecs) {
+        super(dumpPeriodSecs);
     }
 
     @Override

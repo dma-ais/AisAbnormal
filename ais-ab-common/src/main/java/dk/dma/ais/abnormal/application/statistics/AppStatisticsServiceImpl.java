@@ -33,9 +33,10 @@ public class AppStatisticsServiceImpl implements AppStatisticsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AppStatisticsServiceImpl.class);
 
-    private static final long DEFAULT_LOG_INTERVAL_SECONDS = 3600;
-    private final long logInterval;
-    private final AtomicLong lastLog = new AtomicLong(System.currentTimeMillis());
+    private static final int DEFAULT_DUMP_INTERVAL_SECONDS = 3600;
+    private final int dumpInterval;
+
+    private final AtomicLong lastDump = new AtomicLong(System.currentTimeMillis());
     private final AtomicLong lastMessageCount = new AtomicLong(0);
 
     private final AtomicLong unfilteredPacketCount = new AtomicLong(0);
@@ -49,13 +50,17 @@ public class AppStatisticsServiceImpl implements AppStatisticsService {
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
 
     public AppStatisticsServiceImpl() {
-        this.logInterval = DEFAULT_LOG_INTERVAL_SECONDS;
+        this.dumpInterval = DEFAULT_DUMP_INTERVAL_SECONDS;
+    }
+
+    public AppStatisticsServiceImpl(int dumpInterval) {
+        this.dumpInterval = dumpInterval;
     }
 
     @Override
     public void start() {
         LOG.debug("Starting statistics service.");
-        scheduledExecutorService.scheduleAtFixedRate(() -> dumpStatistics(), 0 /* logInterval */, logInterval, TimeUnit.SECONDS);
+        scheduledExecutorService.scheduleAtFixedRate(() -> dumpStatistics(), 0 /* dumpInterval */, dumpInterval, TimeUnit.SECONDS);
         LOG.info("Statistics service started.");
     }
 
@@ -64,7 +69,7 @@ public class AppStatisticsServiceImpl implements AppStatisticsService {
         LOG.debug("Stopping statistics service.");
         scheduledExecutorService.shutdown();
         try {
-            scheduledExecutorService.awaitTermination(2*logInterval, TimeUnit.MILLISECONDS);
+            scheduledExecutorService.awaitTermination(2* dumpInterval, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             LOG.error(e.getMessage(), e);
         }
@@ -127,10 +132,10 @@ public class AppStatisticsServiceImpl implements AppStatisticsService {
     }
 
     protected double getMessageRate() {
-        double secs = (double)(System.currentTimeMillis() - lastLog.get()) / 1000.0;
+        double secs = (double)(System.currentTimeMillis() - lastDump.get()) / 1000.0;
         long msgs = messageCount.get() - lastMessageCount.get();
 
-        lastLog.set(System.currentTimeMillis());
+        lastDump.set(System.currentTimeMillis());
         lastMessageCount.set(messageCount.get());
 
         return (double) msgs / secs;
