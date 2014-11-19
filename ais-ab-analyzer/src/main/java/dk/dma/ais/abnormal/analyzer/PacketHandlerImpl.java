@@ -31,7 +31,6 @@ import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.filter.IPacketFilter;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisMessage5;
-import dk.dma.ais.message.AisStaticCommon;
 import dk.dma.ais.message.IPositionMessage;
 import dk.dma.ais.packet.AisPacket;
 import org.slf4j.Logger;
@@ -79,8 +78,27 @@ public class PacketHandlerImpl implements PacketHandler {
      */
     public void accept(final AisPacket packet) {
         statisticsService.incUnfilteredPacketCount();
+        if (filterPacket(packet)) {
+            statisticsService.incFilteredPacketCount();
 
-        final boolean[] rejected = {false};
+            AisMessage message = packet.tryGetAisMessage();
+            if (message == null) {
+                LOG.warn("Invalid packet: " + packet.getStringMessage());
+                return;
+            }
+            updateApplicationStatistics(message);
+
+            doWork(packet);
+        }
+    }
+
+    /**
+     * Returns true if packet passes all packet filters
+     * @param packet
+     * @return
+     */
+    private boolean filterPacket(AisPacket packet) {
+        final boolean[] rejected = {false}; // TODO Use Groovy or Scala...
         filters.forEach(f -> {
             if (!rejected[0] && f.rejectedByFilter(packet)) {
                 rejected[0] = true;
@@ -90,37 +108,16 @@ public class PacketHandlerImpl implements PacketHandler {
             }
         });
 
-        if (rejected[0]) {
-            return;
-        }
-
-        if (shipNameFilter.test(packet)) {
-            if (LOG.isDebugEnabled()) {
-                AisMessage aisMessage = packet.tryGetAisMessage();
-                String name = null;
-                if (aisMessage instanceof AisStaticCommon) {
-                    name = ((AisStaticCommon) aisMessage).getName();
-                }
-                LOG.debug("Dropped packet of type " + aisMessage.getMsgId() + " for MMSI " + aisMessage.getUserId() + " due to name match. " + (name != null ? "Name=\"" + name + "\"" : ""));
-            }
-            return;
-        }
+        boolean filterPassed = !rejected[0] && shipNameFilter.test(packet);
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Packet passed: " + packet.getStringMessage());
+            LOG.debug("Packet " + (filterPassed ? "passed":"dropped") + ": " + packet.getStringMessage());
         }
 
-        statisticsService.incFilteredPacketCount();
-        long n = statisticsService.getFilteredPacketCount();
-        if (n % 100000L == 0) {
-            LOG.debug(n + " packets passed through filter.");
-        }
+        return filterPassed;
+    }
 
-        // Unpack and validate AIS packet
-        AisMessage message = packet.tryGetAisMessage();
-        if (message == null) {
-            return;
-        }
+    private void updateApplicationStatistics(AisMessage message) {
         statisticsService.incMessageCount();
 
         if (message instanceof IPositionMessage) {
@@ -128,8 +125,6 @@ public class PacketHandlerImpl implements PacketHandler {
         } else if (message instanceof AisMessage5) {
             statisticsService.incStatMsgCount();
         }
-
-        doWork(packet);
     }
 
     private void doWork(AisPacket packet) {
