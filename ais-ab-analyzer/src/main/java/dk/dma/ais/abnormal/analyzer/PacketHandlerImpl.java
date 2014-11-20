@@ -103,12 +103,17 @@ public class PacketHandlerImpl implements PacketHandler {
             if (!rejected[0] && f.rejectedByFilter(packet)) {
                 rejected[0] = true;
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Packet dropped due to " + f.getClass().getSimpleName() + ": " + packet.getStringMessage());
+                    LOG.debug("Packet dropped due to " + f.getClass().getSimpleName());
                 }
             }
         });
 
-        boolean filterPassed = !rejected[0] && shipNameFilter.test(packet);
+        boolean shipNameFilterPassed = ! shipNameFilter.test(packet);
+        if (!shipNameFilterPassed && LOG.isDebugEnabled()) {
+            LOG.debug("Packet dropped due to shipNameFilter");
+        }
+
+        boolean filterPassed = !rejected[0] && shipNameFilterPassed;
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Packet " + (filterPassed ? "passed":"dropped") + ": " + packet.getStringMessage());
