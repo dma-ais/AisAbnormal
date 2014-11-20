@@ -136,6 +136,7 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
                 .stream()
                 .filter(this::isVesselTypeToBeAnalysed)
                 .filter(this::isInsideAreaToBeAnalysed)
+                .filter(this::isMinimumSpeedOverGround)
                 .map(this::predictToCurrentTime)
                 .filter(this::isPredictedToCurrentTime)
                 .collect(Collectors.toList());
@@ -243,6 +244,11 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
     private boolean isInsideAreaToBeAnalysed(Track track) {
         Position position = track.getPosition();
         return position != null && areaToBeAnalysed != null && areaToBeAnalysed.contains(position);
+    }
+
+    private boolean isMinimumSpeedOverGround(Track track) {
+        Float speedOverGround = track.getSpeedOverGround();
+        return speedOverGround == null || speedOverGround >= 1f;
     }
 
     private boolean isPredictedToCurrentTime(Track track) {
