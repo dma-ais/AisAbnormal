@@ -68,10 +68,24 @@ var mapModule = {
         $('input#kmlgen-event-west').blur(mapModule.validateKmlUserInput);
     },
 
-    addNauticalLayers: function (gstUsername, gstPassword) {
-        var url = "http://kortforsyningen.kms.dk/";
+    nauticalLayers: null,
 
-        var layers = {
+    removeNauticalLayers: function () {
+        if (mapModule.nauticalLayers) {
+            for (var key in mapModule.nauticalLayers) {
+                try {
+                    mapModule.map.removeLayer(mapModule.nauticalLayers[key]);
+                } catch (e) {
+                }
+            }
+        }
+    },
+
+    addNauticalLayers: function (gstUsername, gstPassword) {
+        mapModule.removeNauticalLayers();
+
+        var url = "http://kortforsyningen.kms.dk/";
+        mapModule.nauticalLayers = {
             200: new OpenLayers.Layer.WMS("Default", url, {
                 layers: 'cells',
                 servicename: 'soe_enc',
@@ -134,15 +148,9 @@ var mapModule = {
                     projection: 'EPSG:3857'
                 })
         };
-        for (var key in layers) {
-            try {
-                mapModule.map.removeLayer(layers[key]);
-            } catch (e) {
-            }
-        }
-        for (var key in layers) {
-            mapModule.map.addLayer(layers[key]);
-            mapModule.map.setLayerIndex(layers[key], 1);
+        for (var key in mapModule.nauticalLayers) {
+            mapModule.map.addLayer(mapModule.nauticalLayers[key]);
+            mapModule.map.setLayerIndex(mapModule.nauticalLayers[key], 1);
         }
         mapModule.map.setLayerIndex(mapModule.getGridLayer(), 98);
         mapModule.map.setLayerIndex(mapModule.getVesselLayer(), 99);

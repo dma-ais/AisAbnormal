@@ -66,11 +66,11 @@
                     <button id="cells-force-load" ng-disabled="!cellsEnable">Force load</button>
                 </div>
                 <div class="headline">Nautical charts</div>
-                <form id="map-enable-nautical-charts">
-                    <input id="map-gst-username" type="text" placeholder="Username" />
-                    <input id="map-gst-password" type="password" placeholder="Password" />
-                    <button id="map-nautical-enable">Enable</button>
-                </form>
+                <div id="map-enable-nautical-charts" ng-controller="NauticalChartController">
+                    <input id="map-gst-username" type="text" placeholder="Username" ng-model="username"/>
+                    <input id="map-gst-password" type="password" placeholder="Password" ng-model="password"/>
+                    <button id="map-nautical-enable" ng-click="toggleChart()" ng-disabled="username === '' || password ===''">{{chartEnabled ? 'Disable' : 'Enable'}}</button>
+                </div>
             </div>
             <div id="tabs-2">
                 <div class="headline">Dataset</div>
@@ -154,6 +154,30 @@
                     }
                 }
             });
+        }
+
+        function NauticalChartController($scope) {
+            $scope.username = '';
+            $scope.password = '';
+            $scope.authenticationOk = false;
+            $scope.chartEnabled = false;
+            $scope.$watch('nauticalChartEnable', function(newValue, oldValue) {
+                if (mapModule.map) {
+                    if (newValue == false) {
+                        mapModule.hideGridLayer();
+                    } else {
+                        mapModule.onMapMoveEnd(undefined);
+                    }
+                }
+            });
+            $scope.toggleChart = function() {
+                if ($scope.chartEnabled) {
+                    mapModule.removeNauticalLayers();
+                } else {
+                    mapModule.addNauticalLayers($scope.username, $scope.password);
+                }
+                $scope.chartEnabled = ! $scope.chartEnabled;
+            }
         }
 
         function EventSearchModalController($scope) {
