@@ -43,6 +43,7 @@ import java.util.TreeSet;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_DRIFT_COGHDG;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_DRIFT_DISTANCE;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_DRIFT_PERIOD;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_DRIFT_SHIPLENGTH_MIN;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_DRIFT_SOG_MAX;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_DRIFT_SOG_MIN;
 import static dk.dma.ais.abnormal.util.AisDataHelper.isCourseOverGroundAvailable;
@@ -52,10 +53,7 @@ import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isCargoVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isClassB;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isEngagedInTowing;
-import static dk.dma.ais.abnormal.util.TrackPredicates.isFishingVessel;
-import static dk.dma.ais.abnormal.util.TrackPredicates.isLongVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isPassengerVessel;
-import static dk.dma.ais.abnormal.util.TrackPredicates.isSmallVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isSpecialCraft;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isTankerVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isUnknownTypeOrSize;
@@ -94,6 +92,9 @@ public class DriftAnalysis extends Analysis {
     /** Tracks must drift for this distance before a drift event is raised */
     final float OBSERVATION_DISTANCE_METERS;
 
+    /** Min. length of vessel (in meters) for analysis to be performed */
+    final int SHIP_LENGTH_MIN;
+
     private TreeSet<Integer> tracksPossiblyDrifting = new TreeSet<>();
 
     private final String analysisName;
@@ -111,6 +112,7 @@ public class DriftAnalysis extends Analysis {
         MIN_HDG_COG_DEVIATION_DEGREES = configuration.getFloat(CONFKEY_ANALYSIS_DRIFT_COGHDG, 45f);
         OBSERVATION_PERIOD_MINUTES = configuration.getInt(CONFKEY_ANALYSIS_DRIFT_PERIOD, 10);
         OBSERVATION_DISTANCE_METERS = configuration.getFloat(CONFKEY_ANALYSIS_DRIFT_DISTANCE, 500f);
+        SHIP_LENGTH_MIN = configuration.getInt(CONFKEY_ANALYSIS_DRIFT_SHIPLENGTH_MIN, 50);
 
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
@@ -123,6 +125,7 @@ public class DriftAnalysis extends Analysis {
                 ", MIN_HDG_COG_DEVIATION_DEGREES=" + MIN_HDG_COG_DEVIATION_DEGREES +
                 ", OBSERVATION_PERIOD_MINUTES=" + OBSERVATION_PERIOD_MINUTES +
                 ", OBSERVATION_DISTANCE_METERS=" + OBSERVATION_DISTANCE_METERS +
+                ", SHIP_LENGTH_MIN=" + SHIP_LENGTH_MIN +
                 "} " + super.toString();
     }
 
@@ -130,6 +133,12 @@ public class DriftAnalysis extends Analysis {
     @Subscribe
     public void onSpeedOverGroundUpdated(PositionChangedEvent trackEvent) {
         final Track track = trackEvent.getTrack();
+
+        Integer vesselLength = track.getVesselLength();
+        if (vesselLength != null && vesselLength < SHIP_LENGTH_MIN) {
+            statisticsService.incAnalysisStatistics(analysisName, "LOA < " + SHIP_LENGTH_MIN);
+            return;
+        }
 
         if (  !isSpeedOverGroundAvailable(track.getSpeedOverGround())
            || !isCourseOverGroundAvailable(track.getCourseOverGround())
@@ -140,18 +149,14 @@ public class DriftAnalysis extends Analysis {
         /* Do not perform analysis for vessels with these characteristics: */
         if (isClassB.test(track)
             || isUnknownTypeOrSize.test(track)
-            || isFishingVessel.test(track)
-            || isSmallVessel.test(track)
             || isSpecialCraft.test(track)
             || isEngagedInTowing.test(track)
         ) {
             return;
         }
 
-        /* Perform analysis only for very long vessels and some long vessels: */
-        if (isVeryLongVessel.test(track)
-            || (isLongVessel.test(track) && (isCargoVessel.test(track) || isTankerVessel.test(track) || isPassengerVessel.test(track)))
-        ) {
+        /* Perform analysis only for very long vessels and some other vessels: */
+        if (isVeryLongVessel.test(track) || (isCargoVessel.test(track) || isTankerVessel.test(track) || isPassengerVessel.test(track))) {
             performAnalysis(track);
             updateApplicationStatistics();
         }

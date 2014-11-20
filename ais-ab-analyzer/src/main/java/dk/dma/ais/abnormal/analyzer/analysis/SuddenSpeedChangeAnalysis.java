@@ -47,6 +47,7 @@ import java.util.stream.Collectors;
 
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_DROP_DECAY;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_DROP_SUSTAIN;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SHIPLENGTH_MIN;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SOG_HIGHMARK;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SOG_LOWMARK;
 import static dk.dma.ais.abnormal.util.AisDataHelper.isSpeedOverGroundAvailable;
@@ -56,9 +57,7 @@ import static dk.dma.ais.abnormal.util.TrackPredicates.isCargoVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isClassB;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isEngagedInTowing;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isFishingVessel;
-import static dk.dma.ais.abnormal.util.TrackPredicates.isLongVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isPassengerVessel;
-import static dk.dma.ais.abnormal.util.TrackPredicates.isSmallVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isSpecialCraft;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isTankerVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isUnknownTypeOrSize;
@@ -95,6 +94,9 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
     /** No. of secs to sustain low speed before raising sudden speed change event */
     final long SPEED_SUSTAIN_SECS;
 
+    /** Min. length of vessel (in meters) for analysis to be performed */
+    final int SHIP_LENGTH_MIN;
+
     final float MAX_VALID_SPEED = (float) 102.2;
 
     private TreeSet<Integer> tracksWithSuddenSpeedDecrease = new TreeSet<>();
@@ -113,6 +115,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
         SPEED_LOW_MARK = configuration.getFloat(CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SOG_LOWMARK, 1f);
         SPEED_DECAY_SECS = configuration.getInt(CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_DROP_DECAY, 30);
         SPEED_SUSTAIN_SECS = configuration.getInt(CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_DROP_SUSTAIN, 60);
+        SHIP_LENGTH_MIN = configuration.getInt(CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SHIPLENGTH_MIN, 50);
 
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
@@ -124,6 +127,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
                 ", SPEED_LOW_MARK=" + SPEED_LOW_MARK +
                 ", SPEED_DECAY_SECS=" + SPEED_DECAY_SECS +
                 ", SPEED_SUSTAIN_SECS=" + SPEED_SUSTAIN_SECS +
+                ", SHIP_LENGTH_MIN=" + SHIP_LENGTH_MIN +
                 "} " + super.toString();
     }
 
@@ -131,6 +135,12 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
     @Subscribe
     public void onSpeedOverGroundUpdated(PositionChangedEvent trackEvent) {
         Track track = trackEvent.getTrack();
+
+        Integer vesselLength = track.getVesselLength();
+        if (vesselLength != null && vesselLength < SHIP_LENGTH_MIN) {
+            statisticsService.incAnalysisStatistics(analysisName, "LOA < " + SHIP_LENGTH_MIN);
+            return;
+        }
 
         /* Do not perform analysis if reported speed is invalid */
         if (!isSpeedOverGroundAvailable(track.getSpeedOverGround())) {
@@ -141,17 +151,14 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
         if (isClassB.test(track)
             || isUnknownTypeOrSize.test(track)
             || isFishingVessel.test(track)
-            || isSmallVessel.test(track)
             || isSpecialCraft.test(track)
             || isEngagedInTowing.test(track)
         ) {
             return;
         }
 
-        /* Perform analysis only for very long vessels and some long vessels: */
-        if (isVeryLongVessel.test(track)
-            || (isLongVessel.test(track) && (isCargoVessel.test(track) || isTankerVessel.test(track) || isPassengerVessel.test(track)))
-        ) {
+        /* Perform analysis only for very long vessels and some other vessels: */
+        if (isVeryLongVessel.test(track) || (isCargoVessel.test(track) || isTankerVessel.test(track) || isPassengerVessel.test(track))) {
             performAnalysis(track);
             updateApplicationStatistics();
         }
