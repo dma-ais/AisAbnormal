@@ -16,6 +16,7 @@ var eventModule = {
     onEventSearchModalLoaded: function() {
         $('.tabs#event-search-tabs').tabs();
         $('#search-event-24h').click(eventModule.setEventSearchPeriod24h);
+        $('#search-event-delete').click(eventModule.clearEventSearchPeriod);
         $('#event-search-by-id').click(eventModule.findEventById);
         $('#event-search-by-other').click(eventModule.findEventByCriteria);
 
@@ -277,6 +278,11 @@ var eventModule = {
                 to.val(eventModule.formatDate(new Date(fromTime.getTime() + 24*60*60*1000)));
             }
         }
+    },
+
+    clearEventSearchPeriod: function() {
+        $('#search-event-from').val('');
+        $('#search-event-to').val('');
     },
 
     expandBounds: function(bounds, meters) {
