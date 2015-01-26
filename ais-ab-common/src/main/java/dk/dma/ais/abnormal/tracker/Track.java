@@ -450,7 +450,7 @@ public final class Track implements Cloneable {
                 throw new IllegalStateException("No enough data to predict future position.");
             }
         } else {
-            throw new IllegalArgumentException("atTime should be ahead of track's last known position.");
+            throw new IllegalArgumentException("atTime (" + atTime + ") should be ahead of track's last position update (" + now + ").");
         }
     }
 

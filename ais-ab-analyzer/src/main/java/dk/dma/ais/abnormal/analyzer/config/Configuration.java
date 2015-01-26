@@ -51,6 +51,7 @@ public final class Configuration {
     public static final String CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SHIPLENGTH_MIN = "analysis.suddenspeedchange.loa.min";
     public static final String CONFKEY_ANALYSIS_CLOSEENCOUNTER_RUN_PERIOD = "analysis.closeencounter.run.period";
     public static final String CONFKEY_ANALYSIS_CLOSEENCOUNTER_SOG_MIN = "analysis.closeencounter.sog.min";
+    public static final String CONFKEY_ANALYSIS_CLOSEENCOUNTER_PREDICTIONTIME_MAX = "analysis.closeencounter.predictiontime.max";
     public static final String CONFKEY_ANALYSIS_FREEFLOW_RUN_PERIOD = "analysis.freeflow.run.period";
     public static final String CONFKEY_ANALYSIS_FREEFLOW_BBOX = "analysis.freeflow.bbox";
     public static final String CONFKEY_ANALYSIS_FREEFLOW_XL = "analysis.freeflow.xl";

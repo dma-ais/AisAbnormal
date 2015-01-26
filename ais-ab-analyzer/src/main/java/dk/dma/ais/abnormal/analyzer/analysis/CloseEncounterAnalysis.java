@@ -42,6 +42,7 @@ import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_CLOSEENCOUNTER_PREDICTIONTIME_MAX;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_CLOSEENCOUNTER_RUN_PERIOD;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_CLOSEENCOUNTER_SOG_MIN;
 import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
@@ -80,10 +81,11 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
     private final AppStatisticsService statisticsService;
     private final String analysisName;
 
-    /**
-     * MMinimum speed over ground to consider close encounter (in knots)
-     */
+    /** Minimum speed over ground to consider close encounter (in knots) */
     private final float sogMin;
+
+    /** Maximum time a track may be predicted and still be included in analysis (in minutes) */
+    private final int predictionTimeMax;
 
     @Inject
     public CloseEncounterAnalysis(Configuration configuration, AppStatisticsService statisticsService, Tracker trackingService, EventRepository eventRepository) {
@@ -91,6 +93,7 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
         this.statisticsService = statisticsService;
         this.analysisName = this.getClass().getSimpleName();
         this.sogMin = configuration.getFloat(CONFKEY_ANALYSIS_CLOSEENCOUNTER_SOG_MIN, 5.0f);
+        this.predictionTimeMax = configuration.getInteger(CONFKEY_ANALYSIS_CLOSEENCOUNTER_PREDICTIONTIME_MAX, -1);
         setAnalysisPeriodMillis(configuration.getInt(CONFKEY_ANALYSIS_CLOSEENCOUNTER_RUN_PERIOD, 30000) * 1000);
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
@@ -108,7 +111,7 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
 
         Collection<Track> tracks = getTrackingService().getTracks();
         tracks.forEach(
-                t -> analyseCloseEncounters(tracks, t)
+            t -> analyseCloseEncounters(tracks, t)
         );
 
         final long systemTimeMillisAfterAnalysis = System.currentTimeMillis();
@@ -150,10 +153,22 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
     void analyseCloseEncounter(Track track1, Track track2) {
         if (track1.getSpeedOverGround() > sogMin && ! isTrackPairAnalyzed(track1, track2)) {
 
-            if (track1.getTimeOfLastPositionReport() < track2.getTimeOfLastPositionReport()) {
-                track1.predict(track2.getTimeOfLastPositionReport());
-            } else if (track2.getTimeOfLastPositionReport() < track1.getTimeOfLastPositionReport()) {
-                track2.predict(track1.getTimeOfLastPositionReport());
+            final long t = max(track1.getTimeOfLastPositionReport(), track2.getTimeOfLastPositionReport());
+
+            if (t > track1.getTimeOfLastPositionReport()) {
+                track1.predict(t);
+            }
+            if (t > track2.getTimeOfLastPositionReport()) {
+                track2.predict(t);
+            }
+
+            if (isLastAisTrackingReportTooOld(track1, t)) {
+                LOG.debug("Skipping analysis: MMSI " + track1.getMmsi() + " was predicted for too long.");
+                return;
+            }
+            if (isLastAisTrackingReportTooOld(track2, t)) {
+                LOG.debug("Skipping analysis: MMSI " + track2.getMmsi() + " was predicted for too long.");
+                return;
             }
 
             boolean allValuesPresent = false;
@@ -192,6 +207,15 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
         } else {
             LOG.debug("PREVIOUSLY COMPARED " + track1.getMmsi() + " AGAINST " + track2.getMmsi());
         }
+    }
+
+    /** If a max. age of last AIS message is provided, then use it. */
+    private boolean isLastAisTrackingReportTooOld(Track track, long now) {
+        if (predictionTimeMax == -1) {
+            return false;
+        }
+        final long timeOfLastAisTrackingReport = track.getTimeOfLastAisTrackingReport();
+        return timeOfLastAisTrackingReport != -1 && now - timeOfLastAisTrackingReport > predictionTimeMax*60*1000;
     }
 
     private Set<String> trackPairsAnalyzed;
