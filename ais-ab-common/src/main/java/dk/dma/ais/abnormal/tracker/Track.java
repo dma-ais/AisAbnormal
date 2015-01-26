@@ -68,6 +68,8 @@ public final class Track implements Cloneable {
     private boolean positionReportPurgeEnable = true;
 
     public final static int MAX_AGE_POSITION_REPORTS_MINUTES = 20;
+
+    @GuardedBy("trackLock")
     private TreeSet<TrackingReport> trackingReports = treeSetSupplier.get();
 
     private final int mmsi;
@@ -246,31 +248,36 @@ public final class Track implements Cloneable {
         }
     }
 
-    /**
-     * Get the MMSI no. of this track
-     *
-     * @return
-     */
+    /** Get the MMSI no. of this track */
     public int getMmsi() {
         return mmsi;
     }
 
-    /**
-     * Get the timestamp of the last update of any type.
-     *
-     * @return
-     */
+    /** Get the timestamp of the last update of any type. */
     public long getTimeOfLastUpdate() {
         return threadSafeGetStaticData(() -> timeOfLastUpdate);
     }
 
-    /**
-     * Get the timestamp of the last position report.
-     *
-     * @return
-     */
+    /** Get the timestamp of the last position report. */
     public long getTimeOfLastPositionReport() {
         return threadSafeGetStaticData(() -> timeOfLastPositionReport);
+    }
+
+    /** Get time timestamp of the last non-predicted position report */
+    public long getTimeOfLastAisTrackingReport() {
+        try {
+            trackLock.lock();
+            return trackingReports
+                .stream()
+                .filter(tr -> tr instanceof AisTrackingReport)
+                .max(Comparator.comparing(tr -> tr.getTimestamp()))
+                .get()
+                .getTimestamp();
+        } catch(NoSuchElementException e) {
+            return -1;
+        } finally {
+            trackLock.unlock();
+        }
     }
 
     /** Return the last received static report (if any) */
@@ -286,9 +293,7 @@ public final class Track implements Cloneable {
         this.positionReportPurgeEnable = positionReportPurgeEnable;
     }
 
-    /**
-     * Update the track with a new static report
-     */
+    /** Update the track with a new static report */
     private void addStaticReport(AisPacket p) {
         AisStaticCommon msg = (AisStaticCommon) p.tryGetAisMessage();
         try {
@@ -311,9 +316,7 @@ public final class Track implements Cloneable {
         }
     }
 
-    /**
-     * Update the track with a new trackingReport
-     */
+    /** Update the track with a new trackingReport */
     private void addTrackingReport(TrackingReport trackingReport) {
         try {
             trackLock.lock();
@@ -328,10 +331,7 @@ public final class Track implements Cloneable {
         purgeTrackingReports(MAX_AGE_POSITION_REPORTS_MINUTES);
     }
 
-    /**
-     * Get the oldest reported position report kept.
-     * @return
-     */
+    /** Get the oldest reported position report kept. */
     public TrackingReport getOldestTrackingReport() {
         TrackingReport oldestTrackingReport = null;
         try {
@@ -344,10 +344,7 @@ public final class Track implements Cloneable {
         return oldestTrackingReport;
     }
 
-    /**
-     * Get the most recently reported position report.
-     * @return
-     */
+    /** Get the most recently reported position report. */
     public TrackingReport getNewestTrackingReport() {
         TrackingReport mostRecentTrackingReport = null;
         try {
@@ -360,10 +357,7 @@ public final class Track implements Cloneable {
         return mostRecentTrackingReport;
     }
 
-    /**
-     * Get the the position report at time t.
-     * @return
-     */
+    /** Get the the position report at time t. */
     public TrackingReport getTrackingReportAt(long t) {
         TrackingReport trackingReportAtT = null;
         try {

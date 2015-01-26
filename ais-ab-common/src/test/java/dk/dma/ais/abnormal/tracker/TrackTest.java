@@ -6,6 +6,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -191,6 +193,74 @@ public class TrackTest {
         assertEquals(55.960722, track.getNewestTrackingReport().getPosition().getLatitude(), 1e-6);
         assertEquals(11.929867, track.getNewestTrackingReport().getPosition().getLongitude(), 1e-6);
         assertEquals(new GregorianCalendar(2014, 02, 11, 12, 42, 00).getTimeInMillis(), track.getTimeOfLastPositionReport(), 1e-10);
+    }
+
+    @Test
+    public void testGetTimeOfLastAisTrackingReport() throws Exception {
+        final String[] NMEA_TEST_STRINGS = {
+                // GatehouseSourceTag [baseMmsi=2190067, country=DK, region=, timestamp=Thu Apr 10 15:30:28 CEST 2014]
+                // [msgId=1, repeat=0, userId=219000606, cog=2010, navStatus=0, pos=(33024811,6011092) = (33024811,6011092), posAcc=1, raim=0, specialManIndicator=0, rot=0, sog=108, spare=0, syncState=1, trueHeading=200, utcSec=60, slotTimeout=6, subMessage=1063]
+                "$PGHP,1,2014,4,10,13,30,28,385,219,,2190067,1,12*26\r\n" +
+                        "!BSVDM,1,1,,A,13@ng7P01dPeo6`OOc:onVAp0p@W,0*12",
+
+                // GatehouseSourceTag [baseMmsi=2190067, country=DK, region=, timestamp=Thu Apr 10 15:30:38 CEST 2014]
+                // [msgId=1, repeat=0, userId=219000606, cog=2010, navStatus=0, pos=(33024530,6010902) = (33024530,6010902), posAcc=1, raim=0, specialManIndicator=0, rot=0, sog=108, spare=0, syncState=1, trueHeading=200, utcSec=60, slotTimeout=2, subMessage=1427]
+                "$PGHP,1,2014,4,10,13,30,38,88,219,,2190067,1,26*1E\r\n" +
+                        "!BSVDM,1,1,,B,13@ng7P01dPeo0dOOb4WnVAp0`FC,0*26",
+
+                // GatehouseSourceTag [baseMmsi=2190075, country=DK, region=, timestamp=Thu Apr 10 15:30:49 CEST 2014]
+                // [msgId=1, repeat=0, userId=219000606, cog=2010, navStatus=0, pos=(33024198,6010667) = (33024198,6010667), posAcc=1, raim=0, specialManIndicator=0, rot=0, sog=108, spare=0, syncState=1, trueHeading=200, utcSec=60, slotTimeout=4, subMessage=1852]
+                "$PGHP,1,2014,4,10,13,30,49,429,219,,2190075,1,2D*56\r\n" +
+                        "!BSVDM,1,1,,A,13@ng7P01dPenqFOO`iWnVAp0hLt,0*2D",
+
+                // GatehouseSourceTag [baseMmsi=2190067, country=DK, region=, timestamp=Thu Apr 10 15:30:59 CEST 2014]
+                // [msgId=1, repeat=0, userId=219000606, cog=2010, navStatus=0, pos=(33023918,6010471) = (33023918,6010471), posAcc=1, raim=0, specialManIndicator=0, rot=0, sog=108, spare=0, syncState=1, trueHeading=200, utcSec=60, slotTimeout=1, subMessage=12528]
+                "$PGHP,1,2014,4,10,13,30,59,428,219,,2190067,1,2D*55\r\n" +
+                        "!BSVDM,1,1,,B,13@ng7P01dPenk>OOWcWnVAp0W3h,0*2D",
+
+                // GatehouseSourceTag [baseMmsi=2190067, country=DK, region=, timestamp=Thu Apr 10 15:31:09 CEST 2014]
+                // [msgId=1, repeat=0, userId=219000606, cog=2020, navStatus=0, pos=(33023639,6010274) = (33023639,6010274), posAcc=1, raim=0, specialManIndicator=0, rot=0, sog=108, spare=0, syncState=1, trueHeading=200, utcSec=60, slotTimeout=2, subMessage=348]
+                "$PGHP,1,2014,4,10,13,31,9,318,219,,2190067,1,4F*61\r\n" +
+                        "!BSVDM,1,1,,A,13@ng7P01dPene4OOVUoq6Ap0`5L,0*4F",
+
+                // GatehouseSourceTag [baseMmsi=2190067, country=DK, region=, timestamp=Thu Apr 10 15:31:18 CEST 2014]
+                // [msgId=1, repeat=0, userId=219000606, cog=2010, navStatus=0, pos=(33023417,6010117) = (33023417,6010117), posAcc=1, raim=0, specialManIndicator=0, rot=0, sog=108, spare=0, syncState=1, trueHeading=199, utcSec=60, slotTimeout=0, subMessage=2263]
+                "$PGHP,1,2014,4,10,13,31,18,678,219,,2190067,1,03*23\r\n" +
+                        "!BSVDM,1,1,,B,13@ng7P01dPen`:OOUfGnV?p0PSG,0*03"
+        };
+
+        AisPacket[] packets = new AisPacket[NMEA_TEST_STRINGS.length];
+        for (int i = 0; i < NMEA_TEST_STRINGS.length; i++) {
+            packets[i] = AisPacket.from(NMEA_TEST_STRINGS[i]);
+        }
+
+        // ---
+
+        // No updates yet
+        Track track = new Track(219000606);
+        assertEquals(-1, track.getTimeOfLastAisTrackingReport());
+
+        // AIS update
+        track.update(packets[0]);
+        assertEquals(LocalDateTime.of(2014, 4, 10, 13, 30, 28, 385).toEpochSecond(ZoneOffset.UTC), track.getTimeOfLastAisTrackingReport() / 1000);
+
+        // Predicted update
+        track.update(packets[0].getBestTimestamp() + 5000, Position.create(55, 11), 22f, 2.4f, 25f);
+        assertEquals(packets[0].getTimestamp().getTime(), track.getTimeOfLastAisTrackingReport());
+
+        // AIS update
+        track.update(packets[1]);
+        assertEquals(packets[1].getTimestamp().getTime(), track.getTimeOfLastAisTrackingReport());
+
+        // AIS update
+        track.update(packets[2]);
+        assertEquals(packets[2].getTimestamp().getTime(), track.getTimeOfLastAisTrackingReport());
+
+        // Predicted updates
+        for (int i = 0; i < 100; i++) {
+            track.update(packets[2].getBestTimestamp() + i*5000, Position.create(55, 11), 22f, 2.4f, 25f);
+            assertEquals(packets[2].getTimestamp().getTime(), track.getTimeOfLastAisTrackingReport());
+        }
     }
 
     @Test
