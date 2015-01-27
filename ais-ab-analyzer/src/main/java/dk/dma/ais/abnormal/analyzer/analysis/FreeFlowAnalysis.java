@@ -345,6 +345,18 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
         final boolean fileExists = csvFile.exists() == true || csvFile.length() > 0;
 
         lock.lock();
+
+        if (!fileExists) {
+            try {
+                if (csvFilePrinter != null) csvFilePrinter.close();
+                if (fileWriter != null) fileWriter.close();
+            } catch (IOException e) {
+                LOG.warn(e.getMessage(), e);
+            }
+            csvFilePrinter = null;
+            fileWriter = null;
+        }
+
         try {
             if (fileWriter == null) {
                 try {
