@@ -79,7 +79,6 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
     private static final Logger LOG = LoggerFactory.getLogger(CloseEncounterAnalysis.class);
 
     private final AppStatisticsService statisticsService;
-    private final String analysisName;
 
     /** Minimum speed over ground to consider close encounter (in knots) */
     private final float sogMin;
@@ -88,7 +87,6 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
     public CloseEncounterAnalysis(Configuration configuration, AppStatisticsService statisticsService, Tracker trackingService, EventRepository eventRepository) {
         super(eventRepository, trackingService, null);
         this.statisticsService = statisticsService;
-        this.analysisName = this.getClass().getSimpleName();
         this.sogMin = configuration.getFloat(CONFKEY_ANALYSIS_CLOSEENCOUNTER_SOG_MIN, 5.0f);
         setTrackPredictionTimeMax(configuration.getInteger(CONFKEY_ANALYSIS_CLOSEENCOUNTER_PREDICTIONTIME_MAX, -1));
         setAnalysisPeriodMillis(configuration.getInt(CONFKEY_ANALYSIS_CLOSEENCOUNTER_RUN_PERIOD, 30000) * 1000);
@@ -103,7 +101,7 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
     }
 
     protected void performAnalysis() {
-        LOG.debug("Starting " + analysisName);
+        LOG.debug("Starting " + getAnalysisName());
         final long systemTimeMillisBeforeAnalysis = System.currentTimeMillis();
 
         Collection<Track> tracks = getTrackingService().getTracks();
@@ -112,8 +110,8 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
         );
 
         final long systemTimeMillisAfterAnalysis = System.currentTimeMillis();
-        statisticsService.incAnalysisStatistics(analysisName, "Analyses performed");
-        LOG.debug(analysisName + " of " + tracks.size() + " tracks completed in " + (systemTimeMillisAfterAnalysis - systemTimeMillisBeforeAnalysis) + " msecs.");
+        statisticsService.incAnalysisStatistics(getAnalysisName(), "Analyses performed");
+        LOG.debug(getAnalysisName() + " of " + tracks.size() + " tracks completed in " + (systemTimeMillisAfterAnalysis - systemTimeMillisBeforeAnalysis) + " msecs.");
     }
 
     private void analyseCloseEncounters(Collection<Track> allTracks, Track track) {
@@ -309,7 +307,7 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
         double secondaryTrackLatitude = CoordinateConverter.y2Lat(secondaryTrackExtent.getX(), secondaryTrackExtent.getY());
         double secondaryTrackLongitude = CoordinateConverter.x2Lon(secondaryTrackExtent.getX(), secondaryTrackExtent.getY());
 
-        statisticsService.incAnalysisStatistics(analysisName, "Events raised");
+        statisticsService.incAnalysisStatistics(getAnalysisName(), "Events raised");
 
         LOG.info(description.toString());
 

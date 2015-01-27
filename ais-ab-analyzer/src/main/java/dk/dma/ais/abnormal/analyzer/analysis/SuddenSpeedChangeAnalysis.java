@@ -102,15 +102,12 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
 
     private TreeSet<Integer> tracksWithSuddenSpeedDecrease = new TreeSet<>();
 
-    private final String analysisName;
-
     private int statCount = 0;
 
     @Inject
     public SuddenSpeedChangeAnalysis(Configuration configuration, AppStatisticsService statisticsService, Tracker trackingService, EventRepository eventRepository) {
         super(eventRepository, trackingService, null);
         this.statisticsService = statisticsService;
-        this.analysisName = this.getClass().getSimpleName();
 
         setTrackPredictionTimeMax(configuration.getInteger(CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_PREDICTIONTIME_MAX, -1));
 
@@ -120,7 +117,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
         SPEED_SUSTAIN_SECS = configuration.getInt(CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_DROP_SUSTAIN, 60);
         SHIP_LENGTH_MIN = configuration.getInt(CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SHIPLENGTH_MIN, 50);
 
-        LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
+        LOG.info(getAnalysisName() + " created (" + this + ").");
     }
 
     @Override
@@ -141,7 +138,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
 
         Integer vesselLength = track.getVesselLength();
         if (vesselLength != null && vesselLength < SHIP_LENGTH_MIN) {
-            statisticsService.incAnalysisStatistics(analysisName, "LOA < " + SHIP_LENGTH_MIN);
+            statisticsService.incAnalysisStatistics(getAnalysisName(), "LOA < " + SHIP_LENGTH_MIN);
             return;
         }
 
@@ -175,9 +172,9 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
     }
 
     private void updateApplicationStatistics() {
-        statisticsService.incAnalysisStatistics(analysisName, "Analyses performed");
+        statisticsService.incAnalysisStatistics(getAnalysisName(), "Analyses performed");
         if (statCount++ % 10000 == 0) {
-            statisticsService.setAnalysisStatistics(analysisName, "# observation list", tracksWithSuddenSpeedDecrease.size());
+            statisticsService.setAnalysisStatistics(getAnalysisName(), "# observation list", tracksWithSuddenSpeedDecrease.size());
         }
     }
 
@@ -421,7 +418,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
 
         addPreviousTrackingPoints(event, track);
 
-        statisticsService.incAnalysisStatistics(analysisName, "Events raised");
+        statisticsService.incAnalysisStatistics(getAnalysisName(), "Events raised");
 
         return event;
     }

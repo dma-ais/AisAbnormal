@@ -98,15 +98,12 @@ public class DriftAnalysis extends Analysis {
 
     private TreeSet<Integer> tracksPossiblyDrifting = new TreeSet<>();
 
-    private final String analysisName;
-
     private int statCount = 0;
 
     @Inject
     public DriftAnalysis(Configuration configuration, AppStatisticsService statisticsService, Tracker trackingService, EventRepository eventRepository) {
         super(eventRepository, trackingService, null);
         this.statisticsService = statisticsService;
-        this.analysisName = this.getClass().getSimpleName();
 
         setTrackPredictionTimeMax(configuration.getInteger(CONFKEY_ANALYSIS_DRIFT_PREDICTIONTIME_MAX, -1));
 
@@ -139,7 +136,7 @@ public class DriftAnalysis extends Analysis {
 
         Integer vesselLength = track.getVesselLength();
         if (vesselLength != null && vesselLength < SHIP_LENGTH_MIN) {
-            statisticsService.incAnalysisStatistics(analysisName, "LOA < " + SHIP_LENGTH_MIN);
+            statisticsService.incAnalysisStatistics(getAnalysisName(), "LOA < " + SHIP_LENGTH_MIN);
             return;
         }
 
@@ -172,9 +169,9 @@ public class DriftAnalysis extends Analysis {
     }
 
     private void updateApplicationStatistics() {
-        statisticsService.incAnalysisStatistics(analysisName, "Analyses performed");
+        statisticsService.incAnalysisStatistics(getAnalysisName(), "Analyses performed");
         if (statCount++ % 10000 == 0) {
-            statisticsService.setAnalysisStatistics(analysisName, "# observation list", tracksPossiblyDrifting.size());
+            statisticsService.setAnalysisStatistics(getAnalysisName(), "# observation list", tracksPossiblyDrifting.size());
         }
     }
 

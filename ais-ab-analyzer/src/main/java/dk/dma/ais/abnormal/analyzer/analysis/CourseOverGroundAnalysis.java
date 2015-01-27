@@ -84,7 +84,7 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
         TOTAL_SHIP_COUNT_THRESHOLD = configuration.getInt(CONFKEY_ANALYSIS_COG_CELL_SHIPCOUNT_MIN, 1000);
         PD = configuration.getFloat(CONFKEY_ANALYSIS_COG_PD, 0.001f);
         SHIP_LENGTH_MIN = configuration.getInt(CONFKEY_ANALYSIS_COG_SHIPLENGTH_MIN, 50);
-        LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
+        LOG.info(getAnalysisName() + " created (" + this + ").");
     }
 
     @Override
@@ -99,7 +99,7 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
     @AllowConcurrentEvents
     @Subscribe
     public void onCellIdChanged(CellChangedEvent trackEvent) {
-        statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events received");
+        statisticsService.incAnalysisStatistics(getAnalysisName(), "Events received");
 
         Track track = trackEvent.getTrack();
 
@@ -119,27 +119,27 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
         Float courseOverGround = track.getCourseOverGround();
 
         if (cellId == null) {
-            statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Unknown cell id");
+            statisticsService.incAnalysisStatistics(getAnalysisName(), "Unknown cell id");
             return;
         }
 
         if (shipType == null) {
-            statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Unknown ship type");
+            statisticsService.incAnalysisStatistics(getAnalysisName(), "Unknown ship type");
             return;
         }
 
         if (shipLength == null) {
-            statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Unknown ship length");
+            statisticsService.incAnalysisStatistics(getAnalysisName(), "Unknown ship length");
             return;
         }
 
         if (courseOverGround == null) {
-            statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Unknown course over ground");
+            statisticsService.incAnalysisStatistics(getAnalysisName(), "Unknown course over ground");
             return;
         }
 
         if (shipLength < SHIP_LENGTH_MIN) {
-            statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "LOA < " + SHIP_LENGTH_MIN);
+            statisticsService.incAnalysisStatistics(getAnalysisName(), "LOA < " + SHIP_LENGTH_MIN);
             return;
         }
 
@@ -222,7 +222,7 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
             LOG.debug("Normal or inconclusive event detected.");
         }
 
-        statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Analyses performed");
+        statisticsService.incAnalysisStatistics(getAnalysisName(), "Analyses performed");
 
         return isAbnormalCourseOverGround;
     }
@@ -304,7 +304,7 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
 
         addPreviousTrackingPoints(event, track);
 
-        statisticsService.incAnalysisStatistics(this.getClass().getSimpleName(), "Events raised");
+        statisticsService.incAnalysisStatistics(getAnalysisName(), "Events raised");
 
         return event;
     }

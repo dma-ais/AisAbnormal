@@ -60,11 +60,14 @@ public abstract class Analysis {
     private static final String DATE_FORMAT_STRING = "dd/MM/yyyy HH:mm";
     protected static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_STRING);
 
+    private final String analysisName;
+
     protected Analysis(EventRepository eventRepository, Tracker trackingService, BehaviourManager behaviourManager) {
         this.eventRepository = eventRepository;
         this.trackingService = trackingService;
         this.behaviourManager = behaviourManager;
         this.trackPredictionTimeMax = -1;
+        this.analysisName = getClass().getSimpleName();
         init(behaviourManager);
     }
 
@@ -85,6 +88,11 @@ public abstract class Analysis {
     public void start() {
         LOG.info(this.getClass().getSimpleName() + " starts to listen for tracking events.");
         trackingService.registerSubscriber(this);
+    }
+
+    /** Return the name of this analysis */
+    public final String getAnalysisName() {
+        return analysisName;
     }
 
     /**

@@ -76,7 +76,6 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
     private static final Logger LOG = LoggerFactory.getLogger(FreeFlowAnalysis.class);
 
     private final AppStatisticsService statisticsService;
-    private final String analysisName;
     private BoundingBox areaToBeAnalysed = null;
 
     /** Major axis of ellipse is xL times vessel's length-over-all */
@@ -95,7 +94,6 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
     public FreeFlowAnalysis(Configuration configuration, AppStatisticsService statisticsService, Tracker trackingService, EventRepository eventRepository) {
         super(eventRepository, trackingService, null);
         this.statisticsService = statisticsService;
-        this.analysisName = this.getClass().getSimpleName();
 
         this.xL = configuration.getInt(CONFKEY_ANALYSIS_FREEFLOW_XL, 8);
         this.xB = configuration.getInt(CONFKEY_ANALYSIS_FREEFLOW_XB, 8);
@@ -129,7 +127,7 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
     }
 
     protected void performAnalysis() {
-        LOG.debug("Starting " + analysisName + " " + getCurrentRunTime());
+        LOG.debug("Starting " + getAnalysisName() + " " + getCurrentRunTime());
         final long systemTimeNanosBeforeAnalysis = nanoTime();
 
         Collection<Track> allTracks = getTrackingService().getTracks();
@@ -145,9 +143,9 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
 
         analyseFreeFlow(allRelevantTracksPredictedToNow);
 
-        statisticsService.incAnalysisStatistics(analysisName, "Analyses performed");
+        statisticsService.incAnalysisStatistics(getAnalysisName(), "Analyses performed");
         final long systemTimeNanosAfterAnalysis = nanoTime();
-        LOG.debug(analysisName + " of " + allTracks.size() + " tracks completed in " + (systemTimeNanosAfterAnalysis - systemTimeNanosBeforeAnalysis) + " nsecs.");
+        LOG.debug(getAnalysisName() + " of " + allTracks.size() + " tracks completed in " + (systemTimeNanosAfterAnalysis - systemTimeNanosBeforeAnalysis) + " nsecs.");
     }
 
     private void analyseFreeFlow(Collection<Track> tracks) {
