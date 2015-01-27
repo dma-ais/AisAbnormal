@@ -47,6 +47,7 @@ import java.util.stream.Collectors;
 
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_DROP_DECAY;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_DROP_SUSTAIN;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_PREDICTIONTIME_MAX;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SHIPLENGTH_MIN;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SOG_HIGHMARK;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SOG_LOWMARK;
@@ -111,6 +112,8 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
         this.statisticsService = statisticsService;
         this.analysisName = this.getClass().getSimpleName();
 
+        setTrackPredictionTimeMax(configuration.getInteger(CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_PREDICTIONTIME_MAX, -1));
+
         SPEED_HIGH_MARK = configuration.getFloat(CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SOG_HIGHMARK, 7f);
         SPEED_LOW_MARK = configuration.getFloat(CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SOG_LOWMARK, 1f);
         SPEED_DECAY_SECS = configuration.getInt(CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_DROP_DECAY, 30);
@@ -154,6 +157,13 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
             || isSpecialCraft.test(track)
             || isEngagedInTowing.test(track)
         ) {
+            return;
+        }
+
+        /* Skip analysis if track has been predicted forward for too long */
+        /* (However: This can never happen for this event ?) */
+        if (isLastAisTrackingReportTooOld(track, track.getTimeOfLastPositionReport())) {
+            LOG.debug("Skipping analysis: MMSI " + track.getMmsi() + " was predicted for too long.");
             return;
         }
 

@@ -64,6 +64,11 @@ public abstract class Analysis {
         this.eventRepository = eventRepository;
         this.trackingService = trackingService;
         this.behaviourManager = behaviourManager;
+        this.trackPredictionTimeMax = -1;
+        init(behaviourManager);
+    }
+
+    private void init(BehaviourManager behaviourManager) {
         if (behaviourManager != null) {
             this.behaviourManager.registerSubscriber(this);
         }
@@ -193,6 +198,22 @@ public abstract class Analysis {
                 }
             }
         }
+    }
+
+    /** Maximum time a track may be predicted and still be included in analysis (in minutes) */
+    private int trackPredictionTimeMax;
+
+    protected void setTrackPredictionTimeMax(int trackPredictionTimeMax) {
+        this.trackPredictionTimeMax = trackPredictionTimeMax;
+    }
+
+    /** If a max. age of last AIS message is provided, then use it. */
+    protected boolean isLastAisTrackingReportTooOld(Track track, long now) {
+        if (trackPredictionTimeMax == -1) {
+            return false;
+        }
+        final long timeOfLastAisTrackingReport = track.getTimeOfLastAisTrackingReport();
+        return timeOfLastAisTrackingReport != -1 && now - timeOfLastAisTrackingReport > trackPredictionTimeMax*60*1000;
     }
 
     protected EventRepository getEventRepository() {

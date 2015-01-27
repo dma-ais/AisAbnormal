@@ -29,12 +29,15 @@ public final class Configuration {
     public static final String CONFKEY_FILTER_LOCATION_BBOX_EAST = "filter.location.bbox.east";
     public static final String CONFKEY_FILTER_SHIPNAME_SKIP = "filter.shipname.skip";
     public static final String CONFKEY_FILTER_CUSTOM_EXPRESSION = "filter.custom.expression";
+    public static final String CONFKEY_ANALYSIS_COG_PREDICTIONTIME_MAX = "analysis.cog.predictiontime.max";
     public static final String CONFKEY_ANALYSIS_COG_CELL_SHIPCOUNT_MIN = "analysis.cog.cell.shipcount.min";
     public static final String CONFKEY_ANALYSIS_COG_PD = "analysis.cog.pd";
     public static final String CONFKEY_ANALYSIS_COG_SHIPLENGTH_MIN = "analysis.cog.loa.min";
+    public static final String CONFKEY_ANALYSIS_SOG_PREDICTIONTIME_MAX = "analysis.sog.predictiontime.max";
     public static final String CONFKEY_ANALYSIS_SOG_CELL_SHIPCOUNT_MIN = "analysis.sog.cell.shipcount.min";
     public static final String CONFKEY_ANALYSIS_SOG_PD = "analysis.sog.pd";
     public static final String CONFKEY_ANALYSIS_SOG_SHIPLENGTH_MIN = "analysis.sog.loa.min";
+    public static final String CONFKEY_ANALYSIS_TYPESIZE_PREDICTIONTIME_MAX = "analysis.typesize.predictiontime.max";
     public static final String CONFKEY_ANALYSIS_TYPESIZE_CELL_SHIPCOUNT_MIN = "analysis.typesize.cell.shipcount.min";
     public static final String CONFKEY_ANALYSIS_TYPESIZE_PD = "analysis.typesize.pd";
     public static final String CONFKEY_ANALYSIS_TYPESIZE_SHIPLENGTH_MIN = "analysis.typesize.loa.min";
@@ -44,11 +47,13 @@ public final class Configuration {
     public static final String CONFKEY_ANALYSIS_DRIFT_SOG_MAX = "analysis.drift.sog.max";
     public static final String CONFKEY_ANALYSIS_DRIFT_COGHDG = "analysis.drift.coghdg";
     public static final String CONFKEY_ANALYSIS_DRIFT_SHIPLENGTH_MIN = "analysis.drift.loa.min";
+    public static final String CONFKEY_ANALYSIS_DRIFT_PREDICTIONTIME_MAX = "analysis.drift.predictiontime.max";
     public static final String CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SOG_HIGHMARK = "analysis.suddenspeedchange.sog.highmark";
     public static final String CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SOG_LOWMARK = "analysis.suddenspeedchange.sog.lowmark";
     public static final String CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_DROP_DECAY = "analysis.suddenspeedchange.drop.decay";
     public static final String CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_DROP_SUSTAIN = "analysis.suddenspeedchange.drop.sustain";
     public static final String CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_SHIPLENGTH_MIN = "analysis.suddenspeedchange.loa.min";
+    public static final String CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_PREDICTIONTIME_MAX = "analysis.suddenspeedchange.predictiontime.max";
     public static final String CONFKEY_ANALYSIS_CLOSEENCOUNTER_RUN_PERIOD = "analysis.closeencounter.run.period";
     public static final String CONFKEY_ANALYSIS_CLOSEENCOUNTER_SOG_MIN = "analysis.closeencounter.sog.min";
     public static final String CONFKEY_ANALYSIS_CLOSEENCOUNTER_PREDICTIONTIME_MAX = "analysis.closeencounter.predictiontime.max";
@@ -58,6 +63,7 @@ public final class Configuration {
     public static final String CONFKEY_ANALYSIS_FREEFLOW_XB = "analysis.freeflow.xb";
     public static final String CONFKEY_ANALYSIS_FREEFLOW_DCOG = "analysis.freeflow.dcog";
     public static final String CONFKEY_ANALYSIS_FREEFLOW_MIN_REPORTING_PERIOD_MINUTES = "analysis.freeflow.reportingperiod.min";
+    public static final String CONFKEY_ANALYSIS_FREEFLOW_PREDICTIONTIME_MAX = "analysis.freeflow.predictiontime.max";
     public static final String CONFKEY_STATISTICS_FILE = "statistics.file";
     public static final String CONFKEY_EVENTS_REPOSITORY_TYPE = "events.repository.type";
     public static final String CONFKEY_EVENTS_PGSQL_HOST = "events.pgsql.host";

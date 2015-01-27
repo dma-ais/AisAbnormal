@@ -43,6 +43,7 @@ import java.util.TreeSet;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_DRIFT_COGHDG;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_DRIFT_DISTANCE;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_DRIFT_PERIOD;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_DRIFT_PREDICTIONTIME_MAX;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_DRIFT_SHIPLENGTH_MIN;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_DRIFT_SOG_MAX;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_DRIFT_SOG_MIN;
@@ -107,6 +108,8 @@ public class DriftAnalysis extends Analysis {
         this.statisticsService = statisticsService;
         this.analysisName = this.getClass().getSimpleName();
 
+        setTrackPredictionTimeMax(configuration.getInteger(CONFKEY_ANALYSIS_DRIFT_PREDICTIONTIME_MAX, -1));
+
         SPEED_HIGH_MARK = configuration.getFloat(CONFKEY_ANALYSIS_DRIFT_SOG_MAX, 5.0f);
         SPEED_LOW_MARK = configuration.getFloat(CONFKEY_ANALYSIS_DRIFT_SOG_MIN, 1.0f);
         MIN_HDG_COG_DEVIATION_DEGREES = configuration.getFloat(CONFKEY_ANALYSIS_DRIFT_COGHDG, 45f);
@@ -152,6 +155,12 @@ public class DriftAnalysis extends Analysis {
             || isSpecialCraft.test(track)
             || isEngagedInTowing.test(track)
         ) {
+            return;
+        }
+
+        /* Skip analysis if track has been predicted forward for too long */
+        if (isLastAisTrackingReportTooOld(track, track.getTimeOfLastPositionReport())) {
+            LOG.debug("Skipping analysis: MMSI " + track.getMmsi() + " was predicted for too long.");
             return;
         }
 

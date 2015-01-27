@@ -47,6 +47,7 @@ import java.util.Date;
 
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_COG_CELL_SHIPCOUNT_MIN;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_COG_PD;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_COG_PREDICTIONTIME_MAX;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_COG_SHIPLENGTH_MIN;
 import static dk.dma.ais.abnormal.event.db.domain.builders.CourseOverGroundEventBuilder.CourseOverGroundEvent;
 import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
@@ -78,6 +79,8 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
     public CourseOverGroundAnalysis(Configuration configuration, AppStatisticsService statisticsService, StatisticDataRepository statisticsRepository, Tracker trackingService, EventRepository eventRepository, BehaviourManager behaviourManager) {
         super(eventRepository, statisticsRepository, trackingService, behaviourManager);
         this.statisticsService = statisticsService;
+        setTrackPredictionTimeMax(configuration.getInteger(CONFKEY_ANALYSIS_COG_PREDICTIONTIME_MAX, -1));
+
         TOTAL_SHIP_COUNT_THRESHOLD = configuration.getInt(CONFKEY_ANALYSIS_COG_CELL_SHIPCOUNT_MIN, 1000);
         PD = configuration.getFloat(CONFKEY_ANALYSIS_COG_PD, 0.001f);
         SHIP_LENGTH_MIN = configuration.getInt(CONFKEY_ANALYSIS_COG_SHIPLENGTH_MIN, 50);
@@ -101,6 +104,12 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
         Track track = trackEvent.getTrack();
 
         if (isClassB.test(track) || isUnknownTypeOrSize.test(track) || isFishingVessel.test(track) || isSlowVessel.test(track) || isSmallVessel.test(track) || isSpecialCraft.test(track) || isEngagedInTowing.test(track)) {
+            return;
+        }
+
+        /* Skip analysis if track has been predicted forward for too long */
+        if (isLastAisTrackingReportTooOld(track, track.getTimeOfLastPositionReport())) {
+            LOG.debug("Skipping analysis: MMSI " + track.getMmsi() + " was predicted for too long.");
             return;
         }
 

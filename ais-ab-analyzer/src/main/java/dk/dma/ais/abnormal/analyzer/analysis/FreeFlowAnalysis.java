@@ -50,6 +50,7 @@ import java.util.stream.Collectors;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_FREEFLOW_BBOX;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_FREEFLOW_DCOG;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_FREEFLOW_MIN_REPORTING_PERIOD_MINUTES;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_FREEFLOW_PREDICTIONTIME_MAX;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_FREEFLOW_RUN_PERIOD;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_FREEFLOW_XB;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_FREEFLOW_XL;
@@ -110,6 +111,7 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
             this.areaToBeAnalysed = BoundingBox.create(Position.create(n, e), Position.create(s, w), CoordinateSystem.CARTESIAN);
         }
 
+        setTrackPredictionTimeMax(configuration.getInteger(CONFKEY_ANALYSIS_FREEFLOW_PREDICTIONTIME_MAX, -1));
         setAnalysisPeriodMillis(configuration.getInt(CONFKEY_ANALYSIS_FREEFLOW_RUN_PERIOD, 30000) * 1000);
 
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
@@ -169,6 +171,7 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
         Set<Track> tracksSailingSameDirection = allTracks
             .stream()
             .filter(t -> t.getMmsi() != t0.getMmsi())
+            .filter(t -> !isLastAisTrackingReportTooOld(t, t.getTimeOfLastPositionReport()))
             .filter(t -> absoluteDirectionalDifference(cog0, t.getCourseOverGround()) < dCog)
             .collect(Collectors.toSet());
 
