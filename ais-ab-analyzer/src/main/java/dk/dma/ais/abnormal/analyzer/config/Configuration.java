@@ -64,6 +64,7 @@ public final class Configuration {
     public static final String CONFKEY_ANALYSIS_FREEFLOW_DCOG = "analysis.freeflow.dcog";
     public static final String CONFKEY_ANALYSIS_FREEFLOW_MIN_REPORTING_PERIOD_MINUTES = "analysis.freeflow.reportingperiod.min";
     public static final String CONFKEY_ANALYSIS_FREEFLOW_PREDICTIONTIME_MAX = "analysis.freeflow.predictiontime.max";
+    public static final String CONFKEY_ANALYSIS_FREEFLOW_CSVFILE = "analysis.freeflow.csvfile";
     public static final String CONFKEY_STATISTICS_FILE = "statistics.file";
     public static final String CONFKEY_EVENTS_REPOSITORY_TYPE = "events.repository.type";
     public static final String CONFKEY_EVENTS_PGSQL_HOST = "events.pgsql.host";
@@ -76,7 +77,6 @@ public final class Configuration {
     public static final String CONFKEY_AIS_DATASOURCE_DOWNSAMPLING = "ais.datasource.downsampling";
     public static final String CONFKEY_REPORTS_ENABLED = "reports.enabled";
     public static final String CONFKEY_REPORTS_RECENTEVENTS_CRON = "reports.recentevents.cron";
-    public static final String CONFKEY_REPORTS_FREEFLOW_CRON = "reports.freeflow.cron";
     public static final String CONFKEY_REPORTS_MAILER_SMTP_HOST = "reports.mailer.smtp.host";
     public static final String CONFKEY_REPORTS_MAILER_SMTP_PORT = "reports.mailer.smtp.port";
     public static final String CONFKEY_REPORTS_MAILER_SMTP_USER = "reports.mailer.smtp.user";

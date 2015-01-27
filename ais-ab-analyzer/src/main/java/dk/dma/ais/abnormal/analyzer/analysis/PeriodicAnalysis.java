@@ -71,7 +71,6 @@ public abstract class PeriodicAnalysis extends Analysis {
 
     @Subscribe
     public void onMark(TimeEvent timeEvent) {
-        LOG.debug(timeEvent.toString());
         final long now = timeEvent.getTimestamp();
         if (nextRunTime <= now) {
             currentRunTime = now;
