@@ -223,13 +223,13 @@ public abstract class Analysis {
         this.trackPredictionTimeMax = trackPredictionTimeMax;
     }
 
-    /** If a max. age of last AIS message is provided, then use it. */
+    /** Return true if there are no AisTrackingReports or if the newest AisTrackingReport is too old. */
     protected boolean isLastAisTrackingReportTooOld(Track track, long now) {
         if (trackPredictionTimeMax == -1) {
             return false;
         }
         final long timeOfLastAisTrackingReport = track.getTimeOfLastAisTrackingReport();
-        return timeOfLastAisTrackingReport != -1 && now - timeOfLastAisTrackingReport > trackPredictionTimeMax*60*1000;
+        return timeOfLastAisTrackingReport == -1 || now - timeOfLastAisTrackingReport > trackPredictionTimeMax*60*1000;
     }
 
     protected EventRepository getEventRepository() {
