@@ -49,6 +49,7 @@ import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_COG_PD;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_COG_PREDICTIONTIME_MAX;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_COG_SHIPLENGTH_MIN;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_COG_USE_AGGREGATED_STATS;
 import static dk.dma.ais.abnormal.event.db.domain.builders.CourseOverGroundEventBuilder.CourseOverGroundEvent;
 import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isClassB;
@@ -74,6 +75,7 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
     private final int TOTAL_SHIP_COUNT_THRESHOLD;
     private final float PD;
     private final int SHIP_LENGTH_MIN;
+    private final boolean USE_AGGREGATED_STATS;
 
     @Inject
     public CourseOverGroundAnalysis(Configuration configuration, AppStatisticsService statisticsService, StatisticDataRepository statisticsRepository, Tracker trackingService, EventRepository eventRepository, BehaviourManager behaviourManager) {
@@ -84,6 +86,8 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
         TOTAL_SHIP_COUNT_THRESHOLD = configuration.getInt(CONFKEY_ANALYSIS_COG_CELL_SHIPCOUNT_MIN, 1000);
         PD = configuration.getFloat(CONFKEY_ANALYSIS_COG_PD, 0.001f);
         SHIP_LENGTH_MIN = configuration.getInt(CONFKEY_ANALYSIS_COG_SHIPLENGTH_MIN, 50);
+        USE_AGGREGATED_STATS = configuration.getBoolean(CONFKEY_ANALYSIS_COG_USE_AGGREGATED_STATS, false);
+
         LOG.info(getAnalysisName() + " created (" + this + ").");
     }
 
@@ -93,6 +97,7 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
                 "TOTAL_SHIP_COUNT_THRESHOLD=" + TOTAL_SHIP_COUNT_THRESHOLD +
                 ", PD=" + PD +
                 ", SHIP_LENGTH_MIN=" + SHIP_LENGTH_MIN +
+                ", USE_AGGREGATED_STATS=" + USE_AGGREGATED_STATS +
                 "} " + super.toString();
     }
 
@@ -202,10 +207,7 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
         if (courseOverGroundStatisticData instanceof CourseOverGroundStatisticData) {
             Integer totalCount  = ((CourseOverGroundStatisticData) courseOverGroundStatisticData).getSumFor(CourseOverGroundStatisticData.STAT_SHIP_COUNT);
             if (totalCount > TOTAL_SHIP_COUNT_THRESHOLD) {
-                Integer shipCount = ((CourseOverGroundStatisticData) courseOverGroundStatisticData).getValue(shipTypeKey, shipSizeKey, courseOverGroundKey, CourseOverGroundStatisticData.STAT_SHIP_COUNT);
-                if (shipCount == null) {
-                    shipCount = 0;
-                }
+                int shipCount = calculateShipCount((CourseOverGroundStatisticData) courseOverGroundStatisticData, shipTypeKey, shipSizeKey, courseOverGroundKey);
                 pd = (float) shipCount / (float) totalCount;
                 LOG.debug("cellId=" + cellId + ", shipType=" + shipTypeKey + ", shipSize=" + shipSizeKey + ", cog=" + courseOverGroundKey + ", shipCount=" + shipCount + ", totalCount=" + totalCount + ", pd=" + pd);
             } else {
@@ -225,6 +227,15 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
         statisticsService.incAnalysisStatistics(getAnalysisName(), "Analyses performed");
 
         return isAbnormalCourseOverGround;
+    }
+
+    private int calculateShipCount(CourseOverGroundStatisticData courseOverGroundStatisticData, int shipTypeKey, int shipSizeKey, int courseOverGroundKey) {
+        if (USE_AGGREGATED_STATS) {
+            return courseOverGroundStatisticData.aggregateSumOverKey1(shipSizeKey, courseOverGroundKey, CourseOverGroundStatisticData.STAT_SHIP_COUNT);
+        } else {
+            Integer value = courseOverGroundStatisticData.getValue(shipTypeKey, shipSizeKey, courseOverGroundKey, CourseOverGroundStatisticData.STAT_SHIP_COUNT);
+            return value == null ? 0 : value;
+        }
     }
 
     @Override

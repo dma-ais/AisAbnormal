@@ -33,10 +33,12 @@ public final class Configuration {
     public static final String CONFKEY_ANALYSIS_COG_CELL_SHIPCOUNT_MIN = "analysis.cog.cell.shipcount.min";
     public static final String CONFKEY_ANALYSIS_COG_PD = "analysis.cog.pd";
     public static final String CONFKEY_ANALYSIS_COG_SHIPLENGTH_MIN = "analysis.cog.loa.min";
+    public static final String CONFKEY_ANALYSIS_COG_USE_AGGREGATED_STATS = "analysis.cog.aggregatestats.over.shiptype";
     public static final String CONFKEY_ANALYSIS_SOG_PREDICTIONTIME_MAX = "analysis.sog.predictiontime.max";
     public static final String CONFKEY_ANALYSIS_SOG_CELL_SHIPCOUNT_MIN = "analysis.sog.cell.shipcount.min";
     public static final String CONFKEY_ANALYSIS_SOG_PD = "analysis.sog.pd";
     public static final String CONFKEY_ANALYSIS_SOG_SHIPLENGTH_MIN = "analysis.sog.loa.min";
+    public static final String CONFKEY_ANALYSIS_SOG_USE_AGGREGATED_STATS = "analysis.sog.aggregatestats.over.shiptype";
     public static final String CONFKEY_ANALYSIS_TYPESIZE_PREDICTIONTIME_MAX = "analysis.typesize.predictiontime.max";
     public static final String CONFKEY_ANALYSIS_TYPESIZE_CELL_SHIPCOUNT_MIN = "analysis.typesize.cell.shipcount.min";
     public static final String CONFKEY_ANALYSIS_TYPESIZE_PD = "analysis.typesize.pd";

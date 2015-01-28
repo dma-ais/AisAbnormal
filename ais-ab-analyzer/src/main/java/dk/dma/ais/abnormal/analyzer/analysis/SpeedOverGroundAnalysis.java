@@ -49,6 +49,7 @@ import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SOG_PD;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SOG_PREDICTIONTIME_MAX;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SOG_SHIPLENGTH_MIN;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SOG_USE_AGGREGATED_STATS;
 import static dk.dma.ais.abnormal.event.db.domain.builders.SpeedOverGroundEventBuilder.SpeedOverGroundEvent;
 import static dk.dma.ais.abnormal.util.AisDataHelper.nameOrMmsi;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isClassB;
@@ -73,6 +74,7 @@ public class SpeedOverGroundAnalysis extends StatisticBasedAnalysis {
     private final int TOTAL_SHIP_COUNT_THRESHOLD;
     private final float PD;
     private final int SHIP_LENGTH_MIN;
+    private final boolean USE_AGGREGATED_STATS;
 
     @Inject
     public SpeedOverGroundAnalysis(Configuration configuration, AppStatisticsService statisticsService, StatisticDataRepository statisticsRepository, Tracker trackingService, EventRepository eventRepository, BehaviourManager behaviourManager) {
@@ -84,6 +86,8 @@ public class SpeedOverGroundAnalysis extends StatisticBasedAnalysis {
         TOTAL_SHIP_COUNT_THRESHOLD = configuration.getInt(CONFKEY_ANALYSIS_SOG_CELL_SHIPCOUNT_MIN, 1000);
         PD = configuration.getFloat(CONFKEY_ANALYSIS_SOG_PD, 0.001f);
         SHIP_LENGTH_MIN = configuration.getInt(CONFKEY_ANALYSIS_SOG_SHIPLENGTH_MIN, 50);
+        USE_AGGREGATED_STATS = configuration.getBoolean(CONFKEY_ANALYSIS_SOG_USE_AGGREGATED_STATS, false);
+
         LOG.info(getAnalysisName() + " created (" + this + ").");
     }
 
@@ -93,6 +97,7 @@ public class SpeedOverGroundAnalysis extends StatisticBasedAnalysis {
                 "TOTAL_SHIP_COUNT_THRESHOLD=" + TOTAL_SHIP_COUNT_THRESHOLD +
                 ", PD=" + PD +
                 ", SHIP_LENGTH_MIN=" + SHIP_LENGTH_MIN +
+                ", USE_AGGREGATED_STATS=" + USE_AGGREGATED_STATS +
                 "} " + super.toString();
     }
 
@@ -201,10 +206,7 @@ public class SpeedOverGroundAnalysis extends StatisticBasedAnalysis {
         if (speedOverGroundStatisticData instanceof SpeedOverGroundStatisticData) {
             Integer totalCount  = ((SpeedOverGroundStatisticData) speedOverGroundStatisticData).getSumFor(SpeedOverGroundStatisticData.STAT_SHIP_COUNT);
             if (totalCount > TOTAL_SHIP_COUNT_THRESHOLD) {
-                Integer shipCount = ((SpeedOverGroundStatisticData) speedOverGroundStatisticData).getValue(shipTypeKey, shipSizeKey, speedOverGroundKey, SpeedOverGroundStatisticData.STAT_SHIP_COUNT);
-                if (shipCount == null) {
-                    shipCount = 0;
-                }
+                int shipCount = calculateShipCount((SpeedOverGroundStatisticData) speedOverGroundStatisticData, shipTypeKey, shipSizeKey, speedOverGroundKey);
                 pd = (float) shipCount / (float) totalCount;
                 LOG.debug("cellId=" + cellId + ", shipType=" + shipTypeKey + ", shipSize=" + shipSizeKey + ", sog=" + speedOverGroundKey + ", shipCount=" + shipCount + ", totalCount=" + totalCount + ", pd=" + pd);
             } else {
@@ -224,6 +226,15 @@ public class SpeedOverGroundAnalysis extends StatisticBasedAnalysis {
         statisticsService.incAnalysisStatistics(getAnalysisName(), "Analyses performed");
 
         return isAbnormalSpeedOverGround;
+    }
+
+    private int calculateShipCount(SpeedOverGroundStatisticData speedOverGroundStatisticData, int shipTypeKey, int shipSizeKey, int speedOverGroundKey) {
+        if (USE_AGGREGATED_STATS) {
+            return speedOverGroundStatisticData.aggregateSumOverKey1(shipSizeKey, speedOverGroundKey, SpeedOverGroundStatisticData.STAT_SHIP_COUNT);
+        } else {
+            Integer value = speedOverGroundStatisticData.getValue(shipTypeKey, shipSizeKey, speedOverGroundKey, SpeedOverGroundStatisticData.STAT_SHIP_COUNT);
+            return value == null ? 0 : value;
+        }
     }
 
     @Override

@@ -58,6 +58,18 @@ public abstract class FourKeyStatisticData implements StatisticData, FourKeyMap 
         this.data = new TShortIntHashMap(1);
     }
 
+    public final int getMaxKey1() {
+        return MAX_KEY_1;
+    }
+
+    public final int getMaxKey2() {
+        return MAX_KEY_2;
+    }
+
+    public final int getMaxKey3() {
+        return MAX_KEY_3;
+    }
+
     @Override
     public void incrementValue(int key1, int key2, int key3, String key4) {
         short key = computeMapKey(key1, key2, key3, key4);
@@ -82,6 +94,18 @@ public abstract class FourKeyStatisticData implements StatisticData, FourKeyMap 
         Integer statisticsValue = data.get(key);
         statisticsValue = statisticsValue == data.getNoEntryValue() ? null : statisticsValue;
         return statisticsValue;
+    }
+
+    public int aggregateSumOverKey1(int key2, int key3, String key4) {
+        int shipCount = 0;
+        final int n = getMaxKey1();
+        for (int i=0; i<n; i++) {
+            final Integer c = getValue(i, key2, key3, key4);
+            if (c != null) {
+                shipCount += c.intValue();
+            }
+        }
+        return shipCount;
     }
 
     @Override
