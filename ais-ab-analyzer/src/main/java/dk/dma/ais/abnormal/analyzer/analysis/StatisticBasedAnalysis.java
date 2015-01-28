@@ -36,6 +36,11 @@ public abstract class StatisticBasedAnalysis extends Analysis {
         this.statisticsRepository = statisticsRepository;
     }
 
+    @Override
+    public String toString() {
+        return "StatisticBasedAnalysis{} " + super.toString();
+    }
+
     protected final StatisticDataRepository getStatisticDataRepository() {
         return statisticsRepository;
     }

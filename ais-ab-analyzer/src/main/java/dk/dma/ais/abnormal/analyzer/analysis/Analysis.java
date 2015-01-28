@@ -77,6 +77,14 @@ public abstract class Analysis {
         }
     }
 
+    @Override
+    public String toString() {
+        return "Analysis{" +
+                "analysisName='" + analysisName + '\'' +
+                ", trackPredictionTimeMax=" + trackPredictionTimeMax +
+                '}';
+    }
+
     protected final BehaviourManager getBehaviourManager() {
         return behaviourManager;
     }

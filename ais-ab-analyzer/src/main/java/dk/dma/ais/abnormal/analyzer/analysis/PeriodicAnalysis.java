@@ -62,6 +62,13 @@ public abstract class PeriodicAnalysis extends Analysis {
         super(eventRepository, trackingService, behaviourManager);
     }
 
+    @Override
+    public String toString() {
+        return "PeriodicAnalysis{" +
+                "analysisPeriodMillis=" + analysisPeriodMillis +
+                "} " + super.toString();
+    }
+
     /** Perform the actual analysis */
     protected abstract void performAnalysis();
 
