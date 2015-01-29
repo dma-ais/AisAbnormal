@@ -355,15 +355,36 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     GeoMaskFilter provideGeoMaskFilter() {
         List<BoundingBox> boundingBoxes = null;
 
-        URL resource = ClassLoader.class.getResource("/geomask.xml");
-        LOG.info("Reading geomask from " + resource.toString());
+        final URL geomaskResource = getGeomaskResource();
+        LOG.info("Reading geomask from " + geomaskResource.toString());
+
         try {
-            boundingBoxes = parseGeoMaskXmlInputStream(resource.openStream());
+            boundingBoxes = parseGeoMaskXmlInputStream(geomaskResource.openStream());
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
         }
 
         return new GeoMaskFilter(boundingBoxes);
+    }
+
+    /** Return URL for local file /data/geomask.xml if it exists and is readable; otherwise return default embedded geomask resource. */
+    private static URL getGeomaskResource() {
+        URL geomaskResource = null;
+
+        File customGeomaskFile = new File("/data/geomask.xml");
+        if (customGeomaskFile.exists() && customGeomaskFile.isFile() && customGeomaskFile.canRead()) {
+            try {
+                geomaskResource = customGeomaskFile.toURI().toURL();
+            } catch (MalformedURLException e) {
+                LOG.error("Cannot load geomask.xml from file: " + customGeomaskFile.getAbsolutePath(), e);
+            }
+        }
+
+        if (geomaskResource == null) {
+            geomaskResource = ClassLoader.class.getResource("/geomask.xml");
+        }
+
+        return geomaskResource;
     }
 
     @Provides
