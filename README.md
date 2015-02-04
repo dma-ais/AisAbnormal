@@ -205,11 +205,47 @@ a non-existing file is pointed to, then the analyzer prints a configuration file
 
 ### Starting using public Docker image ###
 The analyzer could be started in a Docker container from a publicly available Docker image, which requires no local checkout or build
-of the software. The Docker container is spawned like this:
+of the software.
 
-    sudo docker run -e CONFIG_FILE=/data/analyzer.properties -v /home/ais/AisAbnormal/data:/data dmadk/ais-ab-analyzer:latest
-   
-The /home/ais/AisAbnormal/data folder is a local folder on the host machine, which contains the analyzer.properties configuration
+#### Stopping existing analyzer
+If the analyzer is already running in a previously started Docker image, then this must be identified and stopped like this:
+
+    $ sudo docker ps
+    [sudo] password for tbsalling:
+    CONTAINER ID        IMAGE                          COMMAND                CREATED             STATUS              PORTS                    NAMES
+    855a6bf9d20d        dmadk/ais-web:latest           "java -jar /ais-web.   2 days ago          Up 2 days           0.0.0.0:8082->8080/tcp   cranky_heisenberg
+    e06b8fe80cef        dmadk/ais-view:latest          "/bin/bash /start.sh   2 days ago          Up 2 days           0.0.0.0:8090->8090/tcp   grave_fermi
+    87fcc5c6ab96        dmadk/ais-ab-analyzer:latest   "/bin/bash /start.sh   5 days ago          Up 5 days                                    mad_carson
+    04e9d9da9685        dmadk/ais-ab-web:latest        "/bin/bash /start.sh   2 weeks ago         Up 2 weeks          0.0.0.0:8080->80/tcp     sleepy_rosalind
+    $
+
+Here it is noted, that the analyzer is running in container id '87fcc5c6ab96' with image name 'dmadk/ais-ab-analyzer:latest'.
+
+#### Pulling latest Docker image
+Before the running container is stopped, we pull the latest Analyzer Docker image from the Docker Hub like this:
+
+    $ sudo docker pull dmadk/ais-ab-analyzer:latest
+    Pulling repository dmadk/ais-ab-analyzer
+    030207c89f49: Download complete
+    511136ea3c5a: Download complete
+    5e66087f3ffe: Download complete
+    ...
+    bcc720fde3fb: Download complete
+    $
+
+#### Stopping existing Docker image
+Now we stop the running Docker container of the Analyzer by typing:
+
+    $ sudo docker kill 87fcc5c6ab96
+
+Where '87fcc5c6ab96' is the previously noted container id.
+
+#### Starting latest Docker image
+The Docker newly pulled and latest version of the Analyzer is then spawned in a new Docker container this:
+
+    $ sudo docker run -e CONFIG_FILE=/data/analyzer.properties -v /home/aisstore/AisAbnormal/data:/data dmadk/ais-ab-analyzer:latest 2>&1 > ~/logs/ais-ab-analyzer.out &
+
+The /home/aisstore/AisAbnormal/data folder is a local folder on the host machine, which contains the analyzer.properties configuration
 file and the statistics file to use for statistical analyses.
 
 ### Output ###
