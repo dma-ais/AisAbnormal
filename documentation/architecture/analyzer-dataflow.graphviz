@@ -1,0 +1,29 @@
+/*
+  This is a graphviz file.
+  Generate diagram with e.g. "dot analyzer-dataflow.graphviz -Tpng -o analyzer-dataflow.png"
+*/
+
+digraph AisAbnormalBehaviourAnalyzerDataflow {
+
+    ais_source [label="AIS data source", shape=point]
+    ais_reader [label="AisReader", shape=box]
+    packet_handler [label="PacketHandler", shape=box]
+    tracker [label="Tracker", shape=box]
+    tracker [label="Tracker", shape=box]
+    analysis_1 [label="DriftAnalysis", shape=box]
+    analysis_2 [label="CloseEncounterAnalysis", shape=box]
+    analysis_3 [label="...", shape=box]
+    event_repository [label="EventRepository", shape=box]
+    db [label="RDBMS", shape=point]
+
+    ais_source -> ais_reader [label="NMEA armoured AIS data"]
+    ais_reader -> packet_handler [label="AisPacket"]
+    packet_handler -> tracker [label="AisPacket"]
+    tracker -> analysis_1 [label="TrackingEvent"]
+    tracker -> analysis_2 [label="TrackingEvent"]
+    tracker -> analysis_3 [label="TrackingEvent"]
+    analysis_1 -> event_repository [label="AbnormalEvent"]
+    analysis_2 -> event_repository [label="AbnormalEvent"]
+    analysis_3 -> event_repository [label="AbnormalEvent"]
+    event_repository -> db
+}

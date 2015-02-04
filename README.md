@@ -165,6 +165,11 @@ them around in the file system.
 
 ## Analyzer ##
 
+### Design ###
+The analyzer is designed, so that the the data flow through main classes looks like this:
+
+![Analyzer data internal flow](documentation/architecture/analyzer-dataflow.png "AisAbnormal Analyzer - internal dataflow through main classes")
+
 ### Starting ###
 The analyzer can be started like this:
 
