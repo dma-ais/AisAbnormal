@@ -1,7 +1,7 @@
 package dk.dma.ais.abnormal.util;
 
-import dk.dma.ais.abnormal.tracker.Track;
 import dk.dma.ais.packet.AisPacket;
+import dk.dma.ais.tracker.eventEmittingTracker.Track;
 import org.junit.Test;
 
 import static dk.dma.ais.abnormal.util.TrackPredicates.isUnknownTypeOrSize;

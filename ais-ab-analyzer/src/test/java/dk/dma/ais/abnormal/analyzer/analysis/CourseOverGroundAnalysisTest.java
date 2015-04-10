@@ -21,7 +21,7 @@ import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManager;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.CourseOverGroundStatisticData;
-import dk.dma.ais.abnormal.tracker.Tracker;
+import dk.dma.ais.tracker.Tracker;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.jmock.Expectations;

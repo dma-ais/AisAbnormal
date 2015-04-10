@@ -19,7 +19,7 @@ package dk.dma.ais.abnormal.analyzer.analysis;
 import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManager;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
-import dk.dma.ais.abnormal.tracker.Tracker;
+import dk.dma.ais.tracker.Tracker;
 
 /**
  * This class provides basic and common functionality to Analysis-es which are based

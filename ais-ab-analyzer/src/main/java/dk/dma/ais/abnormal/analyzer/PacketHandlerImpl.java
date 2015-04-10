@@ -27,12 +27,12 @@ import dk.dma.ais.abnormal.analyzer.analysis.FreeFlowAnalysis;
 import dk.dma.ais.abnormal.analyzer.analysis.ShipTypeAndSizeAnalysis;
 import dk.dma.ais.abnormal.analyzer.analysis.SpeedOverGroundAnalysis;
 import dk.dma.ais.abnormal.analyzer.analysis.SuddenSpeedChangeAnalysis;
-import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.filter.IPacketFilter;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisMessage5;
 import dk.dma.ais.message.IPositionMessage;
 import dk.dma.ais.packet.AisPacket;
+import dk.dma.ais.tracker.Tracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

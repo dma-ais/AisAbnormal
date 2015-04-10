@@ -23,8 +23,8 @@ import com.google.inject.Singleton;
 import dk.dma.ais.abnormal.analyzer.analysis.DriftAnalysis;
 import dk.dma.ais.abnormal.analyzer.analysis.SuddenSpeedChangeAnalysis;
 import dk.dma.ais.abnormal.event.db.EventRepository;
-import dk.dma.ais.abnormal.tracker.EventEmittingTracker;
-import dk.dma.ais.abnormal.tracker.Tracker;
+import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
 import dk.dma.enav.model.geometry.grid.Grid;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -59,7 +59,12 @@ public final class AbnormalAnalyzerAppTestModule extends AbstractModule {
     public void configure() {
         bind(DriftAnalysis.class).in(Scopes.SINGLETON);
         bind(SuddenSpeedChangeAnalysis.class).in(Scopes.SINGLETON);
-        bind(Tracker.class).to(EventEmittingTracker.class).in(Scopes.SINGLETON);
+    }
+
+    @Provides
+    @Singleton
+    Tracker provideTracker() {
+        return new EventEmittingTracker(provideGrid());
     }
 
     @Provides

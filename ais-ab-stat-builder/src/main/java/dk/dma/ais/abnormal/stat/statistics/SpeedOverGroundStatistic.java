@@ -24,10 +24,10 @@ import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeStatisticData;
 import dk.dma.ais.abnormal.stat.db.data.SpeedOverGroundStatisticData;
 import dk.dma.ais.abnormal.stat.db.data.StatisticData;
-import dk.dma.ais.abnormal.tracker.Track;
-import dk.dma.ais.abnormal.tracker.Tracker;
-import dk.dma.ais.abnormal.tracker.events.CellChangedEvent;
 import dk.dma.ais.abnormal.util.Categorizer;
+import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.Track;
+import dk.dma.ais.tracker.eventEmittingTracker.events.CellChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

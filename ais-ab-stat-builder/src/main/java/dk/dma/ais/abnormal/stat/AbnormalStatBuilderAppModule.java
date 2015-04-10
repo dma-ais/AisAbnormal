@@ -24,19 +24,24 @@ import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
 import dk.dma.ais.abnormal.stat.db.mapdb.StatisticDataRepositoryMapDB;
 import dk.dma.ais.abnormal.stat.statistics.CourseOverGroundStatistic;
 import dk.dma.ais.abnormal.stat.statistics.ShipTypeAndSizeStatistic;
-import dk.dma.ais.abnormal.tracker.EventEmittingTracker;
-import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.concurrency.stripedexecutor.StripedExecutorService;
 import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
+import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
 import dk.dma.enav.model.geometry.grid.Grid;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public final class AbnormalStatBuilderAppModule extends AbstractModule {
     private static Logger LOG = LoggerFactory.getLogger(AbnormalStatBuilderAppModule.class);
@@ -68,9 +73,14 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
         bind(ProgressIndicator.class).in(Singleton.class);
         bind(AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
         bind(dk.dma.ais.abnormal.application.statistics.AppStatisticsService.class).to(AppStatisticsServiceImpl.class).in(Singleton.class);
-        bind(Tracker.class).to(EventEmittingTracker.class).in(Singleton.class);
         bind(ShipTypeAndSizeStatistic.class);
         bind(CourseOverGroundStatistic.class);
+    }
+
+    @Provides
+    @Singleton
+    Tracker provideTracker() {
+        return new EventEmittingTracker(provideGrid(), initVesselBlackList(provideConfiguration()));
     }
 
     @Provides
@@ -138,5 +148,45 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
             LOG.error("Failed to create AisReader object", e);
         }
         return aisReader;
+    }
+
+    /**
+     * Initialize internal data structures required to accept/reject track updates based on black list mechanism.
+     * @param configuration
+     * @return
+     */
+    private static int[] initVesselBlackList(Configuration configuration) {
+        ArrayList<Integer> blacklistedMmsis = new ArrayList<>();
+        try {
+            List blacklistedMmsisConfig = configuration.getList("blacklist.mmsi");
+            blacklistedMmsisConfig.forEach(
+                    blacklistedMmsi -> {
+                        try {
+                            Integer blacklistedMmsiBoxed = Integer.valueOf(blacklistedMmsi.toString());
+                            if (blacklistedMmsiBoxed > 0 && blacklistedMmsiBoxed < 1000000000) {
+                                blacklistedMmsis.add(blacklistedMmsiBoxed);
+                            } else if (blacklistedMmsiBoxed != -1) {
+                                LOG.warn("Black listed MMSI no. out of range: " + blacklistedMmsiBoxed + ".");
+                            }
+                        } catch (NumberFormatException e) {
+                            LOG.warn("Black listed MMSI no. \"" + blacklistedMmsi + "\" cannot be cast to integer.");
+                        }
+                    }
+            );
+        } catch (ConversionException e) {
+            LOG.warn(e.getMessage(), e);
+        }
+
+        if (blacklistedMmsis.size() > 0) {
+            LOG.info("The following " + blacklistedMmsis.size() + " MMSI numbers are black listed and will not be tracked.");
+            LOG.info(Arrays.toString(blacklistedMmsis.toArray()));
+        }
+
+        int[] array = new int[blacklistedMmsis.size()];
+        for (int i = 0; i < blacklistedMmsis.size(); i++) {
+            array[i] = blacklistedMmsis.get(i);
+        }
+
+        return array;
     }
 }

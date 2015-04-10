@@ -16,7 +16,8 @@
 
 package dk.dma.ais.abnormal.util;
 
-import dk.dma.ais.abnormal.tracker.Track;
+
+import dk.dma.ais.tracker.eventEmittingTracker.Track;
 
 import java.util.function.Predicate;
 

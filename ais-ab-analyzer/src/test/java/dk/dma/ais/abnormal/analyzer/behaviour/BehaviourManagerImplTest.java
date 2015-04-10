@@ -20,14 +20,12 @@ import com.google.common.eventbus.Subscribe;
 import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventLower;
 import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventMaintain;
 import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventRaise;
-import dk.dma.ais.abnormal.application.statistics.AppStatisticsService;
 import dk.dma.ais.abnormal.event.db.domain.CourseOverGroundEvent;
-import dk.dma.ais.abnormal.tracker.EventEmittingTracker;
-import dk.dma.ais.abnormal.tracker.Track;
-import dk.dma.ais.abnormal.tracker.Tracker;
+import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
+import dk.dma.ais.tracker.eventEmittingTracker.Track;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.grid.Grid;
-import org.apache.commons.configuration.BaseConfiguration;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,8 +43,7 @@ public class BehaviourManagerImplTest {
     @Before
     public void setUp() {
         context = new JUnit4Mockery();
-        AppStatisticsService statisticsService = context.mock(AppStatisticsService.class);
-        trackingService = new EventEmittingTracker(new BaseConfiguration(), Grid.createSize(200), statisticsService);
+        trackingService = new EventEmittingTracker(Grid.createSize(200));
         behaviourManager = new BehaviourManagerImpl(trackingService);
         track = new Track(12345678);
         track.update(1234567890L, Position.create(56, 12), 45.0f, 10.1f, 45.0f);

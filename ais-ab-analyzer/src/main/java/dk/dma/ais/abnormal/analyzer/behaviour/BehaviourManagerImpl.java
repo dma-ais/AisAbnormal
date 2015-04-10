@@ -23,9 +23,9 @@ import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventLower;
 import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventMaintain;
 import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventRaise;
 import dk.dma.ais.abnormal.event.db.domain.Event;
-import dk.dma.ais.abnormal.tracker.Track;
-import dk.dma.ais.abnormal.tracker.Tracker;
-import dk.dma.ais.abnormal.tracker.TrackingReport;
+import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.Track;
+import dk.dma.ais.tracker.eventEmittingTracker.TrackingReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -18,7 +18,7 @@ package dk.dma.ais.abnormal.analyzer.behaviour.events;
 
 import dk.dma.ais.abnormal.analyzer.behaviour.EventCertainty;
 import dk.dma.ais.abnormal.event.db.domain.Event;
-import dk.dma.ais.abnormal.tracker.Track;
+import dk.dma.ais.tracker.eventEmittingTracker.Track;
 
 public abstract class AbnormalAbstractEvent {
 

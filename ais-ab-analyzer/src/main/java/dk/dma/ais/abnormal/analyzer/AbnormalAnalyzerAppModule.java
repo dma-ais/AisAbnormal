@@ -35,8 +35,6 @@ import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.DatasetMetaData;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeStatisticData;
 import dk.dma.ais.abnormal.stat.db.mapdb.StatisticDataRepositoryMapDB;
-import dk.dma.ais.abnormal.tracker.EventEmittingTracker;
-import dk.dma.ais.abnormal.tracker.Tracker;
 import dk.dma.ais.filter.ExpressionFilter;
 import dk.dma.ais.filter.GeoMaskFilter;
 import dk.dma.ais.filter.IPacketFilter;
@@ -45,12 +43,15 @@ import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.packet.AisPacket;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
+import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
 import dk.dma.enav.model.geometry.BoundingBox;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.grid.Grid;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
@@ -76,6 +77,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
@@ -126,12 +128,17 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     public void configure() {
         bind(AbnormalAnalyzerApp.class).in(Singleton.class);
         bind(PacketHandler.class).to(PacketHandlerImpl.class).in(Singleton.class);
-        bind(Tracker.class).to(EventEmittingTracker.class).in(Singleton.class);
         bind(BehaviourManager.class).to(BehaviourManagerImpl.class).in(Singleton.class);
         bind(SchedulerFactory.class).to(StdSchedulerFactory.class).in(Scopes.SINGLETON);
         bind(ReportJobFactory.class).in(Scopes.SINGLETON);
         bind(ReportScheduler.class).in(Scopes.SINGLETON);
         bind(ReportMailer.class).in(Scopes.SINGLETON);
+    }
+
+    @Provides
+    @Singleton
+    Tracker provideTracker() {
+        return new EventEmittingTracker(provideGrid(), initVesselBlackList(getConfiguration()));
     }
 
     @Provides
@@ -520,5 +527,45 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
 
     private Configuration getConfiguration() {
         return AbnormalAnalyzerApp.getInjector().getInstance(Configuration.class);
+    }
+
+    /**
+     * Initialize internal data structures required to accept/reject track updates based on black list mechanism.
+     * @param configuration
+     * @return
+     */
+    private static int[] initVesselBlackList(Configuration configuration) {
+        ArrayList<Integer> blacklistedMmsis = new ArrayList<>();
+        try {
+            List blacklistedMmsisConfig = configuration.getList("blacklist.mmsi");
+            blacklistedMmsisConfig.forEach(
+                    blacklistedMmsi -> {
+                        try {
+                            Integer blacklistedMmsiBoxed = Integer.valueOf(blacklistedMmsi.toString());
+                            if (blacklistedMmsiBoxed > 0 && blacklistedMmsiBoxed < 1000000000) {
+                                blacklistedMmsis.add(blacklistedMmsiBoxed);
+                            } else if (blacklistedMmsiBoxed != -1) {
+                                LOG.warn("Black listed MMSI no. out of range: " + blacklistedMmsiBoxed + ".");
+                            }
+                        } catch (NumberFormatException e) {
+                            LOG.warn("Black listed MMSI no. \"" + blacklistedMmsi + "\" cannot be cast to integer.");
+                        }
+                    }
+            );
+        } catch (ConversionException e) {
+            LOG.warn(e.getMessage(), e);
+        }
+
+        if (blacklistedMmsis.size() > 0) {
+            LOG.info("The following " + blacklistedMmsis.size() + " MMSI numbers are black listed and will not be tracked.");
+            LOG.info(Arrays.toString(blacklistedMmsis.toArray()));
+        }
+
+        int[] array = new int[blacklistedMmsis.size()];
+        for (int i = 0; i < blacklistedMmsis.size(); i++) {
+            array[i] = blacklistedMmsis.get(i);
+        }
+
+        return array;
     }
 }
