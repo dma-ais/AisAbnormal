@@ -28,6 +28,7 @@ import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
 import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
 import dk.dma.ais.tracker.eventEmittingTracker.Track;
 import dk.dma.ais.tracker.eventEmittingTracker.events.PositionChangedEvent;
 import dk.dma.ais.tracker.eventEmittingTracker.events.TrackStaleEvent;
@@ -74,7 +75,7 @@ public class SuddenSpeedChangeAnalysisTest {
 
         analysis = injector.getInstance(SuddenSpeedChangeAnalysis.class);
         statisticsService = injector.getInstance(AppStatisticsService.class);
-        trackingService = injector.getInstance(Tracker.class);
+        trackingService = injector.getInstance(EventEmittingTracker.class);
         eventRepository = injector.getInstance(EventRepository.class);
 
         // Create test data
@@ -450,7 +451,7 @@ public class SuddenSpeedChangeAnalysisTest {
 
     @Test
     public void canDetectLotusSuddenSpeedChangeOnOct05_2014() {
-        Tracker tracker = injector.getInstance(Tracker.class);
+        Tracker tracker = injector.getInstance(EventEmittingTracker.class);
         EventRepository eventRepository = injector.getInstance(EventRepository.class);
 
         InputStream testDataStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("ais/219165000_ssc_1.ais");

@@ -22,7 +22,7 @@ import com.google.inject.Singleton;
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.Event;
-import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
 import dk.dma.ais.tracker.eventEmittingTracker.Track;
 import dk.dma.enav.model.geometry.BoundingBox;
 import dk.dma.enav.model.geometry.CoordinateSystem;
@@ -105,7 +105,7 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
     private final String csvFileName;
 
     @Inject
-    public FreeFlowAnalysis(Configuration configuration, AppStatisticsService statisticsService, Tracker trackingService, EventRepository eventRepository) {
+    public FreeFlowAnalysis(Configuration configuration, AppStatisticsService statisticsService, EventEmittingTracker trackingService, EventRepository eventRepository) {
         super(eventRepository, trackingService, null);
         this.statisticsService = statisticsService;
 

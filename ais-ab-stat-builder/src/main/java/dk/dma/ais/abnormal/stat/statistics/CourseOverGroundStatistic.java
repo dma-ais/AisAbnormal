@@ -25,7 +25,7 @@ import dk.dma.ais.abnormal.stat.db.data.CourseOverGroundStatisticData;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeStatisticData;
 import dk.dma.ais.abnormal.stat.db.data.StatisticData;
 import dk.dma.ais.abnormal.util.Categorizer;
-import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
 import dk.dma.ais.tracker.eventEmittingTracker.Track;
 import dk.dma.ais.tracker.eventEmittingTracker.events.CellChangedEvent;
 import org.slf4j.Logger;
@@ -42,14 +42,14 @@ public class CourseOverGroundStatistic implements TrackingEventListener {
 
     private final transient AppStatisticsService appStatisticsService;
     private final transient StatisticDataRepository statisticsRepository;
-    private final transient Tracker trackingService;
+    private final transient EventEmittingTracker trackingService;
 
     private final transient AtomicBoolean started = new AtomicBoolean(false);
 
     static final String STATISTIC_NAME = CourseOverGroundStatistic.class.getSimpleName();
 
     @Inject
-    public CourseOverGroundStatistic(AppStatisticsService appStatisticsService, Tracker trackingService, StatisticDataRepository statisticsRepository) {
+    public CourseOverGroundStatistic(AppStatisticsService appStatisticsService, EventEmittingTracker trackingService, StatisticDataRepository statisticsRepository) {
         this.appStatisticsService = appStatisticsService;
         this.trackingService = trackingService;
         this.statisticsRepository = statisticsRepository;

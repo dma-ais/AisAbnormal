@@ -25,7 +25,7 @@ import dk.dma.ais.abnormal.event.db.domain.DriftEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
 import dk.dma.ais.abnormal.event.db.domain.builders.DriftEventBuilder;
-import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
 import dk.dma.ais.tracker.eventEmittingTracker.InterpolatedTrackingReport;
 import dk.dma.ais.tracker.eventEmittingTracker.Track;
 import dk.dma.ais.tracker.eventEmittingTracker.TrackingReport;
@@ -101,7 +101,7 @@ public class DriftAnalysis extends Analysis {
     private int statCount = 0;
 
     @Inject
-    public DriftAnalysis(Configuration configuration, AppStatisticsService statisticsService, Tracker trackingService, EventRepository eventRepository) {
+    public DriftAnalysis(Configuration configuration, AppStatisticsService statisticsService, EventEmittingTracker trackingService, EventRepository eventRepository) {
         super(eventRepository, trackingService, null);
         this.statisticsService = statisticsService;
 

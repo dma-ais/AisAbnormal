@@ -28,8 +28,8 @@ import dk.dma.ais.concurrency.stripedexecutor.StripedExecutorService;
 import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
-import dk.dma.ais.tracker.Tracker;
 import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTrackerImpl;
 import dk.dma.enav.model.geometry.grid.Grid;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
@@ -79,8 +79,8 @@ public final class AbnormalStatBuilderAppModule extends AbstractModule {
 
     @Provides
     @Singleton
-    Tracker provideTracker() {
-        return new EventEmittingTracker(provideGrid(), initVesselBlackList(provideConfiguration()));
+    EventEmittingTracker provideEventEmittingTracker() {
+        return new EventEmittingTrackerImpl(provideGrid(), initVesselBlackList(provideConfiguration()));
     }
 
     @Provides

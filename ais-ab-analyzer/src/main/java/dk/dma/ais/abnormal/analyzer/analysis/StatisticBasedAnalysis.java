@@ -19,7 +19,7 @@ package dk.dma.ais.abnormal.analyzer.analysis;
 import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManager;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
-import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
 
 /**
  * This class provides basic and common functionality to Analysis-es which are based
@@ -31,7 +31,7 @@ public abstract class StatisticBasedAnalysis extends Analysis {
 
     private final StatisticDataRepository statisticsRepository;
 
-    protected StatisticBasedAnalysis(EventRepository eventRepository, StatisticDataRepository statisticsRepository, Tracker trackingService, BehaviourManager behaviourManager) {
+    protected StatisticBasedAnalysis(EventRepository eventRepository, StatisticDataRepository statisticsRepository, EventEmittingTracker trackingService, BehaviourManager behaviourManager) {
         super(eventRepository, trackingService, behaviourManager);
         this.statisticsRepository = statisticsRepository;
     }

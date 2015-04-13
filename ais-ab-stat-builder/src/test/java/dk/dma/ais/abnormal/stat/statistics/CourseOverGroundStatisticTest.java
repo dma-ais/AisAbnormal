@@ -23,7 +23,7 @@ import dk.dma.ais.abnormal.stat.db.data.StatisticData;
 import dk.dma.ais.abnormal.util.Categorizer;
 import dk.dma.ais.packet.AisPacket;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
-import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
 import dk.dma.ais.tracker.eventEmittingTracker.Track;
 import dk.dma.ais.tracker.eventEmittingTracker.events.CellChangedEvent;
 import org.jmock.Expectations;
@@ -39,7 +39,7 @@ import static org.junit.Assert.assertEquals;
 public class CourseOverGroundStatisticTest {
     final JUnit4Mockery context = new JUnit4Mockery();
 
-    Tracker trackingService;
+    EventEmittingTracker trackingService;
     AppStatisticsService statisticsService;
     StatisticDataRepository statisticsRepository;
 
@@ -66,7 +66,7 @@ public class CourseOverGroundStatisticTest {
     @Before
     public void beforeTest() {
         // Mock dependencies
-        trackingService = context.mock(Tracker.class);
+        trackingService = context.mock(EventEmittingTracker.class);
         statisticsService = context.mock(AppStatisticsService.class);
         statisticsRepository = context.mock(StatisticDataRepository.class);
 

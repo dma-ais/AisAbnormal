@@ -21,8 +21,8 @@ import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventLower;
 import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventMaintain;
 import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventRaise;
 import dk.dma.ais.abnormal.event.db.domain.CourseOverGroundEvent;
-import dk.dma.ais.tracker.Tracker;
 import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTrackerImpl;
 import dk.dma.ais.tracker.eventEmittingTracker.Track;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.grid.Grid;
@@ -35,7 +35,7 @@ import static org.junit.Assert.assertEquals;
 public class BehaviourManagerImplTest {
 
     private JUnit4Mockery context;
-    private Tracker trackingService;
+    private EventEmittingTracker trackingService;
     private BehaviourManagerImpl behaviourManager;
     private Track track;
     private EventBusSubscriber testSubscriber;
@@ -43,7 +43,7 @@ public class BehaviourManagerImplTest {
     @Before
     public void setUp() {
         context = new JUnit4Mockery();
-        trackingService = new EventEmittingTracker(Grid.createSize(200));
+        trackingService = new EventEmittingTrackerImpl(Grid.createSize(200));
         behaviourManager = new BehaviourManagerImpl(trackingService);
         track = new Track(12345678);
         track.update(1234567890L, Position.create(56, 12), 45.0f, 10.1f, 45.0f);
@@ -191,7 +191,7 @@ public class BehaviourManagerImplTest {
     public void testEventCertainty() {
         EventCertainty eventCertainty;
 
-        assertEquals(0, behaviourManager.trackingService.getNumberOfTracks());
+        assertEquals(0, ((EventEmittingTrackerImpl) behaviourManager.trackingService).getNumberOfTracks());
 
         //
         behaviourManager.normalBehaviourDetected(CourseOverGroundEvent.class, track);

@@ -23,7 +23,7 @@ import dk.dma.ais.abnormal.event.db.domain.CloseEncounterEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.packet.AisPacket;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
-import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
 import dk.dma.ais.tracker.eventEmittingTracker.Track;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
@@ -44,7 +44,7 @@ public class CloseEncounterAnalysisTest {
 
     JUnit4Mockery context;
     CloseEncounterAnalysis analysis;
-    Tracker trackingService;
+    EventEmittingTracker trackingService;
     AppStatisticsService statisticsService;
     EventRepository eventRepository;
 
@@ -71,7 +71,7 @@ public class CloseEncounterAnalysisTest {
     @Before
     public void setUp() throws Exception {
         context = new JUnit4Mockery();
-        trackingService = context.mock(Tracker.class);
+        trackingService = context.mock(EventEmittingTracker.class);
         statisticsService = context.mock(AppStatisticsService.class);
         eventRepository = context.mock(EventRepository.class);
         analysis = new CloseEncounterAnalysis(new PropertiesConfiguration(), statisticsService, trackingService, eventRepository);

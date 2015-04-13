@@ -23,7 +23,7 @@ import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventLower;
 import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventMaintain;
 import dk.dma.ais.abnormal.analyzer.behaviour.events.AbnormalEventRaise;
 import dk.dma.ais.abnormal.event.db.domain.Event;
-import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
 import dk.dma.ais.tracker.eventEmittingTracker.Track;
 import dk.dma.ais.tracker.eventEmittingTracker.TrackingReport;
 import org.slf4j.Logger;
@@ -44,7 +44,7 @@ public class BehaviourManagerImpl implements BehaviourManager {
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
 
-    Tracker trackingService;
+    EventEmittingTracker trackingService;
     EventBus eventBus = new EventBus();
 
     int line = 1;
@@ -64,7 +64,7 @@ public class BehaviourManagerImpl implements BehaviourManager {
     private static final String CERTAINTY_KEY_PREFIX = "event-certainty-";
 
     @Inject
-    public BehaviourManagerImpl(Tracker trackingService) {
+    public BehaviourManagerImpl(EventEmittingTracker trackingService) {
         this.trackingService = trackingService;
         eventBus.register(this);
     }

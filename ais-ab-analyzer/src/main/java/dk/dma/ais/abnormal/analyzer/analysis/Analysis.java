@@ -24,7 +24,8 @@ import dk.dma.ais.abnormal.event.db.domain.CloseEncounterEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
 import dk.dma.ais.abnormal.event.db.domain.builders.TrackingPointBuilder;
-import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTrackerImpl;
 import dk.dma.ais.tracker.eventEmittingTracker.InterpolatedTrackingReport;
 import dk.dma.ais.tracker.eventEmittingTracker.Track;
 import dk.dma.ais.tracker.eventEmittingTracker.TrackingReport;
@@ -54,7 +55,7 @@ public abstract class Analysis {
     private static final Logger LOG = LoggerFactory.getLogger(Analysis.class);
 
     private final EventRepository eventRepository;
-    private final Tracker trackingService;
+    private final EventEmittingTracker trackingService;
     private final BehaviourManager behaviourManager;
 
     private static final String DATE_FORMAT_STRING = "dd/MM/yyyy HH:mm";
@@ -62,7 +63,7 @@ public abstract class Analysis {
 
     private final String analysisName;
 
-    protected Analysis(EventRepository eventRepository, Tracker trackingService, BehaviourManager behaviourManager) {
+    protected Analysis(EventRepository eventRepository, EventEmittingTracker trackingService, BehaviourManager behaviourManager) {
         this.eventRepository = eventRepository;
         this.trackingService = trackingService;
         this.behaviourManager = behaviourManager;
@@ -236,7 +237,7 @@ public abstract class Analysis {
         return eventRepository;
     }
 
-    protected Tracker getTrackingService() {
-        return trackingService;
+    protected EventEmittingTrackerImpl getTrackingService() {
+        return trackingService instanceof EventEmittingTrackerImpl ? (EventEmittingTrackerImpl) trackingService : null;
     }
 }

@@ -29,7 +29,8 @@ import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisMessage5;
 import dk.dma.ais.message.IPositionMessage;
 import dk.dma.ais.packet.AisPacket;
-import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTrackerImpl;
 import eu.javaspecialists.tjsn.concurrency.StripedRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,7 @@ public class PacketHandlerImpl implements PacketHandler {
     static final Logger LOG = LoggerFactory.getLogger(PacketHandler.class);
     
     private AppStatisticsService statisticsService; // = new AppStatisticsServiceImpl(1, TimeUnit.MINUTES);
-    private Tracker trackingService;
+    private EventEmittingTracker trackingService;
     private ReplayDownSampleFilter downSampleFilter;
     private StripedExecutorService workerThreads;
     private final boolean multiThreaded;
@@ -57,7 +58,7 @@ public class PacketHandlerImpl implements PacketHandler {
     private static final int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
 
     @Inject
-    public PacketHandlerImpl(AppStatisticsService statisticsService, Tracker trackingService, ReplayDownSampleFilter downSampleFilter, StripedExecutorService executorService, @Assisted boolean multiThreaded) {
+    public PacketHandlerImpl(AppStatisticsService statisticsService, EventEmittingTracker trackingService, ReplayDownSampleFilter downSampleFilter, StripedExecutorService executorService, @Assisted boolean multiThreaded) {
         LOG.debug("Detected " + NUMBER_OF_CORES + " CPU cores.");
         LOG.info("Creating " + (multiThreaded ? "multi threaded ":"single threaded ")+ "AIS packet handler.");
 
@@ -129,7 +130,9 @@ public class PacketHandlerImpl implements PacketHandler {
 
     private void doWork(AisPacket p) {
         trackingService.update(p);
-        statisticsService.setTrackCount(trackingService.getNumberOfTracks());
+        if (trackingService instanceof EventEmittingTrackerImpl) {
+            statisticsService.setTrackCount(((EventEmittingTrackerImpl) trackingService).getNumberOfTracks());
+        }
     }
 
     @Override

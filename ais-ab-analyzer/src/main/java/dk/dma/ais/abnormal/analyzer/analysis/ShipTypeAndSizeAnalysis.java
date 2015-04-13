@@ -33,7 +33,7 @@ import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeStatisticData;
 import dk.dma.ais.abnormal.stat.db.data.StatisticData;
 import dk.dma.ais.abnormal.util.Categorizer;
-import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
 import dk.dma.ais.tracker.eventEmittingTracker.InterpolatedTrackingReport;
 import dk.dma.ais.tracker.eventEmittingTracker.Track;
 import dk.dma.ais.tracker.eventEmittingTracker.events.CellChangedEvent;
@@ -76,7 +76,7 @@ public class ShipTypeAndSizeAnalysis extends StatisticBasedAnalysis {
     private final int SHIP_LENGTH_MIN;
 
     @Inject
-    public ShipTypeAndSizeAnalysis(Configuration configuration, AppStatisticsService statisticsService, StatisticDataRepository statisticsRepository, Tracker trackingService, EventRepository eventRepository, BehaviourManager behaviourManager) {
+    public ShipTypeAndSizeAnalysis(Configuration configuration, AppStatisticsService statisticsService, StatisticDataRepository statisticsRepository, EventEmittingTracker trackingService, EventRepository eventRepository, BehaviourManager behaviourManager) {
         super(eventRepository, statisticsRepository, trackingService, behaviourManager);
         this.statisticsService = statisticsService;
 

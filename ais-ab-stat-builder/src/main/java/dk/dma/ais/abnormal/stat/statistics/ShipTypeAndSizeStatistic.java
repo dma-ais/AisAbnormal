@@ -24,7 +24,7 @@ import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
 import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeStatisticData;
 import dk.dma.ais.abnormal.stat.db.data.StatisticData;
 import dk.dma.ais.abnormal.util.Categorizer;
-import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
 import dk.dma.ais.tracker.eventEmittingTracker.Track;
 import dk.dma.ais.tracker.eventEmittingTracker.events.CellChangedEvent;
 import org.slf4j.Logger;
@@ -37,14 +37,14 @@ public class ShipTypeAndSizeStatistic implements TrackingEventListener {
 
     private final transient AppStatisticsService appStatisticsService;
     private final transient StatisticDataRepository statisticsRepository;
-    private final transient Tracker trackingService;
+    private final transient EventEmittingTracker trackingService;
 
     private transient boolean started;
 
     static final String STATISTIC_NAME = ShipTypeAndSizeStatistic.class.getSimpleName();
 
     @Inject
-    public ShipTypeAndSizeStatistic(AppStatisticsService appStatisticsService, Tracker trackingService, StatisticDataRepository statisticsRepository) {
+    public ShipTypeAndSizeStatistic(AppStatisticsService appStatisticsService, EventEmittingTracker trackingService, StatisticDataRepository statisticsRepository) {
         this.appStatisticsService = appStatisticsService;
         this.trackingService = trackingService;
         this.statisticsRepository = statisticsRepository;

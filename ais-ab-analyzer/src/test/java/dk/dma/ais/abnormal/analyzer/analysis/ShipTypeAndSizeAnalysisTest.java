@@ -25,7 +25,7 @@ import dk.dma.ais.abnormal.stat.db.data.ShipTypeAndSizeStatisticData;
 import dk.dma.ais.abnormal.util.Categorizer;
 import dk.dma.ais.packet.AisPacket;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
-import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
 import dk.dma.ais.tracker.eventEmittingTracker.Track;
 import dk.dma.ais.tracker.eventEmittingTracker.events.CellChangedEvent;
 import dk.dma.enav.model.geometry.Position;
@@ -57,7 +57,7 @@ public class ShipTypeAndSizeAnalysisTest {
         "!BSVDM,2,2,1,A,CcAVCTj0EP00000,2*53");
 
     private Configuration configuration;
-    private Tracker trackingService;
+    private EventEmittingTracker trackingService;
     private AppStatisticsService statisticsService;
     private StatisticDataRepository statisticsRepository;
     private EventRepository eventRepository;
@@ -69,7 +69,7 @@ public class ShipTypeAndSizeAnalysisTest {
         context = new JUnit4Mockery();
 
         // Mock dependencies
-        trackingService = context.mock(Tracker.class);
+        trackingService = context.mock(EventEmittingTracker.class);
         statisticsService = context.mock(AppStatisticsService.class);
         statisticsRepository = context.mock(StatisticDataRepository.class);
         eventRepository = context.mock(EventRepository.class);

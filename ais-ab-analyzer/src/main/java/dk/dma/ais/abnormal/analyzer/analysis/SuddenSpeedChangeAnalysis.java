@@ -27,7 +27,7 @@ import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
 import dk.dma.ais.abnormal.event.db.domain.builders.SuddenSpeedChangeEventBuilder;
 import dk.dma.ais.abnormal.event.db.domain.builders.TrackingPointBuilder;
 import dk.dma.ais.abnormal.util.Categorizer;
-import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
 import dk.dma.ais.tracker.eventEmittingTracker.InterpolatedTrackingReport;
 import dk.dma.ais.tracker.eventEmittingTracker.Track;
 import dk.dma.ais.tracker.eventEmittingTracker.TrackingReport;
@@ -105,7 +105,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
     private int statCount = 0;
 
     @Inject
-    public SuddenSpeedChangeAnalysis(Configuration configuration, AppStatisticsService statisticsService, Tracker trackingService, EventRepository eventRepository) {
+    public SuddenSpeedChangeAnalysis(Configuration configuration, AppStatisticsService statisticsService, EventEmittingTracker trackingService, EventRepository eventRepository) {
         super(eventRepository, trackingService, null);
         this.statisticsService = statisticsService;
 

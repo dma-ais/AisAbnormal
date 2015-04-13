@@ -25,6 +25,7 @@ import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
 import dk.dma.ais.test.helpers.ArgumentCaptor;
 import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
 import dk.dma.ais.tracker.eventEmittingTracker.Track;
 import dk.dma.enav.model.geometry.Position;
 import org.jmock.Expectations;
@@ -256,7 +257,7 @@ public class DriftAnalysisTest {
 
     @Test
     public void doesNotDetectStocMarciasDriftOnOct02_2014() {
-        Tracker tracker = injector.getInstance(Tracker.class);
+        Tracker tracker = injector.getInstance(EventEmittingTracker.class);
         EventRepository eventRepository = injector.getInstance(EventRepository.class);
 
         InputStream testDataStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("ais/212123000_drift_1.ais");
@@ -278,7 +279,7 @@ public class DriftAnalysisTest {
 
     @Test
     public void detectsFriosDriftOnSep28_2014() {
-        Tracker tracker = injector.getInstance(Tracker.class);
+        Tracker tracker = injector.getInstance(EventEmittingTracker.class);
         EventRepository eventRepository = injector.getInstance(EventRepository.class);
 
         InputStream testDataStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("ais/538004030_drift_1.ais");

@@ -43,8 +43,8 @@ import dk.dma.ais.filter.ReplayDownSampleFilter;
 import dk.dma.ais.packet.AisPacket;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.AisReaders;
-import dk.dma.ais.tracker.Tracker;
 import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTrackerImpl;
 import dk.dma.enav.model.geometry.BoundingBox;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
@@ -137,8 +137,8 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
 
     @Provides
     @Singleton
-    Tracker provideTracker() {
-        return new EventEmittingTracker(provideGrid(), initVesselBlackList(getConfiguration()));
+    EventEmittingTracker provideEventEmittingTracker() {
+        return new EventEmittingTrackerImpl(provideGrid(), initVesselBlackList(getConfiguration()));
     }
 
     @Provides

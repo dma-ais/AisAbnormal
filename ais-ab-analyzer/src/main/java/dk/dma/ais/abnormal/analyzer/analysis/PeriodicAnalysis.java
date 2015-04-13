@@ -20,7 +20,7 @@ import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.MoreExecutors;
 import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManager;
 import dk.dma.ais.abnormal.event.db.EventRepository;
-import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
 import dk.dma.ais.tracker.eventEmittingTracker.events.TimeEvent;
 import net.jcip.annotations.NotThreadSafe;
 import org.slf4j.Logger;
@@ -58,7 +58,7 @@ public abstract class PeriodicAnalysis extends Analysis {
     /** Executor to perform the actual work. */
     private final Executor executor = MoreExecutors.sameThreadExecutor(); // Executors.newSingleThreadExecutor();
 
-    public PeriodicAnalysis(EventRepository eventRepository, Tracker trackingService, BehaviourManager behaviourManager) {
+    public PeriodicAnalysis(EventRepository eventRepository, EventEmittingTracker trackingService, BehaviourManager behaviourManager) {
         super(eventRepository, trackingService, behaviourManager);
     }
 
