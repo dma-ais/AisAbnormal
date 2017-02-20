@@ -286,10 +286,10 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
                 File file = new File(aisDataSourceUrl.getPath());
                 String path = file.getParent();
                 String pattern = file.getName();
-                LOG.debug("AIS data source is file system - " + path + "/" + pattern);
+                LOG.info("AIS data source is file system - " + path + "/" + pattern);
 
                 aisReader = AisReaders.createDirectoryReader(path, pattern, true);
-                LOG.info("Created AisReader (" + aisReader + ").");
+                LOG.debug("Created AisReader (" + aisReader + ").");
             } catch (Exception e) {
                 LOG.error("Failed to create AisReader.", e);
             }
@@ -297,10 +297,10 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
             try {
                 String host = aisDataSourceUrl.getHost();
                 int port = aisDataSourceUrl.getPort();
-                LOG.debug("AIS data source is TCP - " + host + ":" + port);
+                LOG.info("AIS data source is TCP - " + host + ":" + port);
 
                 aisReader = AisReaders.createReader(host, port);
-                LOG.info("Created AisReader (" + aisReader + ").");
+                LOG.debug("Created AisReader (" + aisReader + ").");
             } catch (Exception e) {
                 LOG.error("Failed to create AisReader.", e);
             }
