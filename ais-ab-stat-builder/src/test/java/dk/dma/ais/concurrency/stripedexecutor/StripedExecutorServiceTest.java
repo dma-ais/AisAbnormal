@@ -157,7 +157,7 @@ public class StripedExecutorServiceTest {
 
         for (int i = 0; i < 100; i++) {
             int actual = cs.take().get().intValue();
-            System.out.println("Retrieved " + actual);
+            //System.out.println("Retrieved " + actual);
             assertEquals(i, actual);
         }
         pool.shutdown();
@@ -262,7 +262,7 @@ public class StripedExecutorServiceTest {
             if (actual != expected) {
                 outOfSequence = true;
             }
-            System.out.printf("Execute strip %h %d %d%n", stripe, actual, expected);
+            //System.out.printf("Execute strip %h %d %d%n", stripe, actual, expected);
             assertEquals("out of sequence", actual, expected);
         }
     }
@@ -288,7 +288,7 @@ public class StripedExecutorServiceTest {
             if (actual != expected) {
                 outOfSequence = true;
             }
-            System.out.printf("Execute strip %h %d %d%n", stripe, actual, expected);
+            //System.out.printf("Execute strip %h %d %d%n", stripe, actual, expected);
             assertEquals("out of sequence", actual, expected);
         }
     }
@@ -338,7 +338,7 @@ public class StripedExecutorServiceTest {
             if (actual != expected) {
                 outOfSequence = true;
             }
-            System.out.println("Execute unstriped " + actual + ", " + expected);
+            //System.out.println("Execute unstriped " + actual + ", " + expected);
         }
     }
 
