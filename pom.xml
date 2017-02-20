@@ -3,12 +3,6 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>dk.dma</groupId>
-		<artifactId>dma-root-pom</artifactId>
-		<version>22</version>
-	</parent>
-
 	<groupId>dk.dma.ais.abnormal</groupId>
 	<artifactId>ais-ab-parent</artifactId>
 	<version>0.1-SNAPSHOT</version>
@@ -37,6 +31,12 @@
             </roles>
         </developer>
     </developers>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<dependencies.slf4j.version>1.7.7</dependencies.slf4j.version>
+		<dependencies.jetty.version>9.2.1.v20140609</dependencies.jetty.version>
+	</properties>
 
 	<modules>
 		<module>ais-ab-common</module>
@@ -88,11 +88,30 @@
 			<artifactId>jcip-annotations</artifactId>
 			<version>1.0</version>
 		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
     <build>
         <plugins>
-            <plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+					<encoding>UTF-8</encoding>
+					<optimize>false</optimize>
+					<debug>true</debug>
+					<showDeprecation>true</showDeprecation>
+				</configuration>
+			</plugin>
+			<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.9.1</version>
