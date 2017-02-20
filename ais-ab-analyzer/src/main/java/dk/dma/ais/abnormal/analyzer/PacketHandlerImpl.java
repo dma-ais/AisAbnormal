@@ -143,25 +143,28 @@ public class PacketHandlerImpl implements PacketHandler {
     }
 
     private  Set<Analysis> initAnalyses() {
-        Injector injector = AbnormalAnalyzerApp.getInjector();
-
         ImmutableSet.Builder<Analysis> builder = new ImmutableSet.Builder<>();
-        if (configuration.getBoolean("analysis.cog.enabled"))
-            builder.add(injector.getInstance(CourseOverGroundAnalysis.class));
-        if (configuration.getBoolean("analysis.sog.enabled"))
-            builder.add(injector.getInstance(SpeedOverGroundAnalysis.class));
-        if (configuration.getBoolean("analysis.typesize.enabled"))
-            builder.add(injector.getInstance(ShipTypeAndSizeAnalysis.class));
-        if (configuration.getBoolean("analysis.suddenspeedchange.enabled"))
-            builder.add(injector.getInstance(SuddenSpeedChangeAnalysis.class));
-        if (configuration.getBoolean("analysis.drift.enabled"))
-            builder.add(injector.getInstance(DriftAnalysis.class));
-        if (configuration.getBoolean("analysis.closeencounter.enabled"))
-            builder.add(injector.getInstance(CloseEncounterAnalysis.class));
-        if (configuration.getBoolean("analysis.freeflow.enabled"))
-            builder.add(injector.getInstance(FreeFlowAnalysis.class));
+
+        initAnalysis(builder,"cog", CourseOverGroundAnalysis.class);
+        initAnalysis(builder,"sog", SpeedOverGroundAnalysis.class);
+        initAnalysis(builder,"typesize", ShipTypeAndSizeAnalysis.class);
+        initAnalysis(builder,"suddenspeedchange", SuddenSpeedChangeAnalysis.class);
+        initAnalysis(builder,"drift", DriftAnalysis.class);
+        initAnalysis(builder,"closeencounter", CloseEncounterAnalysis.class);
+        initAnalysis(builder,"freeflow", FreeFlowAnalysis.class);
 
         return builder.build();
+    }
+
+    private void initAnalysis(ImmutableSet.Builder<Analysis> builder, String name, Class<? extends Analysis> analysisClass) {
+        Injector injector = AbnormalAnalyzerApp.getInjector();
+
+        if (configuration.getBoolean("analysis." + name + ".enabled")) {
+            builder.add(injector.getInstance(analysisClass));
+            LOG.info(analysisClass.getSimpleName() + " is enabled.");
+        } else {
+            LOG.info(analysisClass.getSimpleName() + " is disabled.");
+        }
     }
 
 }

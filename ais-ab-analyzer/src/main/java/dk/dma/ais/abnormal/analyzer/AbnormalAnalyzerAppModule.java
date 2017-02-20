@@ -320,8 +320,9 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
             grid = Grid.create(gridResolution);
             LOG.info("Created Grid with size " + grid.getSize() + " meters.");
         } catch (Exception e) {
-            LOG.warn("Assuming grid resolution 200");
-            grid = Grid.create(200);
+            int defaultGridResolution = getConfiguration().getInt("application.grid.resolution.default", 200);
+            LOG.warn("Could not obtain grid resolution from statistics file. Assuming grid resolution " + defaultGridResolution + ".");
+            grid = Grid.create(defaultGridResolution);
         }
         return grid;
     }
