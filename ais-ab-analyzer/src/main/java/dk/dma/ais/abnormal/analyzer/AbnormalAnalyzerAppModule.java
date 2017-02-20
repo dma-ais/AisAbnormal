@@ -257,7 +257,8 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
                 LOG.info("Statistic data repository is valid.");
             }
         } catch (Exception e) {
-            LOG.error("Failed to create or open StatisticDataRepository.", e);
+            LOG.debug("Failed to create or open StatisticDataRepository.", e);
+            LOG.error("Failed to create or open StatisticDataRepository.");
         }
         return statisticsRepository;
     }
@@ -319,7 +320,8 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
             grid = Grid.create(gridResolution);
             LOG.info("Created Grid with size " + grid.getSize() + " meters.");
         } catch (Exception e) {
-            LOG.error("Failed to create Grid object", e);
+            LOG.warn("Assuming grid resolution 200");
+            grid = Grid.create(200);
         }
         return grid;
     }
