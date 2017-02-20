@@ -28,8 +28,6 @@ import dk.dma.commons.app.AbstractDaemon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.Thread.UncaughtExceptionHandler;
-
 import static java.lang.System.exit;
 
 /**
@@ -96,12 +94,9 @@ public class AbnormalAnalyzerApp extends AbstractDaemon {
     }
 
     public static void main(String[] args) throws Exception {
-        Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread t, Throwable e) {
-                LOG.error("Uncaught exception in thread " + t.getClass().getCanonicalName() + ": " + e.getMessage(), e);
-                exit(-1);
-            }
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+            LOG.error("Uncaught exception in thread " + t.getClass().getCanonicalName() + ": " + e.getMessage(), e);
+            exit(-1);
         });
 
         // TODO find a way to integrate with app.addModule
