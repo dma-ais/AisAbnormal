@@ -33,6 +33,7 @@ import dk.dma.ais.message.AisMessage5;
 import dk.dma.ais.message.IPositionMessage;
 import dk.dma.ais.packet.AisPacket;
 import dk.dma.ais.tracker.Tracker;
+import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,23 +46,28 @@ import java.util.function.Predicate;
 public class PacketHandlerImpl implements PacketHandler {
 
     static final Logger LOG = LoggerFactory.getLogger(PacketHandlerImpl.class);
+
     {
-        LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
+        LOG.debug(this.getClass().getSimpleName() + " created (" + this + ").");
     }
 
+    private final Configuration configuration;
     private final AppStatisticsService statisticsService;
     private final Tracker tracker;
-
     private final Set<IPacketFilter> filters;
     private final Predicate<AisPacket> shipNameFilter;
 
     private final Set<Analysis> analyses;
 
     @Inject
-    public PacketHandlerImpl(AppStatisticsService statisticsService,
-                             Tracker tracker,
-                             Set<IPacketFilter> filters,
-                             @Named("shipNameFilter") Predicate<AisPacket> shipNameFilter) {
+    public PacketHandlerImpl(
+            Configuration configuration,
+            AppStatisticsService statisticsService,
+            Tracker tracker,
+            Set<IPacketFilter> filters,
+            @Named("shipNameFilter") Predicate<AisPacket> shipNameFilter
+    ) {
+        this.configuration = configuration;
         this.statisticsService = statisticsService;
         this.tracker = tracker;
         this.filters = filters;
@@ -136,20 +142,26 @@ public class PacketHandlerImpl implements PacketHandler {
         tracker.update(packet);
     }
 
-    private static Set<Analysis> initAnalyses() {
+    private  Set<Analysis> initAnalyses() {
         Injector injector = AbnormalAnalyzerApp.getInjector();
 
-        Set<Analysis> analyses = new ImmutableSet.Builder<Analysis>()
-            .add(injector.getInstance(CourseOverGroundAnalysis.class))
-            .add(injector.getInstance(SpeedOverGroundAnalysis.class))
-            .add(injector.getInstance(ShipTypeAndSizeAnalysis.class))
-            .add(injector.getInstance(SuddenSpeedChangeAnalysis.class))
-            .add(injector.getInstance(DriftAnalysis.class))
-            .add(injector.getInstance(CloseEncounterAnalysis.class))
-            .add(injector.getInstance(FreeFlowAnalysis.class))
-            .build();
+        ImmutableSet.Builder<Analysis> builder = new ImmutableSet.Builder<>();
+        if (configuration.getBoolean("analysis.cog.enabled"))
+            builder.add(injector.getInstance(CourseOverGroundAnalysis.class));
+        if (configuration.getBoolean("analysis.sog.enabled"))
+            builder.add(injector.getInstance(SpeedOverGroundAnalysis.class));
+        if (configuration.getBoolean("analysis.typesize.enabled"))
+            builder.add(injector.getInstance(ShipTypeAndSizeAnalysis.class));
+        if (configuration.getBoolean("analysis.suddenspeedchange.enabled"))
+            builder.add(injector.getInstance(SuddenSpeedChangeAnalysis.class));
+        if (configuration.getBoolean("analysis.drift.enabled"))
+            builder.add(injector.getInstance(DriftAnalysis.class));
+        if (configuration.getBoolean("analysis.closeencounter.enabled"))
+            builder.add(injector.getInstance(CloseEncounterAnalysis.class));
+        if (configuration.getBoolean("analysis.freeflow.enabled"))
+            builder.add(injector.getInstance(FreeFlowAnalysis.class));
 
-        return analyses;
+        return builder.build();
     }
 
 }
