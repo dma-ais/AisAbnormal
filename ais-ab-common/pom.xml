@@ -17,12 +17,16 @@
 	<description>AisAbnormal common module</description>
 
 	<dependencies>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>1.7.5</version>
+            <version>${dependencies.slf4j.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${dependencies.slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>net.maritimecloud</groupId>
@@ -33,17 +37,17 @@
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
-			<version>3.0</version>
+			<version>4.1.0</version>
 		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>${dependencies.slf4j.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>com.google.inject.extensions</groupId>
+            <artifactId>guice-assistedinject</artifactId>
+            <version>4.1.0</version>
+        </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>13.0.1</version>
+            <version>21.0</version>
         </dependency>
         <dependency>
             <groupId>commons-configuration</groupId>
@@ -53,7 +57,7 @@
         <dependency>
             <groupId>dk.dma.ais.lib</groupId>
             <artifactId>ais-lib-communication</artifactId>
-            <version>2.2-SNAPSHOT</version>
+            <version>2.4-SNAPSHOT</version>
         </dependency>
 
     </dependencies>

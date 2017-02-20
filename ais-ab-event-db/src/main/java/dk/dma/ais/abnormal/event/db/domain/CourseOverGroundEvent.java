@@ -16,7 +16,7 @@
 
 package dk.dma.ais.abnormal.event.db.domain;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 import javax.persistence.Entity;
 
@@ -56,7 +56,7 @@ public class CourseOverGroundEvent extends Event {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                 .add("shipType", shipType)
                 .add("shipLength", shipLength)
                 .add("courseOverGround", courseOverGround)

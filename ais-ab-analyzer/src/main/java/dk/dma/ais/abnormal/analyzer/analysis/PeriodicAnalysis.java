@@ -56,7 +56,7 @@ public abstract class PeriodicAnalysis extends Analysis {
     private long nextRunTime = 0L;
 
     /** Executor to perform the actual work. */
-    private final Executor executor = MoreExecutors.sameThreadExecutor(); // Executors.newSingleThreadExecutor();
+    private final Executor executor = MoreExecutors.directExecutor();
 
     public PeriodicAnalysis(EventRepository eventRepository, EventEmittingTracker trackingService, BehaviourManager behaviourManager) {
         super(eventRepository, trackingService, behaviourManager);

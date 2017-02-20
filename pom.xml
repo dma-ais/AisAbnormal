@@ -34,7 +34,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<dependencies.slf4j.version>1.7.7</dependencies.slf4j.version>
+		<dependencies.slf4j.version>1.7.23</dependencies.slf4j.version>
 		<dependencies.jetty.version>9.2.1.v20140609</dependencies.jetty.version>
 	</properties>
 
@@ -72,12 +72,12 @@
 			<dependency>
 				<groupId>dk.dma.ais.lib</groupId>
 				<artifactId>ais-lib-communication</artifactId>
-				<version>2.2-SNAPSHOT</version>
+				<version>2.4-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>dk.dma.commons</groupId>
 				<artifactId>dma-commons-app</artifactId>
-				<version>0.1</version>
+				<version>0.5-SNAPSHOT</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -120,7 +120,9 @@
                 </configuration>
             </plugin>
             <plugin>
-                <artifactId>maven-checkstyle-plugin</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>2.17</version>
                 <configuration>
                     <skip>true</skip>
                 </configuration>

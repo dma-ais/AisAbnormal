@@ -81,14 +81,9 @@
             <version>0.1</version>
         </dependency>
         <dependency>
-            <groupId>com.google.inject.extensions</groupId>
-            <artifactId>guice-servlet</artifactId>
-            <version>3.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.sun.jersey.contribs</groupId>
             <artifactId>jersey-guice</artifactId>
-            <version>1.18.1</version>
+            <version>1.19.3</version>
             <exclusions>
                 <!-- javax.inject is added by org.glassfish.jersey.media:jersey-media-json-jackson -->
                 <exclusion>
