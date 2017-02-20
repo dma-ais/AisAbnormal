@@ -32,7 +32,7 @@ import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisMessage5;
 import dk.dma.ais.message.IPositionMessage;
 import dk.dma.ais.packet.AisPacket;
-import dk.dma.ais.tracker.Tracker;
+import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +53,7 @@ public class PacketHandlerImpl implements PacketHandler {
 
     private final Configuration configuration;
     private final AppStatisticsService statisticsService;
-    private final Tracker tracker;
+    private final EventEmittingTracker tracker;
     private final Set<IPacketFilter> filters;
     private final Predicate<AisPacket> shipNameFilter;
 
@@ -63,7 +63,7 @@ public class PacketHandlerImpl implements PacketHandler {
     public PacketHandlerImpl(
             Configuration configuration,
             AppStatisticsService statisticsService,
-            Tracker tracker,
+            EventEmittingTracker tracker,
             Set<IPacketFilter> filters,
             @Named("shipNameFilter") Predicate<AisPacket> shipNameFilter
     ) {
