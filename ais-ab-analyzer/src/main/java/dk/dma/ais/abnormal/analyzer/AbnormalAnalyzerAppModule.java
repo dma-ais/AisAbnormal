@@ -88,6 +88,7 @@ import java.util.function.Predicate;
 
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_AIS_DATASOURCE_DOWNSAMPLING;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_AIS_DATASOURCE_URL;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_APPL_GRID_RESOLUTION_DEFAULT;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_APPL_STATISTICS_DUMP_PERIOD;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_CSV_FILE;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_H2_FILE;
@@ -112,7 +113,7 @@ import static org.apache.commons.lang.StringUtils.isBlank;
  *
  * @author Thomas Borg Salling <tbsalling@tbsalling.dk>
  */
-public final class AbnormalAnalyzerAppModule extends AbstractModule {
+public class AbnormalAnalyzerAppModule extends AbstractModule {
     private static final Logger LOG = LoggerFactory.getLogger(AbnormalAnalyzerAppModule.class);
     {
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
@@ -332,7 +333,7 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
             grid = Grid.create(gridResolution);
             LOG.info("Created Grid with size " + grid.getSize() + " meters.");
         } catch (Exception e) {
-            int defaultGridResolution = getConfiguration().getInt("application.grid.resolution.default", 200);
+            int defaultGridResolution = getConfiguration().getInt(CONFKEY_APPL_GRID_RESOLUTION_DEFAULT, 200);
             LOG.warn("Could not obtain grid resolution from statistics file. Assuming grid resolution " + defaultGridResolution + ".");
             grid = Grid.create(defaultGridResolution);
         }
@@ -540,7 +541,7 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
         return valid;
     }
 
-    private Configuration getConfiguration() {
+    Configuration getConfiguration() {
         return AbnormalAnalyzerApp.getInjector().getInstance(Configuration.class);
     }
 

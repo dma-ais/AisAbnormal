@@ -16,18 +16,91 @@
 
 package dk.dma.ais.abnormal.analyzer;
 
+import dk.dma.ais.abnormal.event.db.csv.CsvEventRepository;
+import dk.dma.ais.abnormal.event.db.jpa.JpaEventRepository;
 import dk.dma.ais.filter.GeoMaskFilter;
 import dk.dma.enav.model.geometry.BoundingBox;
+import dk.dma.enav.model.geometry.grid.Grid;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_APPL_GRID_RESOLUTION_DEFAULT;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_CSV_FILE;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_H2_FILE;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_REPOSITORY_TYPE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class AbnormalAnalyzerAppModuleTest {
+
+    private PropertiesConfiguration configuration;
+    private AbnormalAnalyzerAppModule sut;
+
+    @Before
+    public void config() {
+        configuration = new PropertiesConfiguration();
+        sut = new AbnormalAnalyzerAppModule(null) {
+            @Override
+            Configuration getConfiguration() {
+                return configuration;
+            }
+        };
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void cannotProvideUnknownEventRepositoryH2() throws IOException {
+        configuration.addProperty(CONFKEY_EVENTS_REPOSITORY_TYPE, "unknown");
+        sut.provideEventRepository().getClass();
+    }
+
+    @Test
+    public void canProvideCsvEventRepository() throws IOException {
+        Files.deleteIfExists(Paths.get("events.csv"));
+        configuration.addProperty(CONFKEY_EVENTS_REPOSITORY_TYPE, "csv");
+        configuration.addProperty(CONFKEY_EVENTS_CSV_FILE, "events.csv");
+        assertEquals(CsvEventRepository.class, sut.provideEventRepository().getClass());
+    }
+
+    @Test
+    public void canProvideJpaEventRepositoryH2() throws IOException {
+        configuration.addProperty(CONFKEY_EVENTS_REPOSITORY_TYPE, "h2");
+        configuration.addProperty(CONFKEY_EVENTS_H2_FILE, "h2file");
+        assertEquals(JpaEventRepository.class, sut.provideEventRepository().getClass());
+    }
+
+    @Test(expected = NullPointerException.class) /* Tests that 'pgsql' is accepted as config value */
+    public void canProvideJpaEventRepositoryPgsql() throws IOException {
+        configuration.addProperty(CONFKEY_EVENTS_REPOSITORY_TYPE, "pgsql");
+        /*    Requires pgsql online
+        configuration.addProperty(CONFKEY_EVENTS_PGSQL_PORT, "9999");
+        configuration.addProperty(CONFKEY_EVENTS_PGSQL_NAME, "pgsql");
+        configuration.addProperty(CONFKEY_EVENTS_PGSQL_USERNAME, "pgsql");
+        configuration.addProperty(CONFKEY_EVENTS_PGSQL_PASSWORD, "pgsql");
+        */
+        assertEquals(JpaEventRepository.class, sut.provideEventRepository().getClass());
+    }
+
+    @Test
+    public void canProvideGridWithDefaultResolution() {
+        Grid grid = sut.provideGrid();
+        assertEquals(200.0, grid.getResolution(), 1e-6);
+    }
+
+    @Test
+    public void canProvideGridWithResolutionFromConfigFile() {
+        configuration.addProperty(CONFKEY_APPL_GRID_RESOLUTION_DEFAULT, 149);
+        Grid grid = sut.provideGrid();
+        assertEquals(149, grid.getResolution(), 1e-6);
+    }
 
     @Test
     public void canReadXmlResourceForGeoMaskFilter() throws Exception {

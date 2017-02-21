@@ -56,18 +56,21 @@ public class PacketHandlerImpl implements PacketHandler {
     private final EventEmittingTracker tracker;
     private final Set<IPacketFilter> filters;
     private final Predicate<AisPacket> shipNameFilter;
+    private final Injector injector;
 
     private final Set<Analysis> analyses;
 
     @Inject
     public PacketHandlerImpl(
             Configuration configuration,
+            Injector injector,
             AppStatisticsService statisticsService,
             EventEmittingTracker tracker,
             Set<IPacketFilter> filters,
             @Named("shipNameFilter") Predicate<AisPacket> shipNameFilter
     ) {
         this.configuration = configuration;
+        this.injector = injector;
         this.statisticsService = statisticsService;
         this.tracker = tracker;
         this.filters = filters;
@@ -142,7 +145,7 @@ public class PacketHandlerImpl implements PacketHandler {
         tracker.update(packet);
     }
 
-    private  Set<Analysis> initAnalyses() {
+    Set<Analysis> initAnalyses() {
         ImmutableSet.Builder<Analysis> builder = new ImmutableSet.Builder<>();
 
         initAnalysis(builder,"cog", CourseOverGroundAnalysis.class);
@@ -156,9 +159,11 @@ public class PacketHandlerImpl implements PacketHandler {
         return builder.build();
     }
 
-    private void initAnalysis(ImmutableSet.Builder<Analysis> builder, String name, Class<? extends Analysis> analysisClass) {
-        Injector injector = AbnormalAnalyzerApp.getInjector();
+    Set<Analysis> getAnalyses() {
+        return this.analyses;
+    }
 
+    private void initAnalysis(ImmutableSet.Builder<Analysis> builder, String name, Class<? extends Analysis> analysisClass) {
         if (configuration.getBoolean("analysis." + name + ".enabled")) {
             builder.add(injector.getInstance(analysisClass));
             LOG.info(analysisClass.getSimpleName() + " is enabled.");
