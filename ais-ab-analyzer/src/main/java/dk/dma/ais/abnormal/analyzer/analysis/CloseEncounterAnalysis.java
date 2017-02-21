@@ -54,7 +54,6 @@ import static dk.dma.ais.abnormal.util.TrackPredicates.isSlowVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isSmallVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isSupportVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isUndefinedVessel;
-import static dk.dma.enav.safety.SafetyZones.vesselExtent;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.util.stream.Collectors.toSet;
@@ -189,7 +188,7 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
 
             if (allValuesPresent && !Float.isNaN(track1Cog) && !Float.isNaN(track2Hdg)) {
                 Ellipse safetyEllipseTrack1 = safetyZoneService.safetyZone(track1.getPosition(), track1.getPosition(), track1Cog, track1Sog, track1Loa, track1Beam, track1Stern, track1Starboard);
-                Ellipse extentTrack2 = vesselExtent(track1.getPosition(), track2.getPosition(), track2Hdg, track2Loa, track2Beam, track2Stern, track2Starboard);
+                Ellipse extentTrack2 = safetyZoneService.vesselExtent(track1.getPosition(), track2.getPosition(), track2Hdg, track2Loa, track2Beam, track2Stern, track2Starboard);
 
                 if (safetyEllipseTrack1 != null && extentTrack2 != null && safetyEllipseTrack1.intersects(extentTrack2)) {
                     track1.setProperty(Track.SAFETY_ZONE, safetyEllipseTrack1);
