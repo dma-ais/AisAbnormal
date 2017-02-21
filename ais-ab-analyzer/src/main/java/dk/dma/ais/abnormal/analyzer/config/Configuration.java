@@ -95,7 +95,10 @@ public final class Configuration {
     public static final String CONFKEY_REPORTS_MAILER_SMTP_SSL = "reports.mailer.smtp.ssl";
     public static final String CONFKEY_REPORTS_MAILER_SMTP_FROM = "reports.mailer.smtp.from";
     public static final String CONFKEY_REPORTS_MAILER_SMTP_TO = "reports.mailer.smtp.to";
-    
+    public static final String CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_LENGTH = "service.safetyzone.safety.ellipse.length";
+    public static final String CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_BREADTH = "service.safetyzone.safety.ellipse.breadth";
+    public static final String CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_BEHIND = "service.safetyzone.safety.ellipse.behind";
+
     public static boolean isValid(org.apache.commons.configuration.Configuration configuration) {
         if (configuration.isEmpty()) {
             return false;

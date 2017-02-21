@@ -37,6 +37,9 @@ import org.junit.Test;
 import java.util.HashSet;
 import java.util.Set;
 
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_BEHIND;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_BREADTH;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_LENGTH;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -72,11 +75,16 @@ public class CloseEncounterAnalysisTest {
 
     @Before
     public void setUp() throws Exception {
+        PropertiesConfiguration configuration = new PropertiesConfiguration();
+        configuration.addProperty(CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_LENGTH, 2.0);
+        configuration.addProperty(CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_BREADTH, 3.0);
+        configuration.addProperty(CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_BEHIND, 0.25);
+
         context = new JUnit4Mockery();
         trackingService = context.mock(EventEmittingTracker.class);
         statisticsService = context.mock(AppStatisticsService.class);
         eventRepository = context.mock(EventRepository.class);
-        safetyZoneService = new SafetyZoneService();
+        safetyZoneService = new SafetyZoneService(configuration);
         analysis = new CloseEncounterAnalysis(new PropertiesConfiguration(), statisticsService, trackingService, eventRepository, safetyZoneService);
 
         long timestamp = System.currentTimeMillis();

@@ -26,6 +26,9 @@ import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SOG_ENABLED;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_ENABLED;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_TYPESIZE_ENABLED;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_BEHIND;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_BREADTH;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_LENGTH;
 import static org.junit.Assert.assertEquals;
 
 public class PacketHandlerImplTest {
@@ -63,12 +66,16 @@ public class PacketHandlerImplTest {
         configuration.addProperty(CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_ENABLED, true);
         configuration.addProperty(CONFKEY_ANALYSIS_CLOSEENCOUNTER_ENABLED, true);
         configuration.addProperty(CONFKEY_ANALYSIS_FREEFLOW_ENABLED, true);
-
         configuration.addProperty(CONFKEY_ANALYSIS_FREEFLOW_BBOX, new Integer[] {1, 2, 3, 4});
+        configuration.addProperty(CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_LENGTH, 2.0);
+        configuration.addProperty(CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_BREADTH, 3.0);
+        configuration.addProperty(CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_BEHIND, 0.25);
 
         final JUnit4Mockery context = new JUnit4Mockery();
         Injector injectorMock = context.mock(Injector.class);
         EventEmittingTracker trackingServiceMock = context.mock(EventEmittingTracker.class);
+
+        SafetyZoneService safetyZoneService = new SafetyZoneService(configuration);
 
         context.checking(new Expectations() {{
             ignoring(trackingServiceMock);
@@ -77,7 +84,7 @@ public class PacketHandlerImplTest {
             oneOf(injectorMock).getInstance(with(ShipTypeAndSizeAnalysis.class)); will(returnValue(new ShipTypeAndSizeAnalysis(configuration, null, null, trackingServiceMock, null, null)));
             oneOf(injectorMock).getInstance(with(DriftAnalysis.class)); will(returnValue(new DriftAnalysis(configuration, null, trackingServiceMock, null)));
             oneOf(injectorMock).getInstance(with(SuddenSpeedChangeAnalysis.class)); will(returnValue(new SuddenSpeedChangeAnalysis(configuration, null, trackingServiceMock, null)));
-            oneOf(injectorMock).getInstance(with(CloseEncounterAnalysis.class)); will(returnValue(new CloseEncounterAnalysis(configuration, null, trackingServiceMock, null, new SafetyZoneService())));
+            oneOf(injectorMock).getInstance(with(CloseEncounterAnalysis.class)); will(returnValue(new CloseEncounterAnalysis(configuration, null, trackingServiceMock, null, safetyZoneService)));
             oneOf(injectorMock).getInstance(with(FreeFlowAnalysis.class)); will(returnValue(new FreeFlowAnalysis(configuration, null, trackingServiceMock, null)));
         }});
 
@@ -104,15 +111,20 @@ public class PacketHandlerImplTest {
         configuration.addProperty(CONFKEY_ANALYSIS_SUDDENSPEEDCHANGE_ENABLED, true);
         configuration.addProperty(CONFKEY_ANALYSIS_CLOSEENCOUNTER_ENABLED, true);
         configuration.addProperty(CONFKEY_ANALYSIS_FREEFLOW_ENABLED, false);
+        configuration.addProperty(CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_LENGTH, 2.0);
+        configuration.addProperty(CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_BREADTH, 3.0);
+        configuration.addProperty(CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_BEHIND, 0.25);
 
         final JUnit4Mockery context = new JUnit4Mockery();
         Injector injectorMock = context.mock(Injector.class);
         EventEmittingTracker trackingServiceMock = context.mock(EventEmittingTracker.class);
 
+        SafetyZoneService safetyZoneService = new SafetyZoneService(configuration);
+
         context.checking(new Expectations() {{
             ignoring(trackingServiceMock);
             oneOf(injectorMock).getInstance(with(SuddenSpeedChangeAnalysis.class)); will(returnValue(new SuddenSpeedChangeAnalysis(configuration, null, trackingServiceMock, null)));
-            oneOf(injectorMock).getInstance(with(CloseEncounterAnalysis.class)); will(returnValue(new CloseEncounterAnalysis(configuration, null, trackingServiceMock, null, new SafetyZoneService())));
+            oneOf(injectorMock).getInstance(with(CloseEncounterAnalysis.class)); will(returnValue(new CloseEncounterAnalysis(configuration, null, trackingServiceMock, null, safetyZoneService)));
         }});
 
         PacketHandlerImpl sut = new PacketHandlerImpl(configuration, injectorMock, null, null, null, null);

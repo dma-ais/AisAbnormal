@@ -15,12 +15,20 @@
 
 package dk.dma.ais.abnormal.analyzer.services;
 
+import com.google.inject.Inject;
+import dk.dma.ais.abnormal.analyzer.analysis.ShipTypeAndSizeAnalysis;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Ellipse;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.util.CoordinateConverter;
 import dk.dma.enav.util.geometry.Point;
+import org.apache.commons.configuration.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_BEHIND;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_BREADTH;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_LENGTH;
 import static dk.dma.enav.util.compass.CompassUtils.compass2cartesian;
 import static java.lang.Math.max;
 
@@ -31,6 +39,23 @@ import static java.lang.Math.max;
  * @author Thomas Borg Salling <tbsalling@tbsalling.dk>
  */
 public class SafetyZoneService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ShipTypeAndSizeAnalysis.class);
+
+    private final double safetyEllipseLength;
+    private final double safetyEllipseBreadth;
+    private final double safetyEllipseBehind;
+
+    @Inject
+    public SafetyZoneService(Configuration configuration) {
+        safetyEllipseLength = configuration.getDouble(CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_LENGTH);
+        safetyEllipseBreadth = configuration.getDouble(CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_BREADTH);
+        safetyEllipseBehind = configuration.getDouble(CONFKEY_SAFETYZONES_SAFETY_ELLIPSE_BEHIND);
+
+        LOG.debug("Using safetyEllipseLength = " + safetyEllipseLength);
+        LOG.debug("Using safetyEllipseBreadth = " + safetyEllipseBreadth);
+        LOG.debug("Using safetyEllipseBehind = " + safetyEllipseBehind);
+    }
 
     /**
      * Compute the an elliptic zone which roughly corresponds to the vessel's physical extent.
@@ -84,9 +109,6 @@ public class SafetyZoneService {
      * @return an Ellipse approximately covering the vessel's extent.
      */
     public Ellipse safetyZone(Position geodeticReference, Position position, float cog, float sog, float loa, float beam, float dimStern, float dimStarboard) {
-        final double safetyEllipseLength = 2;
-        final double safetyEllipseBreadth = 3;
-        final double safetyEllipseBehind = 0.25;
         final double v = 1.0;  /* TODO should depend on sog */
         final double l1 = max(safetyEllipseLength*v, 1.0 + safetyEllipseBehind*v*2.0);
         final double b1 = max(safetyEllipseBreadth*v, 1.5);
@@ -112,8 +134,7 @@ public class SafetyZoneService {
      * @param xc
      * @return
      */
-    @SuppressWarnings("unused")
-    public Ellipse createEllipse(Position geodeticReference, Position position, float direction, float loa, float beam, float dimStern, float dimStarboard, double l1, double b1, double xc) {
+    private Ellipse createEllipse(Position geodeticReference, Position position, float direction, float loa, float beam, float dimStern, float dimStarboard, double l1, double b1, double xc) {
         // Compute direction of half axis alpha
         final double thetaDeg = compass2cartesian(direction);
 
