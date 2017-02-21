@@ -29,6 +29,7 @@ import dk.dma.ais.abnormal.analyzer.reports.ReportJobFactory;
 import dk.dma.ais.abnormal.analyzer.reports.ReportMailer;
 import dk.dma.ais.abnormal.analyzer.reports.ReportScheduler;
 import dk.dma.ais.abnormal.event.db.EventRepository;
+import dk.dma.ais.abnormal.event.db.csv.CsvEventRepository;
 import dk.dma.ais.abnormal.event.db.jpa.JpaEventRepository;
 import dk.dma.ais.abnormal.event.db.jpa.JpaSessionFactoryFactory;
 import dk.dma.ais.abnormal.stat.db.StatisticDataRepository;
@@ -76,6 +77,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -86,6 +89,7 @@ import java.util.function.Predicate;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_AIS_DATASOURCE_DOWNSAMPLING;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_AIS_DATASOURCE_URL;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_APPL_STATISTICS_DUMP_PERIOD;
+import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_CSV_FILE;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_H2_FILE;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_PGSQL_HOST;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_EVENTS_PGSQL_NAME;
@@ -216,29 +220,37 @@ public final class AbnormalAnalyzerAppModule extends AbstractModule {
     @Provides
     @Singleton
     EventRepository provideEventRepository() {
-        SessionFactory sessionFactory;
+        EventRepository eventRepository;
         Configuration configuration = getConfiguration();
         String eventRepositoryType = configuration.getString(CONFKEY_EVENTS_REPOSITORY_TYPE);
         try {
-            if ("h2".equalsIgnoreCase(eventRepositoryType)) {
-                sessionFactory = JpaSessionFactoryFactory.newH2SessionFactory(new File(configuration.getString(CONFKEY_EVENTS_H2_FILE)));
+            if ("csv".equalsIgnoreCase(eventRepositoryType)) {
+                String csvFileName = configuration.getString(CONFKEY_EVENTS_CSV_FILE);
+                eventRepository = new CsvEventRepository(Files.newOutputStream(Paths.get(csvFileName), StandardOpenOption.CREATE_NEW), false);
+            } else if ("h2".equalsIgnoreCase(eventRepositoryType)) {
+                SessionFactory sessionFactory = JpaSessionFactoryFactory.newH2SessionFactory(new File(configuration.getString(CONFKEY_EVENTS_H2_FILE)));
+                eventRepository = new JpaEventRepository(sessionFactory, false);
             } else if ("pgsql".equalsIgnoreCase(eventRepositoryType)) {
-                sessionFactory = JpaSessionFactoryFactory.newPostgresSessionFactory(
+                SessionFactory sessionFactory = JpaSessionFactoryFactory.newPostgresSessionFactory(
                     configuration.getString(CONFKEY_EVENTS_PGSQL_HOST),
                     configuration.getInt(CONFKEY_EVENTS_PGSQL_PORT, 8432),
                     configuration.getString(CONFKEY_EVENTS_PGSQL_NAME),
                     configuration.getString(CONFKEY_EVENTS_PGSQL_USERNAME),
                     configuration.getString(CONFKEY_EVENTS_PGSQL_PASSWORD)
                 );
+                eventRepository = new JpaEventRepository(sessionFactory, false);
             } else {
                 throw new IllegalArgumentException("eventRepositoryType: " + eventRepositoryType);
             }
         } catch (HibernateException e) {
             LOG.error(e.getMessage(), e);
             throw e;
+        } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
+            throw new RuntimeException(e);
         }
 
-        return new JpaEventRepository(sessionFactory, false);
+        return eventRepository;
     }
 
     @Provides

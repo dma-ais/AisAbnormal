@@ -75,6 +75,7 @@ public final class Configuration {
     public static final String CONFKEY_EVENTS_PGSQL_USERNAME = "events.pgsql.username";
     public static final String CONFKEY_EVENTS_PGSQL_PASSWORD = "events.pgsql.password";
     public static final String CONFKEY_EVENTS_H2_FILE = "events.h2.file";
+    public static final String CONFKEY_EVENTS_CSV_FILE = "events.csv.file";
     public static final String CONFKEY_AIS_DATASOURCE_URL = "ais.datasource.url";
     public static final String CONFKEY_AIS_DATASOURCE_DOWNSAMPLING = "ais.datasource.downsampling";
     public static final String CONFKEY_REPORTS_ENABLED = "reports.enabled";
@@ -145,8 +146,8 @@ public final class Configuration {
             return false;
         } else {
             String t = eventsRepositoryType.toLowerCase().trim();
-            if (! ("h2".equals(t) || "pgsql".equals(t))) {
-                LOG.error("Illegal value: '" + t + "'. Only 'pgsql' or 'h2' allowed for configuration key: " + CONFKEY_EVENTS_REPOSITORY_TYPE);
+            if (! ("h2".equals(t) || "pgsql".equals(t) || "csv".equals(t))) {
+                LOG.error("Illegal value: '" + t + "'. Only 'pgsql', 'h2' or 'csv' allowed for configuration key: " + CONFKEY_EVENTS_REPOSITORY_TYPE);
                 return false;
             }
         }

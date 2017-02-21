@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * This abstract class is the common class of all Events. An event describes some sort of abnormal behaviour
@@ -161,6 +162,28 @@ public abstract class Event {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Set<Integer> involvedMmsis() {
+        return behaviours.stream().map(b -> b.getVessel().getMmsi()).distinct().collect(Collectors.toSet());
+    }
+
+    public Behaviour primaryBehaviour() {
+        Behaviour primaryBehaviour = null;
+        try {
+            primaryBehaviour = behaviours.stream().filter(b -> b.isPrimary()).findFirst().get();
+        } catch (NoSuchElementException e) {
+        }
+        return primaryBehaviour;
+    }
+
+    public Behaviour arbitraryNonPrimaryBehaviour() {
+        Behaviour arbitraryNonPrimaryBehaviour = null;
+        try {
+            arbitraryNonPrimaryBehaviour = behaviours.stream().filter(b -> !(b.isPrimary())).findFirst().get();
+        } catch (NoSuchElementException e) {
+        }
+        return arbitraryNonPrimaryBehaviour;
     }
 
     @Override
