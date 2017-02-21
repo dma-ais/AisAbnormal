@@ -28,6 +28,7 @@ import dk.dma.ais.abnormal.analyzer.behaviour.BehaviourManagerImpl;
 import dk.dma.ais.abnormal.analyzer.reports.ReportJobFactory;
 import dk.dma.ais.abnormal.analyzer.reports.ReportMailer;
 import dk.dma.ais.abnormal.analyzer.reports.ReportScheduler;
+import dk.dma.ais.abnormal.analyzer.services.SafetyZoneService;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.csv.CsvEventRepository;
 import dk.dma.ais.abnormal.event.db.jpa.JpaEventRepository;
@@ -138,6 +139,7 @@ public class AbnormalAnalyzerAppModule extends AbstractModule {
         bind(ReportJobFactory.class).in(Scopes.SINGLETON);
         bind(ReportScheduler.class).in(Scopes.SINGLETON);
         bind(ReportMailer.class).in(Scopes.SINGLETON);
+        bind(SafetyZoneService.class).in(Scopes.SINGLETON);
     }
 
     @Provides

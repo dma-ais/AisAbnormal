@@ -17,6 +17,7 @@ package dk.dma.ais.abnormal.analyzer.analysis;
 
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
 import dk.dma.ais.abnormal.analyzer.behaviour.EventCertainty;
+import dk.dma.ais.abnormal.analyzer.services.SafetyZoneService;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.Behaviour;
 import dk.dma.ais.abnormal.event.db.domain.CloseEncounterEvent;
@@ -47,6 +48,7 @@ public class CloseEncounterAnalysisTest {
     EventEmittingTracker trackingService;
     AppStatisticsService statisticsService;
     EventRepository eventRepository;
+    SafetyZoneService safetyZoneService;
 
     Track track, closeTrack, distantTrack, oldNearbyTrack, newNearbyTrack, distantNearbyTrack;
     Set<Track> tracks;
@@ -74,7 +76,8 @@ public class CloseEncounterAnalysisTest {
         trackingService = context.mock(EventEmittingTracker.class);
         statisticsService = context.mock(AppStatisticsService.class);
         eventRepository = context.mock(EventRepository.class);
-        analysis = new CloseEncounterAnalysis(new PropertiesConfiguration(), statisticsService, trackingService, eventRepository);
+        safetyZoneService = new SafetyZoneService();
+        analysis = new CloseEncounterAnalysis(new PropertiesConfiguration(), statisticsService, trackingService, eventRepository, safetyZoneService);
 
         long timestamp = System.currentTimeMillis();
         long tooOld = timestamp - maxTimestampDeviationMillis - 1;

@@ -9,6 +9,7 @@ import dk.dma.ais.abnormal.analyzer.analysis.FreeFlowAnalysis;
 import dk.dma.ais.abnormal.analyzer.analysis.ShipTypeAndSizeAnalysis;
 import dk.dma.ais.abnormal.analyzer.analysis.SpeedOverGroundAnalysis;
 import dk.dma.ais.abnormal.analyzer.analysis.SuddenSpeedChangeAnalysis;
+import dk.dma.ais.abnormal.analyzer.services.SafetyZoneService;
 import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTracker;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.jmock.Expectations;
@@ -76,7 +77,7 @@ public class PacketHandlerImplTest {
             oneOf(injectorMock).getInstance(with(ShipTypeAndSizeAnalysis.class)); will(returnValue(new ShipTypeAndSizeAnalysis(configuration, null, null, trackingServiceMock, null, null)));
             oneOf(injectorMock).getInstance(with(DriftAnalysis.class)); will(returnValue(new DriftAnalysis(configuration, null, trackingServiceMock, null)));
             oneOf(injectorMock).getInstance(with(SuddenSpeedChangeAnalysis.class)); will(returnValue(new SuddenSpeedChangeAnalysis(configuration, null, trackingServiceMock, null)));
-            oneOf(injectorMock).getInstance(with(CloseEncounterAnalysis.class)); will(returnValue(new CloseEncounterAnalysis(configuration, null, trackingServiceMock, null)));
+            oneOf(injectorMock).getInstance(with(CloseEncounterAnalysis.class)); will(returnValue(new CloseEncounterAnalysis(configuration, null, trackingServiceMock, null, new SafetyZoneService())));
             oneOf(injectorMock).getInstance(with(FreeFlowAnalysis.class)); will(returnValue(new FreeFlowAnalysis(configuration, null, trackingServiceMock, null)));
         }});
 
@@ -111,7 +112,7 @@ public class PacketHandlerImplTest {
         context.checking(new Expectations() {{
             ignoring(trackingServiceMock);
             oneOf(injectorMock).getInstance(with(SuddenSpeedChangeAnalysis.class)); will(returnValue(new SuddenSpeedChangeAnalysis(configuration, null, trackingServiceMock, null)));
-            oneOf(injectorMock).getInstance(with(CloseEncounterAnalysis.class)); will(returnValue(new CloseEncounterAnalysis(configuration, null, trackingServiceMock, null)));
+            oneOf(injectorMock).getInstance(with(CloseEncounterAnalysis.class)); will(returnValue(new CloseEncounterAnalysis(configuration, null, trackingServiceMock, null, new SafetyZoneService())));
         }});
 
         PacketHandlerImpl sut = new PacketHandlerImpl(configuration, injectorMock, null, null, null, null);

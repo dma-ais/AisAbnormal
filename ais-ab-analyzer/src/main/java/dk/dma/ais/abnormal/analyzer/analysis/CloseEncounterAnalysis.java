@@ -18,6 +18,7 @@ package dk.dma.ais.abnormal.analyzer.analysis;
 
 import com.google.inject.Inject;
 import dk.dma.ais.abnormal.analyzer.AppStatisticsService;
+import dk.dma.ais.abnormal.analyzer.services.SafetyZoneService;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.CloseEncounterEvent;
 import dk.dma.ais.abnormal.event.db.domain.Event;
@@ -53,7 +54,6 @@ import static dk.dma.ais.abnormal.util.TrackPredicates.isSlowVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isSmallVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isSupportVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isUndefinedVessel;
-import static dk.dma.enav.safety.SafetyZones.safetyZone;
 import static dk.dma.enav.safety.SafetyZones.vesselExtent;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -79,14 +79,16 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
     private static final Logger LOG = LoggerFactory.getLogger(CloseEncounterAnalysis.class);
 
     private final AppStatisticsService statisticsService;
+    private final SafetyZoneService safetyZoneService;
 
     /** Minimum speed over ground to consider close encounter (in knots) */
     private final float sogMin;
 
     @Inject
-    public CloseEncounterAnalysis(Configuration configuration, AppStatisticsService statisticsService, EventEmittingTracker trackingService, EventRepository eventRepository) {
+    public CloseEncounterAnalysis(Configuration configuration, AppStatisticsService statisticsService, EventEmittingTracker trackingService, EventRepository eventRepository, SafetyZoneService safetyZoneService) {
         super(eventRepository, trackingService, null);
         this.statisticsService = statisticsService;
+        this.safetyZoneService = safetyZoneService;
         this.sogMin = configuration.getFloat(CONFKEY_ANALYSIS_CLOSEENCOUNTER_SOG_MIN, 5.0f);
         setTrackPredictionTimeMax(configuration.getInteger(CONFKEY_ANALYSIS_CLOSEENCOUNTER_PREDICTIONTIME_MAX, -1));
         setAnalysisPeriodMillis(configuration.getInt(CONFKEY_ANALYSIS_CLOSEENCOUNTER_RUN_PERIOD, 30000) * 1000);
@@ -186,7 +188,7 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
             }
 
             if (allValuesPresent && !Float.isNaN(track1Cog) && !Float.isNaN(track2Hdg)) {
-                Ellipse safetyEllipseTrack1 = safetyZone(track1.getPosition(), track1.getPosition(), track1Cog, track1Sog, track1Loa, track1Beam, track1Stern, track1Starboard);
+                Ellipse safetyEllipseTrack1 = safetyZoneService.safetyZone(track1.getPosition(), track1.getPosition(), track1Cog, track1Sog, track1Loa, track1Beam, track1Stern, track1Starboard);
                 Ellipse extentTrack2 = vesselExtent(track1.getPosition(), track2.getPosition(), track2Hdg, track2Loa, track2Beam, track2Stern, track2Starboard);
 
                 if (safetyEllipseTrack1 != null && extentTrack2 != null && safetyEllipseTrack1.intersects(extentTrack2)) {
