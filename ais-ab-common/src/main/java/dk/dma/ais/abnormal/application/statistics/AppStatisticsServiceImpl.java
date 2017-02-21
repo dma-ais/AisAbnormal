@@ -19,6 +19,8 @@ import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -35,6 +37,8 @@ public class AppStatisticsServiceImpl implements AppStatisticsService {
 
     private static final int DEFAULT_DUMP_INTERVAL_SECONDS = 3600;
     private final int dumpInterval;
+
+    private final LocalDateTime timeStart = LocalDateTime.now();
 
     private final AtomicLong lastDump = new AtomicLong(System.currentTimeMillis());
     private final AtomicLong lastMessageCount = new AtomicLong(0);
@@ -143,9 +147,15 @@ public class AppStatisticsServiceImpl implements AppStatisticsService {
 
     @Override
     public void dumpStatistics() {
+        final LocalDateTime now = LocalDateTime.now();
+        final String runTimeAsString = Duration.between(timeStart, now).toString();
+
         LOG.info("==== AIS Abnormal Behavior application statistics ====");
 
         LOG.info("==== Application statistics ====");
+        LOG.info(String.format("%-30s %31s", "Time start", timeStart.toString()));
+        LOG.info(String.format("%-30s %31s", "Time now", now));
+        LOG.info(String.format("%-30s %" + (8+runTimeAsString.length()) + "s", "Runtime duration", runTimeAsString));
         LOG.info(String.format("%-30s %9d", "Unfiltered packet count", unfilteredPacketCount.get()));
         LOG.info(String.format("%-30s %9d", "Filtered packet count", filteredPacketCount.get()));
         LOG.info(String.format("%-30s %9d", "Message count", messageCount.get()));
