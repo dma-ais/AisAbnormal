@@ -53,8 +53,8 @@ public class CsvEventRepositoryTest {
         sut.save(event);
 
         assertEquals(
-            "eventId,eventType,startTime,endTime,title,description,mmsis,primaryMmsi,primaryName,primaryCallsign,primaryType,primaryLength,secondaryMmsi,secondaryName,secondaryCallsign,secondaryType,secondaryLength\r\n" +
-            "0,SuddenSpeedChangeEvent,2017-01-22T10:00,,title,description,[123456789],123456789,name,callsign,1,30,,,,,\r\n",
+            "eventId,eventType,startTime,endTime,title,description,mmsis,pMmsi,pName,pCallsign,pType,pLength,pLat,pLon,sMmsi,sName,sCallsign,sType,sLength,sLat,sLon\r\n" +
+            "0,SuddenSpeedChangeEvent,2017-01-22T10:00,,title,description,[123456789],123456789,name,callsign,1,30,56.0,12.0,,,,,,,\r\n",
             out.toString()
         );
     }

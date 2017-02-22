@@ -20,6 +20,7 @@ import com.google.inject.Inject;
 import dk.dma.ais.abnormal.event.db.EventRepository;
 import dk.dma.ais.abnormal.event.db.domain.Behaviour;
 import dk.dma.ais.abnormal.event.db.domain.Event;
+import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.slf4j.Logger;
@@ -68,8 +69,8 @@ public class CsvEventRepository implements EventRepository {
                     .withHeader(
                         "eventId", "eventType", "startTime", "endTime", "title",
                         "description", "mmsis",
-                        "primaryMmsi", "primaryName", "primaryCallsign", "primaryType", "primaryLength",
-                        "secondaryMmsi", "secondaryName", "secondaryCallsign", "secondaryType", "secondaryLength"
+                        "pMmsi", "pName", "pCallsign", "pType", "pLength", "pLat", "pLon",
+                        "sMmsi", "sName", "sCallsign", "sType", "sLength", "sLat", "sLon"
                     ).print(writer);
 
         this.readonly = readonly;
@@ -90,6 +91,9 @@ public class CsvEventRepository implements EventRepository {
                     Behaviour primaryBehaviour = event.primaryBehaviour();
                     Behaviour secondaryBehaviour = event.arbitraryNonPrimaryBehaviour();
 
+                    TrackingPoint primaryLastTrackingPoint = primaryBehaviour.getTrackingPoints().last();
+                    TrackingPoint secondaryLastTrackingPoint = secondaryBehaviour == null ? null : secondaryBehaviour.getTrackingPoints().last();
+
                     printer.printRecord(
                         event.getId(),
                         event.getEventType(),
@@ -103,11 +107,15 @@ public class CsvEventRepository implements EventRepository {
                         primaryBehaviour.getVessel().getCallsign(),
                         primaryBehaviour.getVessel().getType(),
                         primaryBehaviour.getVessel().getLength(),
+                        primaryLastTrackingPoint.getLatitude(),
+                        primaryLastTrackingPoint.getLongitude(),
                         secondaryBehaviour == null ? null : secondaryBehaviour.getVessel().getMmsi(),
                         secondaryBehaviour == null ? null : secondaryBehaviour.getVessel().getName(),
                         secondaryBehaviour == null ? null : secondaryBehaviour.getVessel().getCallsign(),
                         secondaryBehaviour == null ? null : secondaryBehaviour.getVessel().getType(),
-                        secondaryBehaviour == null ? null : secondaryBehaviour.getVessel().getLength()
+                        secondaryBehaviour == null ? null : secondaryBehaviour.getVessel().getLength(),
+                        secondaryLastTrackingPoint == null ? null : secondaryLastTrackingPoint.getLatitude(),
+                        secondaryLastTrackingPoint == null ? null : secondaryLastTrackingPoint.getLongitude()
                     );
 
                     printer.flush();
