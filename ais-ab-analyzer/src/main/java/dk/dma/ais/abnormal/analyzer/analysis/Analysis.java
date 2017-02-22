@@ -37,6 +37,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * An Analysis is a class which is known to the ais-ab-analyzer application and possesses certain public
@@ -60,6 +61,9 @@ public abstract class Analysis {
 
     private static final String DATE_FORMAT_STRING = "dd/MM/yyyy HH:mm";
     protected static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_STRING);
+    {
+        DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
 
     private final String analysisName;
 
