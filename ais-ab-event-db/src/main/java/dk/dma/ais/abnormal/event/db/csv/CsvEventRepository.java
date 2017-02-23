@@ -49,6 +49,7 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 public class CsvEventRepository implements EventRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(CsvEventRepository.class);
+
     {
         LOG.info(this.getClass().getSimpleName() + " created (" + this + ").");
     }
@@ -67,13 +68,13 @@ public class CsvEventRepository implements EventRepository {
         Writer writer = new OutputStreamWriter(out);
 
         printer = CSVFormat.RFC4180
-                    .withHeader(
+                .withHeader(
                         "eventId", "eventType", "startTime", "endTime", "title",
                         "description", "mmsis",
-                        "pMmsi", "pName", "pCallsign", "pType", "pLength", "pLat", "pLon",
-                        "sMmsi", "sName", "sCallsign", "sType", "sLength", "sLat", "sLon",
+                        "pMmsi", "pName", "pCallsign", "pType", "pLength", "pLat", "pLon", "pSog", "pCog", "pHdg",
+                        "sMmsi", "sName", "sCallsign", "sType", "sLength", "sLat", "sLon", "sSog", "sCog", "sHdg",
                         "filterSuggest"
-                    ).print(writer);
+                ).print(writer);
 
         this.readonly = readonly;
     }
@@ -86,9 +87,12 @@ public class CsvEventRepository implements EventRepository {
     @Override
     public void save(Event event) {
         if (readonly == false) {
-            if (event.getState() == Event.State.ONGOING) {
+            if (event.getState() == Event.State.ONGOING)
                 insertOngoingEvent(event);
+            else
+                removeOngoingEvent(event);
 
+            if (event.getState() == Event.State.PAST) {
                 try {
                     Behaviour primaryBehaviour = event.primaryBehaviour();
                     Behaviour secondaryBehaviour = event.arbitraryNonPrimaryBehaviour();
@@ -97,36 +101,40 @@ public class CsvEventRepository implements EventRepository {
                     TrackingPoint secondaryLastTrackingPoint = secondaryBehaviour == null ? null : secondaryBehaviour.getTrackingPoints().last();
 
                     printer.printRecord(
-                        event.getId(),
-                        event.getEventType(),
-                        event.getStartTime(),
-                        event.getEndTime(),
-                        event.getTitle(),
-                        event.getDescription(),
-                        event.involvedMmsis(),
-                        primaryBehaviour.getVessel().getMmsi(),
-                        primaryBehaviour.getVessel().getName(),
-                        primaryBehaviour.getVessel().getCallsign(),
-                        primaryBehaviour.getVessel().getType(),
-                        primaryBehaviour.getVessel().getLength(),
-                        primaryLastTrackingPoint.getLatitude(),
-                        primaryLastTrackingPoint.getLongitude(),
-                        secondaryBehaviour == null ? null : secondaryBehaviour.getVessel().getMmsi(),
-                        secondaryBehaviour == null ? null : secondaryBehaviour.getVessel().getName(),
-                        secondaryBehaviour == null ? null : secondaryBehaviour.getVessel().getCallsign(),
-                        secondaryBehaviour == null ? null : secondaryBehaviour.getVessel().getType(),
-                        secondaryBehaviour == null ? null : secondaryBehaviour.getVessel().getLength(),
-                        secondaryLastTrackingPoint == null ? null : secondaryLastTrackingPoint.getLatitude(),
-                        secondaryLastTrackingPoint == null ? null : secondaryLastTrackingPoint.getLongitude(),
-                        filterSuggestion(event)
+                            event.getId(),
+                            event.getEventType(),
+                            event.getStartTime(),
+                            event.getEndTime(),
+                            event.getTitle(),
+                            event.getDescription(),
+                            event.involvedMmsis(),
+                            primaryBehaviour.getVessel().getMmsi(),
+                            primaryBehaviour.getVessel().getName(),
+                            primaryBehaviour.getVessel().getCallsign(),
+                            primaryBehaviour.getVessel().getType(),
+                            primaryBehaviour.getVessel().getLength(),
+                            primaryLastTrackingPoint.getLatitude(),
+                            primaryLastTrackingPoint.getLongitude(),
+                            primaryBehaviour.mostRecentTrackingPoint().getSpeedOverGround(),
+                            primaryBehaviour.mostRecentTrackingPoint().getCourseOverGround(),
+                            primaryBehaviour.mostRecentTrackingPoint().getTrueHeading(),
+                            secondaryBehaviour == null ? null : secondaryBehaviour.getVessel().getMmsi(),
+                            secondaryBehaviour == null ? null : secondaryBehaviour.getVessel().getName(),
+                            secondaryBehaviour == null ? null : secondaryBehaviour.getVessel().getCallsign(),
+                            secondaryBehaviour == null ? null : secondaryBehaviour.getVessel().getType(),
+                            secondaryBehaviour == null ? null : secondaryBehaviour.getVessel().getLength(),
+                            secondaryLastTrackingPoint == null ? null : secondaryLastTrackingPoint.getLatitude(),
+                            secondaryLastTrackingPoint == null ? null : secondaryLastTrackingPoint.getLongitude(),
+                            secondaryBehaviour == null ? null : secondaryBehaviour.mostRecentTrackingPoint().getSpeedOverGround(),
+                            secondaryBehaviour == null ? null : secondaryBehaviour.mostRecentTrackingPoint().getCourseOverGround(),
+                            secondaryBehaviour == null ? null : secondaryBehaviour.mostRecentTrackingPoint().getTrueHeading(),
+                            filterSuggestion(event)
                     );
 
                     printer.flush();
                 } catch (IOException e) {
                     LOG.error(e.getMessage(), e);
                 }
-            } else {
-                removeOngoingEvent(event);
             }
         }
     }
@@ -138,20 +146,20 @@ public class CsvEventRepository implements EventRepository {
 
         StringBuilder sb = new StringBuilder();
         sb.append("-start \"")
-            .append(fmt.format(event.getStartTime().minus(10, MINUTES)))
-        .append("\" ")
-        .append("-end \"")
-            .append(fmt.format(event.getEndTime() == null ? event.getStartTime().plus(20, MINUTES) : event.getEndTime().plus(10, MINUTES)))
-        .append("\" ")
-        .append("-exp \"")
-            .append("m.pos within circle(")
-            .append(String.format("%.4f", tp.getLatitude()))
-            .append(",")
-            .append(String.format("%.4f", tp.getLongitude()))
-            .append(",")
-            .append(1000)
-            .append(")")
-        .append("\"");
+                .append(fmt.format(event.getStartTime().minus(10, MINUTES)))
+                .append("\" ")
+                .append("-end \"")
+                .append(fmt.format(event.getEndTime() == null ? event.getStartTime().plus(20, MINUTES) : event.getEndTime().plus(10, MINUTES)))
+                .append("\" ")
+                .append("-exp \"")
+                .append("m.pos within circle(")
+                .append(String.format("%.4f", tp.getLatitude()))
+                .append(",")
+                .append(String.format("%.4f", tp.getLongitude()))
+                .append(",")
+                .append(1000)
+                .append(")")
+                .append("\"");
         return sb.toString();
     }
 
@@ -195,7 +203,7 @@ public class CsvEventRepository implements EventRepository {
         lock.lock();
         try {
             if (event.getState() == Event.State.ONGOING) {
-                event.involvedMmsis().forEach( mmsi -> {
+                event.involvedMmsis().forEach(mmsi -> {
                     Map<Class<? extends Event>, Event> eventMap = ongoingEvents.get(mmsi);
 
                     if (eventMap == null) {
@@ -214,7 +222,7 @@ public class CsvEventRepository implements EventRepository {
     private void removeOngoingEvent(Event event) {
         lock.lock();
         try {
-            event.involvedMmsis().forEach( mmsi -> {
+            event.involvedMmsis().forEach(mmsi -> {
                 Map<Class<? extends Event>, Event> eventMap = ongoingEvents.get(mmsi);
                 if (eventMap != null) {
                     eventMap.remove(event.getClass());
