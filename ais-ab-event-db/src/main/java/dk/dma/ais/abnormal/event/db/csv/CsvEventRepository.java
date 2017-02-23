@@ -32,8 +32,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -97,8 +95,8 @@ public class CsvEventRepository implements EventRepository {
                     printer.printRecord(
                         event.getId(),
                         event.getEventType(),
-                        event.getStartTime() == null ? null : LocalDateTime.ofInstant(event.getStartTime().toInstant(), ZoneOffset.UTC),
-                        event.getEndTime() == null ? null : LocalDateTime.ofInstant(event.getEndTime().toInstant(), ZoneOffset.UTC),
+                        event.getStartTime(),
+                        event.getEndTime(),
                         event.getTitle(),
                         event.getDescription(),
                         event.involvedMmsis(),

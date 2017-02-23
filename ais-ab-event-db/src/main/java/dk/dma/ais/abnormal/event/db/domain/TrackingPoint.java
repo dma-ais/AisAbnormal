@@ -26,7 +26,7 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * A historic position recorded in conjunction with an abnormal event.
@@ -45,7 +45,7 @@ public class TrackingPoint implements Comparable<TrackingPoint> {
     private long id;
 
     @NotNull
-    private Date timestamp;
+    private LocalDateTime timestamp;
 
     @NotNull
     private Double latitude;
@@ -94,11 +94,11 @@ public class TrackingPoint implements Comparable<TrackingPoint> {
         this.longitude = longitude;
     }
 
-    public Date getTimestamp() {
+    public LocalDateTime getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Date timestamp) {
+    public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
 

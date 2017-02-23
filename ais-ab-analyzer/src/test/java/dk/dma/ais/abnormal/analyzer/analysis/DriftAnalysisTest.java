@@ -34,8 +34,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.InputStream;
-import java.util.Date;
 
+import static dk.dma.commons.util.DateTimeUtil.MILLIS_TO_LOCALDATETIME_UTC;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -299,6 +299,6 @@ public class DriftAnalysisTest {
 
         context.assertIsSatisfied();
         assertTrue(eventCaptor.getCapturedObject().getDescription().startsWith("FRIO is drifting"));
-        assertEquals(new Date(1411923004556L), eventCaptor.getCapturedObject().getStartTime());
+        assertEquals(MILLIS_TO_LOCALDATETIME_UTC.apply(1411923004556L), eventCaptor.getCapturedObject().getStartTime());
     }
 }

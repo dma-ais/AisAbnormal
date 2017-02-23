@@ -43,7 +43,7 @@ import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SOG_CELL_SHIPCOUNT_MIN;
 import static dk.dma.ais.abnormal.analyzer.config.Configuration.CONFKEY_ANALYSIS_SOG_PD;
@@ -253,7 +253,7 @@ public class SpeedOverGroundAnalysis extends StatisticBasedAnalysis {
         Integer shipDimensionToStern = track.getShipDimensionStern();
         Integer shipDimensionToPort = track.getShipDimensionPort();
         Integer shipDimensionToStarboard = track.getShipDimensionStarboard();
-        Date positionTimestamp = new Date(track.getTimeOfLastPositionReport());
+        LocalDateTime positionTimestamp = track.getTimeOfLastPositionReport();
         Position position = track.getPosition();
         Float cog = track.getCourseOverGround();
         Float sog = track.getSpeedOverGround();

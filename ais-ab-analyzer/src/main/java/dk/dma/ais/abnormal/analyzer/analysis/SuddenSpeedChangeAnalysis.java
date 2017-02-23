@@ -39,7 +39,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
@@ -63,6 +62,7 @@ import static dk.dma.ais.abnormal.util.TrackPredicates.isSpecialCraft;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isTankerVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isUnknownTypeOrSize;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isVeryLongVessel;
+import static dk.dma.commons.util.DateTimeUtil.MILLIS_TO_LOCALDATETIME_UTC;
 
 /**
  * This analysis manages events representing sudden decrease in speed over ground.
@@ -227,7 +227,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
     private boolean isSustainedReportedSpeedDecrease(Track track) {
         Optional<Float> maxSog = track.getTrackingReports()
             .stream()
-            .filter(tr -> tr.getTimestamp() >= track.getTimeOfLastPositionReport() - SPEED_SUSTAIN_SECS * 1000)
+            .filter(tr -> toEpochMillis(tr.getTimestamp()) >= toEpochMillis(track.getTimeOfLastPositionReport()) - SPEED_SUSTAIN_SECS * 1000)
             .map(tr -> Float.valueOf(tr.getSpeedOverGround()))
             .max(Comparator.<Float>naturalOrder());
 
@@ -246,7 +246,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
     private boolean isSustainedCalculatedSpeedDecrease(Track track) {
         List<TrackingReport> trackingReports = track.getTrackingReports()
             .stream()
-            .filter(tr -> tr.getTimestamp() >= track.getTimeOfLastPositionReport() - SPEED_SUSTAIN_SECS * 1000)
+            .filter(tr -> toEpochMillis(tr.getTimestamp()) >= toEpochMillis(track.getTimeOfLastPositionReport()) - SPEED_SUSTAIN_SECS * 1000)
             .collect(Collectors.toList());
 
         final int n = trackingReports.size();
@@ -259,7 +259,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
             Position p2 = tr2.getPosition();
 
             double dp = p2.rhumbLineDistanceTo(p1);
-            double dt = (tr2.getTimestamp() - tr1.getTimestamp()) / 1e3;
+            double dt = (toEpochMillis(tr2.getTimestamp()) - toEpochMillis(tr1.getTimestamp())) / 1e3;
 
             double v = dp/dt; // meters per second
             double vKnots = v * 1.9438444924406046; // 1 m/s = 1.9438444924406046 knots
@@ -293,7 +293,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
         }
 
         long t1 = timeOfLastTrackingReportAboveHighMark(track.getTrackingReports());
-        long t2 = track.getTimeOfLastPositionReport();
+        long t2 = toEpochMillis(track.getTimeOfLastPositionReport());
 
         return t1 >= 0 && (t2 - t1) <= SPEED_DECAY_SECS *1000;
     }
@@ -303,7 +303,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
             .stream()
             .filter(tr -> tr.getSpeedOverGround() <= MAX_VALID_SPEED)
             .filter(tr -> tr.getSpeedOverGround() >= SPEED_HIGH_MARK)
-            .map(tr -> tr.getTimestamp())
+            .map(tr -> toEpochMillis(tr.getTimestamp()))
             .max(Comparator.<Long>naturalOrder());
 
         return t.isPresent() ? t.get() : -1;
@@ -312,9 +312,9 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
     private long timeOfFirstTrackingReportBelowLowMark(List<TrackingReport> trackingReports, long t1) {
         Optional<Long> t = trackingReports
             .stream()
-            .filter(tr -> tr.getTimestamp() >= t1)
+            .filter(tr -> toEpochMillis(tr.getTimestamp()) >= t1)
             .filter(tr -> tr.getSpeedOverGround() <= SPEED_LOW_MARK)
-            .map(tr -> Long.valueOf(tr.getTimestamp()))
+            .map(tr -> Long.valueOf(toEpochMillis(tr.getTimestamp())))
             .min(Comparator.<Long>naturalOrder());
 
         return t.isPresent() ? t.get() : -1;
@@ -350,14 +350,14 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
         // long t3 = track.getTimeOfLastPositionReport();
         float deltaSecs = (float) ((t2 - t1) / 1000.0);
 
-        TrackingReport trackingReportAtT1 = track.getTrackingReportAt(t1);
+        TrackingReport trackingReportAtT1 = track.getTrackingReportAt(MILLIS_TO_LOCALDATETIME_UTC.apply(t1));
         Position position1 = trackingReportAtT1.getPosition();
         Float cog1 = trackingReportAtT1.getCourseOverGround();
         Float sog1 = trackingReportAtT1.getSpeedOverGround();
         Float hdg1 = trackingReportAtT1.getTrueHeading();
         Boolean interpolated1 = trackingReportAtT1 instanceof InterpolatedTrackingReport;
 
-        TrackingReport trackingReportAtT2 = track.getTrackingReportAt(t2);
+        TrackingReport trackingReportAtT2 = track.getTrackingReportAt(MILLIS_TO_LOCALDATETIME_UTC.apply(t2));
         Position position2 = trackingReportAtT2.getPosition();
         Float cog2 = trackingReportAtT2.getCourseOverGround();
         Float sog2 = trackingReportAtT2.getSpeedOverGround();
@@ -369,7 +369,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
                 name,
                 shipTypeAsString,
                 position1,
-                DATE_FORMAT.format(t1),
+                DATE_FORMAT.format(MILLIS_TO_LOCALDATETIME_UTC.apply(t1)),
                 sog1, sog2, deltaSecs);
 
         LOG.info(description);
@@ -379,8 +379,8 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
                 .title(title)
                 .description(description)
                 .state(Event.State.PAST)
-                .startTime(new Date(t1))
-                .endTime(new Date(t2))
+                .startTime(MILLIS_TO_LOCALDATETIME_UTC.apply(t1))
+                .endTime(MILLIS_TO_LOCALDATETIME_UTC.apply(t2))
                 .behaviour()
                     .isPrimary(true)
                     .vessel()
@@ -394,7 +394,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
                         .toStarboard(shipDimensionToStarboard)
                         .name(name)
                     .trackingPoint()
-                        .timestamp(new Date(t1))
+                        .timestamp(MILLIS_TO_LOCALDATETIME_UTC.apply(t1))
                         .positionInterpolated(interpolated1)
                         .eventCertainty(TrackingPoint.EventCertainty.RAISED)
                         .speedOverGround(sog1)
@@ -406,7 +406,7 @@ public class SuddenSpeedChangeAnalysis extends Analysis {
 
         event.getBehaviour(mmsi).addTrackingPoint(
             TrackingPointBuilder.TrackingPoint()
-                .timestamp(new Date(t2))
+                .timestamp(MILLIS_TO_LOCALDATETIME_UTC.apply(t2))
                 .positionInterpolated(interpolated2)
                 .eventCertainty(TrackingPoint.EventCertainty.RAISED)
                 .speedOverGround(sog2)

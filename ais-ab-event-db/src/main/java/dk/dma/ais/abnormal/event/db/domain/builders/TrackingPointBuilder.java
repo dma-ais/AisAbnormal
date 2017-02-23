@@ -19,7 +19,7 @@ package dk.dma.ais.abnormal.event.db.domain.builders;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 import dk.dma.ais.abnormal.event.db.domain.TrackingPoint;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public class TrackingPointBuilder {
 
@@ -39,7 +39,7 @@ public class TrackingPointBuilder {
         return new TrackingPointBuilder();
     }
 
-    public TrackingPointBuilder timestamp(Date timestamp) {
+    public TrackingPointBuilder timestamp(LocalDateTime timestamp) {
         trackingPoint.setTimestamp(timestamp);
         return this;
     }

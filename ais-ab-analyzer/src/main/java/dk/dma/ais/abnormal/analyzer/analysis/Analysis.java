@@ -29,15 +29,17 @@ import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTrackerImpl;
 import dk.dma.ais.tracker.eventEmittingTracker.InterpolatedTrackingReport;
 import dk.dma.ais.tracker.eventEmittingTracker.Track;
 import dk.dma.ais.tracker.eventEmittingTracker.TrackingReport;
+import dk.dma.commons.util.DateTimeUtil;
 import dk.dma.enav.model.geometry.Position;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Iterator;
 import java.util.List;
-import java.util.TimeZone;
 
 /**
  * An Analysis is a class which is known to the ais-ab-analyzer application and possesses certain public
@@ -59,11 +61,7 @@ public abstract class Analysis {
     private final EventEmittingTracker trackingService;
     private final BehaviourManager behaviourManager;
 
-    private static final String DATE_FORMAT_STRING = "dd/MM/yyyy HH:mm";
-    protected static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_STRING);
-    {
-        DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
-    }
+    protected final static DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     private final String analysisName;
 
@@ -126,7 +124,7 @@ public abstract class Analysis {
         Integer mmsi = track.getMmsi();
         Event ongoingEvent = eventRepository.findOngoingEventByVessel(mmsi, eventClass);
         if (ongoingEvent != null) {
-            Date timestamp = new Date(track.getTimeOfLastUpdate());
+            LocalDateTime timestamp = track.getTimeOfLastUpdate();
             ongoingEvent.setState(Event.State.PAST);
             ongoingEvent.setEndTime(timestamp);
             eventRepository.save(ongoingEvent);
@@ -146,7 +144,7 @@ public abstract class Analysis {
         Event event = eventRepository.findOngoingEventByVessel(mmsi, eventClass);
 
         if (event != null) {
-            Date positionTimestamp = new Date(primaryTrack.getTimeOfLastPositionReport());
+            LocalDateTime positionTimestamp = primaryTrack.getTimeOfLastPositionReport();
             Position position = primaryTrack.getPosition();
             Float cog = primaryTrack.getCourseOverGround();
             Float sog = primaryTrack.getSpeedOverGround();
@@ -172,7 +170,7 @@ public abstract class Analysis {
     /**
      * Add a tracking point to an event and a target.
      */
-    protected static void addTrackingPoint(Event event, int mmsi, Date positionTimestamp, Position position, Float cog, Float sog, Float hdg, Boolean interpolated, TrackingPoint.EventCertainty eventCertainty) {
+    protected static void addTrackingPoint(Event event, int mmsi, LocalDateTime positionTimestamp, Position position, Float cog, Float sog, Float hdg, Boolean interpolated, TrackingPoint.EventCertainty eventCertainty) {
         event.getBehaviour(mmsi).addTrackingPoint(
                 TrackingPointBuilder.TrackingPoint()
                         .timestamp(positionTimestamp)
@@ -200,16 +198,14 @@ public abstract class Analysis {
         while (positionReportIterator.hasNext()) {
             TrackingReport trackingReport = positionReportIterator.next();
 
-            if (trackingReport.getTimestamp() < track.getTimeOfLastPositionReport() /* Do not add the last one - duplicate */) {
-                TrackingPoint.EventCertainty certainty = null;
-
+            if (trackingReport.getTimestamp().isBefore(track.getTimeOfLastPositionReport()) /* Do not add the last one - duplicate */) {
                 String eventCertaintyKey = BehaviourManagerImpl.getEventCertaintyKey(event.getClass());
                 EventCertainty eventCertaintyTmp = (EventCertainty) trackingReport.getProperty(eventCertaintyKey);
                 TrackingPoint.EventCertainty eventCertainty = eventCertaintyTmp == null ? TrackingPoint.EventCertainty.UNDEFINED : TrackingPoint.EventCertainty.create(eventCertaintyTmp.getCertainty());
 
                 if (event instanceof CloseEncounterEvent || eventCertainty != TrackingPoint.EventCertainty.UNDEFINED) /* Small hack to store one TP per grid cell for some event types TODO */ {
                     addTrackingPoint(event, track.getMmsi(),
-                            new Date(trackingReport.getTimestamp()),
+                            trackingReport.getTimestamp(),
                             trackingReport.getPosition(),
                             trackingReport.getCourseOverGround(),
                             trackingReport.getSpeedOverGround(),
@@ -229,12 +225,12 @@ public abstract class Analysis {
     }
 
     /** Return true if there are no AisTrackingReports or if the newest AisTrackingReport is too old. */
-    protected boolean isLastAisTrackingReportTooOld(Track track, long now) {
+    protected boolean isLastAisTrackingReportTooOld(Track track, LocalDateTime now) {
         if (trackPredictionTimeMax == -1) {
             return false;
         }
-        final long timeOfLastAisTrackingReport = track.getTimeOfLastAisTrackingReport();
-        return timeOfLastAisTrackingReport == -1 || now - timeOfLastAisTrackingReport > trackPredictionTimeMax*60*1000;
+        final LocalDateTime timeOfLastAisTrackingReport = track.getTimeOfLastAisTrackingReport();
+        return timeOfLastAisTrackingReport == null || timeOfLastAisTrackingReport.until(now, ChronoUnit.MINUTES) > trackPredictionTimeMax;
     }
 
     protected EventRepository getEventRepository() {
@@ -244,4 +240,9 @@ public abstract class Analysis {
     protected EventEmittingTrackerImpl getTrackingService() {
         return trackingService instanceof EventEmittingTrackerImpl ? (EventEmittingTrackerImpl) trackingService : null;
     }
+
+    protected final static long toEpochMillis(LocalDateTime t) {
+        return LocalDateTime.MIN.equals(t) ? Instant.EPOCH.toEpochMilli() : DateTimeUtil.LOCALDATETIME_UTC_TO_MILLIS.apply(t);
+    }
+
 }

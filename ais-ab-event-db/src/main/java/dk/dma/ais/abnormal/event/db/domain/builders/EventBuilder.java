@@ -19,18 +19,18 @@ package dk.dma.ais.abnormal.event.db.domain.builders;
 import dk.dma.ais.abnormal.event.db.domain.Behaviour;
 import dk.dma.ais.abnormal.event.db.domain.Event;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public abstract class EventBuilder {
 
     protected abstract Event getEvent();
 
-    public EventBuilder startTime(Date startTime){
+    public EventBuilder startTime(LocalDateTime startTime){
         getEvent().setStartTime(startTime);
         return this;
     }
 
-    public EventBuilder endTime(Date endTime){
+    public EventBuilder endTime(LocalDateTime endTime){
         getEvent().setEndTime(endTime);
         return this;
     }

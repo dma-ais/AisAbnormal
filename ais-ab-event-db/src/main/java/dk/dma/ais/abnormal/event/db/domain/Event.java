@@ -32,7 +32,7 @@ import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -66,10 +66,10 @@ public abstract class Event {
 
     /** Time on which the event started. */
     @NotNull
-    private Date startTime;
+    private LocalDateTime startTime;
 
     /** Time on which the event ended. */
-    private Date endTime;
+    private LocalDateTime endTime;
 
     /** True if this event is suppressed by an operator who concludes that this isn't an event */
     private boolean suppressed = false;
@@ -107,19 +107,19 @@ public abstract class Event {
         this.state = state;
     }
 
-    public Date getStartTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Date startTime) {
+    public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
-    public Date getEndTime() {
+    public LocalDateTime getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Date endTime) {
+    public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
 

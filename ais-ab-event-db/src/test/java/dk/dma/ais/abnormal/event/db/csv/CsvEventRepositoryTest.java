@@ -7,8 +7,6 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 
@@ -25,7 +23,7 @@ public class CsvEventRepositoryTest {
                 .title("title")
                 .description("description")
                 .state(Event.State.ONGOING)
-                .startTime(Date.from(LocalDateTime.of(2017, 1, 22, 10, 0, 0).toInstant(ZoneOffset.UTC)))
+                .startTime(LocalDateTime.of(2017, 1, 22, 10, 0, 0))
                 .endTime(null)
                 .behaviour()
                     .isPrimary(true)
@@ -40,7 +38,7 @@ public class CsvEventRepositoryTest {
                         .toStarboard(40)
                         .name("name")
                     .trackingPoint()
-                        .timestamp(Date.from(LocalDateTime.of(2017, 1, 22, 10, 0, 0).toInstant(ZoneOffset.UTC)))
+                        .timestamp(LocalDateTime.of(2017, 1, 22, 10, 0, 0))
                         .positionInterpolated(false)
                         .eventCertainty(TrackingPoint.EventCertainty.RAISED)
                         .speedOverGround(12.0f)
