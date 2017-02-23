@@ -51,8 +51,8 @@ public class CsvEventRepositoryTest {
         sut.save(event);
 
         assertEquals(
-            "eventId,eventType,startTime,endTime,title,description,mmsis,pMmsi,pName,pCallsign,pType,pLength,pLat,pLon,sMmsi,sName,sCallsign,sType,sLength,sLat,sLon\r\n" +
-            "0,SuddenSpeedChangeEvent,2017-01-22T10:00,,title,description,[123456789],123456789,name,callsign,1,30,56.0,12.0,,,,,,,\r\n",
+            "eventId,eventType,startTime,endTime,title,description,mmsis,pMmsi,pName,pCallsign,pType,pLength,pLat,pLon,sMmsi,sName,sCallsign,sType,sLength,sLat,sLon,filterSuggest\r\n" +
+            "0,SuddenSpeedChangeEvent,2017-01-22T10:00,,title,description,[123456789],123456789,name,callsign,1,30,56.0,12.0,,,,,,,,\"-start \"\"2017-01-22-09:50\"\" -end \"\"2017-01-22-10:20\"\" -exp \"\"m.pos within circle(56,0000,12,0000,1000)\"\"\"\r\n",
             out.toString()
         );
     }

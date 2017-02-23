@@ -77,6 +77,11 @@ public class Behaviour {
         this.isPrimary = isPrimary;
     }
 
+    public TrackingPoint mostRecentTrackingPoint() {
+        sort(trackingPoints);
+        return trackingPoints.get(trackingPoints.size()-1);
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;

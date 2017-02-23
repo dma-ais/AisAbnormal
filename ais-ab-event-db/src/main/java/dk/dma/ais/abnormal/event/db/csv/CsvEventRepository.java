@@ -32,11 +32,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static java.time.temporal.ChronoUnit.MINUTES;
 
 /**
  * CsvEventRepository is an implementation of the EventRepository interface which
@@ -68,7 +71,8 @@ public class CsvEventRepository implements EventRepository {
                         "eventId", "eventType", "startTime", "endTime", "title",
                         "description", "mmsis",
                         "pMmsi", "pName", "pCallsign", "pType", "pLength", "pLat", "pLon",
-                        "sMmsi", "sName", "sCallsign", "sType", "sLength", "sLat", "sLon"
+                        "sMmsi", "sName", "sCallsign", "sType", "sLength", "sLat", "sLon",
+                        "filterSuggest"
                     ).print(writer);
 
         this.readonly = readonly;
@@ -113,7 +117,8 @@ public class CsvEventRepository implements EventRepository {
                         secondaryBehaviour == null ? null : secondaryBehaviour.getVessel().getType(),
                         secondaryBehaviour == null ? null : secondaryBehaviour.getVessel().getLength(),
                         secondaryLastTrackingPoint == null ? null : secondaryLastTrackingPoint.getLatitude(),
-                        secondaryLastTrackingPoint == null ? null : secondaryLastTrackingPoint.getLongitude()
+                        secondaryLastTrackingPoint == null ? null : secondaryLastTrackingPoint.getLongitude(),
+                        filterSuggestion(event)
                     );
 
                     printer.flush();
@@ -124,6 +129,30 @@ public class CsvEventRepository implements EventRepository {
                 removeOngoingEvent(event);
             }
         }
+    }
+
+    private String filterSuggestion(Event event) {
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH:mm");
+
+        TrackingPoint tp = event.primaryBehaviour().mostRecentTrackingPoint();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("-start \"")
+            .append(fmt.format(event.getStartTime().minus(10, MINUTES)))
+        .append("\" ")
+        .append("-end \"")
+            .append(fmt.format(event.getEndTime() == null ? event.getStartTime().plus(20, MINUTES) : event.getEndTime().plus(10, MINUTES)))
+        .append("\" ")
+        .append("-exp \"")
+            .append("m.pos within circle(")
+            .append(String.format("%.4f", tp.getLatitude()))
+            .append(",")
+            .append(String.format("%.4f", tp.getLongitude()))
+            .append(",")
+            .append(1000)
+            .append(")")
+        .append("\"");
+        return sb.toString();
     }
 
     @Override
