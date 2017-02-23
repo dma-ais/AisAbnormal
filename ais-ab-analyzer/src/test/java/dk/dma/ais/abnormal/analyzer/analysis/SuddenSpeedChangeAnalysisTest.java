@@ -40,8 +40,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.InputStream;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
-import static dk.dma.commons.util.DateTimeUtil.MILLIS_TO_LOCALDATETIME_UTC;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -98,11 +100,11 @@ public class SuddenSpeedChangeAnalysisTest {
 
         PositionChangedEvent event = new PositionChangedEvent(track, null);
 
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + (deltaSecs + 0) * 1000, Position.create(56, 12), 45.0f, 12.2f, 45.0f);
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 0) * 1000, Position.create(56, 12), 45.0f, 12.2f, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
         for (int i=0; i<8; i++) {
-            track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);
+            track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);
             analysis.onSpeedOverGroundUpdated(event);
         }
 
@@ -131,25 +133,25 @@ public class SuddenSpeedChangeAnalysisTest {
 
         PositionChangedEvent event = new PositionChangedEvent(track, null);
 
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + (deltaSecs + 0) * 1000, Position.create(56, 12), 45.0f, 12.2f, 45.0f);
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 0) * 1000, Position.create(56, 12), 45.0f, 12.2f, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);   // No event
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);   // No event
         analysis.onSpeedOverGroundUpdated(event);
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);   // No event
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);   // No event
         analysis.onSpeedOverGroundUpdated(event);
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);   // No event
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);   // No event
         analysis.onSpeedOverGroundUpdated(event);
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);   // No event
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);   // No event
         analysis.onSpeedOverGroundUpdated(event);
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);   // No event
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);   // No event
         analysis.onSpeedOverGroundUpdated(event);
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);   // No event
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);   // No event
         analysis.onSpeedOverGroundUpdated(event);
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);   // No event
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);   // No event
         analysis.onSpeedOverGroundUpdated(event);
 
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);   // Event
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);   // Event
         analysis.onSpeedOverGroundUpdated(event);
 
         SuddenSpeedChangeEvent capturedEvent = eventCaptor.getCapturedObject();
@@ -177,7 +179,7 @@ public class SuddenSpeedChangeAnalysisTest {
 
         /* Grounding of 314234000 on Jul 03 2009 - 20:44:18 - 20:45:18 */
 
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + deltaSecs * 1000, Position.create(56, 12), 45.0f, 13.9f, 45.0f);
+        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 13.9f, 45.0f);
         context.checking(new Expectations() {{
             ignoring(eventRepository).findOngoingEventByVessel(219000606, SuddenSpeedChangeEvent.class);
             never(eventRepository).save(with(eventCaptor.getMatcher()));
@@ -185,7 +187,7 @@ public class SuddenSpeedChangeAnalysisTest {
         analysis.onSpeedOverGroundUpdated(new PositionChangedEvent(track, null));
         context.assertIsSatisfied();
 
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + deltaSecs * 1000, Position.create(56, 12), 45.0f, 13.3f, 45.0f);
+        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 13.3f, 45.0f);
         context.checking(new Expectations() {{
             ignoring(eventRepository).findOngoingEventByVessel(219000606, SuddenSpeedChangeEvent.class);
             never(eventRepository).save(with(eventCaptor.getMatcher()));
@@ -193,7 +195,7 @@ public class SuddenSpeedChangeAnalysisTest {
         analysis.onSpeedOverGroundUpdated(new PositionChangedEvent(track, null));
         context.assertIsSatisfied();
 
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + deltaSecs * 1000, Position.create(56, 12), 45.0f, 11.7f, 45.0f);
+        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 11.7f, 45.0f);
         context.checking(new Expectations() {{
             ignoring(eventRepository).findOngoingEventByVessel(219000606, SuddenSpeedChangeEvent.class);
             never(eventRepository).save(with(eventCaptor.getMatcher()));
@@ -201,7 +203,7 @@ public class SuddenSpeedChangeAnalysisTest {
         analysis.onSpeedOverGroundUpdated(new PositionChangedEvent(track, null));
         context.assertIsSatisfied();
 
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + deltaSecs * 1000, Position.create(56, 12), 45.0f, 8.3f, 45.0f);
+        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 8.3f, 45.0f);
         context.checking(new Expectations() {{
             ignoring(eventRepository).findOngoingEventByVessel(219000606, SuddenSpeedChangeEvent.class);
             never(eventRepository).save(with(eventCaptor.getMatcher()));
@@ -209,7 +211,7 @@ public class SuddenSpeedChangeAnalysisTest {
         analysis.onSpeedOverGroundUpdated(new PositionChangedEvent(track, null));
         context.assertIsSatisfied();
 
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + deltaSecs * 1000, Position.create(56, 12), 45.0f, 5.0f, 45.0f);
+        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 5.0f, 45.0f);
         context.checking(new Expectations() {{
             ignoring(eventRepository).findOngoingEventByVessel(219000606, SuddenSpeedChangeEvent.class);
             never(eventRepository).save(with(eventCaptor.getMatcher()));
@@ -217,7 +219,7 @@ public class SuddenSpeedChangeAnalysisTest {
         analysis.onSpeedOverGroundUpdated(new PositionChangedEvent(track, null));
         context.assertIsSatisfied();
 
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + deltaSecs * 1000, Position.create(56, 12), 45.0f, 1.9f, 45.0f);
+        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 1.9f, 45.0f);
         context.checking(new Expectations() {{
             ignoring(eventRepository).findOngoingEventByVessel(219000606, SuddenSpeedChangeEvent.class);
             never(eventRepository).save(with(eventCaptor.getMatcher()));
@@ -226,7 +228,7 @@ public class SuddenSpeedChangeAnalysisTest {
         context.assertIsSatisfied();
 
         for (int i=0; i<6; i++) { // Sustain low speed
-            track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + deltaSecs * 1000, Position.create(56, 12), 45.0f, 0.0f, 45.0f);
+            track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 0.0f, 45.0f);
             context.checking(new Expectations() {{
                 ignoring(eventRepository).findOngoingEventByVessel(219000606, SuddenSpeedChangeEvent.class);
                 never(eventRepository).save(with(eventCaptor.getMatcher()));
@@ -235,7 +237,7 @@ public class SuddenSpeedChangeAnalysisTest {
             context.assertIsSatisfied();
         }
 
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + deltaSecs * 1000, Position.create(56, 12), 45.0f, 0.2f, 45.0f);
+        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 0.2f, 45.0f);
         context.checking(new Expectations() {{
             ignoring(eventRepository).findOngoingEventByVessel(219000606, SuddenSpeedChangeEvent.class);
             oneOf(eventRepository).save(with(eventCaptor.getMatcher()));
@@ -262,10 +264,10 @@ public class SuddenSpeedChangeAnalysisTest {
         int deltaSecs = 61;
 
         PositionChangedEvent event = new PositionChangedEvent(track, null);
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + deltaSecs * 1000, Position.create(56, 12), 45.0f, 12.2f, 45.0f);
+        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 12.2f, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + deltaSecs * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);
+        track.update(track.getTimeOfLastPositionReport() + deltaSecs * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
         context.assertIsSatisfied();
@@ -282,10 +284,10 @@ public class SuddenSpeedChangeAnalysisTest {
         int deltaSecs = 7;
 
         PositionChangedEvent event = new PositionChangedEvent(track, null);
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + (deltaSecs + 0) * 1000, Position.create(56, 12), 45.0f, 22.2f, 45.0f);
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 0) * 1000, Position.create(56, 12), 45.0f, 22.2f, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 9.0f, 45.0f);
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 9.0f, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
         context.assertIsSatisfied();
@@ -330,15 +332,15 @@ public class SuddenSpeedChangeAnalysisTest {
         int deltaSecs = 7;
 
         PositionChangedEvent event = new PositionChangedEvent(track, null);
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + (deltaSecs + 0) * 1000, Position.create(56, 12), 45.0f, 12.2f, 45.0f);
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 0) * 1000, Position.create(56, 12), 45.0f, 12.2f, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
         TrackStaleEvent staleEvent = new TrackStaleEvent(track);
         analysis.onTrackStale(staleEvent);
 
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + (deltaSecs + 24*60*60) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 24*60*60) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
         context.assertIsSatisfied();
@@ -355,14 +357,14 @@ public class SuddenSpeedChangeAnalysisTest {
         int deltaSecs = 7;
 
         PositionChangedEvent event = new PositionChangedEvent(track, null);
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + (deltaSecs + 0) * 1000, Position.create(56, 12), 45.0f, 102.3f /* 1023 int */, 45.0f);
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 0) * 1000, Position.create(56, 12), 45.0f, 102.3f /* 1023 int */, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
-        track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);
+        track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 1) * 1000, Position.create(56, 12), 45.0f, 0.1f, 45.0f);
         analysis.onSpeedOverGroundUpdated(event);
 
         for (int t=0; t < analysis.SPEED_SUSTAIN_SECS*2; t += 10) {
-            track.update(Analysis.toEpochMillis(track.getTimeOfLastPositionReport()) + (deltaSecs + 2) * 1000 + t, Position.create(56, 12), 45.0f, 0.1f, 45.0f);
+            track.update(track.getTimeOfLastPositionReport() + (deltaSecs + 2) * 1000 + t, Position.create(56, 12), 45.0f, 0.1f, 45.0f);
             analysis.onSpeedOverGroundUpdated(event);
         }
 
@@ -471,6 +473,6 @@ public class SuddenSpeedChangeAnalysisTest {
 
         context.assertIsSatisfied();
         assertTrue(eventCaptor.getCapturedObject().getDescription().startsWith("Sudden speed change of LOTUS"));
-        assertEquals(MILLIS_TO_LOCALDATETIME_UTC.apply(1412525411424L), eventCaptor.getCapturedObject().getStartTime());
+        assertEquals(LocalDateTime.ofInstant(Instant.ofEpochMilli(1412525411424L), ZoneOffset.UTC), eventCaptor.getCapturedObject().getStartTime());
     }
 }

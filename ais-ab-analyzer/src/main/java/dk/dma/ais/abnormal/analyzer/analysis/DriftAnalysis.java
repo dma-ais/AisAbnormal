@@ -224,14 +224,14 @@ public class DriftAnalysis extends Analysis {
     }
 
     private boolean isTrackedForLongEnough(Track track) {
-        return toEpochMillis(track.getNewestTrackingReport().getTimestamp()) - toEpochMillis(track.getOldestTrackingReport().getTimestamp()) > OBSERVATION_PERIOD_MINUTES*60*1000;
+        return track.getNewestTrackingReport().getTimestamp() - track.getOldestTrackingReport().getTimestamp() > OBSERVATION_PERIOD_MINUTES*60*1000;
     }
 
     boolean isDriftPeriodLongEnough(Track track) {
-        final long t1 = toEpochMillis(track.getNewestTrackingReport().getTimestamp()) - OBSERVATION_PERIOD_MINUTES*60*1000;
+        final long t1 = track.getNewestTrackingReport().getTimestamp() - OBSERVATION_PERIOD_MINUTES*60*1000;
         return track.getTrackingReports()
             .stream()
-            .filter(tr -> toEpochMillis(tr.getTimestamp()) >= t1)
+            .filter(tr -> tr.getTimestamp() >= t1)
             .allMatch(tr -> isDrifting(tr));
     }
 
@@ -284,7 +284,7 @@ public class DriftAnalysis extends Analysis {
         final Integer shipDimensionToStern = track.getShipDimensionStern();
         final Integer shipDimensionToPort = track.getShipDimensionPort();
         final Integer shipDimensionToStarboard = track.getShipDimensionStarboard();
-        final LocalDateTime positionTimestamp = track.getTimeOfLastPositionReport();
+        final LocalDateTime positionTimestamp = track.getTimeOfLastPositionReportTyped();
         final Position position = track.getPosition();
         final Float cog = track.getCourseOverGround();
         final Float sog = track.getSpeedOverGround();
@@ -301,7 +301,7 @@ public class DriftAnalysis extends Analysis {
             DriftEventBuilder.DriftEvent()
                 .title(title)
                 .description(description)
-                .startTime(track.getTimeOfLastPositionReport())
+                .startTime(positionTimestamp)
                 .behaviour()
                     .isPrimary(true)
                     .vessel()
@@ -315,7 +315,7 @@ public class DriftAnalysis extends Analysis {
                     .toStarboard(shipDimensionToStarboard)
                     .name(name)
                 .trackingPoint()
-                    .timestamp(track.getTimeOfLastPositionReport())
+                    .timestamp(positionTimestamp)
                     .positionInterpolated(interpolated)
                     .eventCertainty(certainty)
                     .speedOverGround(sog)

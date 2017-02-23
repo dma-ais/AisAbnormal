@@ -34,6 +34,7 @@ import net.jcip.annotations.NotThreadSafe;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +66,6 @@ import static dk.dma.ais.abnormal.util.AisDataHelper.trimAisString;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isCargoVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isTankerVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isVeryLongVessel;
-import static dk.dma.commons.util.DateTimeUtil.MILLIS_TO_LOCALDATETIME_UTC;
 import static dk.dma.enav.safety.SafetyZones.createEllipse;
 import static dk.dma.enav.util.compass.CompassUtils.absoluteDirectionalDifference;
 import static dk.dma.enav.util.compass.CompassUtils.compass2cartesian;
@@ -218,14 +218,14 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
 
             if (tracksSailingSameDirectionAndContainedInEllipse.size() > 0) {
                 LOG.debug("There are " + tracksSailingSameDirectionAndContainedInEllipse.size() + " tracks inside ellipse of " + t0.getMmsi() + " " + t0.getShipName());
-                LOG.debug(t0.getTimeOfLastPositionReport() + " " + "MMSI " + t0.getMmsi() + " " + t0.getShipName() + " " + t0.getShipType());
+                LOG.debug(new DateTime(t0.getTimeOfLastPositionReport()) + " " + "MMSI " + t0.getMmsi() + " " + t0.getShipName() + " " + t0.getShipType());
                 List<FreeFlowData.TrackInsideEllipse> tracksInsideEllipse = Lists.newArrayList();
                 for (Track t1 : tracksSailingSameDirectionAndContainedInEllipse) {
-                    if (! reportedRecently(t0, t1, toEpochMillis(t0.getTimeOfLastPositionReport()))) {
+                    if (! reportedRecently(t0, t1, t0.getTimeOfLastPositionReport())) {
                         final Position pc1 = centerOfVessel(t1.getPosition(), t1.getTrueHeading(), t1.getShipDimensionStern(), t1.getShipDimensionBow(), t1.getShipDimensionPort(), t1.getShipDimensionStarboard());
                         try {
                             tracksInsideEllipse.add(new FreeFlowData.TrackInsideEllipse(t1.clone(), pc1));
-                            markReported(t0, t1, toEpochMillis(t0.getTimeOfLastPositionReport()));
+                            markReported(t0, t1, t0.getTimeOfLastPositionReport());
                         } catch (CloneNotSupportedException e) {
                             LOG.error(e.getMessage(), e);
                         }
@@ -272,14 +272,14 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
     }
 
     private boolean isPredictedToCurrentTime(Track track) {
-        return toEpochMillis(track.getTimeOfLastPositionReport()) == getCurrentRunTime();
+        return track.getTimeOfLastPositionReport() == getCurrentRunTime();
     }
 
     private Track predictToCurrentTime(Track track) {
         // TODO clone track
-        if (toEpochMillis(track.getTimeOfLastPositionReport()) < getCurrentRunTime()) {
+        if (track.getTimeOfLastPositionReport() < getCurrentRunTime()) {
             try {
-                track.predict(MILLIS_TO_LOCALDATETIME_UTC.apply(getCurrentRunTime()));
+                track.predict(getCurrentRunTime());
             } catch (IllegalStateException e) {
                 // java.lang.IllegalStateException: No enough data to predict future position.
             }
@@ -396,7 +396,7 @@ public class FreeFlowAnalysis extends PeriodicAnalysis {
                 final int b = (int) p0.rhumbLineBearingTo(p1);
 
                 List csvRecord = new ArrayList<>();
-                csvRecord.add(String.format(Locale.ENGLISH, "%s", t0.getTimeOfLastPositionReport().format(fmt)));
+                csvRecord.add(String.format(Locale.ENGLISH, "%s", t0.getTimeOfLastPositionReportTyped().format(fmt)));
                 csvRecord.add(String.format(Locale.ENGLISH, "%d", t0.getMmsi()));
                 csvRecord.add(String.format(Locale.ENGLISH, "%s", trimAisString(t0.getShipName()).replace(',', ' ')));
                 csvRecord.add(String.format(Locale.ENGLISH, "%d", t0.getShipType()));

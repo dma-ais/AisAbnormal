@@ -33,50 +33,52 @@ public final class TrackPredicates {
     private TrackPredicates() {
     }
 
-    public static Predicate<Track> isSpecialCraft = track -> {
+    public final static Predicate<Track> isSpecialCraft = track -> {
         Integer shipType = track.getShipType();
         return shipType != null && shipType >= 50 && shipType <= 55;
     };
 
-    public static Predicate<Track> isTankerVessel = track -> shipTypeCategoryEquals(track, 1);
+    public final static Predicate<Track> isTankerVessel = track -> shipTypeCategoryEquals(track, 1);
 
-    public static Predicate<Track> isCargoVessel = track -> shipTypeCategoryEquals(track, 2);
+    public final static Predicate<Track> isCargoVessel = track -> shipTypeCategoryEquals(track, 2);
 
-    public static Predicate<Track> isPassengerVessel = track -> shipTypeCategoryEquals(track, 3);
+    public final static Predicate<Track> isPassengerVessel = track -> shipTypeCategoryEquals(track, 3);
 
-    public static Predicate<Track> isSupportVessel = track -> shipTypeCategoryEquals(track, 4);
+    public final static Predicate<Track> isSupportVessel = track -> shipTypeCategoryEquals(track, 4);
 
-    public static Predicate<Track> isFishingVessel = track -> shipTypeCategoryEquals(track, 5);
+    public final static Predicate<Track> isFishingVessel = track -> shipTypeCategoryEquals(track, 5);
 
-    public static Predicate<Track> isClassB = track -> shipTypeCategoryEquals(track, 6);
+    public final static Predicate<Track> isClassB = track -> shipTypeCategoryEquals(track, 6);
 
-    public static Predicate<Track> isUndefinedVessel = track -> shipTypeCategoryEquals(track, 8);
+    public final static Predicate<Track> isUndefinedVessel = track -> shipTypeCategoryEquals(track, 8);
 
-    public static Predicate<Track> isUnknownTypeOrSize = track -> track.getShipType() == null || track.getVesselLength() == null;
+    public final static Predicate<Track> isUnknownTypeOrSize = track -> track.getShipType() == null || track.getVesselLength() == null;
 
-    public static Predicate<Track> isSlowVessel = track -> track.getSpeedOverGround() < 3.0;
+    public final static Predicate<Track> isSlowVessel = track -> track.getSpeedOverGround() < 3.0;
 
-    public static Predicate<Track> isLongVessel = track -> {
+    public final static Predicate<Track> isSpeedInvalid = track -> track.getSpeedOverGround() != null && track.getSpeedOverGround() > 102.0f;
+    
+    public final static Predicate<Track> isLongVessel = track -> {
         Integer length = track.getVesselLength();
         return length == null ? false : length.intValue() >= 30;
     };
 
-    public static Predicate<Track> isVeryLongVessel = track -> {
+    public final static Predicate<Track> isVeryLongVessel = track -> {
         Integer length = track.getVesselLength();
         return length == null ? false : length.intValue() >= 75;
     };
 
-    public static Predicate<Track> isSmallVessel = track -> {
+    public final static Predicate<Track> isSmallVessel = track -> {
         Integer length = track.getVesselLength();
         return length == null ? false : length < 30;
     };
 
-    public static Predicate<Track> isEngagedInTowing = track -> {
+    public final static Predicate<Track> isEngagedInTowing = track -> {
         Integer shipType = track.getShipType();
         return shipType == null ? false : shipType == 31 || shipType == 32;
     };
 
-    public static Predicate<Track> isEngagedInFishing = track -> {
+    public final static Predicate<Track> isEngagedInFishing = track -> {
         Integer shipType = track.getShipType();
         return shipType == null ? false : shipType == 30;
     };

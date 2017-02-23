@@ -254,7 +254,7 @@ public class CourseOverGroundAnalysis extends StatisticBasedAnalysis {
         Integer shipDimensionToStern = track.getShipDimensionStern();
         Integer shipDimensionToPort = track.getShipDimensionPort();
         Integer shipDimensionToStarboard = track.getShipDimensionStarboard();
-        LocalDateTime positionTimestamp = track.getTimeOfLastPositionReport();
+        LocalDateTime positionTimestamp = track.getTimeOfLastPositionReportTyped();
         Position position = track.getPosition();
         Float cog = track.getCourseOverGround();
         Float sog = track.getSpeedOverGround();

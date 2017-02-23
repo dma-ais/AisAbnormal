@@ -33,11 +33,8 @@ import dk.dma.enav.model.geometry.Position;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.Iterator;
 import java.util.List;
 
@@ -124,7 +121,7 @@ public abstract class Analysis {
         Integer mmsi = track.getMmsi();
         Event ongoingEvent = eventRepository.findOngoingEventByVessel(mmsi, eventClass);
         if (ongoingEvent != null) {
-            LocalDateTime timestamp = track.getTimeOfLastUpdate();
+            LocalDateTime timestamp = track.getTimeOfLastUpdateTyped();
             ongoingEvent.setState(Event.State.PAST);
             ongoingEvent.setEndTime(timestamp);
             eventRepository.save(ongoingEvent);
@@ -144,7 +141,7 @@ public abstract class Analysis {
         Event event = eventRepository.findOngoingEventByVessel(mmsi, eventClass);
 
         if (event != null) {
-            LocalDateTime positionTimestamp = primaryTrack.getTimeOfLastPositionReport();
+            LocalDateTime positionTimestamp = primaryTrack.getTimeOfLastPositionReportTyped();
             Position position = primaryTrack.getPosition();
             Float cog = primaryTrack.getCourseOverGround();
             Float sog = primaryTrack.getSpeedOverGround();
@@ -198,14 +195,16 @@ public abstract class Analysis {
         while (positionReportIterator.hasNext()) {
             TrackingReport trackingReport = positionReportIterator.next();
 
-            if (trackingReport.getTimestamp().isBefore(track.getTimeOfLastPositionReport()) /* Do not add the last one - duplicate */) {
+            if (trackingReport.getTimestamp() < track.getTimeOfLastPositionReport() /* Do not add the last one - duplicate */) {
+                TrackingPoint.EventCertainty certainty = null;
+
                 String eventCertaintyKey = BehaviourManagerImpl.getEventCertaintyKey(event.getClass());
                 EventCertainty eventCertaintyTmp = (EventCertainty) trackingReport.getProperty(eventCertaintyKey);
                 TrackingPoint.EventCertainty eventCertainty = eventCertaintyTmp == null ? TrackingPoint.EventCertainty.UNDEFINED : TrackingPoint.EventCertainty.create(eventCertaintyTmp.getCertainty());
 
                 if (event instanceof CloseEncounterEvent || eventCertainty != TrackingPoint.EventCertainty.UNDEFINED) /* Small hack to store one TP per grid cell for some event types TODO */ {
                     addTrackingPoint(event, track.getMmsi(),
-                            trackingReport.getTimestamp(),
+                            trackingReport.getTimestampTyped(),
                             trackingReport.getPosition(),
                             trackingReport.getCourseOverGround(),
                             trackingReport.getSpeedOverGround(),
@@ -225,12 +224,12 @@ public abstract class Analysis {
     }
 
     /** Return true if there are no AisTrackingReports or if the newest AisTrackingReport is too old. */
-    protected boolean isLastAisTrackingReportTooOld(Track track, LocalDateTime now) {
+    protected boolean isLastAisTrackingReportTooOld(Track track, long now) {
         if (trackPredictionTimeMax == -1) {
             return false;
         }
-        final LocalDateTime timeOfLastAisTrackingReport = track.getTimeOfLastAisTrackingReport();
-        return timeOfLastAisTrackingReport == null || timeOfLastAisTrackingReport.until(now, ChronoUnit.MINUTES) > trackPredictionTimeMax;
+        final long timeOfLastAisTrackingReport = track.getTimeOfLastAisTrackingReport();
+        return timeOfLastAisTrackingReport == -1 || now - timeOfLastAisTrackingReport > trackPredictionTimeMax*60*1000;
     }
 
     protected EventRepository getEventRepository() {
@@ -240,9 +239,4 @@ public abstract class Analysis {
     protected EventEmittingTrackerImpl getTrackingService() {
         return trackingService instanceof EventEmittingTrackerImpl ? (EventEmittingTrackerImpl) trackingService : null;
     }
-
-    protected final static long toEpochMillis(LocalDateTime t) {
-        return LocalDateTime.MIN.equals(t) ? Instant.EPOCH.toEpochMilli() : t.toInstant(ZoneOffset.UTC).toEpochMilli();
-    }
-
 }

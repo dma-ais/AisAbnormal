@@ -52,9 +52,9 @@ import static dk.dma.ais.abnormal.util.TrackPredicates.isEngagedInTowing;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isFishingVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isSlowVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isSmallVessel;
+import static dk.dma.ais.abnormal.util.TrackPredicates.isSpeedInvalid;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isSupportVessel;
 import static dk.dma.ais.abnormal.util.TrackPredicates.isUndefinedVessel;
-import static dk.dma.commons.util.DateTimeUtil.MILLIS_TO_LOCALDATETIME_UTC;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.util.stream.Collectors.toSet;
@@ -118,7 +118,7 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
 
     private void analyseCloseEncounters(Collection<Track> allTracks, Track track) {
         clearTrackPairsAnalyzed();
-        if (isSupportVessel.negate().test(track) && isEngagedInTowing.negate().test(track)) {
+        if (isSupportVessel.negate().test(track) && isEngagedInTowing.negate().test(track) && isSpeedInvalid.negate().test(track)) {
             findNearByTracks(allTracks, track, 60000, 1852)
                 .stream()
                 .filter(isSupportVessel.negate())
@@ -150,20 +150,20 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
     void analyseCloseEncounter(Track track1, Track track2) {
         if (track1.getSpeedOverGround() > sogMin && ! isTrackPairAnalyzed(track1, track2)) {
 
-            final long t = max(toEpochMillis(track1.getTimeOfLastPositionReport()), toEpochMillis(track2.getTimeOfLastPositionReport()));
+            final long t = max(track1.getTimeOfLastPositionReport(), track2.getTimeOfLastPositionReport());
 
-            if (t > toEpochMillis(track1.getTimeOfLastPositionReport())) {
-                track1.predict(MILLIS_TO_LOCALDATETIME_UTC.apply(t));
+            if (t > track1.getTimeOfLastPositionReport()) {
+                track1.predict(t);
             }
-            if (t > toEpochMillis(track2.getTimeOfLastPositionReport())) {
-                track2.predict(MILLIS_TO_LOCALDATETIME_UTC.apply(t));
+            if (t > track2.getTimeOfLastPositionReport()) {
+                track2.predict(t);
             }
 
-            if (isLastAisTrackingReportTooOld(track1, MILLIS_TO_LOCALDATETIME_UTC.apply(t))) {
+            if (isLastAisTrackingReportTooOld(track1, t)) {
                 LOG.debug("Skipping analysis: MMSI " + track1.getMmsi() + " was predicted for too long.");
                 return;
             }
-            if (isLastAisTrackingReportTooOld(track2, MILLIS_TO_LOCALDATETIME_UTC.apply(t))) {
+            if (isLastAisTrackingReportTooOld(track2, t)) {
                 LOG.debug("Skipping analysis: MMSI " + track2.getMmsi() + " was predicted for too long.");
                 return;
             }
@@ -245,13 +245,13 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
         TrackingReport positionReport = nearToTrack.getNewestTrackingReport();
 
         if (positionReport != null) {
-            final long timestamp = toEpochMillis(positionReport.getTimestamp());
+            final long timestamp = positionReport.getTimestamp();
 
             nearbyTracks = candidateTracks.stream().filter(candidateTrack ->
                     candidateTrack.getMmsi() != nearToTrack.getMmsi() &&
-                    toEpochMillis(candidateTrack.getTimeOfLastPositionReport()) > 0L &&
-                    toEpochMillis(candidateTrack.getTimeOfLastPositionReport()) > timestamp - maxTimestampDeviationMillis &&
-                    toEpochMillis(candidateTrack.getTimeOfLastPositionReport()) < timestamp + maxTimestampDeviationMillis &&
+                    candidateTrack.getTimeOfLastPositionReport() > 0L &&
+                    candidateTrack.getTimeOfLastPositionReport() > timestamp - maxTimestampDeviationMillis &&
+                    candidateTrack.getTimeOfLastPositionReport() < timestamp + maxTimestampDeviationMillis &&
                     candidateTrack.getPosition().distanceTo(nearToTrack.getPosition(), CoordinateSystem.CARTESIAN) < maxDistanceDeviationMeters
             ).collect(toSet());
         }
@@ -297,7 +297,7 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
         description.append(" (" + primaryShipType + ") and ");
         description.append(secondaryShipName);
         description.append(" (" + secondaryShipType + ") on ");
-        description.append(DATE_FORMAT.format(primaryTrack.getTimeOfLastPositionReport()));
+        description.append(DATE_FORMAT.format(primaryTrack.getTimeOfLastPositionReportTyped()));
         description.append(".");
 
         Ellipse primaryTrackSafetyEllipse = (Ellipse) primaryTrack.getProperty(Track.SAFETY_ZONE);
@@ -316,14 +316,14 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
         Event event =
             CloseEncounterEventBuilder.CloseEncounterEvent()
                     .safetyZoneOfPrimaryVessel()
-                        .targetTimestamp(new Date(toEpochMillis(primaryTrack.getTimeOfLastPositionReport())))
+                        .targetTimestamp(new Date(primaryTrack.getTimeOfLastPositionReport()))
                         .centerLatitude(primaryTrackLatitude)
                         .centerLongitude(primaryTrackLongitude)
                         .majorAxisHeading(primaryTrackSafetyEllipse.getMajorAxisGeodeticHeading())
                         .majorSemiAxisLength(primaryTrackSafetyEllipse.getAlpha())
                         .minorSemiAxisLength(primaryTrackSafetyEllipse.getBeta())
                     .extentOfSecondaryVessel()
-                        .targetTimestamp(new Date(toEpochMillis(secondaryTrack.getTimeOfLastPositionReport())))
+                        .targetTimestamp(new Date(secondaryTrack.getTimeOfLastPositionReport()))
                         .centerLatitude(secondaryTrackLatitude)
                         .centerLongitude(secondaryTrackLongitude)
                         .majorAxisHeading(secondaryTrackExtent.getMajorAxisGeodeticHeading())
@@ -332,7 +332,7 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
                     .title(title.toString())
                     .description(description.toString())
                     .state(Event.State.ONGOING)
-                    .startTime(primaryTrack.getTimeOfLastPositionReport())
+                    .startTime(primaryTrack.getTimeOfLastPositionReportTyped())
                     .behaviour()
                         .isPrimary(true)
                         .vessel()
@@ -346,7 +346,7 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
                             .toStarboard(primaryTrack.getShipDimensionStarboard())
                             .name(primaryTrack.getShipName())
                         .trackingPoint()
-                            .timestamp(primaryTrack.getTimeOfLastPositionReport())
+                            .timestamp(primaryTrack.getTimeOfLastPositionReportTyped())
                             .positionInterpolated(primaryTrack.getNewestTrackingReport() instanceof InterpolatedTrackingReport)
                             .eventCertainty(TrackingPoint.EventCertainty.RAISED)
                             .speedOverGround(primaryTrack.getSpeedOverGround())
@@ -367,7 +367,7 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
                             .toStarboard(secondaryTrack.getShipDimensionStarboard())
                             .name(secondaryTrack.getShipName())
                         .trackingPoint()
-                            .timestamp(secondaryTrack.getTimeOfLastPositionReport())
+                            .timestamp(secondaryTrack.getTimeOfLastPositionReportTyped())
                             .positionInterpolated(secondaryTrack.getNewestTrackingReport() instanceof InterpolatedTrackingReport)
                             .eventCertainty(TrackingPoint.EventCertainty.RAISED)
                             .speedOverGround(secondaryTrack.getSpeedOverGround())
