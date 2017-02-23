@@ -36,6 +36,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -153,9 +154,9 @@ public class CsvEventRepository implements EventRepository {
                 .append("\" ")
                 .append("-exp \"")
                 .append("m.pos within circle(")
-                .append(String.format("%.4f", tp.getLatitude()))
+                .append(String.format(Locale.ENGLISH, "%.4f", tp.getLatitude()))
                 .append(",")
-                .append(String.format("%.4f", tp.getLongitude()))
+                .append(String.format(Locale.ENGLISH, "%.4f", tp.getLongitude()))
                 .append(",")
                 .append(1000)
                 .append(")")
