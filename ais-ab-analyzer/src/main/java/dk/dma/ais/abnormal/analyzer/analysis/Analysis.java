@@ -29,13 +29,13 @@ import dk.dma.ais.tracker.eventEmittingTracker.EventEmittingTrackerImpl;
 import dk.dma.ais.tracker.eventEmittingTracker.InterpolatedTrackingReport;
 import dk.dma.ais.tracker.eventEmittingTracker.Track;
 import dk.dma.ais.tracker.eventEmittingTracker.TrackingReport;
-import dk.dma.commons.util.DateTimeUtil;
 import dk.dma.enav.model.geometry.Position;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Iterator;
@@ -242,7 +242,7 @@ public abstract class Analysis {
     }
 
     protected final static long toEpochMillis(LocalDateTime t) {
-        return LocalDateTime.MIN.equals(t) ? Instant.EPOCH.toEpochMilli() : DateTimeUtil.LOCALDATETIME_UTC_TO_MILLIS.apply(t);
+        return LocalDateTime.MIN.equals(t) ? Instant.EPOCH.toEpochMilli() : t.toInstant(ZoneOffset.UTC).toEpochMilli();
     }
 
 }
