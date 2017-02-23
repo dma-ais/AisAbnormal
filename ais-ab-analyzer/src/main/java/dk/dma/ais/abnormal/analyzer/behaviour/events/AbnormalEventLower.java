@@ -25,8 +25,8 @@ import dk.dma.ais.tracker.eventEmittingTracker.Track;
  */
 public class AbnormalEventLower extends AbnormalAbstractEvent {
 
-    public AbnormalEventLower(Class<? extends Event> eventClass, Track track, EventCertainty eventCertainty) {
-        super(eventClass, track, eventCertainty);
+    public AbnormalEventLower(Class<? extends Event> eventClass, EventCertainty eventCertainty, Track track) {
+        super(eventClass, eventCertainty, track);
     }
 
 }

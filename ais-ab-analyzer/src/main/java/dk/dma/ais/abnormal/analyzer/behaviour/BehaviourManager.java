@@ -32,7 +32,7 @@ public interface BehaviourManager {
      * Mark that a normal behaviour for a track has been detected. This information is used for vote for
      * lowering of any similar events, that may be raised for this vessel.
      */
-    void abnormalBehaviourDetected(Class<? extends Event> eventClass, Track track);
+    void abnormalBehaviourDetected(Class<? extends Event> eventClass, Track track, Track... otherTracks);
 
     /**
      * Mark that an abnormal behaviour for a track has been detected. This information is used for vote for

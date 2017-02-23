@@ -78,7 +78,7 @@ public class BehaviourManagerImpl implements BehaviourManager {
      * @param track the track for which the event is detected.
      */
     @Override
-    public void abnormalBehaviourDetected(Class<? extends Event> eventClass, Track track) {
+    public void abnormalBehaviourDetected(Class<? extends Event> eventClass, Track track, Track... otherTracks) {
         if (!getEventRaised(eventClass, track)) {
             int score = getEventScore(eventClass, track);
 
@@ -89,7 +89,7 @@ public class BehaviourManagerImpl implements BehaviourManager {
                     setEventRaised(eventClass, track, true);
                     setEventScore(eventClass, track, 0);
                     setEventCertaintyOnCurrentPositionReport(eventClass, track);
-                    fireRaiseEvent(eventClass, track);
+                    fireRaiseEvent(eventClass, track, otherTracks);
                 } else {
                     // Threshold not reached. Keep counting.
                     setEventScore(eventClass, track, score);
@@ -202,15 +202,15 @@ public class BehaviourManagerImpl implements BehaviourManager {
     }
 
     private void fireMaintainEvent(Class<? extends Event> eventClass, Track track) {
-        eventBus.post(new AbnormalEventMaintain(eventClass, track, getEventCertainty(eventClass, track)));
+        eventBus.post(new AbnormalEventMaintain(eventClass, getEventCertainty(eventClass, track), track));
     }
 
-    private void fireRaiseEvent(Class<? extends Event> eventClass, Track track) {
-        eventBus.post(new AbnormalEventRaise(eventClass, track, getEventCertainty(eventClass, track)));
+    private void fireRaiseEvent(Class<? extends Event> eventClass, Track track, Track... otherTracks) {
+        eventBus.post(new AbnormalEventRaise(eventClass, getEventCertainty(eventClass, track), track, otherTracks));
     }
 
     private void fireLowerEvent(Class<? extends Event> eventClass, Track track) {
-        eventBus.post(new AbnormalEventLower(eventClass, track, getEventCertainty(eventClass, track)));
+        eventBus.post(new AbnormalEventLower(eventClass, getEventCertainty(eventClass, track), track));
     }
 
     public static String getEventRaisedKey(Class<? extends Event> eventClass) {
