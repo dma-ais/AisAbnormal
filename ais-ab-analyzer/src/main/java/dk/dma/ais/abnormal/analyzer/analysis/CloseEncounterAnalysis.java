@@ -118,92 +118,95 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
 
     private void analyseCloseEncounters(Collection<Track> allTracks, Track track) {
         clearTrackPairsAnalyzed();
-        if (isSupportVessel.negate().test(track) && isEngagedInTowing.negate().test(track) && isSpeedInvalid.negate().test(track)) {
+        if (
+            isSupportVessel.negate().test(track)   &&
+            isEngagedInTowing.negate().test(track) &&
+            isSpeedInvalid.negate().test(track)    &&
+            (track.getSpeedOverGround() == null || track.getSpeedOverGround() > sogMin)
+        ) {
             findNearByTracks(allTracks, track, 60000, 1852)
                 .stream()
                 .filter(isSupportVessel.negate())
                 .filter(isEngagedInTowing.negate())
                 .forEach(nearByTrack -> {
-                    if (isFishingVessel.test(track) && isFishingVessel.test(nearByTrack)) {
+                    if (isTrackPairAnalyzed(track, nearByTrack)) {
                         return;
                     }
-                    if (isUndefinedVessel.test(track) && isUndefinedVessel.test(nearByTrack)) {
+                    if (isSlowVessel.test(nearByTrack)) {
                         return;
                     }
-                    if (isSlowVessel.test(track) && isSlowVessel.test(nearByTrack)) {
+                    if (nearByTrack.getSpeedOverGround() != null && nearByTrack.getSpeedOverGround() < sogMin) {
                         return;
                     }
                     if (isSmallVessel.test(track) && isSmallVessel.test(nearByTrack)) {
                         return;
                     }
+                    if (isFishingVessel.test(track) && isFishingVessel.test(nearByTrack)) {
+                        return;
+                    }
                     if (isEngagedInFishing.test(track) && isEngagedInFishing.test(nearByTrack)) {
                         return;
                     }
-                    if (! (track.getSpeedOverGround() > sogMin || nearByTrack.getSpeedOverGround() > sogMin)) {
+                    if (isUndefinedVessel.test(track) && isUndefinedVessel.test(nearByTrack)) {
                         return;
                     }
                     analyseCloseEncounter(track, nearByTrack);
-                });
+            });
         }
     }
 
     void analyseCloseEncounter(Track track1, Track track2) {
-        if (track1.getSpeedOverGround() > sogMin && ! isTrackPairAnalyzed(track1, track2)) {
+        final long t = max(track1.getTimeOfLastPositionReport(), track2.getTimeOfLastPositionReport());
 
-            final long t = max(track1.getTimeOfLastPositionReport(), track2.getTimeOfLastPositionReport());
-
-            if (t > track1.getTimeOfLastPositionReport()) {
-                track1.predict(t);
-            }
-            if (t > track2.getTimeOfLastPositionReport()) {
-                track2.predict(t);
-            }
-
-            if (isLastAisTrackingReportTooOld(track1, t)) {
-                LOG.debug("Skipping analysis: MMSI " + track1.getMmsi() + " was predicted for too long.");
-                return;
-            }
-            if (isLastAisTrackingReportTooOld(track2, t)) {
-                LOG.debug("Skipping analysis: MMSI " + track2.getMmsi() + " was predicted for too long.");
-                return;
-            }
-
-            boolean allValuesPresent = false;
-            float track1Cog=Float.NaN, track1Sog=Float.NaN, track2Hdg=Float.NaN;
-            int track1Loa=-1, track1Beam=-1, track1Stern=-1, track1Starboard=-1, track2Loa=-1, track2Beam=-1, track2Stern=-1, track2Starboard=-1;
-            try {
-                track1Cog = track1.getCourseOverGround();
-                track1Sog = track1.getSpeedOverGround();
-                track1Loa = track1.getVesselLength();
-                track1Beam = track1.getVesselBeam();
-                track1Stern = track1.getShipDimensionStern();
-                track1Starboard = track1.getShipDimensionStarboard();
-                track2Hdg = track2.getTrueHeading();
-                track2Loa = track2.getVesselLength();
-                track2Beam = track2.getVesselBeam();
-                track2Stern = track2.getShipDimensionStern();
-                track2Starboard = track2.getShipDimensionStarboard();
-                allValuesPresent = true;
-            } catch(NullPointerException e) {
-            }
-
-            if (allValuesPresent && !Float.isNaN(track1Cog) && !Float.isNaN(track2Hdg)) {
-                Ellipse safetyEllipseTrack1 = safetyZoneService.safetyZone(track1.getPosition(), track1.getPosition(), track1Cog, track1Sog, track1Loa, track1Beam, track1Stern, track1Starboard);
-                Ellipse extentTrack2 = safetyZoneService.vesselExtent(track1.getPosition(), track2.getPosition(), track2Hdg, track2Loa, track2Beam, track2Stern, track2Starboard);
-
-                if (safetyEllipseTrack1 != null && extentTrack2 != null && safetyEllipseTrack1.intersects(extentTrack2)) {
-                    track1.setProperty(Track.SAFETY_ZONE, safetyEllipseTrack1);
-                    track2.setProperty(Track.EXTENT, extentTrack2);
-                    raiseOrMaintainAbnormalEvent(CloseEncounterEvent.class, track1, track2);
-                } else {
-                    lowerExistingAbnormalEventIfExists(CloseEncounterEvent.class, track1);
-                }
-            }
-
-            markTrackPairAnalyzed(track1, track2);
-        } else {
-            LOG.debug("PREVIOUSLY COMPARED " + track1.getMmsi() + " AGAINST " + track2.getMmsi());
+        if (t > track1.getTimeOfLastPositionReport()) {
+            track1.predict(t);
         }
+        if (t > track2.getTimeOfLastPositionReport()) {
+            track2.predict(t);
+        }
+
+        if (isLastAisTrackingReportTooOld(track1, t)) {
+            LOG.debug("Skipping analysis: MMSI " + track1.getMmsi() + " was predicted for too long.");
+            return;
+        }
+        if (isLastAisTrackingReportTooOld(track2, t)) {
+            LOG.debug("Skipping analysis: MMSI " + track2.getMmsi() + " was predicted for too long.");
+            return;
+        }
+
+        boolean allValuesPresent = false;
+        float track1Cog=Float.NaN, track1Sog=Float.NaN, track2Hdg=Float.NaN;
+        int track1Loa=-1, track1Beam=-1, track1Stern=-1, track1Starboard=-1, track2Loa=-1, track2Beam=-1, track2Stern=-1, track2Starboard=-1;
+        try {
+            track1Cog = track1.getCourseOverGround();
+            track1Sog = track1.getSpeedOverGround();
+            track1Loa = track1.getVesselLength();
+            track1Beam = track1.getVesselBeam();
+            track1Stern = track1.getShipDimensionStern();
+            track1Starboard = track1.getShipDimensionStarboard();
+            track2Hdg = track2.getTrueHeading();
+            track2Loa = track2.getVesselLength();
+            track2Beam = track2.getVesselBeam();
+            track2Stern = track2.getShipDimensionStern();
+            track2Starboard = track2.getShipDimensionStarboard();
+            allValuesPresent = true;
+        } catch(NullPointerException e) {
+        }
+
+        if (allValuesPresent && !Float.isNaN(track1Cog) && !Float.isNaN(track2Hdg)) {
+            Ellipse safetyEllipseTrack1 = safetyZoneService.safetyZone(track1.getPosition(), track1.getPosition(), track1Cog, track1Sog, track1Loa, track1Beam, track1Stern, track1Starboard);
+            Ellipse extentTrack2 = safetyZoneService.vesselExtent(track1.getPosition(), track2.getPosition(), track2Hdg, track2Loa, track2Beam, track2Stern, track2Starboard);
+
+            if (safetyEllipseTrack1 != null && extentTrack2 != null && safetyEllipseTrack1.intersects(extentTrack2)) {
+                track1.setProperty(Track.SAFETY_ZONE, safetyEllipseTrack1);
+                track2.setProperty(Track.EXTENT, extentTrack2);
+                raiseOrMaintainAbnormalEvent(CloseEncounterEvent.class, track1, track2);
+            } else {
+                lowerExistingAbnormalEventIfExists(CloseEncounterEvent.class, track1);
+            }
+        }
+
+        markTrackPairAnalyzed(track1, track2);
     }
 
     private Set<String> trackPairsAnalyzed;
