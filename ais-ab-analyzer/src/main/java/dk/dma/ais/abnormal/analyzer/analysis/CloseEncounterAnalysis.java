@@ -250,7 +250,7 @@ public class CloseEncounterAnalysis extends PeriodicAnalysis {
         if (positionReport != null) {
             final long timestamp = positionReport.getTimestamp();
 
-            nearbyTracks = candidateTracks.stream().filter(candidateTrack ->
+            nearbyTracks = candidateTracks.parallelStream().filter(candidateTrack ->
                     candidateTrack.getMmsi() != nearToTrack.getMmsi() &&
                     candidateTrack.getTimeOfLastPositionReport() > 0L &&
                     candidateTrack.getTimeOfLastPositionReport() > timestamp - maxTimestampDeviationMillis &&
