@@ -73,7 +73,7 @@
             <dependency>
                 <groupId>dk.dma.commons</groupId>
                 <artifactId>dma-commons-app</artifactId>
-                <version>0.5-SNAPSHOT</version>
+                <version>0.5</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
