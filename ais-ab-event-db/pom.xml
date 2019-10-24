@@ -46,7 +46,7 @@
         <dependency>
             <groupId>dk.dma.enav</groupId>
             <artifactId>enav-model</artifactId>
-            <version>0.5-SNAPSHOT</version>
+            <version>0.6</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
